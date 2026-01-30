@@ -1,4 +1,4 @@
-import api from "@/lib/axios";
+import { apiAssistant } from "@/lib/axios";
 
 interface AssistantParams {
     description: string;
@@ -14,14 +14,24 @@ interface AssistantResponse {
     };
 }
 
-export async function assistant({ description }: AssistantParams) {
-    const assistantApiUrl = process.env.NEXT_PUBLIC_ASSISTANT_API_URL;
+interface HealthResponse {
+    status: string;
+    timestamp: string;
+}
 
-    if (!assistantApiUrl) {
-        throw new Error("NEXT_PUBLIC_ASSISTANT_AP_IURL is not set");
+export async function checkAssistantHealth(): Promise<HealthResponse> {
+    try {
+        const response = await apiAssistant.get<HealthResponse>('/health');
+        return response.data;
+    } catch (error) {
+        console.error('Health check failed:', error);
+        throw error;
     }
+}
+
+export async function assistant({ description }: AssistantParams) {
     
-    const response = await api.post<AssistantResponse>(assistantApiUrl, {
+    const response = await apiAssistant.post<AssistantResponse>('/api/assistant', {
         description
     });
 

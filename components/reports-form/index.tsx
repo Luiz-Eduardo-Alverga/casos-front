@@ -21,7 +21,9 @@ interface ReportsFormProps {
   modulosOptions: ComboboxOption[];
   origensOptions: ComboboxOption[];
   categoriasOptions: ComboboxOption[];
-  usuariosOptions: ComboboxOption[];
+  relatoresOptions: ComboboxOption[];
+  devOptions: ComboboxOption[];
+  qasOptions: ComboboxOption[];
   // Loading states
   isProdutosLoading?: boolean;
   isVersoesLoading?: boolean;
@@ -41,6 +43,7 @@ interface ReportsFormProps {
   produtoSelecionado?: { setor: string } | null;
   onCreateCaso?: (data: any) => Promise<any>;
   isCreatingCaso?: boolean;
+  isSubmitting?: boolean;
 }
 
 export function ReportsForm({
@@ -50,7 +53,9 @@ export function ReportsForm({
   modulosOptions,
   origensOptions,
   categoriasOptions,
-  usuariosOptions,
+  relatoresOptions,
+  devOptions,
+  qasOptions,
   importanceOptions,
   isProdutosLoading,
   isVersoesLoading,
@@ -70,8 +75,12 @@ export function ReportsForm({
   produtoSelecionado,
   onCreateCaso,
   isCreatingCaso = false,
+  isSubmitting = false,
 }: ReportsFormProps) {
-  const { register, handleSubmit, reset } = useFormContext();
+  const { register, handleSubmit, reset, formState: { errors } } = useFormContext();
+  
+  // Desabilitar todos os campos durante submissão
+  const isDisabled = isSubmitting || isCreatingCaso;
   
   const onSubmit = async (data: any) => {
     
@@ -95,8 +104,6 @@ export function ReportsForm({
         AtribuidoPara: Number(data.devAtribuido),
         QaId: Number(data.qaAtribuido),
         DescricaoResumo: data.DescricaoResumo || "",
-        // Garante que a API receba as quebras de linha como o usuário digitou no textarea
-        // (muitos backends/relatórios esperam CRLF)
         DescricaoCompleta: (data.DescricaoCompleta || "").replace(/\r?\n/g, "\r\n"),
         InformacoesAdicionais: data.InformacoesAdicionais || "",
         status: "1",
@@ -141,6 +148,7 @@ export function ReportsForm({
                 emptyText={isProdutosLoading ? "Carregando produtos..." : "Nenhum produto encontrado."}
                 onSearchChange={onProdutosSearchChange}
                 searchDebounceMs={450}
+                disabled={isDisabled}
               />
             </div>
 
@@ -161,7 +169,7 @@ export function ReportsForm({
                 }
                 onSearchChange={onVersoesSearchChange}
                 searchDebounceMs={450}
-                disabled={!produto || !produtoSelecionado}
+                disabled={isDisabled || !produto || !produtoSelecionado}
               />
             </div>
 
@@ -173,7 +181,7 @@ export function ReportsForm({
                 icon={AlertTriangle}
                 options={importanceOptions}
                 placeholder="Selecione a importância..."
-                disabled={!produto || !produtoSelecionado}
+                disabled={isDisabled || !produto || !produtoSelecionado}
               />
             </div>
 
@@ -188,7 +196,7 @@ export function ReportsForm({
                 emptyText={isProjetosLoading ? "Carregando projetos..." : "Nenhum projeto encontrado."}
                 onSearchChange={onProjetosSearchChange}
                 searchDebounceMs={450}
-                disabled={!produto || !produtoSelecionado}
+                disabled={isDisabled || !produto || !produtoSelecionado}
               />
             </div>
 
@@ -203,7 +211,7 @@ export function ReportsForm({
                 emptyText={isModulosLoading ? "Carregando módulos..." : "Nenhum módulo encontrado."}
                 onSearchChange={onModulosSearchChange}
                 searchDebounceMs={450}
-                disabled={!produto || !produtoSelecionado}
+                disabled={isDisabled || !produto || !produtoSelecionado}
               />
             </div>
 
@@ -218,7 +226,7 @@ export function ReportsForm({
                 emptyText={isOrigensLoading ? "Carregando origens..." : "Nenhuma origem encontrada."}
                 onSearchChange={onOrigensSearchChange}
                 searchDebounceMs={450}
-                disabled={!produto || !produtoSelecionado}
+                disabled={isDisabled || !produto || !produtoSelecionado}
               />
             </div>
 
@@ -233,7 +241,7 @@ export function ReportsForm({
                 emptyText={isCategoriasLoading ? "Carregando categorias..." : "Nenhuma categoria encontrada."}
                 onSearchChange={onCategoriasSearchChange}
                 searchDebounceMs={450}
-                disabled={!produto || !produtoSelecionado}
+                disabled={isDisabled || !produto || !produtoSelecionado}
               />
             </div>
 
@@ -243,12 +251,12 @@ export function ReportsForm({
                 name="relator"
                 label="Relator"
                 icon={User}
-                options={usuariosOptions}
+                options={relatoresOptions}
                 placeholder="Selecione o relator..."
                 emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
                 onSearchChange={onUsuariosSearchChange}
                 searchDebounceMs={450}
-                disabled={!produto || !produtoSelecionado}
+                disabled={isDisabled || !produto || !produtoSelecionado}
               />
             </div>
 
@@ -258,12 +266,12 @@ export function ReportsForm({
                 name="devAtribuido"
                 label="Dev atribuído"
                 icon={User}
-                options={usuariosOptions}
+                options={devOptions}
                 placeholder="Selecione o dev atribuído..."
                 emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
                 onSearchChange={onUsuariosSearchChange}
                 searchDebounceMs={450}
-                disabled={!produto || !produtoSelecionado}
+                disabled={isDisabled || !produto || !produtoSelecionado}
               />
             </div>
 
@@ -273,12 +281,12 @@ export function ReportsForm({
                 name="qaAtribuido"
                 label="QA Atribuído"
                 icon={User}
-                options={usuariosOptions}
+                options={qasOptions}
                 placeholder="Selecione o QA atribuído..."
                 emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
                 onSearchChange={onUsuariosSearchChange}
                 searchDebounceMs={450}
-                disabled={!produto || !produtoSelecionado}
+                disabled={isDisabled || !produto || !produtoSelecionado}
               />
             </div>
           </div>
@@ -295,7 +303,11 @@ export function ReportsForm({
                 id="summary"
                 {...register("DescricaoResumo")}
                 placeholder="Resumo breve do problema"
+                disabled={isDisabled}
               />
+              {errors.DescricaoResumo && (
+                <p className="text-sm text-destructive">{errors.DescricaoResumo.message as string}</p>
+              )}
             </div>
 
             {/* Full Description */}
@@ -309,7 +321,11 @@ export function ReportsForm({
                 placeholder="Descrição detalhada do bug ou problema"
                 className="min-h-[100px]"
                 {...register("DescricaoCompleta")}
+                disabled={isDisabled}
               />
+              {errors.DescricaoCompleta && (
+                <p className="text-sm text-destructive">{errors.DescricaoCompleta.message as string}</p>
+              )}
             </div>
 
             {/* Additional Info */}
@@ -323,6 +339,7 @@ export function ReportsForm({
                 placeholder="Qualquer outra informação relevante, capturas de tela, logs, etc."
                 className="min-h-[80px]"
                 {...register("InformacoesAdicionais")}
+                disabled={isDisabled}
               />
             </div>
           </div>
@@ -334,6 +351,7 @@ export function ReportsForm({
               variant="outline"
               onClick={() => reset()}
               className="w-full sm:w-auto"
+              disabled={isDisabled}
             >
               <RotateCcw className="h-4 w-4 mr-2" />
               Limpar Formulário
@@ -341,10 +359,10 @@ export function ReportsForm({
             <Button
               type="submit"
               className="w-full sm:w-auto"
-              disabled={isCreatingCaso}
+              disabled={isDisabled}
             >
               <Send className="h-4 w-4 mr-2" />
-              {isCreatingCaso ? "Criando caso..." : "Abrir caso"}
+              {isDisabled ? "Criando caso..." : "Abrir caso"}
             </Button>
           </div>
         </CardContent>

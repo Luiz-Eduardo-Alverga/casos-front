@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
 import { useAssistant } from "@/hooks/use-assistant";
 import {  importanceOptions } from "@/mocks/teste";
-import { clearAuthData } from "@/lib/auth";
+import { clearAuthData, getUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useProdutos } from "@/hooks/use-produtos";
 import { useVersoes } from "@/hooks/use-versoes";
@@ -21,6 +21,7 @@ import { ReportsAssistant } from "@/components/reports-assistant";
 import { ReportsForm } from "@/components/reports-form";
 import type { Produto } from "@/services/auxiliar/produtos";
 import type { Usuario } from "@/services/auxiliar/usuarios";
+import type { Projeto } from "@/services/auxiliar/projetos";
 import toast from "react-hot-toast";
 
 
@@ -29,19 +30,19 @@ const assistantSFormSchema = z.object({
 });
 
 const reportsFormSchema = z.object({
-  produto: z.string().optional(),
-  importancia: z.string().optional(),
-  modulo: z.string().optional(),
-  categoria: z.string().optional(),
-  devAtribuido: z.string().optional(),
-  versao: z.string().optional(),
-  projeto: z.string().optional(),
-  origem: z.string().optional(),
-  relator: z.string().optional(),
-  qaAtribuido: z.string().optional(),
-  DescricaoResumo: z.string(),
-  DescricaoCompleta: z.string(),
-  InformacoesAdicionais: z.string(),
+  produto: z.string({ required_error: "Produto é obrigatório" }).min(1, "Produto é obrigatório"),
+  importancia: z.string({ required_error: "Importância é obrigatória" }).min(1, "Importância é obrigatória"),
+  modulo: z.string({ required_error: "Módulo é obrigatório" }),
+  categoria: z.string({ required_error: "Categoria é obrigatória" }).min(1, "Categoria é obrigatória"),
+  devAtribuido: z.string({ required_error: "Dev atribuído é obrigatório" }).min(1, "Dev atribuído é obrigatório"),
+  versao: z.string({ required_error: "Versão é obrigatória" }).min(1, "Versão é obrigatória"),
+  projeto: z.string({ required_error: "Projeto é obrigatório" }).min(1, "Projeto é obrigatório"),
+  origem: z.string({ required_error: "Origem é obrigatória" }).min(1, "Origem é obrigatória"),
+  relator: z.string({ required_error: "Relator é obrigatório" }).min(1, "Relator é obrigatório"),
+  qaAtribuido: z.string({ required_error: "QA atribuído é obrigatório" }),
+  DescricaoResumo: z.string({ required_error: "Resumo é obrigatório" }).min(1, "Resumo é obrigatório"),
+  DescricaoCompleta: z.string({ required_error: "Descrição completa é obrigatória" }).min(1, "Descrição completa é obrigatória"),
+  InformacoesAdicionais: z.string().optional(),
 });
 
 type ReportsFormData = z.infer<typeof reportsFormSchema>;
@@ -55,19 +56,22 @@ export  function Reports() {
     resolver: zodResolver(assistantSFormSchema),
   });
 
+  // Obter usuário logado para preencher relator por padrão
+  const user = getUser();
+  
   const methods = useForm<ReportsFormData>({
     resolver: zodResolver(reportsFormSchema),
     defaultValues: {
-      produto: undefined,
+      produto: "",
       importancia: "3",
-      modulo: undefined,
-      categoria: undefined,
-      devAtribuido: undefined,
-      versao: undefined,
-      projeto: undefined,
-      origem: undefined,
-      relator: undefined,
-      qaAtribuido: undefined,
+      modulo: "",
+      categoria: "4",
+      devAtribuido: "",
+      versao: "",
+      projeto: "",
+      origem: "4",
+      relator: user ? String(user.id) : "",
+      qaAtribuido: "",
       DescricaoResumo: "",
       DescricaoCompleta: "",
       InformacoesAdicionais: "",
@@ -150,16 +154,11 @@ export  function Reports() {
   
   const { data: modulos, isLoading: isModulosLoading } = useModulos({
     produto_id: produto,
-    search: modulosSearch.trim() || undefined,
   });
   
-  const { data: origens, isLoading: isOrigensLoading } = useOrigens({
-    search: origensSearch.trim() || undefined,
-  });
+  const { data: origens, isLoading: isOrigensLoading } = useOrigens();
   
-  const { data: categorias, isLoading: isCategoriasLoading } = useCategorias({
-    search: categoriasSearch.trim() || undefined,
-  });
+  const { data: categorias, isLoading: isCategoriasLoading } = useCategorias();
   
   const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios({
     search: usuariosSearch.trim() || undefined,
@@ -206,11 +205,56 @@ export  function Reports() {
 
   const projetosOptions = useMemo(() => {
     if (!projetos || !Array.isArray(projetos)) return [];
-    return projetos.map((p) => ({
+    
+    // Data atual
+    const hoje = new Date();
+    const primeiroDiaMesAtual = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+    
+    // Filtrar projetos: apenas do mês atual e próximos meses
+    // Um projeto é válido se data_final >= primeiro dia do mês atual
+    const projetosFiltrados = projetos.filter((p: Projeto) => {
+      if (!p.data_final) return false;
+      const dataFinal = new Date(p.data_final);
+      return dataFinal >= primeiroDiaMesAtual;
+    });
+    
+    return projetosFiltrados.map((p) => ({
       value: String(p.id),
       label: p.nome_projeto,
     }));
   }, [projetos]);
+  
+  // Encontrar projeto do mês atual e definir como padrão (apenas quando produto está selecionado)
+  useEffect(() => {
+    if (produto && produtoSelecionado && projetos && Array.isArray(projetos) && projetosOptions.length > 0) {
+      const projetoAtual = methods.getValues("projeto");
+      // Só definir se ainda não houver projeto selecionado
+      if (!projetoAtual || projetoAtual === "") {
+        const hoje = new Date();
+        const primeiroDiaMesAtual = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+        const ultimoDiaMesAtual = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+        
+        // Encontrar projeto que está no mês atual
+        const projetoMesAtual = projetos.find((p: Projeto) => {
+          if (!p.data_inicial || !p.data_final) return false;
+          const dataInicial = new Date(p.data_inicial);
+          const dataFinal = new Date(p.data_final);
+          // Projeto está no mês atual se data_inicial <= último dia do mês atual E data_final >= primeiro dia do mês atual
+          return dataInicial <= ultimoDiaMesAtual && dataFinal >= primeiroDiaMesAtual;
+        });
+        
+        if (projetoMesAtual) {
+          methods.setValue("projeto", String(projetoMesAtual.id));
+        } else {
+          // Se não encontrar projeto do mês atual, pegar o primeiro projeto válido (mais próximo)
+          const primeiroProjeto = projetosOptions[0];
+          if (primeiroProjeto) {
+            methods.setValue("projeto", primeiroProjeto.value);
+          }
+        }
+      }
+    }
+  }, [produto, produtoSelecionado, projetos, projetosOptions, methods]);
 
   const modulosOptions = useMemo(() => {
     if (!modulos || !Array.isArray(modulos)) return [];
@@ -237,49 +281,31 @@ export  function Reports() {
     }));
   }, [categorias]);
 
-  const usuariosOptions = useMemo(() => {
+  const relatoresOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
+    
+    // Adiciona usuário logado (relator padrão)
+    if (user) {
+      options.push({
+        value: user.id.toString(),
+        label: user.nome,
+      });
+    }
     
     // Adiciona usuários da API
     if (usuarios && Array.isArray(usuarios)) {
       usuarios.forEach((u) => {
         options.push({
           value: u.id,
-          label: `${u.nome_suporte} - ${u.setor}`,
+          label: u.nome_suporte,
         });
       });
-    }
-    
-    // Adiciona dev selecionado se não estiver nas opções
-    if (devAtribuido && devSelecionado) {
-      const devValue = devSelecionado.id;
-      const devLabel = `${devSelecionado.nome_suporte} - ${devSelecionado.setor}`;
-      const jaExiste = options.some(opt => opt.value === devValue);
-      if (!jaExiste) {
-        options.unshift({
-          value: devValue,
-          label: devLabel,
-        });
-      }
-    }
-    
-    // Adiciona QA selecionado se não estiver nas opções
-    if (qaAtribuido && qaSelecionado) {
-      const qaValue = qaSelecionado.id;
-      const qaLabel = `${qaSelecionado.nome_suporte} - ${qaSelecionado.setor}`;
-      const jaExiste = options.some(opt => opt.value === qaValue);
-      if (!jaExiste) {
-        options.unshift({
-          value: qaValue,
-          label: qaLabel,
-        });
-      }
     }
     
     // Adiciona relator selecionado se não estiver nas opções
     if (relator && relatorSelecionado) {
       const relatorValue = relatorSelecionado.id;
-      const relatorLabel = `${relatorSelecionado.nome_suporte} - ${relatorSelecionado.setor}`;
+      const relatorLabel = relatorSelecionado.nome_suporte;
       const jaExiste = options.some(opt => opt.value === relatorValue);
       if (!jaExiste) {
         options.unshift({
@@ -290,7 +316,65 @@ export  function Reports() {
     }
     
     return options;
-  }, [usuarios, devAtribuido, devSelecionado, qaAtribuido, qaSelecionado, relator, relatorSelecionado]);
+  }, [usuarios, relator, relatorSelecionado, user]);
+
+  const devOptions = useMemo(() => {
+    const options: Array<{ value: string; label: string }> = [];
+    
+    // Adiciona usuários da API
+    if (usuarios && Array.isArray(usuarios)) {
+      usuarios.forEach((u) => {
+        options.push({
+          value: u.id,
+          label: u.nome_suporte,
+        });
+      });
+    }
+    
+    // Adiciona dev selecionado se não estiver nas opções
+    if (devAtribuido && devSelecionado) {
+      const devValue = devSelecionado.id;
+      const devLabel = devSelecionado.nome_suporte;
+      const jaExiste = options.some(opt => opt.value === devValue);
+      if (!jaExiste) {
+        options.unshift({
+          value: devValue,
+          label: devLabel,
+        });
+      }
+    }
+    
+    return options;
+  }, [usuarios, devAtribuido, devSelecionado]);
+
+  const qasOptions = useMemo(() => {
+    const options: Array<{ value: string; label: string }> = [];
+    
+    // Adiciona usuários da API
+    if (usuarios && Array.isArray(usuarios)) {
+      usuarios.forEach((u) => {
+        options.push({
+          value: u.id,
+          label: u.nome_suporte,
+        });
+      });
+    }
+    
+    // Adiciona QA selecionado se não estiver nas opções
+    if (qaAtribuido && qaSelecionado) {
+      const qaValue = qaSelecionado.id;
+      const qaLabel = qaSelecionado.nome_suporte;
+      const jaExiste = options.some(opt => opt.value === qaValue);
+      if (!jaExiste) {
+        options.unshift({
+          value: qaValue,
+          label: qaLabel,
+        });
+      }
+    }
+    
+    return options;
+  }, [usuarios, qaAtribuido, qaSelecionado]);
 
   // Quando o produto é selecionado, buscar e salvar os dados completos
   useEffect(() => {
@@ -342,14 +426,16 @@ export  function Reports() {
 
   // Ao trocar produto, limpar versão selecionada, busca de versões, projeto e módulo selecionados
   useEffect(() => {
-    methods.setValue("versao", undefined);
-    methods.setValue("projeto", undefined);
-    methods.setValue("modulo", undefined);
-    setVersoesSearch("");
-    setProjetosSearch("");
-    setModulosSearch("");
-    setCategoriasSearch("");
-    setUsuariosSearch("");
+    if (produto) {
+      methods.setValue("versao", "");
+      methods.setValue("projeto", "");
+      methods.setValue("modulo", "");
+      setVersoesSearch("");
+      setProjetosSearch("");
+      setModulosSearch("");
+      setCategoriasSearch("");
+      setUsuariosSearch("");
+    }
   }, [produto, methods]);
   
 
@@ -377,7 +463,9 @@ export  function Reports() {
             modulosOptions={modulosOptions}
             origensOptions={origensOptions}
             categoriasOptions={categoriasOptions}
-            usuariosOptions={usuariosOptions}
+            relatoresOptions={relatoresOptions}
+            devOptions={devOptions}
+            qasOptions={qasOptions}
             isProdutosLoading={isProdutosLoading}
             importanceOptions={importanceOptions}
             isVersoesLoading={isVersoesLoading}
@@ -395,6 +483,7 @@ export  function Reports() {
             onUsuariosSearchChange={setUsuariosSearch}
             produtoSelecionado={produtoSelecionado}
             produto={produto}
+            isSubmitting={methods.formState.isSubmitting}
           />
         </FormProvider>
       </div>

@@ -10,6 +10,6 @@ export function useCategorias(params?: {
   
   return useQuery({
     queryKey: ["categorias", params?.search ?? ""],
-    queryFn: () => getCategorias(params),
+    queryFn: () => getCategorias(),
   });
 }
