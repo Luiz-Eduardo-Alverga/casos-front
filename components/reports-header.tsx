@@ -16,8 +16,8 @@ export function ReportsHeader({ onLogout }: ReportsHeaderProps) {
             <span className="text-lg sm:text-xl font-bold text-primary-foreground">X</span>
           </div>
           <div>
-            <h1 className="text-base sm:text-xl font-bold text-foreground">Sistema de Rastreamento de Bugs</h1>
-            <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Painel de Relatórios Inteligente</p>
+            <h1 className="text-base sm:text-xl font-bold text-foreground">Softcasos</h1>
+            <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Abertura de casos de forma rápida e eficiente</p>
           </div>
         </div>
         <Button
