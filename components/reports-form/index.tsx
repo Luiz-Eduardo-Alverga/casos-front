@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,7 @@ import { RotateCcw, Send, FileText, ListOrdered, Info, BriefcaseBusiness, AlertT
 import { ComboboxField } from "./combobox-field";
 import { ComboboxOption } from "@/components/ui/combobox";
 import { getUser } from "@/lib/auth";
-import toast from "react-hot-toast";
+import { SuccessModal } from "./success-modal";
 
 interface ReportsFormProps {
   // Combobox options
@@ -78,6 +79,8 @@ export function ReportsForm({
   isSubmitting = false,
 }: ReportsFormProps) {
   const { register, handleSubmit, reset, formState: { errors } } = useFormContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [numeroCaso, setNumeroCaso] = useState<number | null>(null);
   
   // Desabilitar todos os campos durante submissão
   const isDisabled = isSubmitting || isCreatingCaso;
@@ -110,9 +113,13 @@ export function ReportsForm({
         Id_Usuario_AberturaCaso: Number(user?.id),
       };
       
-      await onCreateCaso(casoData);
+      const response = await onCreateCaso(casoData);
+      // Armazenar o número do caso e abrir o modal
+      if (response?.data?.registro) {
+        setNumeroCaso(response.data.registro);
+        setIsModalOpen(true);
+      }
       // Resetar formulário após sucesso
-      toast.success("Caso aberto com sucesso");
       reset();
     } catch (error) {
       console.error("Erro ao criar caso:", error);
@@ -367,6 +374,12 @@ export function ReportsForm({
           </div>
         </CardContent>
       </Card>
+
+      <SuccessModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        numeroCaso={numeroCaso}
+      />
     </form>
   );
 }
