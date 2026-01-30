@@ -1,13 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { UserDropDown } from "@/components/user-dropdown";
 
-interface ReportsHeaderProps {
-  onLogout: () => void;
-}
-
-export function ReportsHeader({ onLogout }: ReportsHeaderProps) {
+export function ReportsHeader() {
   return (
     <header className="border-b border-border sticky top-0 z-10 bg-card">
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
@@ -20,14 +15,7 @@ export function ReportsHeader({ onLogout }: ReportsHeaderProps) {
             <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Abertura de casos de forma rápida e eficiente</p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          onClick={onLogout}
-          className="h-8 sm:h-10 text-xs sm:text-sm px-2 sm:px-4"
-        >
-          <LogOut className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-          <span className="hidden sm:inline">Sair</span>
-        </Button>
+        <UserDropDown />
       </div>
     </header>
   );

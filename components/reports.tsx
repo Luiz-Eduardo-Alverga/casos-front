@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
 import { useAssistant } from "@/hooks/use-assistant";
 import {  importanceOptions } from "@/mocks/teste";
-import { clearAuthData, getUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useProdutos } from "@/hooks/use-produtos";
 import { useVersoes } from "@/hooks/use-versoes";
@@ -85,11 +85,6 @@ export  function Reports() {
 
   const { mutateAsync: assistantMutateAsync } = useAssistant();
   const { mutateAsync: createCasoAsync, isPending: isCreatingCaso } = useCreateCaso();
-
-  function handleLogout() {
-    clearAuthData();
-    router.push("/login");
-  }
 
   async function onAssistantSubmit(data: AssistantFormData) {
     try {
@@ -441,7 +436,7 @@ export  function Reports() {
 
   return (
     <div className="min-h-screen bg-background">
-      <ReportsHeader onLogout={handleLogout} />
+      <ReportsHeader />
 
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
         <ReportsAssistant
