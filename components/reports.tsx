@@ -173,7 +173,6 @@ export function Reports() {
 
   const { data: versoes, isLoading: isVersoesLoading } = useVersoes({
     produto_id: produto,
-    search: versoesSearch.trim() || undefined,
   });
   
   const { data: projetos, isLoading: isProjetosLoading } = useProjetos({
