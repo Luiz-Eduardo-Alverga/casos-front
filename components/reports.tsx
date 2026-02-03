@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useAssistant } from "@/hooks/use-assistant";
-import {  importanceOptions } from "@/mocks/teste";
+import { importanceOptions } from "@/mocks/teste";
 import { getUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useProdutos } from "@/hooks/use-produtos";
@@ -17,8 +17,28 @@ import { useCategorias } from "@/hooks/use-categorias";
 import { useUsuarios } from "@/hooks/use-usuarios";
 import { useCreateCaso } from "@/hooks/use-create-caso";
 import { ReportsHeader } from "@/components/reports-header";
-import { ReportsAssistant } from "@/components/reports-assistant";
-import { ReportsForm } from "@/components/reports-form";
+import { AssistantModal } from "@/components/assistant-modal";
+import {
+  CasoFormProvider,
+  CasoForm,
+  CasoFormFieldsGrid,
+  CasoFormFieldsFullWidth,
+  CasoFormProduto,
+  CasoFormVersao,
+  CasoFormImportancia,
+  CasoFormProjeto,
+  CasoFormModulo,
+  CasoFormOrigem,
+  CasoFormCategoria,
+  CasoFormRelator,
+  CasoFormDevAtribuido,
+  CasoFormQaAtribuido,
+  CasoFormDescricaoResumo,
+  CasoFormDescricaoCompleta,
+  CasoFormInformacoesAdicionais,
+  CasoFormActions,
+} from "@/components/caso-form";
+import { SuccessModal } from "@/components/reports-form/success-modal";
 import type { Produto } from "@/services/auxiliar/produtos";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 import type { Projeto } from "@/services/auxiliar/projetos";
@@ -49,10 +69,13 @@ type ReportsFormData = z.infer<typeof reportsFormSchema>;
 
 type AssistantFormData = z.infer<typeof assistantSFormSchema>;
 
-export  function Reports() {
+export function Reports() {
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [numeroCaso, setNumeroCaso] = useState<number | null>(null);
+  const [isAssistantModalOpen, setIsAssistantModalOpen] = useState(false);
 
-  const { register, handleSubmit, formState: { isSubmitting: isAssistantSubmitting }, reset} = useForm<AssistantFormData>({
+  const { register, handleSubmit, reset } = useForm<AssistantFormData>({
     resolver: zodResolver(assistantSFormSchema),
   });
 
@@ -83,12 +106,34 @@ export  function Reports() {
   const qaAtribuido = methods.watch("qaAtribuido");
   const relator = methods.watch("relator");
 
-  const { mutateAsync: assistantMutateAsync } = useAssistant();
+  const { mutateAsync: assistantMutateAsync, isPending: isAssistantPending } = useAssistant();
   const { mutateAsync: createCasoAsync, isPending: isCreatingCaso } = useCreateCaso();
 
-  async function onAssistantSubmit(data: AssistantFormData) {
+  async function onAssistantSubmit(data: AssistantFormData & { audio?: { blob: Blob; url: string; duration: number } | null }) {
     try {
-      const response =await assistantMutateAsync({ description: data.description });
+      // Preparar dados para envio
+      const submitData: any = {
+        description: data.description,
+      };
+
+      // Se houver áudio, preparar para envio (quando a API suportar)
+      if (data.audio?.blob) {
+        // Por enquanto, apenas logamos o áudio
+        // Quando a API suportar, podemos enviar como FormData ou base64
+        console.log("Áudio gravado:", {
+          duration: data.audio.duration,
+          size: data.audio.blob.size,
+          type: data.audio.blob.type,
+        });
+        
+        // TODO: Quando a API suportar áudio, descomentar:
+        // const formData = new FormData();
+        // formData.append("description", data.description);
+        // formData.append("audio", data.audio.blob, "audio.webm");
+        // const response = await assistantMutateAsync(formData);
+      }
+
+      const response = await assistantMutateAsync(submitData);
 
       if (response.data.title && response.data.description && response.data.additionalInformation) {
         methods.setValue("DescricaoResumo", response.data.title);
@@ -97,6 +142,7 @@ export  function Reports() {
       }
 
       reset();
+      setIsAssistantModalOpen(false);
 
       toast.success("Título, descrição e informações adicionais preenchidos com sucesso");
     } catch (error) {
@@ -104,8 +150,6 @@ export  function Reports() {
     }
   }
 
-  const [isRecording, setIsRecording] = useState(false);
-  
   // Search states (para debounce - só faz requisição quando usuário digitar)
   const [produtosSearch, setProdutosSearch] = useState<string>("");
   const [versoesSearch, setVersoesSearch] = useState<string>("");
@@ -123,19 +167,9 @@ export  function Reports() {
   const [qaSelecionado, setQaSelecionado] = useState<Usuario | null>(null);
   const [relatorSelecionado, setRelatorSelecionado] = useState<Usuario | null>(null);
   
-  const toggleRecording = () => {
-    setIsRecording(!isRecording);
-    // In a real app, this would trigger audio recording
-    if (!isRecording) {
-      setTimeout(() => setIsRecording(false), 3000); // Auto-stop after 3 seconds for demo
-    }
-  };
-  
   // Produtos / Versões (API)
   // Só faz requisição quando houver busca (após usuário digitar)
-  const { data: produtos, isLoading: isProdutosLoading } = useProdutos({ 
-    search: produtosSearch.trim() || undefined 
-  });
+  const { data: produtos, isLoading: isProdutosLoading } = useProdutos();
 
   const { data: versoes, isLoading: isVersoesLoading } = useVersoes({
     produto_id: produto,
@@ -432,56 +466,125 @@ export  function Reports() {
       setUsuariosSearch("");
     }
   }, [produto, methods]);
-  
+
+  async function onSubmit(data: ReportsFormData) {
+    if (!createCasoAsync) return;
+
+    try {
+      // Extrair apenas a versão do campo versao (formato: "sequencia-versao-idx")
+      const versaoProduto = data.versao ? data.versao.split("-")[1]?.trim() || data.versao : "";
+      const user = getUser();
+
+      // Mapear campos do front para a API
+      const casoData = {
+        Projeto: Number(data.produto),
+        VersaoProduto: versaoProduto,
+        Prioridade: Number(data.importancia),
+        Cronograma_id: Number(data.projeto),
+        Modulo: data.modulo || "",
+        Id_Origem: data.origem || "",
+        Categoria: Number(data.categoria),
+        Relator: Number(data.relator),
+        AtribuidoPara: Number(data.devAtribuido),
+        QaId: Number(data.qaAtribuido),
+        DescricaoResumo: data.DescricaoResumo || "",
+        DescricaoCompleta: (data.DescricaoCompleta || "").replace(/\r?\n/g, "\r\n"),
+        InformacoesAdicionais: data.InformacoesAdicionais || "",
+        status: "1",
+        Id_Usuario_AberturaCaso: String(user?.id || ""),
+      };
+
+      const response = await createCasoAsync(casoData);
+      // Armazenar o número do caso e abrir o modal
+      if (response?.data?.registro) {
+        setNumeroCaso(response.data.registro);
+        setIsModalOpen(true);
+      }
+      // Resetar formulário após sucesso
+      methods.reset();
+    } catch (error) {
+      console.error("Erro ao criar caso:", error);
+    }
+  }
+
+  const providerValue = {
+    form: methods,
+    produtosOptions,
+    versoesOptions,
+    projetosOptions,
+    modulosOptions,
+    origensOptions,
+    categoriasOptions,
+    relatoresOptions,
+    devOptions,
+    qasOptions,
+    importanceOptions,
+    isProdutosLoading,
+    isVersoesLoading,
+    isProjetosLoading,
+    isModulosLoading,
+    isOrigensLoading,
+    isCategoriasLoading,
+    isUsuariosLoading,
+    onProdutosSearchChange: setProdutosSearch,
+    onVersoesSearchChange: setVersoesSearch,
+    onProjetosSearchChange: setProjetosSearch,
+    onModulosSearchChange: setModulosSearch,
+    onOrigensSearchChange: setOrigensSearch,
+    onCategoriasSearchChange: setCategoriasSearch,
+    onUsuariosSearchChange: setUsuariosSearch,
+    produto,
+    produtoSelecionado,
+    isDisabled: methods.formState.isSubmitting || isCreatingCaso,
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <ReportsHeader />
 
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
-        <ReportsAssistant
-          register={register}
-          handleSubmit={handleSubmit}
-          onSubmit={onAssistantSubmit}
-          isRecording={isRecording}
-          onToggleRecording={toggleRecording}
-          isAssistantSubmitting={isAssistantSubmitting}
-        />
+        <CasoFormProvider value={providerValue}>
+          <CasoForm onSubmit={onSubmit}>
+            <CasoFormFieldsGrid>
+              <CasoFormProduto />
+              <CasoFormVersao />
+              <CasoFormImportancia />
+              <CasoFormProjeto />
+              <CasoFormModulo />
+              <CasoFormOrigem />
+              <CasoFormCategoria />
+              <CasoFormRelator />
+              <CasoFormDevAtribuido />
+              <CasoFormQaAtribuido />
+            </CasoFormFieldsGrid>
 
-        <FormProvider {...methods}>
-          <ReportsForm
-            produtosOptions={produtosOptions}
-            isCreatingCaso={isCreatingCaso}
-            onCreateCaso={createCasoAsync}
-            versoesOptions={versoesOptions}
-            projetosOptions={projetosOptions}
-            modulosOptions={modulosOptions}
-            origensOptions={origensOptions}
-            categoriasOptions={categoriasOptions}
-            relatoresOptions={relatoresOptions}
-            devOptions={devOptions}
-            qasOptions={qasOptions}
-            isProdutosLoading={isProdutosLoading}
-            importanceOptions={importanceOptions}
-            isVersoesLoading={isVersoesLoading}
-            isProjetosLoading={isProjetosLoading}
-            isModulosLoading={isModulosLoading}
-            isOrigensLoading={isOrigensLoading}
-            isCategoriasLoading={isCategoriasLoading}
-            isUsuariosLoading={isUsuariosLoading}
-            onProdutosSearchChange={setProdutosSearch}
-            onVersoesSearchChange={setVersoesSearch}
-            onProjetosSearchChange={setProjetosSearch}
-            onModulosSearchChange={setModulosSearch}
-            onOrigensSearchChange={setOrigensSearch}
-            onCategoriasSearchChange={setCategoriasSearch}
-            onUsuariosSearchChange={setUsuariosSearch}
-            produtoSelecionado={produtoSelecionado}
-            produto={produto}
-            isSubmitting={methods.formState.isSubmitting}
-          />
-        </FormProvider>
+            <CasoFormFieldsFullWidth>
+              <CasoFormDescricaoResumo onOpenAssistant={() => setIsAssistantModalOpen(true)} />
+              <CasoFormDescricaoCompleta />
+              <CasoFormInformacoesAdicionais />
+            </CasoFormFieldsFullWidth>
+
+            <CasoFormActions />
+          </CasoForm>
+        </CasoFormProvider>
       </div>
+
+      <AssistantModal
+        isOpen={isAssistantModalOpen}
+        onClose={() => setIsAssistantModalOpen(false)}
+        register={register}
+        handleSubmit={handleSubmit}
+        onSubmit={onAssistantSubmit}
+        isRecording={false}
+        onToggleRecording={() => {}}
+        isAssistantSubmitting={isAssistantPending}
+      />
+
+      <SuccessModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        numeroCaso={numeroCaso}
+      />
     </div>
   );
 }

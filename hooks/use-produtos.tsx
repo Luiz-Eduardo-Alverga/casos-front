@@ -9,7 +9,7 @@ export function useProdutos(params?: { search?: string }) {
   return useQuery({
     queryKey: ["produtos", params?.search ?? ""],
     queryFn: () => getProdutos(params),
-    enabled: !!hasSearch, // Só faz requisição quando houver busca
+    // enabled: !!hasSearch, // Só faz requisição quando houver busca
   });
 }
 
