@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Mic, Loader2, Pause, Trash2 } from "lucide-react";
+import { Sparkles, Mic, Loader2, Pause, Trash2, Check, Play, Square } from "lucide-react";
 import { UseFormRegister, UseFormHandleSubmit } from "react-hook-form";
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 
@@ -49,6 +49,13 @@ export function AssistantModal({
     error,
   } = useAudioRecorder();
 
+  // Controle do valor da descrição para validação
+  const [description, setDescription] = useState("");
+
+  // Controle de reprodução de áudio
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+
   // Formatar tempo como MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -68,16 +75,54 @@ export function AssistantModal({
     }
   };
 
-  const handleDeleteRecording = () => {
-    deleteRecording();
+  const handleStopRecording = async () => {
+    if (isRecording) {
+      await stopRecording();
+    }
+  };
+
+  const handleDeleteRecording = async () => {
+    // Parar reprodução se estiver tocando
+    if (audioElement) {
+      audioElement.pause();
+      audioElement.currentTime = 0;
+      setIsPlaying(false);
+    }
+    await deleteRecording();
+  };
+
+  const handlePlayPause = () => {
+    if (!audioUrl) return;
+
+    if (!audioElement) {
+      // Criar elemento de áudio
+      const audio = new Audio(audioUrl);
+      audio.addEventListener('ended', () => {
+        setIsPlaying(false);
+      });
+      audio.play();
+      setAudioElement(audio);
+      setIsPlaying(true);
+    } else {
+      if (isPlaying) {
+        audioElement.pause();
+        setIsPlaying(false);
+      } else {
+        audioElement.play();
+        setIsPlaying(true);
+      }
+    }
   };
 
   const handleFormSubmit = async (data: any) => {
+    // Não finaliza automaticamente - usuário deve finalizar manualmente
+    const finalAudioBlob = audioBlob;
+    
     // Se houver áudio gravado, incluir no envio
     const submitData = {
       ...data,
-      audio: audioBlob ? {
-        blob: audioBlob,
+      audio: finalAudioBlob ? {
+        blob: finalAudioBlob,
         url: audioUrl,
         duration: recordingTime,
       } : null,
@@ -86,23 +131,46 @@ export function AssistantModal({
     onSubmit(submitData);
     
     // Limpar após envio
-    if (audioBlob) {
-      deleteRecording();
+    if (finalAudioBlob) {
+      await deleteRecording();
     }
   };
 
   // Limpar ao fechar o modal
   useEffect(() => {
     if (!isOpen) {
-      if (isRecording) {
-        stopRecording();
-      }
-      deleteRecording();
+      const cleanup = async () => {
+        if (isRecording) {
+          await stopRecording();
+        }
+        // Parar e limpar áudio
+        if (audioElement) {
+          audioElement.pause();
+          audioElement.currentTime = 0;
+          setIsPlaying(false);
+          setAudioElement(null);
+        }
+        await deleteRecording();
+        setDescription("");
+      };
+      cleanup();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  // Cleanup do elemento de áudio quando o audioUrl mudar
+  useEffect(() => {
+    if (!audioUrl && audioElement) {
+      audioElement.pause();
+      setAudioElement(null);
+      setIsPlaying(false);
+    }
+  }, [audioUrl, audioElement]);
+
   const hasRecording = audioBlob !== null || isRecording;
+
+  // Validação: deve ter descrição OU áudio gravado (não em gravação)
+  const canSubmit = (description.trim() !== "" || audioBlob !== null) && !isAssistantSubmitting;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -141,32 +209,63 @@ export function AssistantModal({
                   </div>
                 )}
 
-                {/* Botão pause/resume */}
+                {/* Botões de controle de gravação */}
                 {isRecording && (
-                  <button
-                    type="button"
-                    onClick={handleToggleRecording}
-                    className="flex-shrink-0 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors"
-                  >
-                    {isPaused ? (
-                      <Mic className="h-5 w-5 text-primary-foreground" />
-                    ) : (
-                      <Pause className="h-5 w-5 text-primary-foreground" />
+                  <div className="flex items-center gap-2">
+                    {/* Botão pause/resume */}
+                    <button
+                      type="button"
+                      onClick={handleToggleRecording}
+                      className="flex-shrink-0 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors"
+                    >
+                      {isPaused ? (
+                        <Mic className="h-5 w-5 text-primary-foreground" />
+                      ) : (
+                        <Pause className="h-5 w-5 text-primary-foreground" />
+                      )}
+                    </button>
+                    
+                    {/* Botão finalizar/salvar (apenas quando pausado) */}
+                    {isPaused && (
+                      <button
+                        type="button"
+                        onClick={handleStopRecording}
+                        className="flex-shrink-0 w-10 h-10 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center transition-colors"
+                        title="Finalizar gravação"
+                      >
+                        <Check className="h-5 w-5 text-white" />
+                      </button>
                     )}
-                  </button>
+                  </div>
                 )}
 
                 {/* Indicador de áudio gravado (quando não está gravando mas tem áudio) */}
                 {!isRecording && audioBlob && (
-                  <div className="flex items-center gap-2 flex-1">
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full" />
-                    <span className="text-sm font-mono text-muted-foreground">
-                      {formatTime(recordingTime)}
-                    </span>
-                    <span className="text-xs text-muted-foreground ml-2">
-                      Áudio gravado
-                    </span>
-                  </div>
+                  <>
+                    <div className="flex items-center gap-2 flex-1">
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full" />
+                      <span className="text-sm font-mono text-muted-foreground">
+                        {formatTime(recordingTime)}
+                      </span>
+                      <span className="text-xs text-muted-foreground ml-2">
+                        Áudio gravado
+                      </span>
+                    </div>
+                    
+                    {/* Botão para reproduzir áudio */}
+                    <button
+                      type="button"
+                      onClick={handlePlayPause}
+                      className="flex-shrink-0 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors"
+                      title={isPlaying ? "Parar áudio" : "Reproduzir áudio"}
+                    >
+                      {isPlaying ? (
+                        <Square className="h-5 w-5 text-primary-foreground" />
+                      ) : (
+                        <Play className="h-5 w-5 text-primary-foreground" />
+                      )}
+                    </button>
+                  </>
                 )}
               </div>
             )}
@@ -177,8 +276,10 @@ export function AssistantModal({
                 <Textarea
                   placeholder="Descreva o problema com suas próprias palavras... (ex: 'O botão de login não funciona no Safari do iPhone')"
                   className="min-h-[120px] resize-none text-sm pr-12 pb-10"
-                  {...register("description")}
-                  disabled={isRecording}
+                  {...register("description", {
+                    onChange: (e) => setDescription(e.target.value)
+                  })}
+                  disabled={isRecording || isPaused}
                 />
                 {/* Microphone Button inside textarea */}
                 {!hasRecording && (
@@ -207,7 +308,7 @@ export function AssistantModal({
               </Button>
               <Button
                 type="submit"
-                disabled={isAssistantSubmitting}
+                disabled={!canSubmit}
               >
                 {isAssistantSubmitting ? (
                   <>

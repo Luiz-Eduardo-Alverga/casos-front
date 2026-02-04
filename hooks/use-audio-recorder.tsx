@@ -9,10 +9,10 @@ interface UseAudioRecorderReturn {
   audioBlob: Blob | null;
   audioUrl: string | null;
   startRecording: () => Promise<void>;
-  stopRecording: () => void;
+  stopRecording: () => Promise<Blob | null>;
   pauseRecording: () => void;
   resumeRecording: () => void;
-  deleteRecording: () => void;
+  deleteRecording: () => Promise<void>;
   error: string | null;
 }
 
@@ -112,13 +112,32 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      setIsPaused(false);
-      stopTimer();
-    }
+  const stopRecording = (): Promise<Blob | null> => {
+    return new Promise((resolve) => {
+      if (mediaRecorderRef.current && isRecording) {
+        const currentRecorder = mediaRecorderRef.current;
+        
+        // Adicionar listener temporário para quando parar
+        const handleStop = () => {
+          currentRecorder.removeEventListener('stop', handleStop);
+          // Aguardar um tick para garantir que o blob foi criado no onstop
+          setTimeout(() => {
+            resolve(audioChunksRef.current.length > 0 
+              ? new Blob(audioChunksRef.current, { type: currentRecorder.mimeType })
+              : null
+            );
+          }, 50);
+        };
+        
+        currentRecorder.addEventListener('stop', handleStop);
+        currentRecorder.stop();
+        setIsRecording(false);
+        setIsPaused(false);
+        stopTimer();
+      } else {
+        resolve(audioBlob);
+      }
+    });
   };
 
   const pauseRecording = () => {
@@ -139,8 +158,8 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     }
   };
 
-  const deleteRecording = () => {
-    stopRecording();
+  const deleteRecording = async () => {
+    await stopRecording();
     if (audioUrl) {
       URL.revokeObjectURL(audioUrl);
     }

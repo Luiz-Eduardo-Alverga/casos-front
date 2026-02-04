@@ -112,25 +112,22 @@ export function Reports() {
   async function onAssistantSubmit(data: AssistantFormData & { audio?: { blob: Blob; url: string; duration: number } | null }) {
     try {
       // Preparar dados para envio
-      const submitData: any = {
-        description: data.description,
-      };
+      const submitData: { description?: string; audio?: Blob } = {};
 
-      // Se houver áudio, preparar para envio (quando a API suportar)
+      // Adicionar description se existir
+      if (data.description && data.description.trim()) {
+        submitData.description = data.description;
+      }
+
+      // Se houver áudio, incluir no envio
       if (data.audio?.blob) {
-        // Por enquanto, apenas logamos o áudio
-        // Quando a API suportar, podemos enviar como FormData ou base64
-        console.log("Áudio gravado:", {
-          duration: data.audio.duration,
-          size: data.audio.blob.size,
-          type: data.audio.blob.type,
-        });
-        
-        // TODO: Quando a API suportar áudio, descomentar:
-        // const formData = new FormData();
-        // formData.append("description", data.description);
-        // formData.append("audio", data.audio.blob, "audio.webm");
-        // const response = await assistantMutateAsync(formData);
+        submitData.audio = data.audio.blob;
+      }
+
+      // Validar que pelo menos description ou audio foi fornecido
+      if (!submitData.description && !submitData.audio) {
+        toast.error("Por favor, forneça uma descrição em texto ou grave um áudio");
+        return;
       }
 
       const response = await assistantMutateAsync(submitData);
@@ -147,6 +144,7 @@ export function Reports() {
       toast.success("Título, descrição e informações adicionais preenchidos com sucesso");
     } catch (error) {
       console.error(error);
+      toast.error("Erro ao processar a solicitação. Tente novamente.");
     }
   }
 
