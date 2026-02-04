@@ -42,6 +42,7 @@ import { SuccessModal } from "@/components/reports-form/success-modal";
 import type { Produto } from "@/services/auxiliar/produtos";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 import type { Projeto } from "@/services/auxiliar/projetos";
+import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
 
@@ -138,14 +139,28 @@ export function Reports() {
         methods.setValue("InformacoesAdicionais", response.data.additionalInformation);
       }
 
-      reset();
-      setIsAssistantModalOpen(false);
+    reset();
+    setIsAssistantModalOpen(false);
 
-      toast.success("Título, descrição e informações adicionais preenchidos com sucesso");
-    } catch (error) {
-      console.error(error);
-      toast.error("Erro ao processar a solicitação. Tente novamente.");
+    toast.success("Título, descrição e informações adicionais preenchidos com sucesso");
+  } catch (error) {
+    console.error(error);
+    
+    // Extrair mensagem de erro da API
+    let errorMessage = "Erro ao processar a solicitação. Tente novamente.";
+    
+    if (error instanceof AxiosError && error.response?.data) {
+      // Verificar se há mensagem de erro específica da API
+      const apiError = error.response.data as { error?: string; message?: string };
+      if (apiError.error) {
+        errorMessage = apiError.error;
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
     }
+    
+    toast.error(errorMessage);
+  }
   }
 
   // Search states (para debounce - só faz requisição quando usuário digitar)
