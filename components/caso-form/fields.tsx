@@ -242,7 +242,7 @@ export function CasoFormDescricaoResumo({ onOpenAssistant }: CasoFormDescricaoRe
         {onOpenAssistant && (
           <Button
             type="button"
-            variant="ghost"
+            variant="secondary"
             size="sm"
             onClick={onOpenAssistant}
             className="h-8 text-xs"
