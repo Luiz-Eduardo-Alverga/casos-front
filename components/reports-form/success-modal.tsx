@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface SuccessModalProps {
@@ -81,7 +81,7 @@ export function SuccessModal({ isOpen, onClose, numeroCaso }: SuccessModalProps)
                 >
                   {copied ? (
                     <>
-                      <Check className="h-4 w-4 mr-2" />
+                      <Check className="h-4 w-4" />
                       Copiado!
                     </>
                   ) : (
@@ -92,7 +92,10 @@ export function SuccessModal({ isOpen, onClose, numeroCaso }: SuccessModalProps)
                   )}
                 </Button>
                 <Button className="flex-1" onClick={onClose}>
-                  Voltar para o início
+                  <>
+                    <Plus className="h-4 w-4 " />
+                    Novo caso
+                  </>
                 </Button>
               </div>
             </motion.div>

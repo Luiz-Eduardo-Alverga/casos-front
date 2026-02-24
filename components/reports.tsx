@@ -513,7 +513,10 @@ export function Reports() {
         setIsModalOpen(true);
       }
       // Resetar formulário após sucesso
-      methods.reset();
+      // methods.reset();
+      methods.setValue("DescricaoResumo", "");
+      methods.setValue("DescricaoCompleta", "");
+      methods.setValue("InformacoesAdicionais", "");
     } catch (error) {
       console.error("Erro ao criar caso:", error);
     }

@@ -119,8 +119,7 @@ export function ReportsForm({
         setNumeroCaso(response.data.registro);
         setIsModalOpen(true);
       }
-      // Resetar formulário após sucesso
-      reset();
+
     } catch (error) {
       console.error("Erro ao criar caso:", error);
     }
