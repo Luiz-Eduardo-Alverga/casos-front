@@ -580,6 +580,12 @@ export function Reports() {
             </CasoFormFieldsFullWidth>
 
             <CasoFormActions />
+
+            <SuccessModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              numeroCaso={numeroCaso}
+            />
           </CasoForm>
         </CasoFormProvider>
       </div>
@@ -595,11 +601,7 @@ export function Reports() {
         isAssistantSubmitting={isAssistantPending}
       />
 
-      <SuccessModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        numeroCaso={numeroCaso}
-      />
+      
     </div>
   );
 }

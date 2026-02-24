@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Copy, Check, Plus } from "lucide-react";
 import toast from "react-hot-toast";
+import { useFormContext } from "react-hook-form";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -15,7 +16,51 @@ interface SuccessModalProps {
 }
 
 export function SuccessModal({ isOpen, onClose, numeroCaso }: SuccessModalProps) {
+  const { reset } = useFormContext()
   const [copied, setCopied] = useState(false);
+  const [progress, setProgress] = useState(100);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      // Resetar progresso quando o modal fechar
+      setProgress(100);
+      return;
+    }
+
+    // Resetar progresso quando o modal abrir
+    setProgress(100);
+
+    const duration = 15000; // 15 segundos
+    const interval = 50; // Atualizar a cada 50ms para suavidade
+    const steps = duration / interval;
+    const decrement = 100 / steps;
+
+    // Intervalo para atualizar o progresso
+    intervalRef.current = setInterval(() => {
+      setProgress((prev) => {
+        const newProgress = prev - decrement;
+        return newProgress <= 0 ? 0 : newProgress;
+      });
+    }, interval);
+
+    // Timeout para fechar o modal após 15 segundos
+    timeoutRef.current = setTimeout(() => {
+      onClose();
+      reset();  
+    }, duration);
+
+    // Cleanup
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [isOpen, onClose, reset]);
 
   const handleCopy = async () => {
     if (!numeroCaso) return;
@@ -100,6 +145,15 @@ export function SuccessModal({ isOpen, onClose, numeroCaso }: SuccessModalProps)
               </div>
             </motion.div>
           )}
+        </div>
+        {/* Barra de progresso no canto inferior */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted rounded-b-lg overflow-hidden">
+          <motion.div
+            className="h-full bg-primary"
+            initial={{ width: "100%" }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.05, ease: "linear" }}
+          />
         </div>
       </DialogContent>
     </Dialog>
