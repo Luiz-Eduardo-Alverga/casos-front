@@ -1,4 +1,5 @@
 import { getToken, getUser } from "@/lib/auth";
+import { fetchWithAuth } from "@/lib/fetch";
 
 export interface Projeto {
   id: string;
@@ -39,7 +40,7 @@ export async function getProjetos(params?: {
     url.searchParams.set("search", params.search);
   }
 
-  const response = await fetch(url.toString(), {
+  const response = await fetchWithAuth(url.toString(), {
     method: "GET",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

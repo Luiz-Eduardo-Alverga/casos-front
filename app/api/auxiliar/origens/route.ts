@@ -22,8 +22,10 @@ export async function GET(request: Request) {
         "Content-Type": "application/json",
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro na API Route de origens:", error);
-    return Response.json({ error: "Erro ao buscar origens" }, { status: 500 });
+    const status = error?.response?.status || 500;
+    const errorMessage = error?.response?.data?.message || error?.message || "Erro ao buscar origens";
+    return Response.json({ error: errorMessage }, { status });
   }
 }

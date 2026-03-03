@@ -22,9 +22,11 @@ export async function GET(request: Request) {
         "Content-Type": "application/json",
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro na API Route de produtos:", error);
-    return Response.json({ error: "Erro ao buscar produtos" }, { status: 500 });
+    const status = error?.response?.status || 500;
+    const errorMessage = error?.response?.data?.message || error?.message || "Erro ao buscar produtos";
+    return Response.json({ error: errorMessage }, { status });
   }
 }
 

@@ -124,7 +124,7 @@ export function Login() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="Digite sua senha"
                     className="pl-10 pr-10 text-sm sm:text-base"
                     {...register("password")}
                   />

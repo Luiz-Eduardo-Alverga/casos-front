@@ -22,8 +22,10 @@ export async function GET(request: Request) {
         "Content-Type": "application/json",
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro na API Route de categorias:", error);
-    return Response.json({ error: "Erro ao buscar categorias" }, { status: 500 });
+    const status = error?.response?.status || 500;
+    const errorMessage = error?.response?.data?.message || error?.message || "Erro ao buscar categorias";
+    return Response.json({ error: errorMessage }, { status });
   }
 }

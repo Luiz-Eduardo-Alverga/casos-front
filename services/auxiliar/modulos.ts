@@ -1,4 +1,5 @@
 import { getToken } from "@/lib/auth";
+import { fetchWithAuth } from "@/lib/fetch";
 
 export async function getModulos(params: {
   produto_id: string;
@@ -13,7 +14,7 @@ export async function getModulos(params: {
     url.searchParams.set("search", params.search);
   }
 
-  const response = await fetch(url.toString(), {
+  const response = await fetchWithAuth(url.toString(), {
     method: "GET",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

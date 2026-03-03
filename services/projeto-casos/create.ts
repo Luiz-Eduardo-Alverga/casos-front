@@ -1,4 +1,5 @@
 import { getToken, getUser } from "@/lib/auth";
+import { fetchWithAuth } from "@/lib/fetch";
 
 export interface CreateCasoRequest {
   Projeto: number;
@@ -35,7 +36,7 @@ export async function createCaso(data: CreateCasoRequest): Promise<CreateCasoRes
     throw new Error("Usuário não autenticado");
   }
 
-  const response = await fetch("/api/projeto-casos", {
+  const response = await fetchWithAuth("/api/projeto-casos", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

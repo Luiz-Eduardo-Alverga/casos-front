@@ -1,4 +1,5 @@
 import { getToken } from "@/lib/auth";
+import { fetchWithAuth } from "@/lib/fetch";
 
 export interface Versao {
   id: string;
@@ -19,7 +20,7 @@ export async function getVersoes(params: {
   url.searchParams.set("produto_id", params.produto_id);
   if (params.search) url.searchParams.set("search", params.search);
 
-  const response = await fetch(url.toString(), {
+  const response = await fetchWithAuth(url.toString(), {
     method: "GET",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

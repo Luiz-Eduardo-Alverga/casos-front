@@ -1,4 +1,5 @@
 import { getToken } from "@/lib/auth";
+import { fetchWithAuth } from "@/lib/fetch";
 
 export interface Origem {
   id: string;
@@ -16,7 +17,7 @@ export async function getOrigens(params?: {
     url.searchParams.set("search", params.search);
   }
 
-  const response = await fetch(url.toString(), {
+  const response = await fetchWithAuth(url.toString(), {
     method: "GET",
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

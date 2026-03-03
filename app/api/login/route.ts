@@ -17,11 +17,10 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro na API Route de login:', error);
-    return Response.json(
-      { error: 'Erro ao processar requisição de login' },
-      { status: 500 }
-    );
+    const status = error?.response?.status || 500;
+    const errorMessage = error?.response?.data?.message || error?.message || 'Erro ao processar requisição de login';
+    return Response.json({ error: errorMessage }, { status });
   }
 }
