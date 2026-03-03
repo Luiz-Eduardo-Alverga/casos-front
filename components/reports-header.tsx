@@ -10,7 +10,12 @@ export function ReportsHeader() {
 
   return (
     <header 
-      className="fixed left-0 right-0 bg-white border-b border-border top-0 z-30 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.05)] transition-all duration-300 w-full"
+      className="fixed bg-white border-b border-border top-0 z-30 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.05)] transition-all duration-300"
+      style={{
+        left: isCollapsed ? "64px" : "256px",
+        right: "0",
+        width: `calc(100% - ${isCollapsed ? "64px" : "256px"})`
+      }}
     >
       <div className="flex items-center justify-between px-6 h-[60px] w-full">
         {/* Menu Hamburger */}

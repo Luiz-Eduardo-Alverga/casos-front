@@ -36,7 +36,7 @@ import {
 } from "@/components/caso-form";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowLeft, FileText, Bug, Package, Users, Check } from "lucide-react";
+import { Sparkles, ArrowLeft, FileText, Bug, Package, Users, Check, RefreshCcw } from "lucide-react";
 import { SuccessModal } from "@/components/reports-form/success-modal";
 import type { Produto } from "@/services/auxiliar/produtos";
 import type { Usuario } from "@/services/auxiliar/usuarios";
@@ -567,7 +567,7 @@ export function Reports() {
     <div className="min-h-screen bg-page-background flex flex-col">
       <ReportsHeader />
 
-      <div className="container mx-auto px-6 py-6 flex-1 overflow-auto mt-12">
+      <div className="container mx-auto px-6 py-6 flex-1 overflow-auto" style={{ paddingTop: "84px" }}>
         <CasoFormProvider value={providerValue}>
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
@@ -578,6 +578,14 @@ export function Reports() {
                 <p className="text-sm text-text-secondary">Preencha os campos abaixo para criar um novo caso</p>
               </div>
               <div className="flex items-center gap-4 w-full sm:w-auto">
+
+                <Button type="button" variant="outline" className="h-[42px] px-4 flex-1 sm:flex-initial" onClick={() => {
+                  methods.reset();
+                }}>
+                  <RefreshCcw className="h-3.5 w-3.5" />
+                  Limpar formulário
+                </Button>
+
                 <Button
                   type="button"
                   onClick={() => setIsAssistantModalOpen(true)}
