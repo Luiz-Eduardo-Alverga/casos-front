@@ -15,6 +15,7 @@ interface ComboboxFieldProps {
   onSearchChange?: (search: string) => void;
   searchDebounceMs?: number;
   disabled?: boolean;
+  required?: boolean;
 }
 
 export function ComboboxField({
@@ -27,17 +28,18 @@ export function ComboboxField({
   onSearchChange,
   searchDebounceMs,
   disabled = false,
+  required = false,
 }: ComboboxFieldProps) {
   const { control, formState: { errors } } = useFormContext();
   const error = errors[name];
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <Label className="flex items-center gap-2">
-          <Icon className="h-4 w-4 text-primary" />
-          {label}
+      <div className="flex justify-between">
+        <Label className="text-sm font-medium text-text-label">
+          {label} {required && <span className="text-text-error">*</span>}
         </Label>
+
         {error && (
           <p className="text-sm text-destructive">{error.message as string}</p>
         )}
@@ -46,7 +48,7 @@ export function ComboboxField({
         name={name}
         control={control}
         render={({ field }) => (
-          <>
+          <div className="[&_button]:h-[42px] [&_button]:rounded-lg [&_button]:border-border-input">
             <Combobox
               options={options}
               value={field.value}
@@ -57,8 +59,7 @@ export function ComboboxField({
               searchDebounceMs={searchDebounceMs}
               disabled={disabled}
             />
-            
-          </>
+          </div>
         )}
       />
     </div>

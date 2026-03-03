@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
-import { LogOut, X } from "lucide-react";
+import { LogOut, X, ChevronDown, User } from "lucide-react";
 import { getUser, clearAuthData } from "@/lib/auth";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,23 +49,24 @@ export function UserDropDown() {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 sm:gap-3 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg transition-all">
-          <Image
-            src={AVATAR_URL}
-            alt={user.nome || "avatar"}
-            width={40}
-            height={40}
-            className="cursor-pointer rounded-full overflow-hidden hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all duration-200"
-            unoptimized
-          />
-          <div className="flex flex-col items-start">
-          <span className="hidden sm:inline text-sm font-medium text-foreground">
+        <button className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg transition-all">
+          {/* Avatar com borda azul */}
+          <div className="bg-bg-accent-start border border-border-accent rounded-full p-px">
+            <Avatar className="size-8">
+              <AvatarImage src={AVATAR_URL} alt={user.nome} />
+              <AvatarFallback className="bg-muted text-text-label">
+                <User className="h-3.5 w-3.5" />
+              </AvatarFallback>
+            </Avatar>
+          </div>
+          
+          {/* Nome do usuário */}
+          <span className="text-sm font-medium text-text-label">
             {user.nome}
           </span>
-            <span className="text-xs text-muted-foreground">
-              {user.usuario}
-            </span>
-          </div>
+          
+          {/* Chevron Down */}
+          <ChevronDown className="h-3 w-3 text-text-label" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

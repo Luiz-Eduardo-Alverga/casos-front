@@ -275,7 +275,7 @@ export function AssistantModal({
               <div className="relative">
                 <Textarea
                   placeholder="Descreva o problema com suas próprias palavras... (ex: 'O botão de login não funciona no Safari do iPhone')"
-                  className="min-h-[120px] resize-none text-sm pr-12 pb-10"
+                  className="min-h-[120px] resize-none text-sm rounded-lg border-border-input px-[17px] py-[13px] pr-12 pb-10"
                   {...register("description", {
                     onChange: (e) => setDescription(e.target.value)
                   })}
@@ -303,12 +303,14 @@ export function AssistantModal({
                 type="button"
                 variant="outline"
                 onClick={onClose}
+                className="h-[42px]"
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
                 disabled={!canSubmit}
+                className="h-[42px] bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {isAssistantSubmitting ? (
                   <>

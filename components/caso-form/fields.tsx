@@ -1,12 +1,11 @@
 "use client";
 
 import { ReactNode } from "react";
-import { BriefcaseBusiness, AlertTriangle, Package, Tag, User, Rocket, FolderKanban, Activity, FileText, ListOrdered, Info, Sparkles } from "lucide-react";
+import { BriefcaseBusiness, AlertTriangle, Package, Tag, User, Rocket, FolderKanban, Activity, FileText, Bug } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { useCasoForm } from "./provider";
 import { useFormContext } from "react-hook-form";
 
@@ -15,7 +14,7 @@ export function CasoFormProduto() {
   const { produtosOptions, isProdutosLoading, onProdutosSearchChange, isDisabled } = useCasoForm();
   
   return (
-    <div className="space-y-4 md:col-start-1">
+    <div className="space-y-2">
       <ComboboxField
         name="produto"
         label="Produto"
@@ -26,6 +25,7 @@ export function CasoFormProduto() {
         onSearchChange={onProdutosSearchChange}
         searchDebounceMs={450}
         disabled={isDisabled}
+        required
       />
     </div>
   );
@@ -36,16 +36,16 @@ export function CasoFormVersao() {
   const { versoesOptions, isVersoesLoading, onVersoesSearchChange, produto, produtoSelecionado, isDisabled } = useCasoForm();
   
   return (
-    <div className="space-y-4 md:col-start-2">
+    <div className="space-y-2">
       <ComboboxField
         name="versao"
         label="Versão do Produto"
         icon={Rocket}
         options={versoesOptions}
-        placeholder={produto ? "Selecione a versão..." : "Selecione um produto primeiro."}
+        placeholder={produto ? "Selecione a versão..." : "Selecione o produto primeiro."}
         emptyText={
           !produto
-            ? "Selecione um produto primeiro."
+            ? "Selecione o produto primeiro."
             : isVersoesLoading
               ? "Carregando versões..."
               : "Nenhuma versão encontrada."
@@ -53,6 +53,7 @@ export function CasoFormVersao() {
         onSearchChange={onVersoesSearchChange}
         searchDebounceMs={450}
         disabled={isDisabled || !produto || !produtoSelecionado}
+        required
       />
     </div>
   );
@@ -60,17 +61,18 @@ export function CasoFormVersao() {
 
 // Campo Importância
 export function CasoFormImportancia() {
-  const { importanceOptions, produto, produtoSelecionado, isDisabled } = useCasoForm();
+  const { importanceOptions, isDisabled } = useCasoForm();
   
   return (
-    <div className="space-y-4 md:col-start-1">
+    <div className="space-y-2">
       <ComboboxField
         name="importancia"
         label="Importância"
         icon={AlertTriangle}
         options={importanceOptions}
         placeholder="Selecione a importância..."
-        disabled={isDisabled || !produto || !produtoSelecionado}
+        disabled={isDisabled}
+        required
       />
     </div>
   );
@@ -81,17 +83,18 @@ export function CasoFormProjeto() {
   const { projetosOptions, isProjetosLoading, onProjetosSearchChange, produto, produtoSelecionado, isDisabled } = useCasoForm();
   
   return (
-    <div className="space-y-4 md:col-start-2">
+    <div className="space-y-2">
       <ComboboxField
         name="projeto"
         label="Projeto"
         icon={FolderKanban}
         options={projetosOptions}
-        placeholder={produto ? "Selecione o projeto..." : "Selecione um produto primeiro."}
+        placeholder={produto ? "Selecione o projeto..." : "Selecione o produto primeiro."}
         emptyText={isProjetosLoading ? "Carregando projetos..." : "Nenhum projeto encontrado."}
         onSearchChange={onProjetosSearchChange}
         searchDebounceMs={450}
         disabled={isDisabled || !produto || !produtoSelecionado}
+        required
       />
     </div>
   );
@@ -102,17 +105,18 @@ export function CasoFormModulo() {
   const { modulosOptions, isModulosLoading, onModulosSearchChange, produto, produtoSelecionado, isDisabled } = useCasoForm();
   
   return (
-    <div className="space-y-4 md:col-start-1">
+    <div className="space-y-2">
       <ComboboxField
         name="modulo"
         label="Módulo"
         icon={Package}
         options={modulosOptions}
-        placeholder={produto ? "Selecione o módulo..." : "Selecione um produto primeiro."}
+        placeholder={produto ? "Selecione o módulo..." : "Selecione o produto primeiro."}
         emptyText={isModulosLoading ? "Carregando módulos..." : "Nenhum módulo encontrado."}
         onSearchChange={onModulosSearchChange}
         searchDebounceMs={450}
         disabled={isDisabled || !produto || !produtoSelecionado}
+        required
       />
     </div>
   );
@@ -120,10 +124,10 @@ export function CasoFormModulo() {
 
 // Campo Origem
 export function CasoFormOrigem() {
-  const { origensOptions, isOrigensLoading, onOrigensSearchChange, produto, produtoSelecionado, isDisabled } = useCasoForm();
+  const { origensOptions, isOrigensLoading, onOrigensSearchChange, isDisabled } = useCasoForm();
   
   return (
-    <div className="space-y-4 md:col-start-2">
+    <div className="space-y-2">
       <ComboboxField
         name="origem"
         label="Origem"
@@ -133,7 +137,8 @@ export function CasoFormOrigem() {
         emptyText={isOrigensLoading ? "Carregando origens..." : "Nenhuma origem encontrada."}
         onSearchChange={onOrigensSearchChange}
         searchDebounceMs={450}
-        disabled={isDisabled || !produto || !produtoSelecionado}
+        disabled={isDisabled}
+        required
       />
     </div>
   );
@@ -141,10 +146,10 @@ export function CasoFormOrigem() {
 
 // Campo Categoria
 export function CasoFormCategoria() {
-  const { categoriasOptions, isCategoriasLoading, onCategoriasSearchChange, produto, produtoSelecionado, isDisabled } = useCasoForm();
+  const { categoriasOptions, isCategoriasLoading, onCategoriasSearchChange, isDisabled } = useCasoForm();
   
   return (
-    <div className="space-y-4 md:col-start-1">
+    <div className="space-y-2">
       <ComboboxField
         name="categoria"
         label="Categoria"
@@ -154,7 +159,8 @@ export function CasoFormCategoria() {
         emptyText={isCategoriasLoading ? "Carregando categorias..." : "Nenhuma categoria encontrada."}
         onSearchChange={onCategoriasSearchChange}
         searchDebounceMs={450}
-        disabled={isDisabled || !produto || !produtoSelecionado}
+        disabled={isDisabled}
+        required
       />
     </div>
   );
@@ -162,10 +168,10 @@ export function CasoFormCategoria() {
 
 // Campo Relator
 export function CasoFormRelator() {
-  const { relatoresOptions, isUsuariosLoading, onUsuariosSearchChange, produto, produtoSelecionado, isDisabled } = useCasoForm();
+  const { relatoresOptions, isUsuariosLoading, onUsuariosSearchChange, isDisabled } = useCasoForm();
   
   return (
-    <div className="space-y-4 md:col-start-2">
+    <div className="space-y-2">
       <ComboboxField
         name="relator"
         label="Relator"
@@ -175,7 +181,8 @@ export function CasoFormRelator() {
         emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
         onSearchChange={onUsuariosSearchChange}
         searchDebounceMs={450}
-        disabled={isDisabled || !produto || !produtoSelecionado}
+        disabled={isDisabled}
+        required
       />
     </div>
   );
@@ -186,10 +193,10 @@ export function CasoFormDevAtribuido() {
   const { devOptions, isUsuariosLoading, onUsuariosSearchChange, produto, produtoSelecionado, isDisabled } = useCasoForm();
   
   return (
-    <div className="space-y-4 md:col-start-1">
+    <div className="space-y-2">
       <ComboboxField
         name="devAtribuido"
-        label="Dev atribuído"
+        label="Dev Atribuído"
         icon={User}
         options={devOptions}
         placeholder="Selecione o dev atribuído..."
@@ -197,6 +204,7 @@ export function CasoFormDevAtribuido() {
         onSearchChange={onUsuariosSearchChange}
         searchDebounceMs={450}
         disabled={isDisabled || !produto || !produtoSelecionado}
+        required
       />
     </div>
   );
@@ -207,7 +215,7 @@ export function CasoFormQaAtribuido() {
   const { qasOptions, isUsuariosLoading, onUsuariosSearchChange, produto, produtoSelecionado, isDisabled } = useCasoForm();
   
   return (
-    <div className="space-y-4 md:col-start-2">
+    <div className="space-y-2">
       <ComboboxField
         name="qaAtribuido"
         label="QA Atribuído"
@@ -234,34 +242,24 @@ export function CasoFormDescricaoResumo({ onOpenAssistant }: CasoFormDescricaoRe
   
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <Label htmlFor="summary" className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-primary" />
-          Resumo
+      <div className="flex justify-between items-center">
+        <Label htmlFor="summary" className="text-sm font-medium text-text-label">
+          Resumo (Título) <span className="text-text-error">*</span>
         </Label>
-        {onOpenAssistant && (
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={onOpenAssistant}
-            className="h-8 text-xs"
-            disabled={isDisabled}
-          >
-            <Sparkles className="h-3 w-3 mr-1" />
-            Assistente IA
-          </Button>
+
+        {errors.DescricaoResumo && (
+          <p className="text-sm text-destructive">{errors.DescricaoResumo.message as string}</p>
         )}
       </div>
       <Input
         id="summary"
         {...register("DescricaoResumo")}
-        placeholder="Resumo breve do problema"
+        placeholder="Resumo breve do caso"
         disabled={isDisabled}
+        className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
       />
-      {errors.DescricaoResumo && (
-        <p className="text-sm text-destructive">{errors.DescricaoResumo.message as string}</p>
-      )}
+      <p className="text-xs text-text-secondary">O resumo deve ser breve e descritivo</p>
+      
     </div>
   );
 }
@@ -273,20 +271,22 @@ export function CasoFormDescricaoCompleta() {
   
   return (
     <div className="space-y-2">
-      <Label htmlFor="description" className="flex items-center gap-2">
-        <ListOrdered className="h-4 w-4 text-primary" />
-        Descrição Completa
-      </Label>
+      <div className="flex justify-between">
+        <Label htmlFor="description" className="text-sm font-medium text-text-label">
+          Descrição Completa <span className="text-text-error">*</span>
+        </Label>
+
+        {errors.DescricaoCompleta && (
+          <p className="text-sm text-destructive">{errors.DescricaoCompleta.message as string}</p>
+        )}
+      </div>
       <Textarea
         id="description"
-        placeholder="Descrição detalhada do bug ou problema"
-        className="min-h-[100px]"
+        placeholder="Descreva detalhadamente o caso, incluindo contexto, passos para reproduzir e comportamento esperado..."
+        className="min-h-[158px] resize-none rounded-lg border-border-input px-[17px] py-[13px]"
         {...register("DescricaoCompleta")}
         disabled={isDisabled}
       />
-      {errors.DescricaoCompleta && (
-        <p className="text-sm text-destructive">{errors.DescricaoCompleta.message as string}</p>
-      )}
     </div>
   );
 }
@@ -298,14 +298,13 @@ export function CasoFormInformacoesAdicionais() {
   
   return (
     <div className="space-y-2">
-      <Label htmlFor="additionalInfo" className="flex items-center gap-2">
-        <Info className="h-4 w-4 text-primary" />
+      <Label htmlFor="additionalInfo" className="text-sm font-medium text-text-label">
         Informações Adicionais
       </Label>
       <Textarea
         id="additionalInfo"
-        placeholder="Qualquer outra informação relevante, capturas de tela, logs, etc."
-        className="min-h-[80px]"
+        placeholder="Adicione qualquer informação complementar, links, evidências ou observações relevantes..."
+        className="min-h-[88px] resize-none rounded-lg border-border-input px-[17px] py-[13px]"
         {...register("InformacoesAdicionais")}
         disabled={isDisabled}
       />

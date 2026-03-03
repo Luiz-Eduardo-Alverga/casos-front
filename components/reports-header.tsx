@@ -1,21 +1,64 @@
 "use client";
 
+import { Menu, Bell, Moon, Maximize2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { UserDropDown } from "@/components/user-dropdown";
+import { useSidebar } from "@/components/sidebar-provider";
 
 export function ReportsHeader() {
+  const { toggleSidebar, isCollapsed } = useSidebar();
+
   return (
-    <header className="border-b border-border sticky top-0 z-10 bg-card">
-      <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg">
-            <span className="text-lg sm:text-xl font-bold text-primary-foreground">X</span>
-          </div>
-          <div>
-            <h1 className="text-base sm:text-xl font-bold text-foreground">Softcasos</h1>
-            <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Abertura de casos de forma rápida e eficiente</p>
-          </div>
+    <header 
+      className="fixed left-0 right-0 bg-white border-b border-border top-0 z-30 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.05)] transition-all duration-300 w-full"
+    >
+      <div className="flex items-center justify-between px-6 h-[60px] w-full">
+        {/* Menu Hamburger */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 hover:bg-muted"
+          onClick={toggleSidebar}
+        >
+          <Menu className="h-[18px] w-[15.75px] text-foreground" />
+        </Button>
+
+        {/* Right side - Icons and User */}
+        <div className="flex items-center gap-6">
+          {/* Notification Bell */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 hover:bg-muted relative"
+          >
+            <Bell className="h-[18px] w-[15.75px] text-foreground" />
+            <span className="absolute top-[-2.75px] right-[-4px] w-2 h-2 bg-destructive rounded-full border-2 border-white" />
+          </Button>
+
+          {/* Moon Icon (Dark Mode) */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 hover:bg-muted"
+          >
+            <Moon className="h-[18px] w-[13.5px] text-foreground" />
+          </Button>
+
+          {/* Maximize Icon */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 hover:bg-muted"
+          >
+            <Maximize2 className="h-[18px] w-[15.75px] text-foreground" />
+          </Button>
+
+          {/* Vertical Divider */}
+          <div className="h-8 w-px bg-border-input" />
+
+          {/* User Dropdown */}
+          <UserDropDown />
         </div>
-        <UserDropDown />
       </div>
     </header>
   );

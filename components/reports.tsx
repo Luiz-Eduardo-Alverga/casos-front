@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { useAssistant } from "@/hooks/use-assistant";
 import { importanceOptions } from "@/mocks/teste";
 import { getUser } from "@/lib/auth";
@@ -20,9 +20,6 @@ import { ReportsHeader } from "@/components/reports-header";
 import { AssistantModal } from "@/components/assistant-modal";
 import {
   CasoFormProvider,
-  CasoForm,
-  CasoFormFieldsGrid,
-  CasoFormFieldsFullWidth,
   CasoFormProduto,
   CasoFormVersao,
   CasoFormImportancia,
@@ -36,8 +33,10 @@ import {
   CasoFormDescricaoResumo,
   CasoFormDescricaoCompleta,
   CasoFormInformacoesAdicionais,
-  CasoFormActions,
 } from "@/components/caso-form";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Sparkles, ArrowLeft, FileText, Bug, Package, Users, Check } from "lucide-react";
 import { SuccessModal } from "@/components/reports-form/success-modal";
 import type { Produto } from "@/services/auxiliar/produtos";
 import type { Usuario } from "@/services/auxiliar/usuarios";
@@ -565,39 +564,124 @@ export function Reports() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-page-background flex flex-col">
       <ReportsHeader />
 
-      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
+      <div className="container mx-auto px-6 py-6 flex-1 overflow-auto mt-12">
         <CasoFormProvider value={providerValue}>
-          <CasoForm onSubmit={onSubmit}>
-            <CasoFormFieldsGrid>
-              <CasoFormProduto />
-              <CasoFormVersao />
+          <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
+            {/* Header com título, descrição e botões */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
+              <div className="flex flex-col gap-1">
+                <h1 className="text-2xl font-bold text-text-primary">Adicionar Novo Caso</h1>
+                <p className="text-sm text-text-secondary">Preencha os campos abaixo para criar um novo caso</p>
+              </div>
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                <Button
+                  type="button"
+                  onClick={() => setIsAssistantModalOpen(true)}
+                  className="bg-gradient-to-r from-gradient-start to-gradient-end text-white hover:opacity-90 h-[42px] px-4 flex-1 sm:flex-initial"
+                  disabled={isCreatingCaso}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Assistente IA
+                </Button>
+                
+              </div>
+            </div>
+
+            {/* Layout em duas colunas */}
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Coluna esquerda - maior */}
+              <div className="flex-1 flex flex-col gap-6">
+                {/* Card Informações */}
+                <Card className="bg-card shadow-card rounded-lg">
+                  <CardHeader className="p-5 pb-2 border-b border-border-divider">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-3.5 w-3.5 text-text-primary" />
+                      <CardTitle className="text-sm font-semibold text-text-primary">Informações</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-3 space-y-4">
+                    <CasoFormDescricaoResumo  />
+                    <CasoFormDescricaoCompleta />
+                    <CasoFormInformacoesAdicionais />
+                  </CardContent>
+                </Card>
+
+                {/* Card Classificação e Origem */}
+                <Card className="bg-card shadow-card rounded-lg mt-auto">
+                  <CardHeader className="p-5 pb-2 border-b border-border-divider">
+                    <div className="flex items-center gap-2">
+                      <Bug className="h-3.5 w-3.5 text-text-primary" />
+                      <CardTitle className="text-sm font-semibold text-text-primary">Classificação e Origem</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px]">
               <CasoFormImportancia />
-              <CasoFormProjeto />
-              <CasoFormModulo />
               <CasoFormOrigem />
               <CasoFormCategoria />
               <CasoFormRelator />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Coluna direita - menor */}
+              <div className="w-full lg:w-[362px] flex flex-col gap-6">
+                {/* Card Dados do Produto */}
+                <Card className="bg-card shadow-card rounded-lg">
+                  <CardHeader className="p-5 pb-2 border-b border-border-divider">
+                    <div className="flex items-center gap-2">
+                      <Package className="h-3.5 w-3.5 text-text-primary" />
+                      <CardTitle className="text-sm font-semibold text-text-primary">Dados do Produto</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-3 space-y-4">
+                    <CasoFormProduto />
+                    <CasoFormVersao />
+                    <CasoFormModulo />
+                    <CasoFormProjeto />
+                  </CardContent>
+                </Card>
+
+                {/* Card Atribuição */}
+                <Card className="bg-card shadow-card rounded-lg">
+                  <CardHeader className="p-5 pb-2 border-b border-border-divider">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-3.5 w-3.5 text-text-primary" />
+                      <CardTitle className="text-sm font-semibold text-text-primary">Atribuição</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-3 space-y-4">
               <CasoFormDevAtribuido />
               <CasoFormQaAtribuido />
-            </CasoFormFieldsGrid>
+                  </CardContent>
+                </Card>
 
-            <CasoFormFieldsFullWidth>
-              <CasoFormDescricaoResumo onOpenAssistant={() => setIsAssistantModalOpen(true)} />
-              <CasoFormDescricaoCompleta />
-              <CasoFormInformacoesAdicionais />
-            </CasoFormFieldsFullWidth>
-
-            <CasoFormActions />
+                {/* Botão Criar Caso */}
+                <div className="border border-border-accent rounded-lg p-5 bg-gradient-to-br from-bg-accent-start to-bg-accent-end">
+                  <Button
+                    type="submit"
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-[42px]"
+                    disabled={isCreatingCaso || methods.formState.isSubmitting}
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    {isCreatingCaso || methods.formState.isSubmitting ? "Criando Caso..." : "Criar Caso"}
+                  </Button>
+                </div>
+              </div>
+            </div>
 
             <SuccessModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               numeroCaso={numeroCaso}
             />
-          </CasoForm>
+          </form>
+          </FormProvider>
         </CasoFormProvider>
       </div>
 
@@ -611,8 +695,6 @@ export function Reports() {
         onToggleRecording={() => {}}
         isAssistantSubmitting={isAssistantPending}
       />
-
-      
     </div>
   );
 }

@@ -49,13 +49,35 @@ const config: Config = {
 				'3': 'hsl(var(--chart-3))',
 				'4': 'hsl(var(--chart-4))',
 				'5': 'hsl(var(--chart-5))'
-			}
+			},
+			// Cores customizadas do formulário
+			'page-background': 'hsl(var(--page-background))',
+			'text-primary': 'hsl(var(--text-primary))',
+			'text-secondary': 'hsl(var(--text-secondary))',
+			'text-label': 'hsl(var(--text-label))',
+			'text-error': 'hsl(var(--text-error))',
+			'border-input': 'hsl(var(--border-input))',
+			'border-divider': 'hsl(var(--border-divider))',
+			'button-secondary': 'hsl(var(--button-secondary))',
+			'gradient-start': 'hsl(var(--gradient-start))',
+			'gradient-end': 'hsl(var(--gradient-end))',
+			'border-accent': 'hsl(var(--border-accent))',
+			'bg-accent-start': 'hsl(var(--bg-accent-start))',
+			'bg-accent-end': 'hsl(var(--bg-accent-end))',
+			// Cores da sidebar
+			'sidebar-bg': 'hsl(var(--sidebar-bg))',
+			'sidebar-border': 'hsl(var(--sidebar-border))',
+			'sidebar-text': 'hsl(var(--sidebar-text))',
+			'sidebar-text-secondary': 'hsl(var(--sidebar-text-secondary))',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+		boxShadow: {
+			'card': 'var(--shadow-card)',
+		}
   	}
   },
   plugins: [require("tailwindcss-animate")],
