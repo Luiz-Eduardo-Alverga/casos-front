@@ -201,9 +201,7 @@ export function Reports() {
   
   const { data: categorias, isLoading: isCategoriasLoading } = useCategorias();
   
-  const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios({
-    search: usuariosSearch.trim() || undefined,
-  });
+  const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios();
 
   const produtosOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
@@ -324,35 +322,42 @@ export function Reports() {
 
   const relatoresOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
+    const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
     
     // Adiciona usuário logado (relator padrão)
     if (user) {
-      options.push({
-        value: user.id.toString(),
-        label: user.nome,
-      });
+      const userId = user.id.toString();
+      if (!valuesAdded.has(userId)) {
+        options.push({
+          value: userId,
+          label: user.nome,
+        });
+        valuesAdded.add(userId);
+      }
     }
     
-    // Adiciona usuários da API
+    // Adiciona usuários da API (apenas se não foram adicionados ainda)
     if (usuarios && Array.isArray(usuarios)) {
       usuarios.forEach((u) => {
-        options.push({
-          value: u.id,
-          label: u.nome_suporte,
-        });
+        if (!valuesAdded.has(u.id)) {
+          options.push({
+            value: u.id,
+            label: u.nome_suporte,
+          });
+          valuesAdded.add(u.id);
+        }
       });
     }
     
     // Adiciona relator selecionado se não estiver nas opções
     if (relator && relatorSelecionado) {
       const relatorValue = relatorSelecionado.id;
-      const relatorLabel = relatorSelecionado.nome_suporte;
-      const jaExiste = options.some(opt => opt.value === relatorValue);
-      if (!jaExiste) {
+      if (!valuesAdded.has(relatorValue)) {
         options.unshift({
           value: relatorValue,
-          label: relatorLabel,
+          label: relatorSelecionado.nome_suporte,
         });
+        valuesAdded.add(relatorValue);
       }
     }
     
@@ -361,27 +366,30 @@ export function Reports() {
 
   const devOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
+    const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
     
     // Adiciona usuários da API
     if (usuarios && Array.isArray(usuarios)) {
       usuarios.forEach((u) => {
-        options.push({
-          value: u.id,
-          label: u.nome_suporte,
-        });
+        if (!valuesAdded.has(u.id)) {
+          options.push({
+            value: u.id,
+            label: u.nome_suporte,
+          });
+          valuesAdded.add(u.id);
+        }
       });
     }
     
     // Adiciona dev selecionado se não estiver nas opções
     if (devAtribuido && devSelecionado) {
       const devValue = devSelecionado.id;
-      const devLabel = devSelecionado.nome_suporte;
-      const jaExiste = options.some(opt => opt.value === devValue);
-      if (!jaExiste) {
+      if (!valuesAdded.has(devValue)) {
         options.unshift({
           value: devValue,
-          label: devLabel,
+          label: devSelecionado.nome_suporte,
         });
+        valuesAdded.add(devValue);
       }
     }
     
@@ -390,27 +398,30 @@ export function Reports() {
 
   const qasOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
+    const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
     
     // Adiciona usuários da API
     if (usuarios && Array.isArray(usuarios)) {
       usuarios.forEach((u) => {
-        options.push({
-          value: u.id,
-          label: u.nome_suporte,
-        });
+        if (!valuesAdded.has(u.id)) {
+          options.push({
+            value: u.id,
+            label: u.nome_suporte,
+          });
+          valuesAdded.add(u.id);
+        }
       });
     }
     
     // Adiciona QA selecionado se não estiver nas opções
     if (qaAtribuido && qaSelecionado) {
       const qaValue = qaSelecionado.id;
-      const qaLabel = qaSelecionado.nome_suporte;
-      const jaExiste = options.some(opt => opt.value === qaValue);
-      if (!jaExiste) {
+      if (!valuesAdded.has(qaValue)) {
         options.unshift({
           value: qaValue,
-          label: qaLabel,
+          label: qaSelecionado.nome_suporte,
         });
+        valuesAdded.add(qaValue);
       }
     }
     

@@ -11,6 +11,5 @@ export function useUsuarios(params?: {
   return useQuery({
     queryKey: ["usuarios", params?.search ?? ""],
     queryFn: () => getUsuarios(params),
-    enabled: !!hasSearch, // Só faz requisição quando houver busca
   });
 }
