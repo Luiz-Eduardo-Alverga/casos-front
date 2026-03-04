@@ -275,7 +275,7 @@ export function AssistantModal({
               <div className="relative">
                 <Textarea
                   placeholder="Descreva o problema com suas próprias palavras... (ex: 'O botão de login não funciona no Safari do iPhone')"
-                  className="min-h-[120px] resize-none text-sm rounded-lg border-border-input px-[17px] py-[13px] pr-12 pb-10"
+                  className="min-h-[120px] h-[150px] sm:h-auto resize-none text-sm rounded-lg border-border-input px-[17px] py-[13px] pr-12 pb-10"
                   {...register("description", {
                     onChange: (e) => setDescription(e.target.value)
                   })}
@@ -298,7 +298,7 @@ export function AssistantModal({
             </div>
 
             {/* Submit Button */}
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
               <Button
                 type="button"
                 variant="outline"

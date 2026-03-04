@@ -4,16 +4,24 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  isCollapsed?: boolean
+  isCollapsed?: boolean;
+  isMobileOpen?: boolean;
+  isMobile?: boolean;
 }
 
 const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
-  ({ className, isCollapsed = false, ...props }, ref) => (
+  ({ className, isCollapsed = false, isMobileOpen = false, isMobile = false, ...props }, ref) => (
     <aside
       ref={ref}
       className={cn(
         "fixed left-0 top-0 z-40 h-screen transition-all duration-300 bg-sidebar-bg border-r border-sidebar-border",
-        isCollapsed ? "w-[64px]" : "w-[256px]",
+        isMobile
+          ? isMobileOpen
+            ? "w-[256px] translate-x-0"
+            : "-translate-x-full"
+          : isCollapsed
+          ? "w-[64px]"
+          : "w-[256px]",
         className
       )}
       {...props}

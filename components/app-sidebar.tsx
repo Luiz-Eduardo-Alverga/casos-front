@@ -14,15 +14,17 @@ import { usePathname } from "next/navigation";
 
 interface AppSidebarProps {
   isCollapsed: boolean;
+  isMobileOpen: boolean;
+  isMobile: boolean;
 }
 
-export function AppSidebar({ isCollapsed }: AppSidebarProps) {
+export function AppSidebar({ isCollapsed, isMobileOpen, isMobile }: AppSidebarProps) {
   const pathname = usePathname();
   const isCasosActive = pathname?.includes("/casos");
 
   return (
-    <Sidebar isCollapsed={isCollapsed}>
-      <SidebarHeader className="justify-center">
+    <Sidebar isCollapsed={isCollapsed} isMobileOpen={isMobileOpen} isMobile={isMobile}>
+      <SidebarHeader className="justify-center py-10">
         {isCollapsed ? (
           <Image
             src="/images/icon.png"

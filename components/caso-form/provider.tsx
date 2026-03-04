@@ -3,45 +3,16 @@
 import { createContext, useContext, ReactNode } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { ComboboxOption } from "@/components/ui/combobox";
-import type { Produto } from "@/services/auxiliar/produtos";
 
 interface CasoFormContextValue {
   // Form methods
   form: UseFormReturn<any>;
   
-  // Options
-  produtosOptions: ComboboxOption[];
-  versoesOptions: ComboboxOption[];
-  projetosOptions: ComboboxOption[];
-  modulosOptions: ComboboxOption[];
-  origensOptions: ComboboxOption[];
-  categoriasOptions: ComboboxOption[];
-  relatoresOptions: ComboboxOption[];
-  devOptions: ComboboxOption[];
-  qasOptions: ComboboxOption[];
+  // Options estáticas (mock)
   importanceOptions: ComboboxOption[];
   
-  // Loading states
-  isProdutosLoading: boolean;
-  isVersoesLoading: boolean;
-  isProjetosLoading: boolean;
-  isModulosLoading: boolean;
-  isOrigensLoading: boolean;
-  isCategoriasLoading: boolean;
-  isUsuariosLoading: boolean;
-  
-  // Search handlers
-  onProdutosSearchChange: (search: string) => void;
-  onVersoesSearchChange: (search: string) => void;
-  onProjetosSearchChange: (search: string) => void;
-  onModulosSearchChange: (search: string) => void;
-  onOrigensSearchChange: (search: string) => void;
-  onCategoriasSearchChange: (search: string) => void;
-  onUsuariosSearchChange: (search: string) => void;
-  
-  // State
+  // State para dependências entre campos
   produto?: string;
-  produtoSelecionado?: Produto | null;
   isDisabled: boolean;
 }
 

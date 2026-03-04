@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
@@ -8,13 +8,6 @@ import { useAssistant } from "@/hooks/use-assistant";
 import { importanceOptions } from "@/mocks/teste";
 import { getUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
-import { useProdutos } from "@/hooks/use-produtos";
-import { useVersoes } from "@/hooks/use-versoes";
-import { useProjetos } from "@/hooks/use-projetos";
-import { useModulos } from "@/hooks/use-modulos";
-import { useOrigens } from "@/hooks/use-origens";
-import { useCategorias } from "@/hooks/use-categorias";
-import { useUsuarios } from "@/hooks/use-usuarios";
 import { useCreateCaso } from "@/hooks/use-create-caso";
 import { ReportsHeader } from "@/components/reports-header";
 import { AssistantModal } from "@/components/assistant-modal";
@@ -38,9 +31,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowLeft, FileText, Bug, Package, Users, Check, RefreshCcw } from "lucide-react";
 import { SuccessModal } from "@/components/reports-form/success-modal";
-import type { Produto } from "@/services/auxiliar/produtos";
-import type { Usuario } from "@/services/auxiliar/usuarios";
-import type { Projeto } from "@/services/auxiliar/projetos";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
@@ -102,9 +92,6 @@ export function Reports() {
   });
   
   const produto = methods.watch("produto");
-  const devAtribuido = methods.watch("devAtribuido");
-  const qaAtribuido = methods.watch("qaAtribuido");
-  const relator = methods.watch("relator");
 
   const { mutateAsync: assistantMutateAsync, isPending: isAssistantPending } = useAssistant();
   const { mutateAsync: createCasoAsync, isPending: isCreatingCaso } = useCreateCaso();
@@ -162,332 +149,6 @@ export function Reports() {
   }
   }
 
-  // Search states (para debounce - só faz requisição quando usuário digitar)
-  const [produtosSearch, setProdutosSearch] = useState<string>("");
-  const [versoesSearch, setVersoesSearch] = useState<string>("");
-  const [projetosSearch, setProjetosSearch] = useState<string>("");
-  const [modulosSearch, setModulosSearch] = useState<string>("");
-  const [origensSearch, setOrigensSearch] = useState<string>("");
-  const [categoriasSearch, setCategoriasSearch] = useState<string>("");
-  const [usuariosSearch, setUsuariosSearch] = useState<string>("");
-  
-  // Estado para manter os dados completos do produto selecionado
-  const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null);
-  
-  // Estados para manter os dados completos dos usuários selecionados
-  const [devSelecionado, setDevSelecionado] = useState<Usuario | null>(null);
-  const [qaSelecionado, setQaSelecionado] = useState<Usuario | null>(null);
-  const [relatorSelecionado, setRelatorSelecionado] = useState<Usuario | null>(null);
-  
-  // Produtos / Versões (API)
-  // Só faz requisição quando houver busca (após usuário digitar)
-  const { data: produtos, isLoading: isProdutosLoading } = useProdutos();
-
-  const { data: versoes, isLoading: isVersoesLoading } = useVersoes({
-    produto_id: produto,
-  });
-  
-  const { data: projetos, isLoading: isProjetosLoading } = useProjetos({
-    setor_projeto: produtoSelecionado?.setor,
-    search: projetosSearch.trim() || undefined,
-  });
-  
-  const { data: modulos, isLoading: isModulosLoading } = useModulos({
-    produto_id: produto,
-  });
-  
-  const { data: origens, isLoading: isOrigensLoading } = useOrigens();
-  
-  const { data: categorias, isLoading: isCategoriasLoading } = useCategorias();
-  
-  const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios();
-
-  const produtosOptions = useMemo(() => {
-    const options: Array<{ value: string; label: string }> = [];
-    
-    // Adiciona produtos da API
-    if (produtos && Array.isArray(produtos)) {
-      produtos.forEach((p) => {
-        options.push({
-          value: String(p.id),
-          label: `${p.nome_projeto} - ${p.setor}`,
-        });
-      });
-    }
-    
-    // Se há um produto selecionado e ele não está nas opções, adiciona ele no início
-    if (produto && produtoSelecionado) {
-      const produtoValue = String(produtoSelecionado.id);
-      const produtoLabel = `${produtoSelecionado.nome_projeto} - ${produtoSelecionado.setor}`;
-      
-      // Verifica se já não está nas opções
-      const jaExiste = options.some(opt => opt.value === produtoValue);
-      if (!jaExiste) {
-        options.unshift({
-          value: produtoValue,
-          label: produtoLabel,
-        });
-      }
-    }
-    
-    return options;
-  }, [produtos, produto, produtoSelecionado]);
-
-  const versoesOptions = useMemo(() => {
-    // garantir um `value` único por opção (o Combobox usa `value` como `key`).
-    return (versoes ?? []).map((v, idx) => ({
-      value: `${v.sequencia ?? ""}-${v.versao ?? ""}-${idx}`,
-      label: v.versao,
-    }));
-  }, [versoes]);
-
-  const projetosOptions = useMemo(() => {
-    if (!projetos || !Array.isArray(projetos)) return [];
-    
-    // Data atual
-    const hoje = new Date();
-    const primeiroDiaMesAtual = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-    
-    // Filtrar projetos: apenas do mês atual e próximos meses
-    // Um projeto é válido se data_final >= primeiro dia do mês atual
-    const projetosFiltrados = projetos.filter((p: Projeto) => {
-      if (!p.data_final) return false;
-      const dataFinal = new Date(p.data_final);
-      return dataFinal >= primeiroDiaMesAtual;
-    });
-    
-    return projetosFiltrados.map((p) => ({
-      value: String(p.id),
-      label: p.nome_projeto,
-    }));
-  }, [projetos]);
-  
-  // Encontrar projeto do mês atual e definir como padrão (apenas quando produto está selecionado)
-  useEffect(() => {
-    if (produto && produtoSelecionado && projetos && Array.isArray(projetos) && projetosOptions.length > 0) {
-      const projetoAtual = methods.getValues("projeto");
-      // Só definir se ainda não houver projeto selecionado
-      if (!projetoAtual || projetoAtual === "") {
-        const hoje = new Date();
-        const primeiroDiaMesAtual = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-        const ultimoDiaMesAtual = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
-        
-        // Encontrar projeto que está no mês atual
-        const projetoMesAtual = projetos.find((p: Projeto) => {
-          if (!p.data_inicial || !p.data_final) return false;
-          const dataInicial = new Date(p.data_inicial);
-          const dataFinal = new Date(p.data_final);
-          // Projeto está no mês atual se data_inicial <= último dia do mês atual E data_final >= primeiro dia do mês atual
-          return dataInicial <= ultimoDiaMesAtual && dataFinal >= primeiroDiaMesAtual;
-        });
-        
-        if (projetoMesAtual) {
-          methods.setValue("projeto", String(projetoMesAtual.id));
-        } else {
-          // Se não encontrar projeto do mês atual, pegar o primeiro projeto válido (mais próximo)
-          const primeiroProjeto = projetosOptions[0];
-          if (primeiroProjeto) {
-            methods.setValue("projeto", primeiroProjeto.value);
-          }
-        }
-      }
-    }
-  }, [produto, produtoSelecionado, projetos, projetosOptions, methods]);
-
-  const modulosOptions = useMemo(() => {
-    if (!modulos || !Array.isArray(modulos)) return [];
-    // Retorna array de strings, então mapeamos para o formato do Combobox
-    return modulos.map((modulo) => ({
-      value: modulo,
-      label: modulo,
-    }));
-  }, [modulos]);
-
-  const origensOptions = useMemo(() => {
-    if (!origens || !Array.isArray(origens)) return [];
-    return origens.map((origem) => ({
-      value: origem.id,
-      label: origem.nome,
-    }));
-  }, [origens]);
-
-  const categoriasOptions = useMemo(() => {
-    if (!categorias || !Array.isArray(categorias)) return [];
-    return categorias.map((categoria) => ({
-      value: categoria.id,
-      label: categoria.tipo_categoria,
-    }));
-  }, [categorias]);
-
-  const relatoresOptions = useMemo(() => {
-    const options: Array<{ value: string; label: string }> = [];
-    const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
-    
-    // Adiciona usuário logado (relator padrão)
-    if (user) {
-      const userId = user.id.toString();
-      if (!valuesAdded.has(userId)) {
-        options.push({
-          value: userId,
-          label: user.nome,
-        });
-        valuesAdded.add(userId);
-      }
-    }
-    
-    // Adiciona usuários da API (apenas se não foram adicionados ainda)
-    if (usuarios && Array.isArray(usuarios)) {
-      usuarios.forEach((u) => {
-        if (!valuesAdded.has(u.id)) {
-          options.push({
-            value: u.id,
-            label: u.nome_suporte,
-          });
-          valuesAdded.add(u.id);
-        }
-      });
-    }
-    
-    // Adiciona relator selecionado se não estiver nas opções
-    if (relator && relatorSelecionado) {
-      const relatorValue = relatorSelecionado.id;
-      if (!valuesAdded.has(relatorValue)) {
-        options.unshift({
-          value: relatorValue,
-          label: relatorSelecionado.nome_suporte,
-        });
-        valuesAdded.add(relatorValue);
-      }
-    }
-    
-    return options;
-  }, [usuarios, relator, relatorSelecionado, user]);
-
-  const devOptions = useMemo(() => {
-    const options: Array<{ value: string; label: string }> = [];
-    const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
-    
-    // Adiciona usuários da API
-    if (usuarios && Array.isArray(usuarios)) {
-      usuarios.forEach((u) => {
-        if (!valuesAdded.has(u.id)) {
-          options.push({
-            value: u.id,
-            label: u.nome_suporte,
-          });
-          valuesAdded.add(u.id);
-        }
-      });
-    }
-    
-    // Adiciona dev selecionado se não estiver nas opções
-    if (devAtribuido && devSelecionado) {
-      const devValue = devSelecionado.id;
-      if (!valuesAdded.has(devValue)) {
-        options.unshift({
-          value: devValue,
-          label: devSelecionado.nome_suporte,
-        });
-        valuesAdded.add(devValue);
-      }
-    }
-    
-    return options;
-  }, [usuarios, devAtribuido, devSelecionado]);
-
-  const qasOptions = useMemo(() => {
-    const options: Array<{ value: string; label: string }> = [];
-    const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
-    
-    // Adiciona usuários da API
-    if (usuarios && Array.isArray(usuarios)) {
-      usuarios.forEach((u) => {
-        if (!valuesAdded.has(u.id)) {
-          options.push({
-            value: u.id,
-            label: u.nome_suporte,
-          });
-          valuesAdded.add(u.id);
-        }
-      });
-    }
-    
-    // Adiciona QA selecionado se não estiver nas opções
-    if (qaAtribuido && qaSelecionado) {
-      const qaValue = qaSelecionado.id;
-      if (!valuesAdded.has(qaValue)) {
-        options.unshift({
-          value: qaValue,
-          label: qaSelecionado.nome_suporte,
-        });
-        valuesAdded.add(qaValue);
-      }
-    }
-    
-    return options;
-  }, [usuarios, qaAtribuido, qaSelecionado]);
-
-  // Quando o produto é selecionado, buscar e salvar os dados completos
-  useEffect(() => {
-    if (produto && produtos && Array.isArray(produtos)) {
-      const produtoEncontrado = produtos.find(p => String(p.id) === produto);
-      if (produtoEncontrado) {
-        setProdutoSelecionado(produtoEncontrado);
-      }
-    } else if (!produto) {
-      setProdutoSelecionado(null);
-    }
-  }, [produto, produtos]);
-
-  // Quando dev é selecionado, buscar e salvar os dados completos
-  useEffect(() => {
-    if (devAtribuido && usuarios && Array.isArray(usuarios)) {
-      const devEncontrado = usuarios.find(u => u.id === devAtribuido);
-      if (devEncontrado) {
-        setDevSelecionado(devEncontrado);
-      }
-    } else if (!devAtribuido) {
-      setDevSelecionado(null);
-    }
-  }, [devAtribuido, usuarios]);
-
-  // Quando QA é selecionado, buscar e salvar os dados completos
-  useEffect(() => {
-    if (qaAtribuido && usuarios && Array.isArray(usuarios)) {
-      const qaEncontrado = usuarios.find(u => u.id === qaAtribuido);
-      if (qaEncontrado) {
-        setQaSelecionado(qaEncontrado);
-      }
-    } else if (!qaAtribuido) {
-      setQaSelecionado(null);
-    }
-  }, [qaAtribuido, usuarios]);
-
-  // Quando relator é selecionado, buscar e salvar os dados completos
-  useEffect(() => {
-    if (relator && usuarios && Array.isArray(usuarios)) {
-      const relatorEncontrado = usuarios.find(u => u.id === relator);
-      if (relatorEncontrado) {
-        setRelatorSelecionado(relatorEncontrado);
-      }
-    } else if (!relator) {
-      setRelatorSelecionado(null);
-    }
-  }, [relator, usuarios]);
-
-  // Ao trocar produto, limpar versão selecionada, busca de versões, projeto e módulo selecionados
-  useEffect(() => {
-    if (produto) {
-      methods.setValue("versao", "");
-      methods.setValue("projeto", "");
-      methods.setValue("modulo", "");
-      setVersoesSearch("");
-      setProjetosSearch("");
-      setModulosSearch("");
-      setCategoriasSearch("");
-      setUsuariosSearch("");
-    }
-  }, [produto, methods]);
 
   async function onSubmit(data: ReportsFormData) {
     if (!createCasoAsync) return;
@@ -534,32 +195,8 @@ export function Reports() {
 
   const providerValue = {
     form: methods,
-    produtosOptions,
-    versoesOptions,
-    projetosOptions,
-    modulosOptions,
-    origensOptions,
-    categoriasOptions,
-    relatoresOptions,
-    devOptions,
-    qasOptions,
     importanceOptions,
-    isProdutosLoading,
-    isVersoesLoading,
-    isProjetosLoading,
-    isModulosLoading,
-    isOrigensLoading,
-    isCategoriasLoading,
-    isUsuariosLoading,
-    onProdutosSearchChange: setProdutosSearch,
-    onVersoesSearchChange: setVersoesSearch,
-    onProjetosSearchChange: setProjetosSearch,
-    onModulosSearchChange: setModulosSearch,
-    onOrigensSearchChange: setOrigensSearch,
-    onCategoriasSearchChange: setCategoriasSearch,
-    onUsuariosSearchChange: setUsuariosSearch,
     produto,
-    produtoSelecionado,
     isDisabled: methods.formState.isSubmitting || isCreatingCaso,
   };
 
@@ -567,7 +204,7 @@ export function Reports() {
     <div className="min-h-screen bg-page-background flex flex-col">
       <ReportsHeader />
 
-      <div className="container mx-auto px-6 py-6 flex-1 overflow-auto" style={{ paddingTop: "84px" }}>
+      <div className="px-6 pt-20 py-10 flex-1 overflow-auto" >
         <CasoFormProvider value={providerValue}>
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
@@ -577,9 +214,9 @@ export function Reports() {
                 <h1 className="text-2xl font-bold text-text-primary">Adicionar Novo Caso</h1>
                 <p className="text-sm text-text-secondary">Preencha os campos abaixo para criar um novo caso</p>
               </div>
-              <div className="flex items-center gap-4 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
 
-                <Button type="button" variant="outline" className="h-[42px] px-4 flex-1 sm:flex-initial" onClick={() => {
+                <Button type="button" variant="outline" className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial" onClick={() => {
                   methods.reset();
                 }}>
                   <RefreshCcw className="h-3.5 w-3.5" />
@@ -589,7 +226,7 @@ export function Reports() {
                 <Button
                   type="button"
                   onClick={() => setIsAssistantModalOpen(true)}
-                  className="bg-gradient-to-r from-gradient-start to-gradient-end text-white hover:opacity-90 h-[42px] px-4 flex-1 sm:flex-initial"
+                  className="w-full sm:w-auto bg-gradient-to-r from-gradient-start to-gradient-end text-white hover:opacity-90 h-[42px] px-4 flex-1 sm:flex-initial"
                   disabled={isCreatingCaso}
                 >
                   <Sparkles className="h-3.5 w-3.5" />
@@ -664,8 +301,8 @@ export function Reports() {
                     </div>
                   </CardHeader>
                   <CardContent className="p-6 pt-3 space-y-4">
-              <CasoFormDevAtribuido />
-              <CasoFormQaAtribuido />
+                <CasoFormDevAtribuido />
+                <CasoFormQaAtribuido />
                   </CardContent>
                 </Card>
 
@@ -673,7 +310,7 @@ export function Reports() {
                 <div className="border border-border-accent rounded-lg p-5 bg-gradient-to-br from-bg-accent-start to-bg-accent-end">
                   <Button
                     type="submit"
-                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-[42px]"
+                    className="w-full h-[42px]"
                     disabled={isCreatingCaso || methods.formState.isSubmitting}
                   >
                     <Check className="h-3.5 w-3.5" />

@@ -1,6 +1,5 @@
 // Barrel export
 export { CasoFormProvider, useCasoForm } from "./provider";
-export { CasoForm } from "./form";
 export {
   CasoFormProduto,
   CasoFormVersao,
@@ -15,7 +14,5 @@ export {
   CasoFormDescricaoResumo,
   CasoFormDescricaoCompleta,
   CasoFormInformacoesAdicionais,
-  CasoFormFieldsGrid,
-  CasoFormFieldsFullWidth,
 } from "./fields";
-export { CasoFormActions } from "./actions";
+
