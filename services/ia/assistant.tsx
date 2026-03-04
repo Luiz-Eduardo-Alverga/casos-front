@@ -12,6 +12,19 @@ interface AssistantResponse {
         description: string;
         category: string;
         additionalInformation: string;
+        product: {
+            id: string,
+            nome_projeto: string,
+            setor: string
+        },
+        users: [
+            {
+                id: string,
+                nome_suporte: string,
+                setor: string,
+                usuario_discord: string
+            }
+        ]
     };
 }
 

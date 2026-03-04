@@ -118,17 +118,25 @@ export function Reports() {
       }
 
       const response = await assistantMutateAsync(submitData);
-
+      console.log(response.data);
       if (response.data.title && response.data.description) {
         methods.setValue("DescricaoResumo", response.data.title);
         methods.setValue("DescricaoCompleta", response.data.description);
         methods.setValue("InformacoesAdicionais", response.data.additionalInformation);
       }
 
+      if(response.data.product) {
+        methods.setValue("produto", response.data.product.id);
+      }
+      
+      if(response.data.users) {
+        methods.setValue("devAtribuido", response.data.users[0].id);
+      }
+
     reset();
     setIsAssistantModalOpen(false);
 
-    toast.success("Título, descrição e informações adicionais preenchidos com sucesso");
+    toast.success("Dados preenchidos com sucesso");
   } catch (error) {
     console.error(error);
     
