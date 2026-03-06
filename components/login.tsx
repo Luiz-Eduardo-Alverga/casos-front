@@ -73,8 +73,8 @@ export function Login() {
                     localStorage.removeItem(REMEMBERED_EMAIL_KEY);
                 }
                 
-                // Redirecionar para a página de casos
-                router.push("/casos");
+                // Redirecionar para o painel do desenvolvedor
+                router.push("/painel");
             }
         } catch (error) {
             toast.error("Credenciais inválidas");

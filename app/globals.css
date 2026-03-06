@@ -51,6 +51,29 @@
     --sidebar-border: 215 20% 30%;
     --sidebar-text: 215 10% 80%;
     --sidebar-text-secondary: 215 16% 47%;
+    
+    /* Cores do Painel do Desenvolvedor */
+    --panel-bg: 220 14% 96%;
+    --panel-card-bg: 0 0% 100%;
+    --panel-text-primary: 215 28% 17%;
+    --panel-text-secondary: 215 16% 47%;
+    --panel-border: 220 13% 91%;
+    --panel-border-light: 220 14% 96%;
+    --panel-checkbox-border: 220 13% 91%;
+    --panel-checkbox-checked: 240 100% 50%;
+    --panel-badge-open: 217 91% 60%;
+    --panel-badge-open-bg: 217 95% 93%;
+    --panel-badge-fixed: 142 76% 36%;
+    --panel-badge-fixed-bg: 142 76% 95%;
+    --panel-badge-return: 0 84% 60%;
+    --panel-badge-return-bg: 0 93% 94%;
+    --panel-badge-importance: 142 76% 36%;
+    --panel-badge-importance-bg: 142 76% 95%;
+    --panel-card-border: 220 13% 91%;
+    --panel-card-yellow-accent: 43 96% 56%;
+    --panel-badge-importance-yellow: 43 96% 56%;
+    --panel-badge-importance-yellow-bg: 43 96% 95%;
+    --panel-button-back: 215 25% 27%;
   }
 
   .dark {
@@ -99,6 +122,29 @@
     --sidebar-border: 215 20% 30%;
     --sidebar-text: 215 10% 80%;
     --sidebar-text-secondary: 215 16% 47%;
+    
+    /* Cores do Painel do Desenvolvedor - dark mode */
+    --panel-bg: 224 71.4% 4.1%;
+    --panel-card-bg: 215 27.9% 16.9%;
+    --panel-text-primary: 210 20% 98%;
+    --panel-text-secondary: 217.9 10.6% 64.9%;
+    --panel-border: 215 27.9% 16.9%;
+    --panel-border-light: 215 27.9% 16.9%;
+    --panel-checkbox-border: 215 27.9% 16.9%;
+    --panel-checkbox-checked: 240 100% 50%;
+    --panel-badge-open: 217 91% 60%;
+    --panel-badge-open-bg: 217 95% 93%;
+    --panel-badge-fixed: 142 76% 36%;
+    --panel-badge-fixed-bg: 142 76% 95%;
+    --panel-badge-return: 0 84% 60%;
+    --panel-badge-return-bg: 0 93% 94%;
+    --panel-badge-importance: 142 76% 36%;
+    --panel-badge-importance-bg: 142 76% 95%;
+    --panel-card-border: 215 27.9% 16.9%;
+    --panel-card-yellow-accent: 43 96% 56%;
+    --panel-badge-importance-yellow: 43 96% 56%;
+    --panel-badge-importance-yellow-bg: 43 96% 95%;
+    --panel-button-back: 215 25% 27%;
   }
 }
 

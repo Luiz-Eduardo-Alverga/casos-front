@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { Reports } from "@/components/reports";
 import { ProtectedRoute } from "@/components/protected-route";
 import { SidebarProvider } from "@/components/sidebar-provider";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Header } from "@/components/header";
 import { useSidebar } from "@/components/sidebar-provider";
 import { useEffect, useState } from "react";
 
-function CasosPageContent() {
+function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
 
@@ -27,11 +27,11 @@ function CasosPageContent() {
       setIsMobileOpen(false);
     }
   };
-  
+
   return (
     <div className="flex min-h-screen relative">
       <AppSidebar isCollapsed={isCollapsed} isMobileOpen={isMobileOpen} isMobile={isMobile} />
-      
+
       {/* Overlay para mobile */}
       {isMobile && isMobileOpen && (
         <div
@@ -40,23 +40,26 @@ function CasosPageContent() {
         />
       )}
 
-      <div 
+      <div
         className="flex-1 transition-all duration-300 w-full overflow-hidden"
-        style={{ 
-          marginLeft: isMobile ? "0" : (isCollapsed ? "64px" : "256px")
+        style={{
+          marginLeft: isMobile ? "0" : (isCollapsed ? "64px" : "256px"),
         }}
       >
-        <Reports />
+        <Header />
+        <div className="min-h-screen bg-page-background flex flex-col">
+          {children}
+        </div>
       </div>
     </div>
   );
 }
 
-export default function CasosPage() {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
       <SidebarProvider>
-        <CasosPageContent />
+        <AppLayoutContent>{children}</AppLayoutContent>
       </SidebarProvider>
     </ProtectedRoute>
   );

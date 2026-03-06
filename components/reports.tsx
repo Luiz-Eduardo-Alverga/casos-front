@@ -9,7 +9,6 @@ import { importanceOptions } from "@/mocks/teste";
 import { getUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useCreateCaso } from "@/hooks/use-create-caso";
-import { ReportsHeader } from "@/components/reports-header";
 import { AssistantModal } from "@/components/assistant-modal";
 import {
   CasoFormProvider,
@@ -209,10 +208,7 @@ export function Reports() {
   };
 
   return (
-    <div className="min-h-screen bg-page-background flex flex-col">
-      <ReportsHeader />
-
-      <div className="px-6 pt-20 py-10 flex-1 overflow-auto" >
+    <div className="px-6 pt-20 py-10 flex-1 overflow-auto" >
         <CasoFormProvider value={providerValue}>
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
@@ -223,6 +219,13 @@ export function Reports() {
                 <p className="text-sm text-text-secondary">Preencha os campos abaixo para criar um novo caso</p>
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+
+                <Button type="button" variant="outline" className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial" onClick={() => {
+                  router.push("/painel");
+                }}>
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  Voltar
+                </Button>
 
                 <Button type="button" variant="outline" className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial" onClick={() => {
                   methods.reset();
@@ -336,7 +339,6 @@ export function Reports() {
           </form>
           </FormProvider>
         </CasoFormProvider>
-      </div>
 
       <AssistantModal
         isOpen={isAssistantModalOpen}
