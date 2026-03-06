@@ -15,7 +15,7 @@ export function PublicRoute({ children }: PublicRouteProps) {
   useEffect(() => {
     const checkAuth = () => {
       if (isAuthenticated()) {
-        router.push("/casos");
+        router.push("/painel");
       } else {
         setIsLoading(false);
       }
