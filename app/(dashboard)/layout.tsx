@@ -41,13 +41,13 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
       )}
 
       <div
-        className="flex-1 transition-all duration-300 w-full overflow-hidden"
+        className="flex flex-col flex-1 min-h-screen lg:h-screen transition-all duration-300 w-full overflow-hidden"
         style={{
           marginLeft: isMobile ? "0" : (isCollapsed ? "64px" : "256px"),
         }}
       >
         <Header />
-        <div className="min-h-screen bg-page-background flex flex-col">
+        <div className="flex-1 flex flex-col bg-page-background lg:min-h-0 lg:overflow-hidden">
           {children}
         </div>
       </div>

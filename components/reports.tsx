@@ -28,29 +28,57 @@ import {
 } from "@/components/caso-form";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowLeft, FileText, Bug, Package, Users, Check, RefreshCcw } from "lucide-react";
+import {
+  Sparkles,
+  ArrowLeft,
+  FileText,
+  Bug,
+  Package,
+  Users,
+  Check,
+  RefreshCcw,
+} from "lucide-react";
 import { SuccessModal } from "@/components/reports-form/success-modal";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
-
 
 const assistantSFormSchema = z.object({
   description: z.string(),
 });
 
 const reportsFormSchema = z.object({
-  produto: z.string({ required_error: "Produto é obrigatório" }).min(1, "Produto é obrigatório"),
-  importancia: z.string({ required_error: "Importância é obrigatória" }).min(1, "Importância é obrigatória"),
+  produto: z
+    .string({ required_error: "Produto é obrigatório" })
+    .min(1, "Produto é obrigatório"),
+  importancia: z
+    .string({ required_error: "Importância é obrigatória" })
+    .min(1, "Importância é obrigatória"),
   modulo: z.string({ required_error: "Módulo é obrigatório" }),
-  categoria: z.string({ required_error: "Categoria é obrigatória" }).min(1, "Categoria é obrigatória"),
-  devAtribuido: z.string({ required_error: "Dev atribuído é obrigatório" }).min(1, "Dev atribuído é obrigatório"),
-  versao: z.string({ required_error: "Versão é obrigatória" }).min(1, "Versão é obrigatória"),
-  projeto: z.string({ required_error: "Projeto é obrigatório" }).min(1, "Projeto é obrigatório"),
-  origem: z.string({ required_error: "Origem é obrigatória" }).min(1, "Origem é obrigatória"),
-  relator: z.string({ required_error: "Relator é obrigatório" }).min(1, "Relator é obrigatório"),
+  categoria: z
+    .string({ required_error: "Categoria é obrigatória" })
+    .min(1, "Categoria é obrigatória"),
+  devAtribuido: z
+    .string({ required_error: "Dev atribuído é obrigatório" })
+    .min(1, "Dev atribuído é obrigatório"),
+  versao: z
+    .string({ required_error: "Versão é obrigatória" })
+    .min(1, "Versão é obrigatória"),
+  projeto: z
+    .string({ required_error: "Projeto é obrigatório" })
+    .min(1, "Projeto é obrigatório"),
+  origem: z
+    .string({ required_error: "Origem é obrigatória" })
+    .min(1, "Origem é obrigatória"),
+  relator: z
+    .string({ required_error: "Relator é obrigatório" })
+    .min(1, "Relator é obrigatório"),
   qaAtribuido: z.string({ required_error: "QA atribuído é obrigatório" }),
-  DescricaoResumo: z.string({ required_error: "Resumo é obrigatório" }).min(1, "Resumo é obrigatório"),
-  DescricaoCompleta: z.string({ required_error: "Descrição completa é obrigatória" }).min(1, "Descrição completa é obrigatória"),
+  DescricaoResumo: z
+    .string({ required_error: "Resumo é obrigatório" })
+    .min(1, "Resumo é obrigatório"),
+  DescricaoCompleta: z
+    .string({ required_error: "Descrição completa é obrigatória" })
+    .min(1, "Descrição completa é obrigatória"),
   InformacoesAdicionais: z.string().optional(),
 });
 
@@ -70,7 +98,7 @@ export function Reports() {
 
   // Obter usuário logado para preencher relator por padrão
   const user = getUser();
-  
+
   const methods = useForm<ReportsFormData>({
     resolver: zodResolver(reportsFormSchema),
     defaultValues: {
@@ -89,13 +117,19 @@ export function Reports() {
       InformacoesAdicionais: "",
     },
   });
-  
+
   const produto = methods.watch("produto");
 
-  const { mutateAsync: assistantMutateAsync, isPending: isAssistantPending } = useAssistant();
-  const { mutateAsync: createCasoAsync, isPending: isCreatingCaso } = useCreateCaso();
+  const { mutateAsync: assistantMutateAsync, isPending: isAssistantPending } =
+    useAssistant();
+  const { mutateAsync: createCasoAsync, isPending: isCreatingCaso } =
+    useCreateCaso();
 
-  async function onAssistantSubmit(data: AssistantFormData & { audio?: { blob: Blob; url: string; duration: number } | null }) {
+  async function onAssistantSubmit(
+    data: AssistantFormData & {
+      audio?: { blob: Blob; url: string; duration: number } | null;
+    },
+  ) {
     try {
       // Preparar dados para envio
       const submitData: { description?: string; audio?: Blob } = {};
@@ -112,7 +146,9 @@ export function Reports() {
 
       // Validar que pelo menos description ou audio foi fornecido
       if (!submitData.description && !submitData.audio) {
-        toast.error("Por favor, forneça uma descrição em texto ou grave um áudio");
+        toast.error(
+          "Por favor, forneça uma descrição em texto ou grave um áudio",
+        );
         return;
       }
 
@@ -121,48 +157,55 @@ export function Reports() {
       if (response.data.title && response.data.description) {
         methods.setValue("DescricaoResumo", response.data.title);
         methods.setValue("DescricaoCompleta", response.data.description);
-        methods.setValue("InformacoesAdicionais", response.data.additionalInformation);
+        methods.setValue(
+          "InformacoesAdicionais",
+          response.data.additionalInformation,
+        );
       }
 
-      if(response.data.product) {
+      if (response.data.product) {
         methods.setValue("produto", response.data.product.id);
       }
-      
-      if(response.data.users) {
+
+      if (response.data.users) {
         methods.setValue("devAtribuido", response.data.users[0].id);
       }
 
-    reset();
-    setIsAssistantModalOpen(false);
+      reset();
+      setIsAssistantModalOpen(false);
 
-    toast.success("Dados preenchidos com sucesso");
-  } catch (error) {
-    console.error(error);
-    
-    // Extrair mensagem de erro da API
-    let errorMessage = "Erro ao processar a solicitação. Tente novamente.";
-    
-    if (error instanceof AxiosError && error.response?.data) {
-      // Verificar se há mensagem de erro específica da API
-      const apiError = error.response.data as { error?: string; message?: string };
-      if (apiError.error) {
-        errorMessage = apiError.error;
-      } else if (apiError.message) {
-        errorMessage = apiError.message;
+      toast.success("Dados preenchidos com sucesso");
+    } catch (error) {
+      console.error(error);
+
+      // Extrair mensagem de erro da API
+      let errorMessage = "Erro ao processar a solicitação. Tente novamente.";
+
+      if (error instanceof AxiosError && error.response?.data) {
+        // Verificar se há mensagem de erro específica da API
+        const apiError = error.response.data as {
+          error?: string;
+          message?: string;
+        };
+        if (apiError.error) {
+          errorMessage = apiError.error;
+        } else if (apiError.message) {
+          errorMessage = apiError.message;
+        }
       }
-    }
-    
-    toast.error(errorMessage);
-  }
-  }
 
+      toast.error(errorMessage);
+    }
+  }
 
   async function onSubmit(data: ReportsFormData) {
     if (!createCasoAsync) return;
 
     try {
       // Extrair apenas a versão do campo versao (formato: "sequencia-versao-idx")
-      const versaoProduto = data.versao ? data.versao.split("-")[1]?.trim() || data.versao : "";
+      const versaoProduto = data.versao
+        ? data.versao.split("-")[1]?.trim() || data.versao
+        : "";
       const user = getUser();
 
       // Mapear campos do front para a API
@@ -178,7 +221,10 @@ export function Reports() {
         AtribuidoPara: Number(data.devAtribuido),
         QaId: Number(data.qaAtribuido),
         DescricaoResumo: data.DescricaoResumo || "",
-        DescricaoCompleta: (data.DescricaoCompleta || "").replace(/\r?\n/g, "\r\n"),
+        DescricaoCompleta: (data.DescricaoCompleta || "").replace(
+          /\r?\n/g,
+          "\r\n",
+        ),
         InformacoesAdicionais: data.InformacoesAdicionais || "",
         status: "1",
         Id_Usuario_AberturaCaso: String(user?.id || ""),
@@ -208,28 +254,41 @@ export function Reports() {
   };
 
   return (
-    <div className="px-6 pt-20 py-10 flex-1 overflow-auto" >
-        <CasoFormProvider value={providerValue}>
-          <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit)}>
+    <div className="px-6 pt-20 py-10 flex-1 overflow-auto">
+      <CasoFormProvider value={providerValue}>
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)}>
             {/* Header com título, descrição e botões */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
               <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-bold text-text-primary">Adicionar Novo Caso</h1>
-                <p className="text-sm text-text-secondary">Preencha os campos abaixo para criar um novo caso</p>
+                <h1 className="text-2xl font-bold text-text-primary">
+                  Adicionar Novo Caso
+                </h1>
+                <p className="text-sm text-text-secondary">
+                  Preencha os campos abaixo para criar um novo caso
+                </p>
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-
-                <Button type="button" variant="outline" className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial" onClick={() => {
-                  router.push("/painel");
-                }}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
+                  onClick={() => {
+                    router.push("/painel");
+                  }}
+                >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   Voltar
                 </Button>
 
-                <Button type="button" variant="outline" className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial" onClick={() => {
-                  methods.reset();
-                }}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
+                  onClick={() => {
+                    methods.reset();
+                  }}
+                >
                   <RefreshCcw className="h-3.5 w-3.5" />
                   Limpar formulário
                 </Button>
@@ -243,7 +302,6 @@ export function Reports() {
                   <Sparkles className="h-3.5 w-3.5" />
                   Assistente IA
                 </Button>
-                
               </div>
             </div>
 
@@ -256,11 +314,13 @@ export function Reports() {
                   <CardHeader className="p-5 pb-2 border-b border-border-divider">
                     <div className="flex items-center gap-2">
                       <FileText className="h-3.5 w-3.5 text-text-primary" />
-                      <CardTitle className="text-sm font-semibold text-text-primary">Informações</CardTitle>
+                      <CardTitle className="text-sm font-semibold text-text-primary">
+                        Informações
+                      </CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="p-6 pt-3 space-y-4">
-                    <CasoFormDescricaoResumo  />
+                    <CasoFormDescricaoResumo />
                     <CasoFormDescricaoCompleta />
                     <CasoFormInformacoesAdicionais />
                   </CardContent>
@@ -271,15 +331,17 @@ export function Reports() {
                   <CardHeader className="p-5 pb-2 border-b border-border-divider">
                     <div className="flex items-center gap-2">
                       <Bug className="h-3.5 w-3.5 text-text-primary" />
-                      <CardTitle className="text-sm font-semibold text-text-primary">Classificação e Origem</CardTitle>
+                      <CardTitle className="text-sm font-semibold text-text-primary">
+                        Classificação e Origem
+                      </CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="p-6 pt-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px]">
-              <CasoFormImportancia />
-              <CasoFormOrigem />
-              <CasoFormCategoria />
-              <CasoFormRelator />
+                      <CasoFormImportancia />
+                      <CasoFormOrigem />
+                      <CasoFormCategoria />
+                      <CasoFormRelator />
                     </div>
                   </CardContent>
                 </Card>
@@ -292,7 +354,9 @@ export function Reports() {
                   <CardHeader className="p-5 pb-2 border-b border-border-divider">
                     <div className="flex items-center gap-2">
                       <Package className="h-3.5 w-3.5 text-text-primary" />
-                      <CardTitle className="text-sm font-semibold text-text-primary">Dados do Produto</CardTitle>
+                      <CardTitle className="text-sm font-semibold text-text-primary">
+                        Dados do Produto
+                      </CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="p-6 pt-3 space-y-4">
@@ -308,12 +372,14 @@ export function Reports() {
                   <CardHeader className="p-5 pb-2 border-b border-border-divider">
                     <div className="flex items-center gap-2">
                       <Users className="h-3.5 w-3.5 text-text-primary" />
-                      <CardTitle className="text-sm font-semibold text-text-primary">Atribuição</CardTitle>
+                      <CardTitle className="text-sm font-semibold text-text-primary">
+                        Atribuição
+                      </CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="p-6 pt-3 space-y-4">
-                <CasoFormDevAtribuido />
-                <CasoFormQaAtribuido />
+                    <CasoFormDevAtribuido />
+                    <CasoFormQaAtribuido />
                   </CardContent>
                 </Card>
 
@@ -325,7 +391,9 @@ export function Reports() {
                     disabled={isCreatingCaso || methods.formState.isSubmitting}
                   >
                     <Check className="h-3.5 w-3.5" />
-                    {isCreatingCaso || methods.formState.isSubmitting ? "Criando Caso..." : "Criar Caso"}
+                    {isCreatingCaso || methods.formState.isSubmitting
+                      ? "Criando Caso..."
+                      : "Criar Caso"}
                   </Button>
                 </div>
               </div>
@@ -337,8 +405,8 @@ export function Reports() {
               numeroCaso={numeroCaso}
             />
           </form>
-          </FormProvider>
-        </CasoFormProvider>
+        </FormProvider>
+      </CasoFormProvider>
 
       <AssistantModal
         isOpen={isAssistantModalOpen}

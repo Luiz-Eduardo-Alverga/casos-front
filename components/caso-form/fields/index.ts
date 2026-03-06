@@ -9,6 +9,7 @@ export { CasoFormCategoria } from "./caso-form-categoria";
 export { CasoFormRelator } from "./caso-form-relator";
 export { CasoFormDevAtribuido } from "./caso-form-dev-atribuido";
 export { CasoFormQaAtribuido } from "./caso-form-qa-atribuido";
+export { CasoFormStatus } from "./caso-form-status";
 export { CasoFormDescricaoResumo } from "./caso-form-descricao-resumo";
 export { CasoFormDescricaoCompleta } from "./caso-form-descricao-completa";
 export { CasoFormInformacoesAdicionais } from "./caso-form-informacoes-adicionais";

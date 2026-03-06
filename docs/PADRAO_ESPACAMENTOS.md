@@ -78,6 +78,12 @@ Todos os cards na aplicação seguem a seguinte estrutura de espaçamento:
 </div>
 ```
 
+## Grid de filtros em cards
+
+Em cards de filtros (ex.: tela Ver Casos):
+
+- **Grid**: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4` — 1 coluna em mobile, 2 em sm, 4 em lg; gap 16px entre itens.
+
 ## Espaçamentos entre Cards
 
 Quando há múltiplos cards na mesma página:

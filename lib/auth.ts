@@ -14,6 +14,9 @@ interface AuthData {
 const TOKEN_KEY = '@casos:token';
 const USER_KEY = '@casos:user';
 
+/** Chave do produto selecionado no Painel (ordem). Removida em clearAuthData(). */
+export const PAINEL_PRODUTO_ORDEM_KEY = '@casos:painel:produto-ordem';
+
 export function saveAuthData(data: { authorization: { token: string }, user: User }) {
   if (typeof window !== 'undefined') {
     localStorage.setItem(TOKEN_KEY, data.authorization.token);
@@ -53,6 +56,7 @@ export function clearAuthData() {
   if (typeof window !== 'undefined') {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(PAINEL_PRODUTO_ORDEM_KEY);
   }
 }
 

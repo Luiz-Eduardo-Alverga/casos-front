@@ -11,8 +11,8 @@ export {
   CasoFormRelator,
   CasoFormDevAtribuido,
   CasoFormQaAtribuido,
+  CasoFormStatus,
   CasoFormDescricaoResumo,
   CasoFormDescricaoCompleta,
   CasoFormInformacoesAdicionais,
 } from "./fields";
-
