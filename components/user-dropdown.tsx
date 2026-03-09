@@ -16,7 +16,8 @@ import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-const AVATAR_URL = "https://43eba7a9e7b2ca5208818e2171a13420.cdn.bubble.io/f1738958025870x407176369407359800/user%20avatar%201.svg";
+const AVATAR_URL =
+  "https://43eba7a9e7b2ca5208818e2171a13420.cdn.bubble.io/f1738958025870x407176369407359800/user%20avatar%201.svg";
 
 export function UserDropDown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,22 +60,17 @@ export function UserDropDown() {
               </AvatarFallback>
             </Avatar>
           </div>
-          
+
           {/* Nome do usuário */}
-          <span className="text-sm font-medium text-text-label">
+          <span className="text-sm font-medium text-text-label sr-only lg:not-sr-only">
             {user.nome}
           </span>
-          
+
           {/* Chevron Down */}
           <ChevronDown className="h-3 w-3 text-text-label" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        asChild
-        className="p-0"
-        align="end"
-        forceMount
-      >
+      <DropdownMenuContent asChild className="p-0" align="end" forceMount>
         <div
           ref={dropdownRef}
           className="absolute right-0 top-full mt-2 w-80 max-w-[90vw] bg-white border border-gray-200 shadow-2xl rounded-lg overflow-hidden z-[400] animate-in fade-in-0 zoom-in-95 duration-200"
@@ -95,9 +91,7 @@ export function UserDropDown() {
                       <h3 className="font-semibold text-lg text-gray-900">
                         {user.nome}
                       </h3>
-                      <p className="text-sm text-gray-600">
-                        {user.usuario}
-                      </p>
+                      <p className="text-sm text-gray-600">{user.usuario}</p>
                       {user.setor && (
                         <p className="text-xs text-gray-500 mt-1">
                           {user.setor}

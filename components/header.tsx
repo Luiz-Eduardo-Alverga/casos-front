@@ -54,7 +54,7 @@ export function Header() {
       <div className="flex items-center justify-between px-6 h-[60px] w-full">
         {/* Menu Hamburger */}
 
-        <div className="flex items-center gap-2 lg:space-x-2">
+        <div className="flex items-center gap-2 lg:space-x-2 ">
           <Button
             variant="ghost"
             size="icon"
@@ -81,16 +81,6 @@ export function Header() {
           {/* Notification Bell - abre dropdown de avisos (filtro: mês atual) */}
           <AvisosDropdown />
 
-          {/* Moon Icon (Dark Mode) */}
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 hover:bg-muted"
-          >
-            <Moon className="h-[18px] w-[13.5px] text-foreground" />
-          </Button> */}
-
-          {/* Maximize Icon */}
           <Button
             variant="ghost"
             size="icon"

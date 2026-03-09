@@ -39,17 +39,14 @@ export function AvisosDropdown() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
-  const periodoMesAtual = useMemo(
-    () => getPeriodoRange("este_mes"),
-    []
-  );
+  const periodoMesAtual = useMemo(() => getPeriodoRange("este_mes"), []);
 
   const { data, isLoading } = useMensagens(
     {
       data_msg_inicio: periodoMesAtual.data_msg_inicio,
       data_msg_fim: periodoMesAtual.data_msg_fim,
     },
-    { enabled: open }
+    { enabled: open },
   );
 
   const mensagens = data?.data ?? [];
@@ -71,10 +68,10 @@ export function AvisosDropdown() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 hover:bg-muted relative"
+          className="h-9 w-9 hover:bg-muted relative "
           aria-label="Abrir avisos"
         >
-          <Bell className="h-[18px] w-[15.75px] text-foreground" />
+          <Bell className="h-[18px] w-[15.75px] text-foreground sr-only lg:not-sr-only" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -87,9 +84,7 @@ export function AvisosDropdown() {
             <Bell className="h-5 w-5 text-text-primary" />
             <h3 className="text-sm font-semibold text-text-primary">Avisos</h3>
           </div>
-          <p className="text-xs text-text-secondary mt-1">
-            Período: este mês
-          </p>
+          <p className="text-xs text-text-secondary mt-1">Período: este mês</p>
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto p-4 max-h-[60vh]">
@@ -122,7 +117,7 @@ export function AvisosDropdown() {
                     type="button"
                     onClick={() => handleClickAviso(m.id)}
                     className={cn(
-                      "w-full text-left rounded-lg border border-border-divider p-3 transition-colors hover:bg-muted/50"
+                      "w-full text-left rounded-lg border border-border-divider p-3 transition-colors hover:bg-muted/50",
                     )}
                   >
                     <div className="flex items-start gap-2">
@@ -137,14 +132,14 @@ export function AvisosDropdown() {
                             "text-sm truncate",
                             lido
                               ? "text-text-secondary font-normal"
-                              : "text-text-primary font-semibold"
+                              : "text-text-primary font-semibold",
                           )}
                         >
                           {m.titulo || "Sem título"}
                         </p>
                         <p className="text-xs text-text-secondary mt-0.5">
                           {formatarData(
-                            m.datas?.enviado ?? m.datas?.msg ?? null
+                            m.datas?.enviado ?? m.datas?.msg ?? null,
                           )}
                         </p>
                       </div>

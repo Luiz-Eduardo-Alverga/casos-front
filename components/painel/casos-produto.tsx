@@ -118,7 +118,10 @@ export function CasosProduto({
                 className="bg-white border border-border-divider rounded-lg p-3.5 flex flex-col gap-0"
               >
                 <div className="flex gap-3 items-start pb-2 border-b border-border-divider">
-                  <ImportanciaBadge importancia={caso.importancia} className="shrink-0" />
+                  <ImportanciaBadge
+                    importancia={caso.importancia}
+                    className="shrink-0"
+                  />
                   <div className="flex-1 flex flex-wrap gap-3.75 items-start">
                     <div className="space-x-2">
                       <span className="text-xs font-semibold text-black">
@@ -131,10 +134,15 @@ export function CasosProduto({
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-2.5">
-                  <Badge variant="secondary" className="rounded-full px-4 py-1">
-                    {caso.modulo}
-                  </Badge>
-                  <span className="text-xs font-semibold text-text-secondary">
+                  {caso.modulo && (
+                    <Badge
+                      variant="secondary"
+                      className="rounded-full px-4 py-1"
+                    >
+                      {caso.modulo}
+                    </Badge>
+                  )}
+                  <span className="text-xs font-semibold text-text-secondary ml-auto">
                     E: {caso.tempoEstimado} / R: {caso.tempoRealizado}
                   </span>
                 </div>
