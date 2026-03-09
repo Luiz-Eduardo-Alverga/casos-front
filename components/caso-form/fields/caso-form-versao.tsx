@@ -7,19 +7,23 @@ import { useCasoForm } from "../provider";
 import { useFormContext } from "react-hook-form";
 import { useVersoes } from "@/hooks/use-versoes";
 
-export function CasoFormVersao() {
+interface CasoFormVersaoProps {
+  required?: boolean;
+}
+
+export function CasoFormVersao({ required = true }: CasoFormVersaoProps) {
   const { produto, isDisabled } = useCasoForm();
   const { watch } = useFormContext();
   const produtoValue = watch("produto");
   // const [versoesSearch, setVersoesSearch] = useState<string>("");
-  
+
   const produtoAtual = produtoValue || produto;
-  
+
   const { data: versoes, isLoading: isVersoesLoading } = useVersoes({
     produto_id: produtoAtual,
     // search: versoesSearch.trim() || undefined,
   });
-  
+
   const versoesOptions = useMemo(() => {
     // garantir um `value` único por opção (o Combobox usa `value` como `key`).
     return (versoes ?? []).map((v, idx) => ({
@@ -27,7 +31,7 @@ export function CasoFormVersao() {
       label: v.versao,
     }));
   }, [versoes]);
-  
+
   return (
     <div className="space-y-2">
       <ComboboxField
@@ -35,7 +39,11 @@ export function CasoFormVersao() {
         label="Versão do Produto"
         icon={Rocket}
         options={versoesOptions}
-        placeholder={produtoAtual ? "Selecione a versão..." : "Selecione o produto primeiro."}
+        placeholder={
+          produtoAtual
+            ? "Selecione a versão..."
+            : "Selecione o produto primeiro."
+        }
         emptyText={
           !produtoAtual
             ? "Selecione o produto primeiro."
@@ -46,7 +54,7 @@ export function CasoFormVersao() {
         // onSearchChange={setVersoesSearch}
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
-        required
+        required={required}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { ImportanciaBadge } from "@/components/importancia-badge";
 import {
   Table,
   TableHeader,
@@ -100,9 +100,7 @@ export function Retorno() {
                   >
                     <TableCell className="w-[30px] py-3 px-2.5">
                       <div className="flex justify-center">
-                        <Badge className="bg-yellow-100 text-yellow-700 border-transparent rounded-full w-9 h-7 flex items-center justify-center hover:bg-yellow-100">
-                          {retorno.importancia}
-                        </Badge>
+                        <ImportanciaBadge importancia={retorno.importancia} />
                       </div>
                     </TableCell>
                     <TableCell className="w-[140px] py-3 px-2.5">

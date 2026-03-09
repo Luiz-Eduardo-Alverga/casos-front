@@ -6,12 +6,16 @@ import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "../provider";
 import { useCategorias } from "@/hooks/use-categorias";
 
-export function CasoFormCategoria() {
+interface CasoFormCategoriaProps {
+  required?: boolean;
+}
+
+export function CasoFormCategoria({ required = true }: CasoFormCategoriaProps) {
   const { isDisabled } = useCasoForm();
   // const [categoriasSearch, setCategoriasSearch] = useState<string>("");
-  
+
   const { data: categorias, isLoading: isCategoriasLoading } = useCategorias();
-  
+
   const categoriasOptions = useMemo(() => {
     if (!categorias || !Array.isArray(categorias)) return [];
     return categorias.map((categoria) => ({
@@ -19,7 +23,7 @@ export function CasoFormCategoria() {
       label: categoria.tipo_categoria,
     }));
   }, [categorias]);
-  
+
   return (
     <div className="space-y-2">
       <ComboboxField
@@ -28,11 +32,15 @@ export function CasoFormCategoria() {
         icon={Tag}
         options={categoriasOptions}
         placeholder="Selecione a categoria..."
-        emptyText={isCategoriasLoading ? "Carregando categorias..." : "Nenhuma categoria encontrada."}
+        emptyText={
+          isCategoriasLoading
+            ? "Carregando categorias..."
+            : "Nenhuma categoria encontrada."
+        }
         // onSearchChange={setCategoriasSearch}
         searchDebounceMs={450}
         disabled={isDisabled}
-        required
+        required={required}
       />
     </div>
   );

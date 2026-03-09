@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { FileText, Grid3x3, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import {
+  Bell,
+  Grid3x3,
+  FileText,
+  ChevronRight,
+  type LucideIcon,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarHeader,
@@ -11,6 +18,7 @@ import {
   SidebarNavItem,
 } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface AppSidebarProps {
   isCollapsed: boolean;
@@ -18,12 +26,31 @@ interface AppSidebarProps {
   isMobile: boolean;
 }
 
-export function AppSidebar({ isCollapsed, isMobileOpen, isMobile }: AppSidebarProps) {
+interface SidebarItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+const SIDEBAR_ITEMS: SidebarItem[] = [
+  { label: "Avisos", href: "/avisos", icon: Bell },
+  { label: "Painel do desenvolvedor", href: "/painel", icon: Grid3x3 },
+  { label: "Casos", href: "/casos", icon: FileText },
+];
+
+export function AppSidebar({
+  isCollapsed,
+  isMobileOpen,
+  isMobile,
+}: AppSidebarProps) {
   const pathname = usePathname();
-  const isCasosActive = pathname?.includes("/casos");
 
   return (
-    <Sidebar isCollapsed={isCollapsed} isMobileOpen={isMobileOpen} isMobile={isMobile}>
+    <Sidebar
+      isCollapsed={isCollapsed}
+      isMobileOpen={isMobileOpen}
+      isMobile={isMobile}
+    >
       <SidebarHeader className="justify-center py-10">
         {isCollapsed ? (
           <Image
@@ -56,33 +83,36 @@ export function AppSidebar({ isCollapsed, isMobileOpen, isMobile }: AppSidebarPr
         </SidebarSection>
 
         <SidebarNav className={isCollapsed ? "items-center" : ""}>
-          <SidebarNavItem isActive={isCasosActive} className={isCollapsed ? "justify-center w-full" : ""}>
-            {isCollapsed ? (
-              <FileText className="h-3.5 w-3.5 shrink-0" />
-            ) : (
-              <>
-                <div className="flex items-center gap-3">
-                  <FileText className="h-3.5 w-3.5 shrink-0" />
-                  <span>Casos</span>
-                </div>
-                <ChevronRight className="h-3 w-3 opacity-50 shrink-0" />
-              </>
-            )}
-          </SidebarNavItem>
-
-          <SidebarNavItem className={isCollapsed ? "justify-center w-full" : ""}>
-            {isCollapsed ? (
-              <Grid3x3 className="h-3.5 w-3.5 shrink-0" />
-            ) : (
-              <>
-                <div className="flex items-center gap-3">
-                  <Grid3x3 className="h-3.5 w-3.5 shrink-0" />
-                  <span>Diversos</span>
-                </div>
-                <ChevronRight className="h-3 w-3 opacity-50 shrink-0" />
-              </>
-            )}
-          </SidebarNavItem>
+          {SIDEBAR_ITEMS.map((item) => {
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/" && pathname?.startsWith(item.href));
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="block w-full"
+              >
+                <SidebarNavItem
+                  isActive={isActive}
+                  className={cn("w-full", isCollapsed && "justify-center")}
+                >
+                  {isCollapsed ? (
+                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <Icon className="h-3.5 w-3.5 shrink-0" />
+                        <span>{item.label}</span>
+                      </div>
+                      <ChevronRight className="h-3 w-3 opacity-50 shrink-0" />
+                    </>
+                  )}
+                </SidebarNavItem>
+              </Link>
+            );
+          })}
         </SidebarNav>
       </SidebarContent>
     </Sidebar>

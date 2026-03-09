@@ -8,20 +8,26 @@ import { useFormContext } from "react-hook-form";
 import { useProdutos } from "@/hooks/use-produtos";
 import type { Produto } from "@/services/auxiliar/produtos";
 
-export function CasoFormProduto() {
+interface CasoFormProdutoProps {
+  required?: boolean;
+}
+
+export function CasoFormProduto({ required = true }: CasoFormProdutoProps) {
   const { isDisabled } = useCasoForm();
   const { watch, setValue } = useFormContext();
   const produtoValue = watch("produto");
   // const [produtosSearch, setProdutosSearch] = useState<string>("");
-  const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null);
-  
-  const { data: produtos, isLoading: isProdutosLoading } = useProdutos(
-    // {search: produtosSearch.trim() || undefined,}
+  const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(
+    null,
   );
-  
+
+  const { data: produtos, isLoading: isProdutosLoading } =
+    useProdutos();
+    // {search: produtosSearch.trim() || undefined,}
+
   const produtosOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
-    
+
     // Adiciona produtos da API
     if (produtos && Array.isArray(produtos)) {
       produtos.forEach((p) => {
@@ -31,14 +37,14 @@ export function CasoFormProduto() {
         });
       });
     }
-    
+
     // Se há um produto selecionado e ele não está nas opções, adiciona ele no início
     if (produtoValue && produtoSelecionado) {
       const produtoValueStr = String(produtoSelecionado.id);
       const produtoLabel = `${produtoSelecionado.nome_projeto} - ${produtoSelecionado.setor}`;
-      
+
       // Verifica se já não está nas opções
-      const jaExiste = options.some(opt => opt.value === produtoValueStr);
+      const jaExiste = options.some((opt) => opt.value === produtoValueStr);
       if (!jaExiste) {
         options.unshift({
           value: produtoValueStr,
@@ -46,14 +52,16 @@ export function CasoFormProduto() {
         });
       }
     }
-    
+
     return options;
   }, [produtos, produtoValue, produtoSelecionado]);
-  
+
   // Quando o produto é selecionado, buscar e salvar os dados completos
   useEffect(() => {
     if (produtoValue && produtos && Array.isArray(produtos)) {
-      const produtoEncontrado = produtos.find(p => String(p.id) === produtoValue);
+      const produtoEncontrado = produtos.find(
+        (p) => String(p.id) === produtoValue,
+      );
       if (produtoEncontrado) {
         setProdutoSelecionado(produtoEncontrado);
       }
@@ -65,7 +73,7 @@ export function CasoFormProduto() {
       setValue("modulo", "");
     }
   }, [produtoValue, produtos, setValue]);
-  
+
   return (
     <div className="space-y-2">
       <ComboboxField
@@ -74,11 +82,15 @@ export function CasoFormProduto() {
         icon={BriefcaseBusiness}
         options={produtosOptions}
         placeholder="Selecione o produto..."
-        emptyText={isProdutosLoading ? "Carregando produtos..." : "Nenhum produto encontrado."}
+        emptyText={
+          isProdutosLoading
+            ? "Carregando produtos..."
+            : "Nenhum produto encontrado."
+        }
         // onSearchChange={setProdutosSearch}
         searchDebounceMs={450}
         disabled={isDisabled}
-        required
+        required={required}
       />
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ImportanciaBadge } from "@/components/importancia-badge";
 import { Button } from "@/components/ui/button";
 import { Box, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
@@ -117,9 +118,7 @@ export function CasosProduto({
                 className="bg-white border border-border-divider rounded-lg p-3.5 flex flex-col gap-0"
               >
                 <div className="flex gap-3 items-start pb-2 border-b border-border-divider">
-                  <Badge className="bg-yellow-100 text-yellow-700 border-transparent rounded-full w-9 h-7 flex items-center justify-center shrink-0 hover:bg-yellow-100">
-                    {caso.importancia}
-                  </Badge>
+                  <ImportanciaBadge importancia={caso.importancia} className="shrink-0" />
                   <div className="flex-1 flex flex-wrap gap-3.75 items-start">
                     <div className="space-x-2">
                       <span className="text-xs font-semibold text-black">

@@ -6,10 +6,19 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Header } from "@/components/header";
 import { useSidebar } from "@/components/sidebar-provider";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+
+// Rotas que devem ter scroll interno (overflow-hidden)
+// A maioria das telas terá scroll do navegador
+const ROUTES_WITH_INTERNAL_SCROLL = ["/painel", "/avisos"];
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
+  const pathname = usePathname();
+
+  // Verificar se a rota atual deve ter scroll interno
+  const hasInternalScroll = ROUTES_WITH_INTERNAL_SCROLL.includes(pathname);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -30,7 +39,11 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen relative">
-      <AppSidebar isCollapsed={isCollapsed} isMobileOpen={isMobileOpen} isMobile={isMobile} />
+      <AppSidebar
+        isCollapsed={isCollapsed}
+        isMobileOpen={isMobileOpen}
+        isMobile={isMobile}
+      />
 
       {/* Overlay para mobile */}
       {isMobile && isMobileOpen && (
@@ -41,13 +54,19 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
       )}
 
       <div
-        className="flex flex-col flex-1 min-h-screen lg:h-screen transition-all duration-300 w-full overflow-hidden"
+        className={`flex flex-col flex-1 min-h-screen transition-all duration-300 w-full ${
+          hasInternalScroll ? "lg:h-screen overflow-hidden" : ""
+        }`}
         style={{
-          marginLeft: isMobile ? "0" : (isCollapsed ? "64px" : "256px"),
+          marginLeft: isMobile ? "0" : isCollapsed ? "64px" : "256px",
         }}
       >
         <Header />
-        <div className="flex-1 flex flex-col bg-page-background lg:min-h-0 lg:overflow-hidden">
+        <div
+          className={`flex-1 flex flex-col bg-page-background ${
+            hasInternalScroll ? "lg:min-h-0 lg:overflow-hidden" : ""
+          }`}
+        >
           {children}
         </div>
       </div>

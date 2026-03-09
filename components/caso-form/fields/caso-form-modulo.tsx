@@ -7,19 +7,23 @@ import { useCasoForm } from "../provider";
 import { useFormContext } from "react-hook-form";
 import { useModulos } from "@/hooks/use-modulos";
 
-export function CasoFormModulo() {
+interface CasoFormModuloProps {
+  required?: boolean;
+}
+
+export function CasoFormModulo({ required = true }: CasoFormModuloProps) {
   const { produto, isDisabled } = useCasoForm();
   const { watch } = useFormContext();
   const produtoValue = watch("produto");
   // const [modulosSearch, setModulosSearch] = useState<string>("");
-  
+
   const produtoAtual = produtoValue || produto;
-  
+
   const { data: modulos, isLoading: isModulosLoading } = useModulos({
     produto_id: produtoAtual,
     // search: modulosSearch.trim() || undefined,
   });
-  
+
   const modulosOptions = useMemo(() => {
     if (!modulos || !Array.isArray(modulos)) return [];
     // Retorna array de strings, então mapeamos para o formato do Combobox
@@ -28,7 +32,7 @@ export function CasoFormModulo() {
       label: modulo,
     }));
   }, [modulos]);
-  
+
   return (
     <div className="space-y-2">
       <ComboboxField
@@ -36,12 +40,20 @@ export function CasoFormModulo() {
         label="Módulo"
         icon={Package}
         options={modulosOptions}
-        placeholder={produtoAtual ? "Selecione o módulo..." : "Selecione o produto primeiro."}
-        emptyText={isModulosLoading ? "Carregando módulos..." : "Nenhum módulo encontrado."}
+        placeholder={
+          produtoAtual
+            ? "Selecione o módulo..."
+            : "Selecione o produto primeiro."
+        }
+        emptyText={
+          isModulosLoading
+            ? "Carregando módulos..."
+            : "Nenhum módulo encontrado."
+        }
         // onSearchChange={setModulosSearch}
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
-        required
+        required={required}
       />
     </div>
   );

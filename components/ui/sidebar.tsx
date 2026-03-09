@@ -84,10 +84,10 @@ const SidebarNavItem = React.forwardRef<
     isActive?: boolean
   }
 >(({ className, isActive = false, ...props }, ref) => (
-  <button
+    <button
     ref={ref}
       className={cn(
-        "flex items-center justify-between gap-3 px-4 py-3 rounded text-sm font-normal transition-colors",
+        "flex w-full items-center justify-between gap-3 px-4 py-3 rounded text-sm font-normal transition-colors",
         isActive
           ? "bg-white/5 border-l-[3px] border-primary text-sidebar-text"
           : "text-sidebar-text hover:bg-white/5",

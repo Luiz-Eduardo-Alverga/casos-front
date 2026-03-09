@@ -4,6 +4,7 @@ import { Menu, Bell, Moon, Maximize2, Minimize2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserDropDown } from "@/components/user-dropdown";
 import { useSidebar } from "@/components/sidebar-provider";
+import { AvisosDropdown } from "@/components/avisos/avisos-dropdown";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -77,15 +78,8 @@ export function Header() {
 
         {/* Right side - Icons and User */}
         <div className="flex items-center gap-6">
-          {/* Notification Bell */}
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 hover:bg-muted relative"
-          >
-            <Bell className="h-[18px] w-[15.75px] text-foreground" />
-            <span className="absolute top-[-2.75px] right-[-4px] w-2 h-2 bg-destructive rounded-full border-2 border-white" />
-          </Button> */}
+          {/* Notification Bell - abre dropdown de avisos (filtro: mês atual) */}
+          <AvisosDropdown />
 
           {/* Moon Icon (Dark Mode) */}
           {/* <Button
