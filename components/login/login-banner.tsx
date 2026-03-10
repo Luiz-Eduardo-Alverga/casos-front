@@ -6,14 +6,14 @@ export function LoginBanner() {
   return (
     <div className="relative h-full w-full min-w-0 overflow-hidden">
       <Image
-        src="/images/banner.svg"
+        src="/images/banner2.svg"
         alt=""
         fill
         className="object-cover object-center"
         priority
         sizes="727px"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black to-transparent" />
+      <div className="absolute inset-0 " />
       <div className="absolute left-10 top-10 flex max-w-[320px] flex-col gap-2">
         <p className="whitespace-nowrap text-3xl font-bold leading-tight text-white md:text-4xl">
           Seja bem-vindo 👋
