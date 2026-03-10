@@ -1,12 +1,12 @@
 "use client";
 
+import { useFormContext } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import type { UseFormRegister, FormState } from "react-hook-form";
 
 export interface LoginFormData {
   email: string;
@@ -14,8 +14,6 @@ export interface LoginFormData {
 }
 
 interface LoginFormProps {
-  register: UseFormRegister<LoginFormData>;
-  formState: FormState<LoginFormData>;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   showPassword: boolean;
   setShowPassword: (v: boolean) => void;
@@ -24,14 +22,14 @@ interface LoginFormProps {
 }
 
 export function LoginForm({
-  register,
-  formState: { isSubmitting },
   onSubmit,
   showPassword,
   setShowPassword,
   rememberMe,
   setRememberMe,
 }: LoginFormProps) {
+  const { register, formState } = useFormContext<LoginFormData>();
+  const { isSubmitting, errors } = formState;
   return (
     <div className="flex w-full max-w-[360px] flex-col items-center">
       <div className="flex w-full flex-col gap-6">
@@ -69,6 +67,11 @@ export function LoginForm({
                   {...register("email")}
                 />
               </div>
+              {errors.email?.message && (
+                <p className="text-sm text-red-400" role="alert">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -90,7 +93,7 @@ export function LoginForm({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-login-placeholder transition-colors hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-login-placeholder transition-colors "
                   aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 >
                   {showPassword ? (
@@ -100,6 +103,11 @@ export function LoginForm({
                   )}
                 </button>
               </div>
+              {errors.password?.message && (
+                <p className="text-sm text-red-400" role="alert">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center gap-2">

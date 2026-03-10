@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export function LoginBanner() {
   return (
-    <div className="relative h-full w-[727px] shrink-0 overflow-hidden">
+    <div className="relative h-full w-full min-w-0 overflow-hidden">
       <Image
         src="/images/banner.svg"
         alt=""

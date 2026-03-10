@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
@@ -13,8 +13,8 @@ import { LoginBanner } from "./login-banner";
 import { LoginForm, type LoginFormData } from "./login-form";
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().min(1, "E-mail é obrigatório").email("Informe um e-mail válido"),
+  password: z.string().min(1, "Senha é obrigatória"),
 });
 
 const REMEMBER_ME_KEY = "@casos:rememberMe";
@@ -25,10 +25,11 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const { register, handleSubmit, formState, setValue } =
-    useForm<LoginFormData>({
-      resolver: zodResolver(loginSchema),
-    });
+  const methods = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const { handleSubmit, setValue } = methods;
 
   const { mutateAsync } = useLogin();
 
@@ -72,34 +73,34 @@ export function Login() {
   }
 
   return (
-    <div className="flex h-screen min-h-screen w-full overflow-hidden bg-login-gradient">
-      <aside className="hidden h-full lg:block">
-        <LoginBanner />
-      </aside>
-      <main className="flex min-h-0 flex-1 flex-col px-4 py-6 lg:px-[159px] lg:py-12">
-        <div className="flex flex-1 items-center justify-center">
-          <LoginForm
-            register={register}
-            formState={formState}
-            onSubmit={handleSubmit(onSubmit)}
-            showPassword={showPassword}
-            setShowPassword={setShowPassword}
-            rememberMe={rememberMe}
-            setRememberMe={setRememberMe}
-          />
-        </div>
-        <footer className="shrink-0 pb-6 pt-4 lg:pb-8 lg:pt-6">
-          <div className="flex justify-center">
-            <Image
-              src="/images/logo2.svg"
-              alt=""
-              width={150}
-              height={48}
-              className="object-contain"
+    <FormProvider {...methods}>
+      <div className="grid h-screen min-h-screen w-full grid-cols-1 overflow-hidden bg-login-gradient lg:grid-cols-2">
+        <aside className="hidden h-full lg:block">
+          <LoginBanner />
+        </aside>
+        <main className="flex min-h-0 flex-col overflow-auto px-4 py-6 lg:px-[159px] lg:py-12">
+          <div className="flex flex-1 items-center justify-center">
+            <LoginForm
+              onSubmit={handleSubmit(onSubmit)}
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+              rememberMe={rememberMe}
+              setRememberMe={setRememberMe}
             />
           </div>
-        </footer>
-      </main>
-    </div>
+          <footer className="shrink-0 pb-6 pt-4 lg:pb-8 lg:pt-6">
+            <div className="flex justify-center">
+              <Image
+                src="/images/logo2.svg"
+                alt=""
+                width={150}
+                height={48}
+                className="object-contain"
+              />
+            </div>
+          </footer>
+        </main>
+      </div>
+    </FormProvider>
   );
 }
