@@ -9,7 +9,7 @@ import { RetornoSkeleton } from "@/components/painel/retorno-skeleton";
 import { useAgendaDev } from "@/hooks/use-agenda-dev";
 import { getUser, PAINEL_PRODUTO_ORDEM_KEY } from "@/lib/auth";
 import { useState, useMemo, useEffect } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Plus, RefreshCcw, List } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";

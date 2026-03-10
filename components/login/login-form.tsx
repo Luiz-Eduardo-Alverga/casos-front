@@ -63,7 +63,7 @@ export function LoginForm({
                   id="email"
                   type="email"
                   placeholder="exemplo@email.com"
-                  className="h-10 rounded border-login-input-border bg-white pl-9 pr-3 text-sm text-foreground placeholder:text-login-placeholder focus-visible:ring-1 focus-visible:ring-ring"
+                  className="h-10 rounded border-login-input-border text-base bg-white pl-9 pr-3 text-foreground placeholder:text-login-placeholder focus-visible:ring-1 focus-visible:ring-ring"
                   {...register("email")}
                 />
               </div>
@@ -87,7 +87,7 @@ export function LoginForm({
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Sua Senha"
-                  className="h-10 rounded border-login-input-border bg-white pl-9 pr-9 text-sm text-foreground placeholder:text-login-placeholder focus-visible:ring-1 focus-visible:ring-ring"
+                  className="h-10 rounded border-login-input-border bg-white pl-9 pr-9 text-base text-foreground placeholder:text-login-placeholder focus-visible:ring-1 focus-visible:ring-ring"
                   {...register("password")}
                 />
                 <button

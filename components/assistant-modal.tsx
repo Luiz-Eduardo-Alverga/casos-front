@@ -10,7 +10,16 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Mic, Loader2, Pause, Trash2, Check, Play, Square } from "lucide-react";
+import {
+  Sparkles,
+  Mic,
+  Loader2,
+  Pause,
+  Trash2,
+  Check,
+  Play,
+  Square,
+} from "lucide-react";
 import { UseFormRegister, UseFormHandleSubmit } from "react-hook-form";
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 
@@ -54,7 +63,9 @@ export function AssistantModal({
 
   // Controle de reprodução de áudio
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(
+    null,
+  );
 
   // Formatar tempo como MM:SS
   const formatTime = (seconds: number) => {
@@ -97,7 +108,7 @@ export function AssistantModal({
     if (!audioElement) {
       // Criar elemento de áudio
       const audio = new Audio(audioUrl);
-      audio.addEventListener('ended', () => {
+      audio.addEventListener("ended", () => {
         setIsPlaying(false);
       });
       audio.play();
@@ -117,19 +128,21 @@ export function AssistantModal({
   const handleFormSubmit = async (data: any) => {
     // Não finaliza automaticamente - usuário deve finalizar manualmente
     const finalAudioBlob = audioBlob;
-    
+
     // Se houver áudio gravado, incluir no envio
     const submitData = {
       ...data,
-      audio: finalAudioBlob ? {
-        blob: finalAudioBlob,
-        url: audioUrl,
-        duration: recordingTime,
-      } : null,
+      audio: finalAudioBlob
+        ? {
+            blob: finalAudioBlob,
+            url: audioUrl,
+            duration: recordingTime,
+          }
+        : null,
     };
-    
+
     onSubmit(submitData);
-    
+
     // Limpar após envio
     if (finalAudioBlob) {
       await deleteRecording();
@@ -170,7 +183,8 @@ export function AssistantModal({
   const hasRecording = audioBlob !== null || isRecording;
 
   // Validação: deve ter descrição OU áudio gravado (não em gravação)
-  const canSubmit = (description.trim() !== "" || audioBlob !== null) && !isAssistantSubmitting;
+  const canSubmit =
+    (description.trim() !== "" || audioBlob !== null) && !isAssistantSubmitting;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -224,7 +238,7 @@ export function AssistantModal({
                         <Pause className="h-5 w-5 text-primary-foreground" />
                       )}
                     </button>
-                    
+
                     {/* Botão finalizar/salvar (apenas quando pausado) */}
                     {isPaused && (
                       <button
@@ -251,7 +265,7 @@ export function AssistantModal({
                         Áudio gravado
                       </span>
                     </div>
-                    
+
                     {/* Botão para reproduzir áudio */}
                     <button
                       type="button"
@@ -275,9 +289,9 @@ export function AssistantModal({
               <div className="relative">
                 <Textarea
                   placeholder="Descreva o problema com suas próprias palavras... (ex: 'O botão de login não funciona no Safari do iPhone')"
-                  className="min-h-[120px] h-[150px] sm:h-auto resize-none text-sm rounded-lg border-border-input px-[17px] py-[13px] pr-12 pb-10"
+                  className="min-h-[120px] h-[150px] sm:h-auto resize-none text-base rounded-lg border-border-input px-[17px] py-[13px] pr-12 pb-10"
                   {...register("description", {
-                    onChange: (e) => setDescription(e.target.value)
+                    onChange: (e) => setDescription(e.target.value),
                   })}
                   disabled={isRecording || isPaused}
                 />
@@ -292,9 +306,7 @@ export function AssistantModal({
                   </button>
                 )}
               </div>
-              {error && (
-                <p className="text-xs text-destructive">{error}</p>
-              )}
+              {error && <p className="text-xs text-destructive">{error}</p>}
             </div>
 
             {/* Submit Button */}
