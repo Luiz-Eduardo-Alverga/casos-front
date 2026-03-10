@@ -15,6 +15,7 @@ import type { Mensagem } from "@/services/mensagens/get-mensagens";
 import { getPeriodoRange } from "@/lib/periodo-avisos";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 
 const LIMITE_DROPDOWN = 10;
 
@@ -79,12 +80,24 @@ export function AvisosDropdown() {
         sideOffset={8}
         className="w-[380px] max-h-[85vh] flex flex-col p-0"
       >
-        <div className="p-4 pb-2 border-b border-border-divider shrink-0">
-          <div className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-text-primary" />
-            <h3 className="text-sm font-semibold text-text-primary">Avisos</h3>
+        <div className="p-4 pb-2 border-b border-border-divider shrink-0 ">
+          <div className="flex  items-center justify-between">
+            <div className="flex gap-2">
+              <Bell className="h-5 w-5 text-text-primary" />
+              <h3 className="text-sm leading-5 font-semibold text-text-primary">
+                Avisos do mês atual
+              </h3>
+            </div>
+
+            <Button
+              variant="link"
+              size="sm"
+              onClick={handleVerTodos}
+              className="text-xs leading-4 text-text-secondary underline mb-0.5"
+            >
+              Ver todos os avisos
+            </Button>
           </div>
-          <p className="text-xs text-text-secondary mt-1">Período: este mês</p>
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto p-4 max-h-[60vh]">
@@ -151,7 +164,7 @@ export function AvisosDropdown() {
           )}
         </div>
 
-        <div className="p-4 pt-2 border-t border-border-divider shrink-0">
+        {/* <div className="p-4 pt-2 border-t border-border-divider shrink-0">
           <Button
             type="button"
             variant="outline"
@@ -160,7 +173,7 @@ export function AvisosDropdown() {
           >
             Ver todos os avisos
           </Button>
-        </div>
+        </div> */}
       </PopoverContent>
     </Popover>
   );

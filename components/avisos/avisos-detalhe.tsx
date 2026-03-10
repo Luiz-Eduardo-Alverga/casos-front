@@ -93,7 +93,7 @@ export function AvisosDetalhe({ idSelecionado }: AvisosDetalheProps) {
 
   const lido = mensagem.status_leitura?.lido ?? false;
   const dataEnviado = formatarDataLonga(
-    mensagem.datas?.enviado ?? mensagem.datas?.msg ?? null,
+    mensagem.datas?.enviado ?? mensagem.datas?.hora ?? null,
   );
   const enviadoPor = mensagem.enviado_por || "—";
 

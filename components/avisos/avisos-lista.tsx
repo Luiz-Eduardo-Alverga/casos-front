@@ -84,7 +84,7 @@ function ItemAviso({
   onClick: () => void;
 }) {
   const lido = mensagem.status_leitura?.lido ?? false;
-  const dataValor = mensagem.datas?.enviado ?? mensagem.datas?.msg ?? null;
+  const dataValor = mensagem.datas?.enviado ?? mensagem.datas?.hora ?? null;
   const dataCurta = formatarDataCurta(dataValor);
   const dataEnviado = formatarDataEnviado(dataValor);
   const enviadoPor = mensagem.enviado_por || "—";
