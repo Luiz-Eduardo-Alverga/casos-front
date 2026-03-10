@@ -15,7 +15,6 @@ import type { Mensagem } from "@/services/mensagens/get-mensagens";
 import { getPeriodoRange } from "@/lib/periodo-avisos";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
-import Link from "next/link";
 
 const LIMITE_DROPDOWN = 10;
 
@@ -78,12 +77,12 @@ export function AvisosDropdown() {
       <PopoverContent
         align="end"
         sideOffset={8}
-        className="w-[380px] max-h-[85vh] flex flex-col p-0"
+        className="w-[380px] max-h-[55vh] flex flex-col p-0"
       >
-        <div className="p-4 pb-2 border-b border-border-divider shrink-0 ">
-          <div className="flex  items-center justify-between">
-            <div className="flex gap-2">
-              <Bell className="h-5 w-5 text-text-primary" />
+        <div className="p-4 pb-2 border-b border-border-divider shrink-0">
+          <div className="flex items-center justify-between ">
+            <div className="flex items-center gap-2">
+              <Bell className="h-3.5 w-3.5 text-text-primary" />
               <h3 className="text-sm leading-5 font-semibold text-text-primary">
                 Avisos do mês atual
               </h3>
@@ -100,16 +99,19 @@ export function AvisosDropdown() {
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 max-h-[60vh]">
+        <div className="flex-1 min-h-0 overflow-y-auto p-2 pt-3 max-h-[60vh]">
           {isLoading ? (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
-                  className="rounded-lg border border-border-divider p-3 flex flex-col gap-2"
+                  className="rounded-lg border border-border-divider p-3 flex items-center gap-3"
                 >
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="size-8 rounded-full shrink-0" />
+                  <div className="flex-1 flex flex-col gap-2 py-1.5">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
                 </div>
               ))}
             </div>
@@ -121,7 +123,7 @@ export function AvisosDropdown() {
               className="min-h-[140px]"
             />
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {exibir.map((m: Mensagem) => {
                 const lido = m.status_leitura?.lido ?? false;
                 return (
@@ -130,50 +132,53 @@ export function AvisosDropdown() {
                     type="button"
                     onClick={() => handleClickAviso(m.id)}
                     className={cn(
-                      "w-full text-left rounded-lg border border-border-divider p-3 transition-colors hover:bg-muted/50",
+                      "w-full text-left rounded-lg border border-border-divider p-2 flex items-center gap-3 transition-colors hover:bg-muted/50",
                     )}
                   >
-                    <div className="flex items-start gap-2">
-                      {lido ? (
-                        <MailOpen className="h-4 w-4 shrink-0 text-text-secondary mt-0.5" />
-                      ) : (
-                        <Mail className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                    <div
+                      className={cn(
+                        "shrink-0 size-8 rounded-full flex items-center justify-center border",
+                        lido
+                          ? "bg-muted border-border-divider"
+                          : "bg-border-accent border-border-accent",
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className={cn(
-                            "text-sm truncate",
-                            lido
-                              ? "text-text-secondary font-normal"
-                              : "text-text-primary font-semibold",
-                          )}
-                        >
-                          {m.titulo || "Sem título"}
-                        </p>
-                        <p className="text-xs text-text-secondary mt-0.5">
-                          {formatarData(
-                            m.datas?.enviado ?? m.datas?.msg ?? null,
-                          )}
-                        </p>
-                      </div>
+                    >
+                      {lido ? (
+                        <MailOpen className="h-3.5 w-3.5 text-text-secondary" />
+                      ) : (
+                        <Mail className="h-3.5 w-3.5 text-primary" />
+                      )}
                     </div>
+                    <div className="flex-1 min-w-0 py-1.5">
+                      <p
+                        className={cn(
+                          "text-sm truncate",
+                          lido
+                            ? "text-text-secondary font-normal"
+                            : "text-text-primary font-semibold",
+                        )}
+                      >
+                        {m.titulo || "Sem título"}
+                      </p>
+                      <p className="text-xs text-text-secondary mt-0.5">
+                        {formatarData(m.datas?.enviado ?? m.datas?.msg ?? null)}
+                      </p>
+                      <p className="text-xs text-text-secondary mt-0.5">
+                        Enviado por {m.enviado_por}
+                      </p>
+                    </div>
+                    {!lido && (
+                      <span
+                        className="shrink-0 size-2 rounded-full bg-primary ml-2"
+                        aria-hidden
+                      />
+                    )}
                   </button>
                 );
               })}
             </div>
           )}
         </div>
-
-        {/* <div className="p-4 pt-2 border-t border-border-divider shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={handleVerTodos}
-          >
-            Ver todos os avisos
-          </Button>
-        </div> */}
       </PopoverContent>
     </Popover>
   );

@@ -1,6 +1,15 @@
 "use client";
 
-import { Menu, Bell, Moon, Maximize2, Minimize2, Plus } from "lucide-react";
+import {
+  Menu,
+  Bell,
+  Moon,
+  Maximize2,
+  Minimize2,
+  Plus,
+  Maximize,
+  Minimize,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserDropDown } from "@/components/user-dropdown";
 import { useSidebar } from "@/components/sidebar-provider";
@@ -88,9 +97,9 @@ export function Header() {
             onClick={handleToggleFullScreen}
           >
             {isFullScreen ? (
-              <Minimize2 className="h-[18px] w-[15.75px] text-foreground" />
+              <Minimize className="h-[18px] w-[15.75px] text-foreground" />
             ) : (
-              <Maximize2 className="h-[18px] w-[15.75px] text-foreground" />
+              <Maximize className="h-[18px] w-[15.75px] text-foreground" />
             )}
           </Button>
 
