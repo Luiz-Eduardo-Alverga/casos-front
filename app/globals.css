@@ -74,6 +74,20 @@
     --panel-badge-importance-yellow: 43 96% 56%;
     --panel-badge-importance-yellow-bg: 43 96% 95%;
     --panel-button-back: 215 25% 27%;
+
+    /* Cores da tela de login (Figma) */
+    --login-bg-start: 216 14% 36%;
+    --login-bg-end: 214 18% 21%;
+    --login-banner-text: 252 100% 99%;
+    --login-input-border: 220 14% 91%;
+    --login-placeholder: 216 12% 64%;
+    --login-checkbox-bg: 216 15% 38%;
+    --login-checkbox-border: 0 0% 66%;
+    --login-checkbox-label: 0 0% 77%;
+    --login-button-from: 46 88% 60%;
+    --login-button-to: 42 79% 57%;
+    --login-button-text: 225 5% 28%;
+    --login-footer-text: 210 7% 57%;
   }
 
   .dark {
@@ -145,6 +159,19 @@
     --panel-badge-importance-yellow: 43 96% 56%;
     --panel-badge-importance-yellow-bg: 43 96% 95%;
     --panel-button-back: 215 25% 27%;
+    /* Login (mesmo visual em dark) */
+    --login-bg-start: 216 14% 36%;
+    --login-bg-end: 214 18% 21%;
+    --login-banner-text: 252 100% 99%;
+    --login-input-border: 220 14% 91%;
+    --login-placeholder: 216 12% 64%;
+    --login-checkbox-bg: 216 15% 38%;
+    --login-checkbox-border: 0 0% 66%;
+    --login-checkbox-label: 0 0% 77%;
+    --login-button-from: 46 88% 60%;
+    --login-button-to: 42 79% 57%;
+    --login-button-text: 225 5% 28%;
+    --login-footer-text: 210 7% 57%;
   }
 }
 

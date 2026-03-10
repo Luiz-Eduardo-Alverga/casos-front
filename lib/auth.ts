@@ -24,6 +24,13 @@ export function saveAuthData(data: { authorization: { token: string }, user: Use
   }
 }
 
+/** Atualiza apenas o token (ex.: após refresh). Mantém o user em localStorage. */
+export function saveToken(token: string) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
+}
+
 export function getToken(): string | null {
   if (typeof window !== 'undefined') {
     return localStorage.getItem(TOKEN_KEY);
