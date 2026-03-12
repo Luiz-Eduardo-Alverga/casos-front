@@ -35,6 +35,8 @@ export interface ComboboxProps {
   searchDebounceMs?: number
   className?: string
   disabled?: boolean
+  /** Chamado quando o popover abre ou fecha (para lazy load de opções). */
+  onOpenChange?: (open: boolean) => void
 }
 
 export function Combobox({
@@ -48,9 +50,15 @@ export function Combobox({
   searchDebounceMs = 400,
   className,
   disabled = false,
+  onOpenChange,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [searchValue, setSearchValue] = React.useState("")
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next)
+    onOpenChange?.(next)
+  }
 
   const selectedOption = options.find((option) => option.value === value)
 
@@ -84,7 +92,7 @@ export function Combobox({
   }
 
   return (
-    <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : setOpen}>
+    <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"

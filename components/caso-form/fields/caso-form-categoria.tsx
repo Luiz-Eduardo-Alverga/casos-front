@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Tag } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "../provider";
+import { useFormContext } from "react-hook-form";
 import { useCategorias } from "@/hooks/use-categorias";
 
 interface CasoFormCategoriaProps {
@@ -11,18 +12,26 @@ interface CasoFormCategoriaProps {
 }
 
 export function CasoFormCategoria({ required = true }: CasoFormCategoriaProps) {
-  const { isDisabled } = useCasoForm();
-  // const [categoriasSearch, setCategoriasSearch] = useState<string>("");
+  const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
+  const { watch } = useFormContext();
+  const categoriaValue = watch("categoria");
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
 
-  const { data: categorias, isLoading: isCategoriasLoading } = useCategorias();
+  const { data: categorias, isLoading: isCategoriasLoading } = useCategorias({
+    enabled: optionsRequested,
+  });
 
   const categoriasOptions = useMemo(() => {
-    if (!categorias || !Array.isArray(categorias)) return [];
-    return categorias.map((categoria) => ({
+    const list = (categorias ?? []).map((categoria) => ({
       value: categoria.id,
       label: categoria.tipo_categoria,
     }));
-  }, [categorias]);
+    if (lazyLoadComboboxOptions && editCaseItem?.caso?.caracteristicas && categoriaValue && !list.some((o) => o.value === categoriaValue)) {
+      const c = editCaseItem.caso.caracteristicas;
+      list.unshift({ value: String(c.categoria), label: c.tipo_categoria ?? String(c.categoria) });
+    }
+    return list;
+  }, [categorias, lazyLoadComboboxOptions, editCaseItem, categoriaValue]);
 
   return (
     <div className="space-y-2">
@@ -41,6 +50,7 @@ export function CasoFormCategoria({ required = true }: CasoFormCategoriaProps) {
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}
+        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
   );

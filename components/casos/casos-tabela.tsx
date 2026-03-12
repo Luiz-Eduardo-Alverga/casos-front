@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,6 +74,7 @@ function mapItemToRow(item: ProjetoMemoriaItem) {
 }
 
 export function CasosTabela({ filtros }: CasosTabelaProps) {
+  const router = useRouter();
   const user = getUser();
   const usuarioDevId = user?.id != null ? String(user.id) : "";
 
@@ -197,7 +199,8 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
                 {itens.map((row) => (
                   <TableRow
                     key={row.id}
-                    className="bg-white border-t border-[#e0e0e0] hover:bg-white"
+                    className="bg-white border-t border-[#e0e0e0] hover:bg-muted/50 cursor-pointer transition-colors"
+                    onClick={() => router.push(`/casos/${row.id}`)}
                   >
                     <TableCell className="w-[60px] py-3 px-5">
                       <span className="text-base font-light text-[#1d1d1d] whitespace-nowrap">

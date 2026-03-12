@@ -102,15 +102,17 @@ export function Painel() {
               disabled
               className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
             >
-              <RefreshCcw className="h-3.5 w-3.5" />
-              Atualizar
+              <List className="h-3.5 w-3.5" />
+              Ver Casos
             </Button>
+
             <Button
+              variant="outline"
               disabled
               className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
             >
-              <Plus className="h-3.5 w-3.5" />
-              Adicionar Caso
+              <RefreshCcw className="h-3.5 w-3.5" />
+              Atualizar
             </Button>
           </div>
         </div>

@@ -3,13 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { getOrigens } from "@/services/auxiliar/origens";
 
-export function useOrigens(params?: {
-  search?: string;
-}) {
-  const hasSearch = params?.search && params.search.trim().length > 0;
-  
+export function useOrigens(params?: { search?: string; enabled?: boolean }) {
+  const enabled = params?.enabled ?? true;
   return useQuery({
     queryKey: ["origens", params?.search ?? ""],
-    queryFn: () => getOrigens(params), 
+    queryFn: () => getOrigens(params),
+    enabled,
   });
 }

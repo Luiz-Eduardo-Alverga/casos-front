@@ -10,28 +10,39 @@ import { useProdutos } from "@/hooks/use-produtos";
 import type { Projeto } from "@/services/auxiliar/projetos";
 
 export function CasoFormProjeto() {
-  const { produto, isDisabled } = useCasoForm();
+  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch, setValue, getValues } = useFormContext();
   const produtoValue = watch("produto");
-  // const [projetosSearch, setProjetosSearch] = useState<string>("");
-  
+  const projetoValue = watch("projeto");
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
+
   const produtoAtual = produtoValue || produto;
-  
-  // Buscar produto selecionado para obter o setor
-  const { data: produtos } = useProdutos();
+  const setorFromEdit = editCaseItem?.projeto?.setores?.setor_projeto;
+
+  const { data: produtos } = useProdutos({
+    enabled: optionsRequested,
+  });
   const produtoSelecionado = useMemo(() => {
     if (!produtoAtual || !produtos || !Array.isArray(produtos)) return null;
     return produtos.find(p => String(p.id) === produtoAtual) || null;
   }, [produtoAtual, produtos]);
-  
+
+  const setorProjeto = produtoSelecionado?.setor ?? setorFromEdit;
+
   const { data: projetos, isLoading: isProjetosLoading } = useProjetos({
-    setor_projeto: produtoSelecionado?.setor,
-    // search: projetosSearch.trim() || undefined,
+    setor_projeto: setorProjeto,
+    enabled: optionsRequested && !!setorProjeto,
   });
   
   const projetosOptions = useMemo(() => {
-    if (!projetos || !Array.isArray(projetos)) return [];
-    
+    const list: Array<{ value: string; label: string }> = [];
+    if (lazyLoadComboboxOptions && editCaseItem?.projeto && projetoValue && !projetos?.length) {
+      const p = editCaseItem.projeto;
+      list.push({ value: String(p.id), label: p.descricao });
+      return list;
+    }
+    if (!projetos || !Array.isArray(projetos)) return list;
+
     // Data atual
     const hoje = new Date();
     const primeiroDiaMesAtual = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
@@ -44,11 +55,15 @@ export function CasoFormProjeto() {
       return dataFinal >= primeiroDiaMesAtual;
     });
     
-    return projetosFiltrados.map((p) => ({
+    const options = projetosFiltrados.map((p) => ({
       value: String(p.id),
       label: p.nome_projeto,
     }));
-  }, [projetos]);
+    if (lazyLoadComboboxOptions && editCaseItem?.projeto && projetoValue && !options.some((o) => o.value === projetoValue)) {
+      options.unshift({ value: String(editCaseItem.projeto.id), label: editCaseItem.projeto.descricao });
+    }
+    return options;
+  }, [projetos, lazyLoadComboboxOptions, editCaseItem, projetoValue]);
   
   // Encontrar projeto do mês atual e definir como padrão (apenas quando produto está selecionado)
   useEffect(() => {
@@ -93,8 +108,9 @@ export function CasoFormProjeto() {
         emptyText={isProjetosLoading ? "Carregando projetos..." : "Nenhum projeto encontrado."}
         // onSearchChange={setProjetosSearch}
         searchDebounceMs={450}
-        disabled={isDisabled || !produtoAtual || !produtoSelecionado}
+        disabled={isDisabled || !produtoAtual || (!produtoSelecionado && !setorFromEdit)}
         required
+        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
   );

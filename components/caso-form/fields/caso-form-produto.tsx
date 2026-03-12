@@ -13,22 +13,21 @@ interface CasoFormProdutoProps {
 }
 
 export function CasoFormProduto({ required = true }: CasoFormProdutoProps) {
-  const { isDisabled } = useCasoForm();
+  const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch, setValue } = useFormContext();
   const produtoValue = watch("produto");
-  // const [produtosSearch, setProdutosSearch] = useState<string>("");
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
   const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(
     null,
   );
 
-  const { data: produtos, isLoading: isProdutosLoading } =
-    useProdutos();
-    // {search: produtosSearch.trim() || undefined,}
+  const { data: produtos, isLoading: isProdutosLoading } = useProdutos({
+    enabled: optionsRequested,
+  });
 
   const produtosOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
 
-    // Adiciona produtos da API
     if (produtos && Array.isArray(produtos)) {
       produtos.forEach((p) => {
         options.push({
@@ -38,23 +37,21 @@ export function CasoFormProduto({ required = true }: CasoFormProdutoProps) {
       });
     }
 
-    // Se há um produto selecionado e ele não está nas opções, adiciona ele no início
     if (produtoValue && produtoSelecionado) {
       const produtoValueStr = String(produtoSelecionado.id);
       const produtoLabel = `${produtoSelecionado.nome_projeto} - ${produtoSelecionado.setor}`;
-
-      // Verifica se já não está nas opções
-      const jaExiste = options.some((opt) => opt.value === produtoValueStr);
-      if (!jaExiste) {
-        options.unshift({
-          value: produtoValueStr,
-          label: produtoLabel,
-        });
+      if (!options.some((opt) => opt.value === produtoValueStr)) {
+        options.unshift({ value: produtoValueStr, label: produtoLabel });
       }
     }
 
+    if (lazyLoadComboboxOptions && editCaseItem?.produto && produtoValue && !options.some((o) => o.value === produtoValue)) {
+      const p = editCaseItem.produto;
+      options.unshift({ value: String(p.id), label: p.nome });
+    }
+
     return options;
-  }, [produtos, produtoValue, produtoSelecionado]);
+  }, [produtos, produtoValue, produtoSelecionado, lazyLoadComboboxOptions, editCaseItem]);
 
   // Quando o produto é selecionado, buscar e salvar os dados completos
   useEffect(() => {
@@ -87,10 +84,10 @@ export function CasoFormProduto({ required = true }: CasoFormProdutoProps) {
             ? "Carregando produtos..."
             : "Nenhum produto encontrado."
         }
-        // onSearchChange={setProdutosSearch}
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}
+        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
   );

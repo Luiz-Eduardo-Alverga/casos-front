@@ -9,19 +9,19 @@ import { useUsuarios } from "@/hooks/use-usuarios";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
 export function CasoFormQaAtribuido() {
-  const { produto, isDisabled } = useCasoForm();
+  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
   const qaAtribuido = watch("qaAtribuido");
   const produtoValue = watch("produto");
-  // const [usuariosSearch, setUsuariosSearch] = useState<string>("");
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
   const [qaSelecionado, setQaSelecionado] = useState<Usuario | null>(null);
-  
+
   const produtoAtual = produtoValue || produto;
-  
+
   const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios({
-    // search: usuariosSearch.trim() || undefined,
+    enabled: optionsRequested,
   });
-  
+
   const qasOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
     const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
@@ -39,20 +39,21 @@ export function CasoFormQaAtribuido() {
       });
     }
     
-    // Adiciona QA selecionado se não estiver nas opções
     if (qaAtribuido && qaSelecionado) {
       const qaValue = qaSelecionado.id;
       if (!valuesAdded.has(qaValue)) {
-        options.unshift({
-          value: qaValue,
-          label: qaSelecionado.nome_suporte,
-        });
+        options.unshift({ value: qaValue, label: qaSelecionado.nome_suporte });
         valuesAdded.add(qaValue);
       }
     }
-    
+
+    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.qa && qaAtribuido && !valuesAdded.has(qaAtribuido)) {
+      const u = editCaseItem.caso.usuarios.qa;
+      options.unshift({ value: String(u.id), label: u.nome ?? String(u.id) });
+    }
+
     return options;
-  }, [usuarios, qaAtribuido, qaSelecionado]);
+  }, [usuarios, qaAtribuido, qaSelecionado, lazyLoadComboboxOptions, editCaseItem]);
   
   // Quando QA é selecionado, buscar e salvar os dados completos
   useEffect(() => {
@@ -78,6 +79,7 @@ export function CasoFormQaAtribuido() {
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
+        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
   );

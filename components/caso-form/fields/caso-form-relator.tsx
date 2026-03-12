@@ -10,18 +10,18 @@ import { getUser } from "@/lib/auth";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
 export function CasoFormRelator() {
-  const { isDisabled } = useCasoForm();
+  const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
   const relator = watch("relator");
-  // const [usuariosSearch, setUsuariosSearch] = useState<string>("");
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
   const [relatorSelecionado, setRelatorSelecionado] = useState<Usuario | null>(null);
-  
+
   const user = getUser();
-  
+
   const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios({
-    // search: usuariosSearch.trim() || undefined,
+    enabled: optionsRequested,
   });
-  
+
   const relatoresOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
     const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
@@ -51,20 +51,21 @@ export function CasoFormRelator() {
       });
     }
     
-    // Adiciona relator selecionado se não estiver nas opções
     if (relator && relatorSelecionado) {
       const relatorValue = relatorSelecionado.id;
       if (!valuesAdded.has(relatorValue)) {
-        options.unshift({
-          value: relatorValue,
-          label: relatorSelecionado.nome_suporte,
-        });
+        options.unshift({ value: relatorValue, label: relatorSelecionado.nome_suporte });
         valuesAdded.add(relatorValue);
       }
     }
-    
+
+    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.relator && relator && !valuesAdded.has(relator)) {
+      const u = editCaseItem.caso.usuarios.relator;
+      options.unshift({ value: String(u.id), label: u.nome ?? String(u.id) });
+    }
+
     return options;
-  }, [usuarios, relator, relatorSelecionado, user]);
+  }, [usuarios, relator, relatorSelecionado, user, lazyLoadComboboxOptions, editCaseItem]);
   
   // Quando relator é selecionado, buscar e salvar os dados completos
   useEffect(() => {
@@ -91,6 +92,7 @@ export function CasoFormRelator() {
         searchDebounceMs={450}
         disabled={isDisabled}
         required
+        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
   );

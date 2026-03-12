@@ -12,26 +12,36 @@ interface CasoFormModuloProps {
 }
 
 export function CasoFormModulo({ required = true }: CasoFormModuloProps) {
-  const { produto, isDisabled } = useCasoForm();
+  const { produto, isDisabled, lazyLoadComboboxOptions } = useCasoForm();
   const { watch } = useFormContext();
   const produtoValue = watch("produto");
-  // const [modulosSearch, setModulosSearch] = useState<string>("");
+  const moduloValue = watch("modulo");
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
 
   const produtoAtual = produtoValue || produto;
 
   const { data: modulos, isLoading: isModulosLoading } = useModulos({
     produto_id: produtoAtual,
-    // search: modulosSearch.trim() || undefined,
+    enabled: optionsRequested,
   });
 
   const modulosOptions = useMemo(() => {
-    if (!modulos || !Array.isArray(modulos)) return [];
-    // Retorna array de strings, então mapeamos para o formato do Combobox
-    return modulos.map((modulo) => ({
+    if (!modulos || !Array.isArray(modulos)) {
+      if (moduloValue && typeof moduloValue === "string" && moduloValue.trim()) {
+        return [{ value: moduloValue.trim(), label: moduloValue.trim() }];
+      }
+      return [];
+    }
+    const options = modulos.map((modulo) => ({
       value: modulo,
       label: modulo,
     }));
-  }, [modulos]);
+    if (moduloValue && typeof moduloValue === "string" && moduloValue.trim()) {
+      const jaExiste = options.some((o) => o.value === moduloValue.trim());
+      if (!jaExiste) options.unshift({ value: moduloValue.trim(), label: moduloValue.trim() });
+    }
+    return options;
+  }, [modulos, moduloValue]);
 
   return (
     <div className="space-y-2">
@@ -54,6 +64,7 @@ export function CasoFormModulo({ required = true }: CasoFormModuloProps) {
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
         required={required}
+        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
   );

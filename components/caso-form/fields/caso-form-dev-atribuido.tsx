@@ -9,19 +9,19 @@ import { useUsuarios } from "@/hooks/use-usuarios";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
 export function CasoFormDevAtribuido() {
-  const { produto, isDisabled } = useCasoForm();
+  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
   const devAtribuido = watch("devAtribuido");
   const produtoValue = watch("produto");
-  // const [usuariosSearch, setUsuariosSearch] = useState<string>("");
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
   const [devSelecionado, setDevSelecionado] = useState<Usuario | null>(null);
-  
+
   const produtoAtual = produtoValue || produto;
-  
+
   const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios({
-    // search: usuariosSearch.trim() || undefined,
+    enabled: optionsRequested,
   });
-  
+
   const devOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
     const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
@@ -39,20 +39,21 @@ export function CasoFormDevAtribuido() {
       });
     }
     
-    // Adiciona dev selecionado se não estiver nas opções
     if (devAtribuido && devSelecionado) {
       const devValue = devSelecionado.id;
       if (!valuesAdded.has(devValue)) {
-        options.unshift({
-          value: devValue,
-          label: devSelecionado.nome_suporte,
-        });
+        options.unshift({ value: devValue, label: devSelecionado.nome_suporte });
         valuesAdded.add(devValue);
       }
     }
-    
+
+    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.desenvolvimento && devAtribuido && !valuesAdded.has(devAtribuido)) {
+      const u = editCaseItem.caso.usuarios.desenvolvimento;
+      options.unshift({ value: String(u.id), label: u.nome ?? String(u.id) });
+    }
+
     return options;
-  }, [usuarios, devAtribuido, devSelecionado]);
+  }, [usuarios, devAtribuido, devSelecionado, lazyLoadComboboxOptions, editCaseItem]);
   
   // Quando dev é selecionado, buscar e salvar os dados completos
   useEffect(() => {
@@ -79,6 +80,7 @@ export function CasoFormDevAtribuido() {
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
         required
+        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
   );

@@ -16,6 +16,8 @@ interface ComboboxFieldProps {
   searchDebounceMs?: number;
   disabled?: boolean;
   required?: boolean;
+  /** Quando true, dispara onOpenChange ao abrir/fechar (para lazy load de opções). */
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function ComboboxField({
@@ -29,6 +31,7 @@ export function ComboboxField({
   searchDebounceMs,
   disabled = false,
   required = false,
+  onOpenChange,
 }: ComboboxFieldProps) {
   const { control, formState: { errors } } = useFormContext();
   const error = errors[name];
@@ -58,6 +61,7 @@ export function ComboboxField({
               onSearchChange={onSearchChange}
               searchDebounceMs={searchDebounceMs}
               disabled={disabled}
+              onOpenChange={onOpenChange}
             />
           </div>
         )}

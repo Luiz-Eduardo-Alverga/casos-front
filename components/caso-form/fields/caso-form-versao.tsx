@@ -12,25 +12,31 @@ interface CasoFormVersaoProps {
 }
 
 export function CasoFormVersao({ required = true }: CasoFormVersaoProps) {
-  const { produto, isDisabled } = useCasoForm();
+  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
   const produtoValue = watch("produto");
-  // const [versoesSearch, setVersoesSearch] = useState<string>("");
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
 
   const produtoAtual = produtoValue || produto;
 
   const { data: versoes, isLoading: isVersoesLoading } = useVersoes({
     produto_id: produtoAtual,
-    // search: versoesSearch.trim() || undefined,
+    enabled: optionsRequested,
   });
 
   const versoesOptions = useMemo(() => {
-    // garantir um `value` único por opção (o Combobox usa `value` como `key`).
-    return (versoes ?? []).map((v, idx) => ({
+    const list = (versoes ?? []).map((v, idx) => ({
       value: `${v.sequencia ?? ""}-${v.versao ?? ""}-${idx}`,
       label: v.versao,
     }));
-  }, [versoes]);
+    // Em modo lazy, opção apenas com dados da API (sem depender do estado do form)
+    const versaoApi = editCaseItem?.produto?.versao;
+    if (lazyLoadComboboxOptions && versaoApi != null && String(versaoApi).trim() !== "" && !list.some((o) => o.value === String(versaoApi))) {
+      const value = String(versaoApi);
+      list.unshift({ value, label: value });
+    }
+    return list;
+  }, [versoes, lazyLoadComboboxOptions, editCaseItem?.produto?.versao]);
 
   return (
     <div className="space-y-2">
@@ -55,6 +61,7 @@ export function CasoFormVersao({ required = true }: CasoFormVersaoProps) {
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
         required={required}
+        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
   );
