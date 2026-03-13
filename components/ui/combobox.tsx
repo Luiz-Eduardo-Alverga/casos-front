@@ -102,12 +102,9 @@ export function Combobox({
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
-          // onFocus={() => {
-          //   // Melhor UX para navegação via teclado (TAB): abre ao focar
-          //   if (!disabled) setOpen(true)
-          // }}
           className={cn(
             "w-full justify-between h-9",
+            value && "pr-0",
             !value && "text-muted-foreground",
             className,
           )}
@@ -115,15 +112,8 @@ export function Combobox({
           <span className="truncate">
             {selectedOption ? selectedOption.label : placeholder}
           </span>
-          <div className="flex items-center gap-1 ml-2">
-            {/* {value && (
-              <X
-                className="h-4 w-4 shrink-0 opacity-50 hover:opacity-100 transition-opacity"
-                onClick={handleClear}
-              />
-            )} */}
-            <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-          </div>
+
+          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent

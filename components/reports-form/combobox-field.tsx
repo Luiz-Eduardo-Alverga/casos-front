@@ -2,8 +2,11 @@
 
 import { Label } from "@/components/ui/label";
 import { Combobox, ComboboxOption } from "@/components/ui/combobox";
-import { LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useFormContext, Controller } from "react-hook-form";
+import { cn } from "@/lib/utils";
 
 interface ComboboxFieldProps {
   name: string;
@@ -33,7 +36,10 @@ export function ComboboxField({
   required = false,
   onOpenChange,
 }: ComboboxFieldProps) {
-  const { control, formState: { errors } } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
   const error = errors[name];
 
   return (
@@ -51,18 +57,40 @@ export function ComboboxField({
         name={name}
         control={control}
         render={({ field }) => (
-          <div className="[&_button]:rounded-lg [&_button]:border-border-input">
-            <Combobox
-              options={options}
-              value={field.value}
-              onValueChange={field.onChange}
-              placeholder={placeholder}
-              emptyText={emptyText}
-              onSearchChange={onSearchChange}
-              searchDebounceMs={searchDebounceMs}
-              disabled={disabled}
-              onOpenChange={onOpenChange}
-            />
+          <div className="flex items-center">
+            <div
+              className={cn(
+                "flex-1 min-w-0 [&_button]:border-border-input",
+                field.value
+                  ? "[&_button]:rounded-l-lg [&_button]:rounded-r-none [&_button]:border-r-0"
+                  : "[&_button]:rounded-lg",
+              )}
+            >
+              <Combobox
+                options={options}
+                value={field.value}
+                onValueChange={field.onChange}
+                placeholder={placeholder}
+                emptyText={emptyText}
+                onSearchChange={onSearchChange}
+                searchDebounceMs={searchDebounceMs}
+                disabled={disabled}
+                onOpenChange={onOpenChange}
+              />
+            </div>
+            {field.value && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-9 w-9 shrink-0 rounded-l-none border-l-0 rounded-r-lg border-border-input"
+                onClick={() => field.onChange(undefined)}
+                disabled={disabled}
+                aria-label="Remover seleção"
+              >
+                <X className="h-4 w-4 opacity-50" />
+              </Button>
+            )}
           </div>
         )}
       />

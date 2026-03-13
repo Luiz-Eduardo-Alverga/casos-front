@@ -229,7 +229,7 @@ export function AbaAnotacoes({
                       value={editandoTexto}
                       onChange={(e) => setEditandoTexto(e.target.value)}
                       className={cn(
-                        "w-full resize-none rounded-lg border-border-input text-xs font-semibold",
+                        " resize-none rounded-lg  text-xs font-semibold ",
                         ALTURA_MIN_ANOTACAO,
                       )}
                       autoFocus
@@ -237,7 +237,7 @@ export function AbaAnotacoes({
                   ) : (
                     <div
                       className={cn(
-                        "w-full rounded-lg bg-muted/30 p-2.5 border-l-4 border-border-divider text-xs font-semibold leading-5 text-foreground whitespace-pre-wrap",
+                        "w-full rounded-lg bg-muted/30 p-2.5 border-l-4 border-primary  text-xs font-semibold leading-5 text-foreground whitespace-pre-wrap",
                         ALTURA_MIN_ANOTACAO,
                       )}
                     >

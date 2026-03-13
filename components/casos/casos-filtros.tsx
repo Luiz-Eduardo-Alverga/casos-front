@@ -16,6 +16,7 @@ import {
   CasoFormCategoria,
 } from "@/components/caso-form";
 import { importanceOptions } from "@/mocks/teste";
+import { useCategorias } from "@/hooks/use-categorias";
 import { Filter, Search } from "lucide-react";
 
 interface CasosFiltersForm {
@@ -40,28 +41,38 @@ interface CasosFiltrosProps {
 
 export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
   const router = useRouter();
+  const { data: categorias = [] } = useCategorias();
+
+  // Resolver tipo_categoria da URL (label ou id) para o id usado no form/Combobox
+  const categoriaIdFromUrl = useMemo(() => {
+    const t = filtrosIniciais.tipo_categoria?.trim();
+    if (!t) return "";
+    const byLabel = categorias.find((c) => c.tipo_categoria === t);
+    if (byLabel) return byLabel.id;
+    const byId = categorias.find((c) => c.id === t);
+    return byId ? byId.id : t;
+  }, [filtrosIniciais.tipo_categoria, categorias]);
 
   const methods = useForm<CasosFiltersForm>({
     defaultValues: {
       ...filtrosIniciais,
-      categoria: filtrosIniciais.tipo_categoria, // Mapear tipo_categoria da URL para categoria do form
+      categoria: categoriaIdFromUrl || filtrosIniciais.tipo_categoria,
     },
   });
 
-  // Sincronizar form quando filtros iniciais mudarem (URL mudou)
+  // Sincronizar form quando filtros iniciais ou categorias mudarem (URL mudou ou categorias carregaram)
   useEffect(() => {
     methods.reset({
       ...filtrosIniciais,
-      categoria: filtrosIniciais.tipo_categoria, // Mapear tipo_categoria da URL para categoria do form
+      categoria: categoriaIdFromUrl || filtrosIniciais.tipo_categoria,
     });
-  }, [filtrosIniciais, methods]);
+  }, [filtrosIniciais, categoriaIdFromUrl, methods]);
 
   const produto = methods.watch("produto");
 
   const handleFiltrar = useCallback(() => {
     const values = methods.getValues();
 
-    // Criar objeto com apenas valores não vazios
     const params = new URLSearchParams();
 
     if (values.produto?.trim()) {
@@ -77,15 +88,16 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
       params.set("modulo", values.modulo.trim());
     }
     if (values.categoria?.trim()) {
-      params.set("tipo_categoria", values.categoria.trim()); // Mapear categoria do form para tipo_categoria na URL
+      const categoria = categorias.find((c) => c.id === values.categoria.trim());
+      const valorTipoCategoria = categoria?.tipo_categoria ?? values.categoria.trim();
+      params.set("tipo_categoria", valorTipoCategoria);
     }
     if (values.descricao_resumo?.trim()) {
       params.set("descricao_resumo", values.descricao_resumo.trim());
     }
 
-    // Atualizar URL com os parâmetros
     router.push(`/casos?${params.toString()}`);
-  }, [methods, router]);
+  }, [methods, router, categorias]);
 
   const handleLimparFiltros = useCallback(() => {
     methods.reset({
@@ -148,19 +160,11 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
               <div className="flex gap-2 col-span-1">
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={handleLimparFiltros}
-                  className="w-full px-4 flex-1 sm:flex-initial"
-                >
-                  Limpar filtros
-                </Button>
-
-                <Button
-                  type="button"
                   onClick={handleFiltrar}
                   className="w-full px-4 flex-1 sm:flex-initial"
                 >
-                  Filtrar
+                  <Search className="h-3.5 w-3.5 mr-2" />
+                  <span>Filtrar</span>
                 </Button>
               </div>
             </div>

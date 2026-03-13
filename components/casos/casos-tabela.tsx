@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
@@ -18,8 +17,9 @@ import { ImportanciaBadge } from "@/components/importancia-badge";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
 import { getUser } from "@/lib/auth";
-import { Box, Loader2 } from "lucide-react";
+import { Box, ChevronUp, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
+import { Button } from "@/components/ui/button";
 
 interface CasosTabelaProps {
   filtros: {
@@ -126,7 +126,33 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
     [data]
   );
 
-  // const totalItens = useMemo(() => data?.pages.flatMap((p) => p.data.length) ?? 0, [data]);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setShowScrollTop(typeof window !== "undefined" && window.scrollY >= window.innerHeight);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el || !hasNextPage || isFetchingNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { root: null, rootMargin: "100px", threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <Card className="bg-card shadow-card rounded-lg flex flex-col">
@@ -248,27 +274,29 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
               </TableBody>
             </Table>
             {hasNextPage && itens.length > 0 && (
-              <div className="mt-4 flex justify-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                >
-                  {isFetchingNextPage ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
-                      Carregando...
-                    </>
-                  ) : (
-                    "Carregar mais"
-                  )}
-                </Button>
+              <div
+                ref={loadMoreRef}
+                className="mt-4 flex justify-center min-h-[48px] items-center"
+              >
+                {isFetchingNextPage && (
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                )}
               </div>
             )}
           </>
         )}
       </CardContent>
+      {showScrollTop && (
+        <Button
+          type="button"
+          size="icon"
+          className="fixed bottom-6 right-6 h-10 w-10 rounded-full bg-primary text-white shadow-md hover:bg-primary/90 z-50"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          aria-label="Voltar ao topo"
+        >
+          <ChevronUp className="h-5 w-5" />
+        </Button>
+      )}
     </Card>
   );
 }

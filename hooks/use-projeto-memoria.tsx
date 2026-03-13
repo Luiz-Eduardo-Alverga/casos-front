@@ -17,7 +17,7 @@ export interface UseProjetoMemoriaOptions {
 
 export function useProjetoMemoria(
   params: ProjetoMemoriaQueryParams = {},
-  options?: UseProjetoMemoriaOptions
+  options?: UseProjetoMemoriaOptions,
 ) {
   return useInfiniteQuery({
     queryKey: ["projeto-memoria", params],
@@ -29,7 +29,9 @@ export function useProjetoMemoria(
       }),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) =>
-      lastPage.pagination.has_more ? lastPage.pagination.next_cursor : undefined,
+      lastPage.pagination.has_more
+        ? lastPage.pagination.next_cursor
+        : undefined,
     enabled: options?.enabled ?? true,
   });
 }

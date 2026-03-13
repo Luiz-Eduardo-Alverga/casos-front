@@ -1,9 +1,9 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ImportanciaBadge } from "@/components/importancia-badge";
-import { Button } from "@/components/ui/button";
 import { Box, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
 import { CasosProdutoSkeleton } from "@/components/painel/casos-produto-skeleton";
@@ -61,6 +61,24 @@ export function CasosProduto({
     );
 
   const casos = data?.pages.flatMap((p) => p.data.map(mapItemToCaso)) ?? [];
+
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el || !hasNextPage || isFetchingNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { root: null, rootMargin: "100px", threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const hasSelection = Boolean(produtoId && produtoVersao);
 
@@ -153,22 +171,13 @@ export function CasosProduto({
           )}
         </div>
         {hasNextPage && casos.length > 0 && (
-          <div className="mt-4 flex justify-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-            >
-              {isFetchingNextPage ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
-                  Carregando...
-                </>
-              ) : (
-                "Carregar mais"
-              )}
-            </Button>
+          <div
+            ref={loadMoreRef}
+            className="mt-4 flex justify-center min-h-[48px] items-center"
+          >
+            {isFetchingNextPage && (
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            )}
           </div>
         )}
       </CardContent>

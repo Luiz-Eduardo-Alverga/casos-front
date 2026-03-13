@@ -37,7 +37,7 @@ export function CasoEditCardHeader({
         {badge != null && badge !== "" && (
           <Badge
             variant="secondary"
-            className="h-7 shrink-0 rounded-full border-transparent bg-sky-100 px-2.5 text-sm font-semibold text-text-primary"
+            className="h-7 shrink-0 rounded-full border-transparent bg-sky-100 px-2.5 text-sm font-semibold text-text-primary hover:bg-sky-100/80"
           >
             #{badge}
           </Badge>

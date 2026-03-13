@@ -38,7 +38,7 @@ export function CasoEditColunaDireita({ casoId }: CasoEditColunaDireitaProps) {
         <CardContent className="p-6 pt-3 space-y-4">
           <CasoFormProduto />
           <CasoFormVersao />
-          <CasoFormModulo />
+          <CasoFormModulo required={false} />
           <CasoFormProjeto />
         </CardContent>
       </Card>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Save, X } from "lucide-react";
 import { useSidebar } from "@/components/sidebar-provider";
 import { useRouter } from "next/navigation";
 
@@ -48,6 +48,7 @@ export function CasoEditRodapeAcoes({
         disabled={isLoading || disabled}
         className="w-48 px-4"
       >
+        <X className="h-3.5 w-3.5 mr-2" />
         Cancelar
       </Button>
       <Button
@@ -62,7 +63,10 @@ export function CasoEditRodapeAcoes({
             Salvando...
           </>
         ) : (
-          "Salvar"
+          <>
+            <Save className="h-3.5 w-3.5 mr-2" />
+            <span>Salvar</span>
+          </>
         )}
       </Button>
     </footer>

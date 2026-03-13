@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, RefreshCcw } from "lucide-react";
 import { CasosFiltros } from "./casos-filtros";
 import { CasosTabela } from "./casos-tabela";
 
@@ -30,6 +30,10 @@ export function Casos() {
     };
   }, [searchParams]);
 
+  const handleLimparFiltros = useCallback(() => {
+    router.push("/casos");
+  }, [router]);
+
   return (
     <div className="px-6 pt-20 py-10 flex-1 flex flex-col">
       {/* Title Section */}
@@ -41,6 +45,15 @@ export function Casos() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            type="button"
+            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
+            onClick={handleLimparFiltros}
+          >
+            <RefreshCcw className="h-3.5 w-3.5" />
+            Limpar filtros
+          </Button>
           <Button
             variant="outline"
             type="button"

@@ -56,6 +56,7 @@ export async function getProjetoMemoria(
     ["produto_id", params.produto_id],
     ["produto_nome", params.produto_nome],
     ["versao_produto", params.versao_produto],
+    ["tipo_categoria", params.tipo_categoria],
   ];
 
   for (const [key, value] of stringParams) {
@@ -98,13 +99,13 @@ export async function getProjetoMemoria(
  * Segue o padrão: Service → API Route → API externa GET /projeto-memoria/{id}
  */
 export async function getProjetoMemoriaById(
-  id: number | string
+  id: number | string,
 ): Promise<ProjetoMemoriaItemResponse> {
   const token = getToken();
 
   const url = new URL(
     `/api/projeto-memoria/${encodeURIComponent(String(id))}`,
-    window.location.origin
+    window.location.origin,
   );
 
   const response = await fetchWithAuth(url.toString(), {
@@ -119,7 +120,7 @@ export async function getProjetoMemoriaById(
     throw new Error(
       error?.message ||
         error?.error ||
-        "Erro ao buscar detalhes do projeto memória"
+        "Erro ao buscar detalhes do projeto memória",
     );
   }
 
