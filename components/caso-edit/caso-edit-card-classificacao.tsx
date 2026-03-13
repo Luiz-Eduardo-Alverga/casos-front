@@ -17,10 +17,16 @@ export interface CasoEditCardClassificacaoProps {
 /**
  * Card Classificação e Origem – visível em todas as abas exceto Anotações.
  */
-export function CasoEditCardClassificacao({ casoId }: CasoEditCardClassificacaoProps) {
+export function CasoEditCardClassificacao({
+  casoId,
+}: CasoEditCardClassificacaoProps) {
   return (
     <Card className="bg-card shadow-card rounded-lg">
-      <CasoEditCardHeader title="Classificação e Origem" icon={Bug} badge={casoId} shrink={false} />
+      <CasoEditCardHeader
+        title="Classificação e Origem"
+        icon={Bug}
+        shrink={false}
+      />
       <CardContent className="p-6 pt-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px]">
           <CasoFormImportancia />

@@ -20,6 +20,24 @@ export interface CasoEditHeaderProps {
   isExcluindo?: boolean;
 }
 
+const TAB_TRIGGER_CLASS = cn(
+  "group rounded-full px-3 py-1.5 text-sm font-medium flex-1 gap-1.5",
+  "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+  "data-[state=inactive]:bg-transparent data-[state=inactive]:hover:bg-muted data-[state=inactive]:hover:text-foreground",
+);
+
+const BADGE_CLASS = cn(
+  "inline-flex min-w-[1.25rem] h-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums",
+  "bg-primary text-white",
+  "group-data-[state=active]:bg-[#F8D33E] group-data-[state=active]:text-primary-foreground",
+);
+
+interface TabItem {
+  value: string;
+  label: string;
+  count?: number;
+}
+
 export function CasoEditHeader({
   countAnotacoes,
   countRelacoes,
@@ -31,56 +49,31 @@ export function CasoEditHeader({
 }: CasoEditHeaderProps) {
   const router = useRouter();
 
+  const tabs: TabItem[] = [
+    { value: "inicial", label: "Inicial" },
+    { value: "anotacoes", label: "Anotações", count: countAnotacoes },
+    { value: "relacoes", label: "Relações", count: countRelacoes },
+    { value: "clientes", label: "Clientes", count: countClientes },
+    { value: "producao", label: "Produção" },
+  ];
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 shrink-0 ">
       {/* Coluna esquerda: mesmo espaço do conteúdo à esquerda do formulário */}
       <div className="flex-1 flex flex-col gap-6 min-w-0">
-        <TabsList className=" w-full sm:w-auto inline-flex h-9 items-center justify-start rounded-lg bg-white p-1 text-muted-foreground gap-0 flex-wrap ">
-          <TabsTrigger
-            value="inicial"
-            className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium ",
-              "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            )}
-          >
-            Inicial
-          </TabsTrigger>
-          <TabsTrigger
-            value="anotacoes"
-            className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium ",
-              "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            )}
-          >
-            Anotações ({countAnotacoes})
-          </TabsTrigger>
-          <TabsTrigger
-            value="relacoes"
-            className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium ",
-              "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            )}
-          >
-            Relações ({countRelacoes})
-          </TabsTrigger>
-          <TabsTrigger
-            value="clientes"
-            className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium ",
-              "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            )}
-          >
-            Clientes ({countClientes})
-          </TabsTrigger>
-          <TabsTrigger
-            value="producao"
-            className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium",
-              "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-            )}
-          >
-            Produção
-          </TabsTrigger>
+        <TabsList className="w-full flex sm:w-auto h-full items-center rounded-full bg-white py-1 text-muted-foreground gap-0">
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className={TAB_TRIGGER_CLASS}
+            >
+              {tab.label}
+              {tab.count !== undefined && tab.count >= 1 && (
+                <span className={BADGE_CLASS}>{tab.count}</span>
+              )}
+            </TabsTrigger>
+          ))}
         </TabsList>
       </div>
 
@@ -89,7 +82,7 @@ export function CasoEditHeader({
         <Button
           type="button"
           variant="outline"
-          className=" px-3"
+          className=" px-3 flex-1"
           onClick={() => router.back()}
         >
           <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
@@ -98,7 +91,7 @@ export function CasoEditHeader({
         <Button
           type="button"
           variant="outline"
-          className=" px-3"
+          className=" px-3 flex-1"
           onClick={onClonar}
           disabled={isClonando}
         >
@@ -108,7 +101,7 @@ export function CasoEditHeader({
         <Button
           type="button"
           variant="outline"
-          className=" px-3 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+          className=" px-3 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30 flex-1"
           onClick={onExcluir}
           disabled={isExcluindo}
         >

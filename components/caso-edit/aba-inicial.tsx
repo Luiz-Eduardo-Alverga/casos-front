@@ -22,7 +22,12 @@ export function AbaInicial({ casoId }: AbaInicialProps) {
   return (
     <div className="flex flex-col gap-6 h-full">
       <Card className="bg-card shadow-card rounded-lg h-full">
-        <CasoEditCardHeader title="Informações" icon={FileText} badge={casoId} shrink={false} />
+        <CasoEditCardHeader
+          title="Informações"
+          icon={FileText}
+          badge={casoId}
+          shrink={false}
+        />
         <CardContent className="p-6 pt-3 space-y-4 ">
           <CasoFormDescricaoResumo />
           <CasoFormDescricaoCompleta />

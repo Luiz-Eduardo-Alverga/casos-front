@@ -30,7 +30,11 @@ export function CasoEditColunaDireita({ casoId }: CasoEditColunaDireitaProps) {
       </Card>
 
       <Card className="bg-card shadow-card rounded-lg">
-        <CasoEditCardHeader title="Dados do Produto" icon={Package} badge={casoId} shrink={false} />
+        <CasoEditCardHeader
+          title="Dados do Produto"
+          icon={Package}
+          shrink={false}
+        />
         <CardContent className="p-6 pt-3 space-y-4">
           <CasoFormProduto />
           <CasoFormVersao />
@@ -40,7 +44,7 @@ export function CasoEditColunaDireita({ casoId }: CasoEditColunaDireitaProps) {
       </Card>
 
       <Card className="bg-card shadow-card rounded-lg">
-        <CasoEditCardHeader title="Atribuição" icon={Users} badge={casoId} shrink={false} />
+        <CasoEditCardHeader title="Atribuição" icon={Users} shrink={false} />
         <CardContent className="p-6 pt-3 space-y-4">
           <CasoFormDevAtribuido />
           <CasoFormQaAtribuido />
