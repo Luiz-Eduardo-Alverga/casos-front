@@ -121,7 +121,7 @@ export function SuccessModal({ isOpen, onClose, numeroCaso }: SuccessModalProps)
               <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  className="flex-1 h-[42px]"
+                  className="flex-1"
                   onClick={handleCopy}
                 >
                   {copied ? (
@@ -136,7 +136,7 @@ export function SuccessModal({ isOpen, onClose, numeroCaso }: SuccessModalProps)
                     </>
                   )}
                 </Button>
-                <Button className="flex-1 h-[42px] bg-primary text-primary-foreground hover:bg-primary/90" onClick={onClose}>
+                <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" onClick={onClose}>
                   <>
                     <Plus className="h-4 w-4 " />
                     Novo caso

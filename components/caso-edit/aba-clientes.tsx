@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { CasoEditCardHeader } from "./caso-edit-card-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -77,14 +78,7 @@ export function AbaClientes({
   return (
     <>
       <Card className="bg-card shadow-card rounded-lg flex flex-col h-full">
-        <CardHeader className="p-5 pb-2 border-b border-border-divider shrink-0">
-          <div className="flex items-center gap-2">
-            <Users className="h-3.5 w-3.5 text-text-primary" />
-            <CardTitle className="text-sm font-semibold text-text-primary">
-              Clientes vinculados
-            </CardTitle>
-          </div>
-        </CardHeader>
+        <CasoEditCardHeader title="Clientes vinculados" icon={Users} badge={casoId} />
         <CardContent className="p-6 pt-3 space-y-4 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
           <div className="flex flex-wrap items-end gap-4 p-4 rounded-lg border border-border-divider bg-muted/30">
             <div className="space-y-2 min-w-[120px]">
@@ -126,7 +120,7 @@ export function AbaClientes({
               type="button"
               onClick={handleAdicionar}
               disabled={!clienteId.trim() || isAdding}
-              className="h-[42px] shrink-0"
+              className="shrink-0"
             >
               <UserPlus className="h-3.5 w-3.5 mr-2" />
               Adicionar

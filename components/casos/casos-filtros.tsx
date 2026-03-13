@@ -150,7 +150,7 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
                   type="button"
                   variant="outline"
                   onClick={handleLimparFiltros}
-                  className="w-full h-[42px] px-4 flex-1 sm:flex-initial"
+                  className="w-full px-4 flex-1 sm:flex-initial"
                 >
                   Limpar filtros
                 </Button>
@@ -158,7 +158,7 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
                 <Button
                   type="button"
                   onClick={handleFiltrar}
-                  className="w-full h-[42px] px-4 flex-1 sm:flex-initial"
+                  className="w-full px-4 flex-1 sm:flex-initial"
                 >
                   Filtrar
                 </Button>

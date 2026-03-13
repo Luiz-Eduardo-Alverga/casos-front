@@ -44,7 +44,7 @@ export function Casos() {
           <Button
             variant="outline"
             type="button"
-            className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
+            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
             onClick={() => router.push("/painel")}
           >
             <ArrowLeft className="h-3.5 w-3.5" />

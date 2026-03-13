@@ -1,14 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { CasoEditCardHeader } from "./caso-edit-card-header";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import type { AnotacaoCasoItem } from "@/interfaces/projeto-memoria";
-import { Pencil, Trash2, Check, X } from "lucide-react";
+import { Pencil, Trash2, FileText, User } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
-import { FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const PLACEHOLDER_DESCRICAO_COMPLETA =
+  "Descreva detalhadamente o caso, incluindo contexto, passos para reproduzir e comportamento esperado...";
+
+/** Exibe data no formato "Criado em ..." */
+function formatarCriadoEm(dataAnotacao: string) {
+  if (!dataAnotacao?.trim()) return "";
+  const s = dataAnotacao.trim();
+  if (/^criado em/i.test(s)) return s;
+  return `Criado em ${s}`;
+}
 
 export interface AbaAnotacoesProps {
   casoId: number;
@@ -22,6 +35,11 @@ export interface AbaAnotacoesProps {
   isCreating?: boolean;
 }
 
+/**
+ * Aba Anotações do caso.
+ * Estrutura: Card com header (título + badge #caso), seção Descrição Completa (nova anotação) e lista de anotações com scroll interno.
+ * Segue PADRAO_COMPONENTES e PADRAO_ESPACAMENTOS.
+ */
 export function AbaAnotacoes({
   casoId,
   anotacoes,
@@ -76,123 +94,159 @@ export function AbaAnotacoes({
     }
   };
 
+  /** Altura mínima do bloco de texto da anotação; expande com o conteúdo */
+  const ALTURA_MIN_ANOTACAO = "min-h-[144px]";
+
   return (
     <>
-      <Card className="bg-card shadow-card rounded-lg flex flex-col  h-full">
-        <CardHeader className="p-5 pb-2 border-b border-border-divider shrink-0">
-          <div className="flex items-center gap-2">
-            <FileText className="h-3.5 w-3.5 text-text-primary" />
-            <CardTitle className="text-sm font-semibold text-text-primary">
-              Anotações
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="p-6 pt-3 space-y-4 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-text-label">
-              Nova anotação
-            </label>
-            <div className="flex gap-2">
+      <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
+        <CasoEditCardHeader
+          title="Anotações do caso"
+          icon={FileText}
+          badge={casoId}
+        />
+
+        <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 lg:min-h-0">
+          {/* Nova anotação: Descrição Completa + textarea + Salvar */}
+          <div className="shrink-0 flex flex-col items-end gap-3 border-b border-border-divider pb-4 space-y-2">
+            <div className="w-full space-y-2">
+              <Label
+                htmlFor="nova-anotacao"
+                className="text-sm font-medium text-text-label"
+              >
+                Descrição Completa
+              </Label>
               <Textarea
-                placeholder="Digite a anotação..."
+                id="nova-anotacao"
+                placeholder={PLACEHOLDER_DESCRICAO_COMPLETA}
                 value={novaAnotacao}
                 onChange={(e) => setNovaAnotacao(e.target.value)}
-                className="min-h-[80px] rounded-lg border-border-input px-[17px] py-3 resize-none"
+                className="min-h-[158px] w-full resize-none rounded-lg border-border-input px-4 py-3"
                 disabled={isCreating}
               />
-              <Button
-                type="button"
-                onClick={handleAdicionar}
-                disabled={!novaAnotacao.trim() || isCreating}
-                className="h-[42px] shrink-0 self-end"
-              >
-                Adicionar
-              </Button>
             </div>
+            <Button
+              type="button"
+              onClick={handleAdicionar}
+              disabled={!novaAnotacao.trim() || isCreating}
+              className="min-w-[86px]"
+            >
+              Salvar
+            </Button>
           </div>
 
+          {/* Lista de anotações — scroll apenas nesta área */}
           {lista.length === 0 ? (
-            <EmptyState
-              imageAlt="Nenhuma anotação"
-              icon={FileText}
-              title="Nenhuma anotação"
-              description="Adicione uma anotação acima."
-            />
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden pt-4">
+              <EmptyState
+                imageAlt="Nenhuma anotação"
+                icon={FileText}
+                title="Nenhuma anotação"
+                description="Adicione uma anotação acima."
+              />
+            </div>
           ) : (
-            <ul className="space-y-3">
+            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain pt-4">
               {lista.map((item) => (
-                <li
+                <div
                   key={item.sequencia}
-                  className="border border-border-divider rounded-lg p-4 bg-card"
+                  className="flex w-full flex-col gap-2"
                 >
-                  {editandoId === item.sequencia ? (
-                    <div className="space-y-2">
-                      <Textarea
-                        value={editandoTexto}
-                        onChange={(e) => setEditandoTexto(e.target.value)}
-                        className="min-h-[80px] rounded-lg border-border-input px-[17px] py-3 resize-none"
-                        autoFocus
-                      />
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={handleCancelarEdicao}
-                        >
-                          <X className="h-3.5 w-3.5 mr-1" />
-                          Cancelar
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={handleSalvarEdicao}
-                        >
-                          <Check className="h-3.5 w-3.5 mr-1" />
-                          Salvar
-                        </Button>
+                  {/* Linha superior: avatar + nome + data | ações */}
+                  <div className="flex w-full items-start justify-between gap-3">
+                    <div className="flex min-w-0 flex-1 items-start gap-2">
+                      <div
+                        className="flex size-8 shrink-0 items-center justify-center rounded-full border border-sky-200 bg-sky-50"
+                        aria-hidden
+                      >
+                        <User className="size-3.5 text-sky-700" />
+                      </div>
+                      <div className="min-w-0 flex flex-col">
+                        <span className="text-sm font-semibold leading-5 text-foreground">
+                          {item.usuario}
+                        </span>
+                        <span className="text-xs leading-5 text-text-secondary">
+                          {formatarCriadoEm(item.data_anotacao)}
+                        </span>
                       </div>
                     </div>
-                  ) : (
-                    <>
-                      <p className="text-sm text-text-primary whitespace-pre-wrap">
-                        {item.anotacoes}
-                      </p>
-                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-border-divider">
-                        <span className="text-xs text-text-secondary">
-                          {item.data_anotacao} · {item.usuario}
-                        </span>
-                        <div className="flex gap-2">
+                    <div className="flex shrink-0 items-center gap-3">
+                      {editandoId === item.sequencia ? (
+                        <>
                           <Button
                             type="button"
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            className="h-8 px-2"
-                            onClick={() => handleIniciarEdicao(item)}
+                            onClick={handleCancelarEdicao}
+                            className="min-w-[86px] rounded-lg"
                           >
-                            <Pencil className="h-3.5 w-3.5" />
+                            Cancelar
                           </Button>
                           <Button
                             type="button"
-                            variant="ghost"
                             size="sm"
-                            className="h-8 px-2 text-destructive hover:text-destructive"
+                            onClick={handleSalvarEdicao}
+                            className="min-w-[86px]"
+                          >
+                            Salvar
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="size-9 rounded-lg"
+                            onClick={() => handleIniciarEdicao(item)}
+                            aria-label="Editar anotação"
+                          >
+                            <Pencil className="size-4 text-foreground" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="size-9 rounded-lg text-destructive hover:text-destructive"
                             onClick={() =>
                               setExcluirModal({
                                 open: true,
                                 sequencia: item.sequencia,
                               })
                             }
+                            aria-label="Excluir anotação"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="size-4" />
                           </Button>
                         </div>
-                      </div>
-                    </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Conteúdo: edição = textarea; leitura = bloco com borda esquerda */}
+                  {editandoId === item.sequencia ? (
+                    <Textarea
+                      value={editandoTexto}
+                      onChange={(e) => setEditandoTexto(e.target.value)}
+                      className={cn(
+                        "w-full resize-none rounded-lg border-border-input text-xs font-semibold",
+                        ALTURA_MIN_ANOTACAO,
+                      )}
+                      autoFocus
+                    />
+                  ) : (
+                    <div
+                      className={cn(
+                        "w-full rounded-lg bg-muted/30 p-2.5 border-l-4 border-border-divider text-xs font-semibold leading-5 text-foreground whitespace-pre-wrap",
+                        ALTURA_MIN_ANOTACAO,
+                      )}
+                    >
+                      {item.anotacoes}
+                    </div>
                   )}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </CardContent>
       </Card>

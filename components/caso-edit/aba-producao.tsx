@@ -1,19 +1,17 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { CasoEditCardHeader } from "./caso-edit-card-header";
 import { Package } from "lucide-react";
 
-export function AbaProducao() {
+export interface AbaProducaoProps {
+  casoId: number;
+}
+
+export function AbaProducao({ casoId }: AbaProducaoProps) {
   return (
     <Card className="bg-card shadow-card rounded-lg flex flex-col">
-      <CardHeader className="p-5 pb-2 border-b border-border-divider shrink-0">
-        <div className="flex items-center gap-2">
-          <Package className="h-3.5 w-3.5 text-text-primary" />
-          <CardTitle className="text-sm font-semibold text-text-primary">
-            Produção
-          </CardTitle>
-        </div>
-      </CardHeader>
+      <CasoEditCardHeader title="Produção" icon={Package} badge={casoId} />
       <CardContent className="p-6 pt-3 lg:flex-1 lg:min-h-0">
         <p className="text-sm text-text-secondary">Em breve.</p>
       </CardContent>

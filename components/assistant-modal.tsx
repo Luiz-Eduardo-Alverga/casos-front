@@ -315,14 +315,13 @@ export function AssistantModal({
                 type="button"
                 variant="outline"
                 onClick={onClose}
-                className="h-[42px]"
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
                 disabled={!canSubmit}
-                className="h-[42px] bg-primary text-primary-foreground hover:bg-primary/90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {isAssistantSubmitting ? (
                   <>

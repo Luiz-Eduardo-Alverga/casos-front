@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Check, ChevronsUpDown, X } from "lucide-react"
+import * as React from "react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -12,31 +12,31 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 
 export interface ComboboxOption {
-  value: string
-  label: string
+  value: string;
+  label: string;
 }
 
 export interface ComboboxProps {
-  options: ComboboxOption[]
-  value?: string
-  onValueChange?: (value: string | undefined) => void
-  placeholder?: string
-  searchPlaceholder?: string
-  emptyText?: string
-  onSearchChange?: (search: string) => void
-  searchDebounceMs?: number
-  className?: string
-  disabled?: boolean
+  options: ComboboxOption[];
+  value?: string;
+  onValueChange?: (value: string | undefined) => void;
+  placeholder?: string;
+  searchPlaceholder?: string;
+  emptyText?: string;
+  onSearchChange?: (search: string) => void;
+  searchDebounceMs?: number;
+  className?: string;
+  disabled?: boolean;
   /** Chamado quando o popover abre ou fecha (para lazy load de opções). */
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function Combobox({
@@ -52,47 +52,50 @@ export function Combobox({
   disabled = false,
   onOpenChange,
 }: ComboboxProps) {
-  const [open, setOpen] = React.useState(false)
-  const [searchValue, setSearchValue] = React.useState("")
+  const [open, setOpen] = React.useState(false);
+  const [searchValue, setSearchValue] = React.useState("");
 
   const handleOpenChange = (next: boolean) => {
-    setOpen(next)
-    onOpenChange?.(next)
-  }
+    setOpen(next);
+    onOpenChange?.(next);
+  };
 
-  const selectedOption = options.find((option) => option.value === value)
+  const selectedOption = options.find((option) => option.value === value);
 
   const filteredOptions = React.useMemo(() => {
-    if (!searchValue) return options
-    const searchLower = searchValue.toLowerCase()
+    if (!searchValue) return options;
+    const searchLower = searchValue.toLowerCase();
     return options.filter((option) =>
-      option.label.toLowerCase().includes(searchLower)
-    )
-  }, [options, searchValue])
+      option.label.toLowerCase().includes(searchLower),
+    );
+  }, [options, searchValue]);
 
   React.useEffect(() => {
-    if (!onSearchChange) return
+    if (!onSearchChange) return;
     const t = setTimeout(() => {
-      onSearchChange(searchValue)
-    }, searchDebounceMs)
-    return () => clearTimeout(t)
-  }, [searchValue, onSearchChange, searchDebounceMs])
+      onSearchChange(searchValue);
+    }, searchDebounceMs);
+    return () => clearTimeout(t);
+  }, [searchValue, onSearchChange, searchDebounceMs]);
 
   const handleSelect = (selectedValue: string) => {
-    const newValue = value === selectedValue ? undefined : selectedValue
-    onValueChange?.(newValue)
-    setOpen(false)
-    setSearchValue("")
-  }
+    const newValue = value === selectedValue ? undefined : selectedValue;
+    onValueChange?.(newValue);
+    setOpen(false);
+    setSearchValue("");
+  };
 
   const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onValueChange?.(undefined)
-    setSearchValue("")
-  }
+    e.stopPropagation();
+    onValueChange?.(undefined);
+    setSearchValue("");
+  };
 
   return (
-    <Popover open={disabled ? false : open} onOpenChange={disabled ? undefined : handleOpenChange}>
+    <Popover
+      open={disabled ? false : open}
+      onOpenChange={disabled ? undefined : handleOpenChange}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -106,7 +109,7 @@ export function Combobox({
           className={cn(
             "w-full justify-between h-9",
             !value && "text-muted-foreground",
-            className
+            className,
           )}
         >
           <span className="truncate">
@@ -123,8 +126,11 @@ export function Combobox({
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-        <Command>
+      <PopoverContent
+        className="w-[--radix-popover-trigger-width] p-0"
+        align="start"
+      >
+        <Command shouldFilter={false}>
           <CommandInput
             placeholder={searchPlaceholder}
             value={searchValue}
@@ -136,13 +142,13 @@ export function Combobox({
               {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={option.label}
+                  value={option.value}
                   onSelect={() => handleSelect(option.value)}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === option.value ? "opacity-100" : "opacity-0"
+                      value === option.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {option.label}
@@ -153,5 +159,5 @@ export function Combobox({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

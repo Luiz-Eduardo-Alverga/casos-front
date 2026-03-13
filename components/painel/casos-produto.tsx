@@ -10,6 +10,7 @@ import { CasosProdutoSkeleton } from "@/components/painel/casos-produto-skeleton
 import { getUser } from "@/lib/auth";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
+import { useRouter } from "next/navigation";
 
 function formatMinutesToHHMM(minutes: number): string {
   if (!Number.isFinite(minutes) || minutes < 0) return "00:00";
@@ -46,7 +47,7 @@ export function CasosProduto({
 }: CasosProdutoProps) {
   const user = getUser();
   const usuarioDevId = user?.id != null ? String(user.id) : "";
-
+  const router = useRouter();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useProjetoMemoria(
       {
@@ -115,7 +116,8 @@ export function CasosProduto({
             casos.map((caso) => (
               <div
                 key={caso.id}
-                className="bg-white border border-border-divider rounded-lg p-3.5 flex flex-col gap-0"
+                className="bg-white border border-border-divider rounded-lg p-3.5 flex flex-col gap-0 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => router.push(`/casos/${caso.id}`)}
               >
                 <div className="flex gap-3 items-start pb-2 border-b border-border-divider">
                   <ImportanciaBadge

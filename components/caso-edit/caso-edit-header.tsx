@@ -32,14 +32,14 @@ export function CasoEditHeader({
   const router = useRouter();
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 shrink-0">
+    <div className="flex flex-col lg:flex-row gap-6 shrink-0 ">
       {/* Coluna esquerda: mesmo espaço do conteúdo à esquerda do formulário */}
       <div className="flex-1 flex flex-col gap-6 min-w-0">
-        <TabsList className="w-full sm:w-auto inline-flex h-9 items-center justify-start rounded-lg bg-muted p-1 text-muted-foreground gap-0 flex-wrap">
+        <TabsList className=" w-full sm:w-auto inline-flex h-9 items-center justify-start rounded-lg bg-white p-1 text-muted-foreground gap-0 flex-wrap ">
           <TabsTrigger
             value="inicial"
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium",
+              "rounded-md px-3 py-1.5 text-sm font-medium ",
               "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
             )}
           >
@@ -48,7 +48,7 @@ export function CasoEditHeader({
           <TabsTrigger
             value="anotacoes"
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium",
+              "rounded-md px-3 py-1.5 text-sm font-medium ",
               "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
             )}
           >
@@ -57,7 +57,7 @@ export function CasoEditHeader({
           <TabsTrigger
             value="relacoes"
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium",
+              "rounded-md px-3 py-1.5 text-sm font-medium ",
               "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
             )}
           >
@@ -66,7 +66,7 @@ export function CasoEditHeader({
           <TabsTrigger
             value="clientes"
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium",
+              "rounded-md px-3 py-1.5 text-sm font-medium ",
               "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
             )}
           >
@@ -85,12 +85,11 @@ export function CasoEditHeader({
       </div>
 
       {/* Coluna direita: mesmo espaço da coluna direita do formulário (362px em lg) */}
-      <div className="w-full lg:w-[362px] flex flex-row items-center justify-end gap-2 shrink-0">
+      <div className="w-full lg:w-[362px] flex flex-row items-center justify-between gap-2 shrink-0 ">
         <Button
           type="button"
           variant="outline"
-          size="sm"
-          className="h-9 px-3"
+          className=" px-3"
           onClick={() => router.back()}
         >
           <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
@@ -99,8 +98,7 @@ export function CasoEditHeader({
         <Button
           type="button"
           variant="outline"
-          size="sm"
-          className="h-9 px-3"
+          className=" px-3"
           onClick={onClonar}
           disabled={isClonando}
         >
@@ -110,8 +108,7 @@ export function CasoEditHeader({
         <Button
           type="button"
           variant="outline"
-          size="sm"
-          className="h-9 px-3 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+          className=" px-3 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
           onClick={onExcluir}
           disabled={isExcluindo}
         >

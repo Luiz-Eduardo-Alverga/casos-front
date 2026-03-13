@@ -100,7 +100,7 @@ export function Painel() {
             <Button
               variant="outline"
               disabled
-              className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
+              className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
             >
               <List className="h-3.5 w-3.5" />
               Ver Casos
@@ -109,7 +109,7 @@ export function Painel() {
             <Button
               variant="outline"
               disabled
-              className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
+              className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
             >
               <RefreshCcw className="h-3.5 w-3.5" />
               Atualizar
@@ -147,7 +147,7 @@ export function Painel() {
             variant="outline"
             onClick={() => router.push("/casos")}
             type="button"
-            className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
+            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
           >
             <List className="h-3.5 w-3.5" />
             Ver Casos
@@ -159,7 +159,7 @@ export function Painel() {
               queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
             }}
             type="button"
-            className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
+            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
           >
             <RefreshCcw className="h-3.5 w-3.5" />
             Atualizar

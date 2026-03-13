@@ -56,14 +56,12 @@ export function ConfirmacaoModal({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="h-[42px] px-4"
           >
             {cancelarLabel}
           </Button>
           <Button
             type="button"
             className={cn(
-              "h-[42px] px-4",
               variant === "danger" &&
                 "bg-destructive text-destructive-foreground hover:bg-destructive/90"
             )}

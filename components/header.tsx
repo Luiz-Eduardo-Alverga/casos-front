@@ -78,7 +78,7 @@ export function Header() {
               router.push("/casos/novo");
             }}
             type="button"
-            className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial bg-[#F8D33E] text-black hover:bg-[#F8D33E]/80"
+            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-[#F8D33E] text-black hover:bg-[#F8D33E]/80"
           >
             <Plus className="h-3.5 w-3.5" />
             Adicionar Caso

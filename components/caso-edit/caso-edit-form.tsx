@@ -105,6 +105,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   const [excluirCasoModal, setExcluirCasoModal] = useState(false);
 
   const caso = item.caso;
+  const numeroCaso = caso?.id ?? Number(casoId);
   const defaultValues = useMemo(() => getDefaultValues(item), [item]);
 
   const methods = useForm<EditFormData>({
@@ -216,8 +217,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     invalidate();
   };
 
-  const anotacoes = (caso?.anotacoes ?? []) as ProjetoMemoriaItem["caso"]["anotacoes"];
-  const clientes = (caso?.clientes ?? []) as ProjetoMemoriaItem["caso"]["clientes"];
+  const anotacoes = (caso?.anotacoes ??
+    []) as ProjetoMemoriaItem["caso"]["anotacoes"];
+  const clientes = (caso?.clientes ??
+    []) as ProjetoMemoriaItem["caso"]["clientes"];
   const countAnotacoes = Array.isArray(anotacoes) ? anotacoes.length : 0;
   const countClientes = Array.isArray(clientes) ? clientes.length : 0;
   const countRelacoes = 0;
@@ -265,20 +268,20 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                 >
                   <div className="flex flex-col lg:flex-row gap-6 flex-1">
                     <div className="flex-1 flex flex-col gap-6 min-w-0">
-                      <AbaInicial />
+                      <AbaInicial casoId={numeroCaso} />
                     </div>
-                    <CasoEditColunaDireita />
+                    <CasoEditColunaDireita casoId={numeroCaso} />
                   </div>
                 </TabsContent>
 
                 <TabsContent
                   value="anotacoes"
-                  className="mt-0 flex-1 data-[state=inactive]:hidden"
+                  className="mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden"
                 >
-                  <div className="flex flex-col lg:flex-row gap-6 flex-1">
-                    <div className="flex-1 min-w-0">
+                  <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
+                    <div className="flex min-h-0 flex-1 min-w-0 flex-col">
                       <AbaAnotacoes
-                        casoId={caso.id}
+                        casoId={numeroCaso}
                         anotacoes={anotacoes ?? []}
                         onCreate={handleCreateAnotacao}
                         onUpdate={handleUpdateAnotacao}
@@ -286,7 +289,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         isCreating={createAnotacao.isPending}
                       />
                     </div>
-                    <CasoEditColunaDireita />
+                    <CasoEditColunaDireita casoId={numeroCaso} />
                   </div>
                 </TabsContent>
 
@@ -296,10 +299,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                 >
                   <div className="flex flex-col lg:flex-row gap-6 flex-1">
                     <div className="flex-1 flex flex-col gap-6 min-w-0">
-                      <AbaRelacoes />
-                      <CasoEditCardClassificacao />
+                      <AbaRelacoes casoId={numeroCaso} />
+                      <CasoEditCardClassificacao casoId={numeroCaso} />
                     </div>
-                    <CasoEditColunaDireita />
+                    <CasoEditColunaDireita casoId={numeroCaso} />
                   </div>
                 </TabsContent>
 
@@ -310,15 +313,15 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                   <div className="flex flex-col lg:flex-row gap-6 flex-1">
                     <div className="flex-1 flex flex-col gap-6 min-w-0">
                       <AbaClientes
-                        casoId={caso.id}
+                        casoId={numeroCaso}
                         clientes={clientes ?? []}
                         onAdd={handleAddCliente}
                         onDelete={handleDeleteCliente}
                         isAdding={createClienteCaso.isPending}
                       />
-                      <CasoEditCardClassificacao />
+                      <CasoEditCardClassificacao casoId={numeroCaso} />
                     </div>
-                    <CasoEditColunaDireita />
+                    <CasoEditColunaDireita casoId={numeroCaso} />
                   </div>
                 </TabsContent>
 
@@ -328,10 +331,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                 >
                   <div className="flex flex-col lg:flex-row gap-6 flex-1">
                     <div className="flex-1 flex flex-col gap-6 min-w-0">
-                      <CasoEditCardClassificacao />
-                      <AbaProducao />
+                      <CasoEditCardClassificacao casoId={numeroCaso} />
+                      <AbaProducao casoId={numeroCaso} />
                     </div>
-                    <CasoEditColunaDireita />
+                    <CasoEditColunaDireita casoId={numeroCaso} />
                   </div>
                 </TabsContent>
               </div>

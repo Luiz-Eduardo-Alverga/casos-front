@@ -272,7 +272,7 @@ export function Reports() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
+                  className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
                   onClick={() => {
                     router.push("/painel");
                   }}
@@ -284,7 +284,7 @@ export function Reports() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial"
+                  className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
                   onClick={() => {
                     methods.reset();
                   }}
@@ -296,7 +296,7 @@ export function Reports() {
                 <Button
                   type="button"
                   onClick={() => setIsAssistantModalOpen(true)}
-                  className="w-full sm:w-auto bg-gradient-to-r from-gradient-start to-gradient-end text-white hover:opacity-90 h-[42px] px-4 flex-1 sm:flex-initial"
+                  className="w-full sm:w-auto bg-gradient-to-r from-gradient-start to-gradient-end text-white hover:opacity-90 px-4 flex-1 sm:flex-initial"
                   disabled={isCreatingCaso}
                 >
                   <Sparkles className="h-3.5 w-3.5" />
@@ -387,7 +387,7 @@ export function Reports() {
                 <div className="border border-border-accent rounded-lg p-5 bg-gradient-to-br from-bg-accent-start to-bg-accent-end">
                   <Button
                     type="submit"
-                    className="w-full h-[42px]"
+                    className="w-full"
                     disabled={isCreatingCaso || methods.formState.isSubmitting}
                   >
                     <Check className="h-3.5 w-3.5" />

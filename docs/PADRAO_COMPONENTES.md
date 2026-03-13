@@ -573,7 +573,7 @@ O layout principal do painel segue este padrão:
 #### Botões e Ações
 
 ```tsx
-<Button className="w-full sm:w-auto h-[42px] px-4 flex-1 sm:flex-initial">
+<Button className="w-full sm:w-auto px-4 flex-1 sm:flex-initial">
   {/* Conteúdo */}
 </Button>
 ```
@@ -581,7 +581,7 @@ O layout principal do painel segue este padrão:
 **Padrões:**
 - Mobile: `w-full flex-1` (ocupa toda largura disponível)
 - Desktop: `sm:w-auto sm:flex-initial` (largura automática)
-- Altura fixa: `h-[42px]` para consistência visual
+- O componente `Button` já usa altura padrão `h-[42px]`; para botões menores use `size="sm"` (h-8) ou `size="icon"` (h-9 w-9)
 
 #### Headers de Página
 

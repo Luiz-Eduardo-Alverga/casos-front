@@ -17,6 +17,7 @@ import { RetornoSkeleton } from "@/components/painel/retorno-skeleton";
 import { getUser } from "@/lib/auth";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
+import { useRouter } from "next/navigation";
 
 function mapItemToRow(item: ProjetoMemoriaItem) {
   const prioridade = item.caso.caracteristicas.prioridade;
@@ -33,7 +34,7 @@ function mapItemToRow(item: ProjetoMemoriaItem) {
 export function Retorno() {
   const user = getUser();
   const usuarioDevId = user?.id != null ? String(user.id) : "";
-
+  const router = useRouter();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useProjetoMemoria(
       {
@@ -96,7 +97,8 @@ export function Retorno() {
                 {itens.map((retorno) => (
                   <TableRow
                     key={retorno.id}
-                    className="bg-white border-t border-border-divider hover:bg-white"
+                    className="bg-white border-t border-border-divider hover:bg-white cursor-pointer transition-colors"
+                    onClick={() => router.push(`/casos/${retorno.id}`)}
                   >
                     <TableCell className="w-[30px] py-3 px-2.5">
                       <div className="flex justify-center">

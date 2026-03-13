@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useSidebar } from "@/components/sidebar-provider";
+import { useRouter } from "next/navigation";
 
 export interface CasoEditRodapeAcoesProps {
   onSalvar: () => void;
@@ -20,6 +21,7 @@ export function CasoEditRodapeAcoes({
 }: CasoEditRodapeAcoesProps) {
   const { isCollapsed } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -34,15 +36,17 @@ export function CasoEditRodapeAcoes({
       style={{
         left: isMobile ? "0" : isCollapsed ? "64px" : "256px",
         right: "0",
-        width: isMobile ? "100%" : `calc(100% - ${isCollapsed ? "64px" : "256px"})`,
+        width: isMobile
+          ? "100%"
+          : `calc(100% - ${isCollapsed ? "64px" : "256px"})`,
       }}
     >
       <Button
         type="button"
         variant="outline"
-        onClick={onCancelar}
+        onClick={() => router.back()}
         disabled={isLoading || disabled}
-        className="h-[42px] px-4"
+        className="w-48 px-4"
       >
         Cancelar
       </Button>
@@ -50,7 +54,7 @@ export function CasoEditRodapeAcoes({
         type="button"
         onClick={onSalvar}
         disabled={isLoading || disabled}
-        className="h-[42px] px-4"
+        className="w-48 px-4"
       >
         {isLoading ? (
           <>

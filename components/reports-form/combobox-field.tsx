@@ -51,7 +51,7 @@ export function ComboboxField({
         name={name}
         control={control}
         render={({ field }) => (
-          <div className="[&_button]:h-[42px] [&_button]:rounded-lg [&_button]:border-border-input">
+          <div className="[&_button]:rounded-lg [&_button]:border-border-input">
             <Combobox
               options={options}
               value={field.value}

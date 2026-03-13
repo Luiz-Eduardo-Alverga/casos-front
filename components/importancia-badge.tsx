@@ -30,10 +30,12 @@ function getImportanciaBadgeClassName(
   if (!Number.isFinite(value)) {
     return config[config.length - 1]?.className ?? "bg-gray-100 text-gray-700";
   }
-  const item = config.find(
-    (c) => value >= c.min && value <= c.max,
+  const item = config.find((c) => value >= c.min && value <= c.max);
+  return (
+    item?.className ??
+    config[config.length - 1]?.className ??
+    "bg-gray-100 text-gray-700"
   );
-  return item?.className ?? config[config.length - 1]?.className ?? "bg-gray-100 text-gray-700";
 }
 
 interface ImportanciaBadgeProps {
@@ -55,11 +57,13 @@ export function ImportanciaBadge({
   className = "",
 }: ImportanciaBadgeProps) {
   const colorClass = getImportanciaBadgeClassName(importancia, config);
-  const displayValue = Number.isFinite(Number(importancia)) ? Number(importancia) : "—";
+  const displayValue = Number.isFinite(Number(importancia))
+    ? Number(importancia)
+    : "—";
 
   return (
     <Badge
-      className={`${colorClass} border-transparent rounded-full h-7 w-9 flex items-center justify-center whitespace-nowrap ${className}`.trim()}
+      className={`${colorClass} border-transparent rounded-full h-7 w-9 flex items-center justify-center whitespace-nowrap hover:${colorClass} ${className}`.trim()}
     >
       <span className="text-xs font-semibold">{String(displayValue)}</span>
     </Badge>
