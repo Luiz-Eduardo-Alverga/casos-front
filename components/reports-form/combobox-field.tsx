@@ -21,6 +21,12 @@ interface ComboboxFieldProps {
   required?: boolean;
   /** Quando true, dispara onOpenChange ao abrir/fechar (para lazy load de opções). */
   onOpenChange?: (open: boolean) => void;
+  /** Controle de paginação infinita: se há mais páginas para carregar. */
+  hasMore?: boolean;
+  /** Controle de paginação infinita: se está carregando a próxima página. */
+  isLoadingMore?: boolean;
+  /** Chamado quando o usuário chega ao final da lista (para carregar mais). */
+  onLoadMore?: () => void;
 }
 
 export function ComboboxField({
@@ -35,6 +41,9 @@ export function ComboboxField({
   disabled = false,
   required = false,
   onOpenChange,
+  hasMore,
+  isLoadingMore,
+  onLoadMore,
 }: ComboboxFieldProps) {
   const {
     control,
@@ -76,6 +85,9 @@ export function ComboboxField({
                 searchDebounceMs={searchDebounceMs}
                 disabled={disabled}
                 onOpenChange={onOpenChange}
+                hasMore={hasMore}
+                isLoadingMore={isLoadingMore}
+                onLoadMore={onLoadMore}
               />
             </div>
             {field.value && (

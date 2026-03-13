@@ -1,6 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import {
+  FormProvider,
+  useForm,
+  useFormContext,
+  useWatch,
+} from "react-hook-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { CasoEditCardHeader } from "./caso-edit-card-header";
 import { Button } from "@/components/ui/button";
@@ -19,6 +25,7 @@ import type { ClienteCasoItem } from "@/interfaces/projeto-memoria";
 import { UserPlus, Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
 import { Users } from "lucide-react";
+import { CasoEditClienteCombobox } from "./fields/caso-edit-cliente-combobox";
 
 export interface AbaClientesProps {
   casoId: number;
@@ -39,8 +46,22 @@ export function AbaClientes({
   onDelete,
   isAdding = false,
 }: AbaClientesProps) {
-  const [clienteId, setClienteId] = useState("");
-  const [incidente, setIncidente] = useState("0");
+  const methods = useForm<{
+    clienteId: string;
+    clienteSelecionado?: string;
+  }>({
+    defaultValues: {
+      clienteId: "",
+      clienteSelecionado: undefined,
+    },
+  });
+
+  const clienteId =
+    useWatch({ control: methods.control, name: "clienteId" }) ?? "";
+  const clienteSelecionado =
+    useWatch({ control: methods.control, name: "clienteSelecionado" }) ??
+    undefined;
+
   const [excluirModal, setExcluirModal] = useState<{
     open: boolean;
     sequencia: number;
@@ -53,15 +74,16 @@ export function AbaClientes({
   const lista = Array.isArray(clientes) ? clientes : [];
 
   const handleAdicionar = async () => {
-    const cId = Number(clienteId);
+    const values = methods.getValues();
+    const cId = Number(values.clienteId);
     if (!Number.isFinite(cId) || cId <= 0) return;
     await onAdd({
       registro: casoId,
       cliente: cId,
-      incidente: Number(incidente) || 0,
+      incidente: 0,
     });
-    setClienteId("");
-    setIncidente("0");
+    methods.setValue("clienteId", "");
+    methods.setValue("clienteSelecionado", undefined);
   };
 
   const handleExcluirConfirm = async () => {
@@ -76,11 +98,23 @@ export function AbaClientes({
   };
 
   return (
-    <>
+    <FormProvider {...methods}>
       <Card className="bg-card shadow-card rounded-lg flex flex-col h-full">
-        <CasoEditCardHeader title="Clientes vinculados" icon={Users} badge={casoId} />
+        <CasoEditCardHeader
+          title="Clientes vinculados"
+          icon={Users}
+          badge={casoId}
+        />
         <CardContent className="p-6 pt-3 space-y-4 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
           <div className="flex flex-wrap items-end gap-4 p-4 rounded-lg border border-border-divider bg-muted/30">
+            <div className="space-y-2 min-w-[220px] flex-1">
+              <CasoEditClienteCombobox
+                onClienteChange={(registro) => {
+                  methods.setValue("clienteSelecionado", registro);
+                  methods.setValue("clienteId", registro ?? "");
+                }}
+              />
+            </div>
             <div className="space-y-2 min-w-[120px]">
               <Label
                 htmlFor="cliente-id"
@@ -92,30 +126,13 @@ export function AbaClientes({
                 id="cliente-id"
                 type="number"
                 min={1}
-                value={clienteId}
-                onChange={(e) => setClienteId(e.target.value)}
+                {...methods.register("clienteId")}
                 placeholder="Ex: 68703"
                 className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
-                disabled={isAdding}
+                disabled={isAdding || Boolean(clienteSelecionado)}
               />
             </div>
-            <div className="space-y-2 min-w-[100px]">
-              <Label
-                htmlFor="incidente"
-                className="text-sm font-medium text-text-label"
-              >
-                Incidente
-              </Label>
-              <Input
-                id="incidente"
-                type="number"
-                min={0}
-                value={incidente}
-                onChange={(e) => setIncidente(e.target.value)}
-                className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
-                disabled={isAdding}
-              />
-            </div>
+
             <Button
               type="button"
               onClick={handleAdicionar}
@@ -210,6 +227,6 @@ export function AbaClientes({
         variant="danger"
         isLoading={isDeleting}
       />
-    </>
+    </FormProvider>
   );
 }

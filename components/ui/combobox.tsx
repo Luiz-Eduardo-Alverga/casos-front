@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,12 @@ export interface ComboboxProps {
   disabled?: boolean;
   /** Chamado quando o popover abre ou fecha (para lazy load de opções). */
   onOpenChange?: (open: boolean) => void;
+  /** Controle de paginação infinita: se há mais páginas para carregar. */
+  hasMore?: boolean;
+  /** Controle de paginação infinita: se está carregando a próxima página. */
+  isLoadingMore?: boolean;
+  /** Chamado quando o usuário chega ao final da lista (para carregar mais). */
+  onLoadMore?: () => void;
 }
 
 export function Combobox({
@@ -51,9 +57,13 @@ export function Combobox({
   className,
   disabled = false,
   onOpenChange,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
 }: ComboboxProps) {
-  const [open, setOpen] = React.useState(false);
-  const [searchValue, setSearchValue] = React.useState("");
+  const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
@@ -62,7 +72,7 @@ export function Combobox({
 
   const selectedOption = options.find((option) => option.value === value);
 
-  const filteredOptions = React.useMemo(() => {
+  const filteredOptions = useMemo(() => {
     if (!searchValue) return options;
     const searchLower = searchValue.toLowerCase();
     return options.filter((option) =>
@@ -70,7 +80,7 @@ export function Combobox({
     );
   }, [options, searchValue]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!onSearchChange) return;
     const t = setTimeout(() => {
       onSearchChange(searchValue);
@@ -78,11 +88,26 @@ export function Combobox({
     return () => clearTimeout(t);
   }, [searchValue, onSearchChange, searchDebounceMs]);
 
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el || !hasMore || isLoadingMore || !onLoadMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry?.isIntersecting && hasMore && !isLoadingMore) {
+          onLoadMore();
+        }
+      },
+      { root: null, rootMargin: "100px", threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingMore, onLoadMore]);
+
   const handleSelect = (selectedValue: string) => {
     const newValue = value === selectedValue ? undefined : selectedValue;
     onValueChange?.(newValue);
     setOpen(false);
-    setSearchValue("");
   };
 
   const handleClear = (e: React.MouseEvent) => {
@@ -145,6 +170,16 @@ export function Combobox({
                 </CommandItem>
               ))}
             </CommandGroup>
+            {hasMore && (
+              <div
+                ref={loadMoreRef}
+                className="flex items-center justify-center py-2"
+              >
+                {isLoadingMore && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

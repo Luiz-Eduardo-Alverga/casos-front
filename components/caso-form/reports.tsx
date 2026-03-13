@@ -274,7 +274,7 @@ export function Reports() {
                   variant="outline"
                   className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
                   onClick={() => {
-                    router.push("/painel");
+                    router.back();
                   }}
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />

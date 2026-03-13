@@ -203,7 +203,34 @@ import { EmptyState } from "@/components/painel/empty-state";
 - Centralizado vertical e horizontalmente
 - Altura mínima de `200px`
 
-### 3.4. Hooks e Queries
+### 3.4. Formulários e react-hook-form
+
+Para telas e abas de edição (ex.: `caso-edit/aba-clientes`, campos de `caso-form`):
+
+- Sempre usar **`react-hook-form`** para controlar os campos de formulário.
+- O componente pai deve criar o formulário com `useForm` e expor o contexto com `FormProvider`.
+- Campos individuais (como Comboboxes, Inputs, etc.) devem usar `useFormContext` / `Controller` (ou componentes como `ComboboxField`) em vez de manter estado local com `useState` para valores de formulário.
+- Abas de edição que possuem ações de gravação (ex.: botão “Adicionar”, “Salvar”) devem ler os valores via `form.getValues()` ou receber os dados através de `handleSubmit`.
+
+Exemplo simplificado:
+
+```tsx
+const form = useForm<{ clienteId: string; incidente: string }>({
+  defaultValues: { clienteId: "", incidente: "0" },
+});
+
+return (
+  <FormProvider {...form}>
+    <Input
+      value={watch("clienteId")}
+      onChange={(e) => form.setValue("clienteId", e.target.value)}
+    />
+    {/* outros campos controlados */}
+  </FormProvider>
+);
+```
+
+### 3.5. Hooks e Queries
 
 Componentes que buscam dados devem usar hooks customizados:
 
@@ -229,7 +256,7 @@ const itens = data?.pages.flatMap((p) => p.data.map(mapItemToRow)) ?? [];
 - Sempre ter fallback para array vazio (`?? []`)
 - Funções de mapeamento separadas para melhor legibilidade
 
-### 3.5. Paginação Infinita
+### 3.6. Paginação Infinita
 
 Para listagens com muitos itens, usar paginação infinita:
 
@@ -264,7 +291,7 @@ const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useHook();
 - Desabilitar botão durante `isFetchingNextPage`
 - Usar `Loader2` do lucide-react com `animate-spin`
 
-### 3.6. Gerenciamento de Estado
+### 3.7. Gerenciamento de Estado
 
 #### Estado Local com localStorage
 
@@ -328,7 +355,7 @@ interface ProdutosPriorizadosProps {
 }
 ```
 
-### 3.7. Tabelas vs Cards
+### 3.8. Tabelas vs Cards
 
 #### Tabelas
 Usar para dados tabulares com múltiplas colunas:
@@ -383,7 +410,7 @@ Usar para itens com informações mais complexas ou hierárquicas:
 ))}
 ```
 
-### 3.8. Badges
+### 3.9. Badges
 
 Badges seguem padrão visual consistente:
 
