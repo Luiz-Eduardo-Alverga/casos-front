@@ -145,6 +145,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         Cronograma_id: Number(formData.projeto),
         Id_Origem: Number(formData.origem),
         status: Number(formData.status) || Number(caso?.status?.status_id ?? 1),
+        atribuido_qa: Number(formData.qaAtribuido),
       };
       await updateCaso.mutateAsync({ id: casoId, data: payload });
       toast.success("Caso atualizado com sucesso.");
