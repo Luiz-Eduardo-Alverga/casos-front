@@ -17,10 +17,7 @@ export interface ProducaoMetricaCardProps {
   className?: string;
 }
 
-const valueVariantClasses: Record<
-  ProducaoMetricaCardValueVariant,
-  string
-> = {
+const valueVariantClasses: Record<ProducaoMetricaCardValueVariant, string> = {
   default: "text-text-primary",
   sky: "text-sky-600 dark:text-sky-400",
   purple: "text-purple-600 dark:text-purple-400",
@@ -40,7 +37,7 @@ export function ProducaoMetricaCard({
       className={cn(
         "rounded-lg border bg-white shadow-sm",
         isDestructive && "border-destructive",
-        className
+        className,
       )}
     >
       <CardContent className="p-4 pt-4">
@@ -49,7 +46,6 @@ export function ProducaoMetricaCard({
           className={cn(
             "text-sm font-semibold",
             valueVariantClasses[valueVariant],
-            isDestructive && "inline-block px-2 py-0.5 rounded border border-destructive"
           )}
         >
           {value}

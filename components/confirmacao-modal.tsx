@@ -1,11 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
-  DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -41,36 +40,55 @@ export function ConfirmacaoModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => isLoading && e.preventDefault()}>
-        <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-text-primary">
+      <DialogContent
+        className="sm:max-w-md gap-0 p-0 overflow-hidden"
+        onPointerDownOutside={(e) => isLoading && e.preventDefault()}
+      >
+        <div className="flex flex-col items-center px-6 pt-8 pb-6">
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/images/alert.svg"
+              alt=""
+              width={64}
+              height={64}
+              aria-hidden
+              className="shrink-0"
+            />
+          </div>
+          <DialogTitle className="text-lg font-semibold text-text-primary text-center max-w-[280px]">
             {titulo}
           </DialogTitle>
-          <DialogDescription className="text-sm text-text-secondary">
+          <DialogDescription className="text-sm text-text-secondary text-center mt-2 max-w-[280px]">
             {descricao}
           </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex flex-row justify-end gap-2 sm:gap-2 pt-4">
+        </div>
+
+        <div className="h-px bg-border shrink-0" aria-hidden />
+
+        <div className="flex flex-row gap-3 p-6">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
+            className="flex-1"
           >
             {cancelarLabel}
           </Button>
           <Button
             type="button"
             className={cn(
-              variant === "danger" &&
-                "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              "flex-1",
+              variant === "danger"
+                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                : "bg-[#2d2d2d] text-white hover:bg-[#3d3d3d]"
             )}
             onClick={handleConfirm}
             disabled={isLoading}
           >
             {isLoading ? "Aguarde..." : confirmarLabel}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

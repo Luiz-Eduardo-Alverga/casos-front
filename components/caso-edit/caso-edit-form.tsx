@@ -361,8 +361,19 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
               </div>
 
               <CasoEditRodapeAcoes
+                casoId={numeroCaso}
+                tempoStatus={
+                  item?.caso?.tempos?.tempo_status ??
+                  item?.caso?.status?.tempo_status
+                }
+                statusTempo={
+                  item?.caso?.tempos?.status_tempo ??
+                  item?.caso?.status?.status_tempo
+                }
                 onSalvar={handleSalvar}
                 onCancelar={() => router.push("/casos")}
+                onProducaoAlterada={invalidate}
+                onRedirecionarParaAbaProducao={() => setTabValue("producao")}
                 isLoading={updateCaso.isPending}
                 disabled={updateCaso.isPending}
               />
