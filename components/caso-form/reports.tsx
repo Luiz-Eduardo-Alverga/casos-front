@@ -219,7 +219,7 @@ export function Reports() {
         Categoria: Number(data.categoria),
         Relator: Number(data.relator),
         AtribuidoPara: Number(data.devAtribuido),
-        QaId: Number(data.qaAtribuido),
+        atribuido_qa: Number(data.qaAtribuido),
         DescricaoResumo: data.DescricaoResumo || "",
         DescricaoCompleta: (data.DescricaoCompleta || "").replace(
           /\r?\n/g,

@@ -11,7 +11,7 @@ export interface CreateCasoRequest {
   Categoria: number;
   Relator: number;
   AtribuidoPara: number;
-  QaId: number;
+  atribuido_qa: number;
   DescricaoResumo: string;
   DescricaoCompleta: string;
   InformacoesAdicionais?: string;
@@ -28,7 +28,9 @@ export interface CreateCasoResponse {
   };
 }
 
-export async function createCaso(data: CreateCasoRequest): Promise<CreateCasoResponse> {
+export async function createCaso(
+  data: CreateCasoRequest,
+): Promise<CreateCasoResponse> {
   const token = getToken();
   const user = getUser();
 
