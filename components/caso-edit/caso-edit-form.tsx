@@ -353,6 +353,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         casoId={numeroCaso}
                         item={item}
                         onSaveProducao={handleSaveProducao}
+                        onProducaoAlterada={invalidate}
                         isSaving={updateCaso.isPending}
                       />
                     </div>

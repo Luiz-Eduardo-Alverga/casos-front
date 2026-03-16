@@ -19,8 +19,19 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/painel/empty-state";
 import { TamanhoCombobox } from "./fields/tamanho-combobox";
 import { ProducaoMetricaCard } from "./producao-metrica-card";
-import { Package } from "lucide-react";
-import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
+import { ConfirmacaoModal } from "@/components/confirmacao-modal";
+import {
+  DateTimePicker,
+  apiStringToDate,
+  dateTimeToApiString,
+} from "@/components/ui/date-picker";
+import { useAtualizarProducao } from "@/hooks/use-atualizar-producao";
+import { useExcluirProducao } from "@/hooks/use-excluir-producao";
+import { Package, Pencil, Trash2 } from "lucide-react";
+import type {
+  ProjetoMemoriaItem,
+  ProducaoDetalheItem,
+} from "@/interfaces/projeto-memoria";
 
 export interface AbaProducaoSavePayload {
   TempoEstimado?: string | null;
@@ -32,6 +43,7 @@ export interface AbaProducaoProps {
   casoId: number;
   item: ProjetoMemoriaItem;
   onSaveProducao: (payload: AbaProducaoSavePayload) => Promise<void>;
+  onProducaoAlterada?: () => void;
   isSaving?: boolean;
 }
 
@@ -92,6 +104,7 @@ export function AbaProducao({
   casoId,
   item,
   onSaveProducao,
+  onProducaoAlterada,
   isSaving = false,
 }: AbaProducaoProps) {
   const caso = item?.caso;
@@ -114,6 +127,21 @@ export function AbaProducao({
   const [naoPlanejado, setNaoPlanejado] = useState(naoPlanejadoFlag);
   const [tamanhoId, setTamanhoId] = useState<string>("");
   const [tempoEstimado, setTempoEstimado] = useState("");
+  const [editandoSequencia, setEditandoSequencia] = useState<number | null>(null);
+  const [editandoTipo, setEditandoTipo] = useState("");
+  const [editandoAbertura, setEditandoAbertura] = useState<Date | undefined>(
+    undefined,
+  );
+  const [editandoFechamento, setEditandoFechamento] = useState<
+    Date | undefined
+  >(undefined);
+  const [excluirModal, setExcluirModal] = useState<{
+    open: boolean;
+    sequencia: number;
+  }>({ open: false, sequencia: 0 });
+
+  const atualizarProducao = useAtualizarProducao();
+  const excluirProducao = useExcluirProducao();
 
   useEffect(() => {
     if (showForm) {
@@ -153,7 +181,43 @@ export function AbaProducao({
     setShowForm(false);
   };
 
+  const handleIniciarEdicao = (row: ProducaoDetalheItem) => {
+    setEditandoSequencia(row.sequencia);
+    setEditandoTipo(row.tipo ?? "");
+    setEditandoAbertura(apiStringToDate(row.datas?.abertura ?? null));
+    setEditandoFechamento(apiStringToDate(row.datas?.fechamento ?? null));
+  };
+
+  const handleCancelarEdicao = () => {
+    setEditandoSequencia(null);
+    setEditandoTipo("");
+    setEditandoAbertura(undefined);
+    setEditandoFechamento(undefined);
+  };
+
+  const handleSalvarEdicao = async () => {
+    if (editandoSequencia == null) return;
+    await atualizarProducao.mutateAsync({
+      sequencia: editandoSequencia,
+      payload: {
+        tipo_producao: editandoTipo.trim() || undefined,
+        hora_abertura: dateTimeToApiString(editandoAbertura),
+        hora_fechamento: dateTimeToApiString(editandoFechamento),
+      },
+    });
+    handleCancelarEdicao();
+    onProducaoAlterada?.();
+  };
+
+  const handleExcluirConfirm = async () => {
+    if (!excluirModal.open) return;
+    await excluirProducao.mutateAsync(excluirModal.sequencia);
+    setExcluirModal({ open: false, sequencia: 0 });
+    onProducaoAlterada?.();
+  };
+
   return (
+    <>
     <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
       <CasoEditCardHeader title="Produção" icon={Package} badge={casoId} />
       <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
@@ -356,6 +420,9 @@ export function AbaProducao({
                       <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
                         Usuário
                       </TableHead>
+                      <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5 w-[120px]">
+                        Ações
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -365,13 +432,42 @@ export function AbaProducao({
                         className="bg-white border-t border-border-divider hover:bg-white"
                       >
                         <TableCell className="py-3 px-2.5 text-sm text-text-primary">
-                          {formatDataHoraProducao(row.datas?.abertura)}
+                          {editandoSequencia === row.sequencia ? (
+                            <DateTimePicker
+                              value={editandoAbertura}
+                              onChange={setEditandoAbertura}
+                              placeholder="Abertura"
+                              disabled={atualizarProducao.isPending}
+                              className="min-w-[180px]"
+                            />
+                          ) : (
+                            formatDataHoraProducao(row.datas?.abertura)
+                          )}
                         </TableCell>
                         <TableCell className="py-3 px-2.5 text-sm text-text-primary">
-                          {formatDataHoraProducao(row.datas?.fechamento)}
+                          {editandoSequencia === row.sequencia ? (
+                            <DateTimePicker
+                              value={editandoFechamento}
+                              onChange={setEditandoFechamento}
+                              placeholder="Fechamento"
+                              disabled={atualizarProducao.isPending}
+                              className="min-w-[180px]"
+                            />
+                          ) : (
+                            formatDataHoraProducao(row.datas?.fechamento)
+                          )}
                         </TableCell>
                         <TableCell className="py-3 px-2.5">
-                          {row.tipo ? (
+                          {editandoSequencia === row.sequencia ? (
+                            <Input
+                              type="text"
+                              value={editandoTipo}
+                              onChange={(e) => setEditandoTipo(e.target.value)}
+                              placeholder="Tipo"
+                              className="h-9 text-sm"
+                              disabled={atualizarProducao.isPending}
+                            />
+                          ) : row.tipo ? (
                             <Badge
                               variant="secondary"
                               className="rounded-full bg-sky-100 text-sky-700 border-transparent"
@@ -389,6 +485,60 @@ export function AbaProducao({
                         </TableCell>
                         <TableCell className="py-3 px-2.5 text-sm text-text-primary">
                           {row.usuario_nome ?? "—"}
+                        </TableCell>
+                        <TableCell className="py-3 px-2.5">
+                          {editandoSequencia === row.sequencia ? (
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleCancelarEdicao}
+                                className="rounded-lg"
+                              >
+                                Cancelar
+                              </Button>
+                              <Button
+                                type="button"
+                                size="sm"
+                                onClick={handleSalvarEdicao}
+                                disabled={atualizarProducao.isPending}
+                                className="rounded-lg"
+                              >
+                                {atualizarProducao.isPending
+                                  ? "Salvando..."
+                                  : "Salvar"}
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="size-9 rounded-lg"
+                                onClick={() => handleIniciarEdicao(row)}
+                                aria-label="Editar produção"
+                              >
+                                <Pencil className="size-4 text-foreground" />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="size-9 rounded-lg text-destructive hover:text-destructive"
+                                onClick={() =>
+                                  setExcluirModal({
+                                    open: true,
+                                    sequencia: row.sequencia,
+                                  })
+                                }
+                                aria-label="Excluir produção"
+                              >
+                                <Trash2 className="size-4" />
+                              </Button>
+                            </div>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -409,5 +559,20 @@ export function AbaProducao({
         </div>
       </CardContent>
     </Card>
+
+    <ConfirmacaoModal
+      open={excluirModal.open}
+      onOpenChange={(open) =>
+        !open && setExcluirModal({ open: false, sequencia: 0 })
+      }
+      titulo="Excluir produção"
+      descricao="Tem certeza que deseja excluir esta produção? Esta ação não pode ser desfeita."
+      confirmarLabel="Excluir"
+      cancelarLabel="Cancelar"
+      onConfirm={handleExcluirConfirm}
+      variant="danger"
+      isLoading={excluirProducao.isPending}
+    />
+    </>
   );
 }

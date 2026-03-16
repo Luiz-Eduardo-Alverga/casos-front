@@ -14,6 +14,7 @@ import { getUser } from "@/lib/auth";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 function formatMinutesToHHMM(minutes: number): string {
   if (!Number.isFinite(minutes) || minutes < 0) return "00:00";
@@ -24,6 +25,7 @@ function formatMinutesToHHMM(minutes: number): string {
 
 function mapItemToCaso(item: ProjetoMemoriaItem) {
   const prioridade = item.caso.caracteristicas.prioridade;
+
   return {
     id: String(item.caso.id),
     numero: String(item.caso.id),
@@ -34,6 +36,7 @@ function mapItemToCaso(item: ProjetoMemoriaItem) {
     tempoRealizado: formatMinutesToHHMM(item.caso.tempos.realizado_minutos),
     importancia: Number(prioridade) || 0,
     modulo: item.caso.caracteristicas.modulo ?? "",
+    statusTempo: item.caso.status.status_tempo ?? "",
   };
 }
 
@@ -64,6 +67,13 @@ export function CasosProduto({
     );
 
   const casos = data?.pages.flatMap((p) => p.data.map(mapItemToCaso)) ?? [];
+  casos.sort((a, b) =>
+    a.statusTempo === "INICIADO"
+      ? -1
+      : b.statusTempo === "INICIADO"
+        ? 1
+        : 0,
+  );
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -77,7 +87,7 @@ export function CasosProduto({
           fetchNextPage();
         }
       },
-      { root: null, rootMargin: "100px", threshold: 0 }
+      { root: null, rootMargin: "100px", threshold: 0 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -137,7 +147,11 @@ export function CasosProduto({
             casos.map((caso) => (
               <div
                 key={caso.id}
-                className="bg-white border border-border-divider rounded-lg p-3.5 flex flex-col gap-0 cursor-pointer hover:bg-muted/50 transition-colors"
+                className={cn(
+                  "bg-white border border-border-divider rounded-lg p-3.5 flex flex-col gap-0 cursor-pointer hover:bg-muted/50 transition-colors",
+                  caso.statusTempo === "INICIADO" &&
+                    "border-l-4 border-l-primary",
+                )}
                 onClick={() => router.push(`/casos/${caso.id}`)}
               >
                 <div className="flex gap-3 items-start pb-2 border-b border-border-divider">
