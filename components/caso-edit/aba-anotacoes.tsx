@@ -140,7 +140,7 @@ export function AbaAnotacoes({
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden pt-4">
               <EmptyState
                 imageAlt="Nenhuma anotação"
-                icon={FileText}
+                imageSrc="/images/empty-state-casos-produto.svg"
                 title="Nenhuma anotação"
                 description="Adicione uma anotação acima."
               />

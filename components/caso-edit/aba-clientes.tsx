@@ -147,7 +147,7 @@ export function AbaClientes({
           {lista.length === 0 ? (
             <EmptyState
               imageAlt="Nenhum cliente vinculado"
-              icon={Users}
+              imageSrc="/images/empty-state-casos-produto.svg"
               title="Nenhum cliente vinculado"
               description="Adicione um cliente acima."
             />

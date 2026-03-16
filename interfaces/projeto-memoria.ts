@@ -129,6 +129,26 @@ export interface ClienteCasoItem {
   incidente: number;
 }
 
+/** Datas de um item de produção (retorno da API projeto-memoria por id) */
+export interface ProducaoItemDatas {
+  abertura: string | null;
+  producao: string | null;
+  fechamento: string | null;
+}
+
+/** Item de detalhe de produção (retorno da API projeto-memoria por id; lista em item.caso.producao) */
+export interface ProducaoDetalheItem {
+  sequencia: number;
+  registro: number;
+  datas: ProducaoItemDatas;
+  tipo: string;
+  usuario_id: number;
+  usuario_nome: string | null;
+  projeto_id: number;
+  valeu_usuario_id: number;
+  valeu_usuario_nome: string | null;
+}
+
 export interface CasoItem {
   id: number;
   datas: CasoDatas;
@@ -142,7 +162,7 @@ export interface CasoItem {
   relacionamentos: CasoRelacionamentos;
   viabilidade: CasoViabilidade;
   flags_adicionais: CasoFlagsAdicionais;
-  producao: unknown;
+  producao?: ProducaoDetalheItem[];
   anotacoes?: AnotacaoCasoItem[];
   clientes?: ClienteCasoItem[];
 }

@@ -4,9 +4,12 @@ import { useRef, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ImportanciaBadge } from "@/components/importancia-badge";
-import { Box, Loader2 } from "lucide-react";
+import { Box } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
-import { CasosProdutoSkeleton } from "@/components/painel/casos-produto-skeleton";
+import {
+  CasosProdutoSkeleton,
+  CasosProdutoSkeletonList,
+} from "@/components/painel/casos-produto-skeleton";
 import { getUser } from "@/lib/auth";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
@@ -171,13 +174,8 @@ export function CasosProduto({
           )}
         </div>
         {hasNextPage && casos.length > 0 && (
-          <div
-            ref={loadMoreRef}
-            className="mt-4 flex justify-center min-h-[48px] items-center"
-          >
-            {isFetchingNextPage && (
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            )}
+          <div ref={loadMoreRef} className="mt-4">
+            {isFetchingNextPage && <CasosProdutoSkeletonList count={3} />}
           </div>
         )}
       </CardContent>

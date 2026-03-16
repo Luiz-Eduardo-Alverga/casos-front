@@ -183,9 +183,10 @@ export function AvisosLista({
           >
             {naoLidos.length === 0 ? (
               <EmptyState
-                icon={Mail}
+                className="mt-16"
+                imageSrc="/images/avisos.svg"
                 title="Nenhum aviso não lido"
-                description="Não há avisos pendentes de leitura."
+                description="Avisos que você não lê aparecerão aqui."
               />
             ) : (
               <div className="flex flex-col gap-4">
@@ -206,9 +207,10 @@ export function AvisosLista({
           >
             {lidos.length === 0 ? (
               <EmptyState
-                icon={MailOpen}
+                className="mt-16"
+                imageSrc="/images/avisos.svg"
                 title="Nenhum aviso lido"
-                description="Avisos que você ler aparecerão aqui."
+                description="Avisos que você lê aparecerão aqui."
               />
             ) : (
               <div className="flex flex-col gap-4">

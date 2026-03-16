@@ -66,13 +66,13 @@ export function ComboboxField({
         name={name}
         control={control}
         render={({ field }) => (
-          <div className="flex items-center">
+          <div className="group flex items-center">
             <div
               className={cn(
                 "flex-1 min-w-0 [&_button]:border-border-input",
-                field.value
-                  ? "[&_button]:rounded-l-lg [&_button]:rounded-r-none [&_button]:border-r-0"
-                  : "[&_button]:rounded-lg",
+                field.value &&
+                  "[&_button]:rounded-l-lg [&_button]:rounded-r-none [&_button]:border-r-0",
+                !field.value && "[&_button]:rounded-lg",
               )}
             >
               <Combobox
@@ -92,10 +92,15 @@ export function ComboboxField({
             </div>
             {field.value && (
               <Button
+                tabIndex={-1}
                 type="button"
                 variant="outline"
                 size="icon"
-                className="h-9 w-9 shrink-0 rounded-l-none border-l-0 rounded-r-lg border-border-input"
+                className={cn(
+                  "h-9 w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input",
+                  "group-hover:bg-accent group-hover:text-accent-foreground",
+                  "group-focus-within:ring-1 group-focus-within:ring-ring",
+                )}
                 onClick={() => field.onChange(undefined)}
                 disabled={disabled}
                 aria-label="Remover seleção"

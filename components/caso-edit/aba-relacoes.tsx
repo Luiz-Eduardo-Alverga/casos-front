@@ -16,7 +16,7 @@ export function AbaRelacoes({ casoId }: AbaRelacoesProps) {
       <CardContent className="p-6 pt-3 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
         <EmptyState
           imageAlt="Nenhuma relação"
-          icon={GitBranch}
+          imageSrc="/images/empty-state-casos-produto.svg"
           title="Nenhuma relação"
           description="Os dados de relações não estão disponíveis no momento."
         />

@@ -217,6 +217,23 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     invalidate();
   };
 
+  const handleSaveProducao = async (payload: {
+    TempoEstimado?: string | null;
+    tamanho?: number | null;
+    NaoPlanejado?: number | boolean;
+  }) => {
+    await updateCaso.mutateAsync({
+      id: casoId,
+      data: {
+        TempoEstimado: payload.TempoEstimado ?? undefined,
+        tamanho: payload.tamanho ?? undefined,
+        NaoPlanejado: payload.NaoPlanejado ?? undefined,
+      },
+    });
+    toast.success("Produção atualizada com sucesso.");
+    invalidate();
+  };
+
   const anotacoes = (caso?.anotacoes ??
     []) as ProjetoMemoriaItem["caso"]["anotacoes"];
   const clientes = (caso?.clientes ??
@@ -331,8 +348,12 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                 >
                   <div className="flex flex-col lg:flex-row gap-6 flex-1">
                     <div className="flex-1 flex flex-col gap-6 min-w-0">
-                      <AbaProducao casoId={numeroCaso} />
-                      <CasoEditCardClassificacao casoId={numeroCaso} />
+                      <AbaProducao
+                        casoId={numeroCaso}
+                        item={item}
+                        onSaveProducao={handleSaveProducao}
+                        isSaving={updateCaso.isPending}
+                      />
                     </div>
                     <CasoEditColunaDireita casoId={numeroCaso} />
                   </div>

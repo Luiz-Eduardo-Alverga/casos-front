@@ -82,7 +82,8 @@ export function AvisosDetalhe({ idSelecionado }: AvisosDetalheProps) {
         </CardHeader>
         <CardContent className="p-6 pt-3 lg:flex-1 lg:min-h-0 lg:overflow-y-auto flex items-center justify-center">
           <EmptyState
-            icon={FileText}
+            imageSrc="/images/empty-state-casos-produto.svg"
+            className="mt-16"
             title="Selecione um aviso"
             description="Clique em um aviso na lista para visualizar o conteúdo."
           />

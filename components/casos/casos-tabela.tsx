@@ -17,8 +17,12 @@ import { ImportanciaBadge } from "@/components/importancia-badge";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
 import { getUser } from "@/lib/auth";
-import { Box, ChevronUp, Loader2 } from "lucide-react";
+import { Box, ChevronUp } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
+import {
+  CasosTabelaSkeleton,
+  CasosTabelaSkeletonRows,
+} from "@/components/casos/casos-tabela-skeleton";
 import { Button } from "@/components/ui/button";
 
 interface CasosTabelaProps {
@@ -184,9 +188,7 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
             className="w-42 h-42"
           />
         ) : isLoading ? (
-          <div className="flex items-center justify-center min-h-[200px]">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
+          <CasosTabelaSkeleton />
         ) : itens.length === 0 ? (
           <EmptyState
             imageSrc="/images/empty-state-casos-produto.svg"
@@ -271,17 +273,13 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
                     </TableCell>
                   </TableRow>
                 ))}
+                {isFetchingNextPage && (
+                  <CasosTabelaSkeletonRows count={3} />
+                )}
               </TableBody>
             </Table>
             {hasNextPage && itens.length > 0 && (
-              <div
-                ref={loadMoreRef}
-                className="mt-4 flex justify-center min-h-[48px] items-center"
-              >
-                {isFetchingNextPage && (
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                )}
-              </div>
+              <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />
             )}
           </>
         )}
