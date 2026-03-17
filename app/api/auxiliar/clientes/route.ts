@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
   try {
@@ -7,7 +8,10 @@ export async function GET(request: Request) {
     const per_page = url.searchParams.get("per_page") ?? undefined;
     const cursor = url.searchParams.get("cursor") ?? undefined;
 
-    const authorization = request.headers.get("authorization") ?? undefined;
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
 
     const response = await api.get("/auxiliar/clientes", {
       params: {
@@ -15,9 +19,7 @@ export async function GET(request: Request) {
         ...(per_page ? { per_page } : {}),
         ...(cursor !== undefined ? { cursor } : {}),
       },
-      headers: {
-        ...(authorization ? { Authorization: authorization } : {}),
-      },
+      headers: authHeaders,
     });
 
     return Response.json(response.data, {

@@ -1,4 +1,4 @@
-import { getToken, getUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface CreateCasoRequest {
@@ -31,7 +31,6 @@ export interface CreateCasoResponse {
 export async function createCaso(
   data: CreateCasoRequest,
 ): Promise<CreateCasoResponse> {
-  const token = getToken();
   const user = getUser();
 
   if (!user) {
@@ -40,10 +39,7 @@ export async function createCaso(
 
   const response = await fetchWithAuth("/api/projeto-casos", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 

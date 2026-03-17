@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 /**
@@ -78,8 +77,6 @@ export async function updateCaso(
   id: number | string,
   data: UpdateCasoRequest
 ): Promise<UpdateCasoResponse> {
-  const token = getToken();
-
   const url = new URL(
     `/api/projeto-casos/${encodeURIComponent(String(id))}`,
     window.location.origin
@@ -87,10 +84,7 @@ export async function updateCaso(
 
   const response = await fetchWithAuth(url.toString(), {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 

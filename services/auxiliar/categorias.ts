@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface Categoria {
@@ -9,20 +8,10 @@ export interface Categoria {
 export async function getCategorias(params?: {
   search?: string;
 }): Promise<Categoria[]> {
-  const token = getToken();
-
   const url = new URL("/api/auxiliar/categorias", window.location.origin);
-  
-  if (params?.search) {
-    url.searchParams.set("search", params.search);
-  }
+  if (params?.search) url.searchParams.set("search", params.search);
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

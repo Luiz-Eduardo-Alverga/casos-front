@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface CreateAnotacaoRequest {
@@ -26,16 +25,11 @@ export interface CreateAnotacaoResponse {
 export async function createAnotacao(
   data: CreateAnotacaoRequest
 ): Promise<CreateAnotacaoResponse> {
-  const token = getToken();
-
   const response = await fetchWithAuth(
     `${window.location.origin}/api/projeto-casos-anotacoes`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     }
   );

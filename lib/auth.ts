@@ -6,67 +6,66 @@ export interface User {
   setor: string;
 }
 
-interface AuthData {
-  token: string;
-  user: User;
-}
-
-const TOKEN_KEY = '@casos:token';
-const USER_KEY = '@casos:user';
+/** Token não é mais exposto ao cliente — fica apenas em cookie HttpOnly no servidor. */
+const USER_KEY = "@casos:user";
 
 /** Chave do produto selecionado no Painel (ordem). Removida em clearAuthData(). */
-export const PAINEL_PRODUTO_ORDEM_KEY = '@casos:painel:produto-ordem';
+export const PAINEL_PRODUTO_ORDEM_KEY = "@casos:painel:produto-ordem";
 
-export function saveAuthData(data: { authorization: { token: string }, user: User }) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(TOKEN_KEY, data.authorization.token);
+/**
+ * Salva apenas o user no cliente (após login). O token é armazenado em cookie HttpOnly pela API.
+ */
+export function saveAuthData(data: { user: User }) {
+  if (typeof window !== "undefined") {
     localStorage.setItem(USER_KEY, JSON.stringify(data.user));
   }
 }
 
-/** Atualiza apenas o token (ex.: após refresh). Mantém o user em localStorage. */
-export function saveToken(token: string) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(TOKEN_KEY, token);
-  }
+/**
+ * @deprecated Token não é mais armazenado no cliente. Mantido para compatibilidade (no-op).
+ */
+export function saveToken(_token: string) {
+  // Token fica apenas no cookie HttpOnly; nada a fazer no cliente.
 }
 
+/**
+ * No cliente o token não é acessível (está em cookie HttpOnly). Retorna sempre null.
+ * Use apenas para checagens no client; a autenticação real é feita via cookie nas rotas API.
+ */
 export function getToken(): string | null {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem(TOKEN_KEY);
-  }
   return null;
 }
 
 export function getUser(): User | null {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     const userStr = localStorage.getItem(USER_KEY);
     if (userStr) {
-      return JSON.parse(userStr);
+      try {
+        return JSON.parse(userStr) as User;
+      } catch {
+        return null;
+      }
     }
   }
   return null;
 }
 
-export function getAuthData(): AuthData | null {
-  const token = getToken();
+/** Retorna user se existir (autenticação considerada válida se temos user + cookie no servidor). */
+export function getAuthData(): { user: User } | null {
   const user = getUser();
-  
-  if (token && user) {
-    return { token, user };
-  }
-  
+  if (user) return { user };
   return null;
 }
 
+/** Limpa dados locais e deve ser seguido de chamada a POST /api/auth/logout para limpar o cookie. */
 export function clearAuthData() {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(TOKEN_KEY);
+  if (typeof window !== "undefined") {
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(PAINEL_PRODUTO_ORDEM_KEY);
   }
 }
 
+/** Considera autenticado se há user salvo (cookie é validado nas requisições ao servidor). */
 export function isAuthenticated(): boolean {
-  return getToken() !== null && getUser() !== null;
+  return getUser() !== null;
 }

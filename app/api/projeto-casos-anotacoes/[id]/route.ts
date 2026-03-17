@@ -1,10 +1,15 @@
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
     const { id } = await params;
 
     if (!id) {
@@ -15,12 +20,11 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const authorization = request.headers.get("authorization") ?? undefined;
 
     const response = await api.put(`/projeto-casos-anotacoes/${id}`, body, {
       headers: {
         "Content-Type": "application/json",
-        ...(authorization ? { Authorization: authorization } : {}),
+        ...authHeaders,
       },
     });
 
@@ -60,12 +64,13 @@ export async function DELETE(
       );
     }
 
-    const authorization = request.headers.get("authorization") ?? undefined;
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
 
     const response = await api.delete(`/projeto-casos-anotacoes/${id}`, {
-      headers: {
-        ...(authorization ? { Authorization: authorization } : {}),
-      },
+      headers: authHeaders,
     });
 
     return Response.json(response.data, {

@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface MensagemDatas {
@@ -45,8 +44,6 @@ export interface GetMensagensParams {
 export async function getMensagens(
   params?: GetMensagensParams
 ): Promise<MensagensResponse> {
-  const token = getToken();
-
   const url = new URL("/api/mensagens", window.location.origin);
   if (params) {
     if (params.id != null) url.searchParams.set("id", String(params.id));
@@ -57,12 +54,7 @@ export async function getMensagens(
       url.searchParams.set("data_msg_fim", params.data_msg_fim);
   }
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

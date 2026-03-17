@@ -1,32 +1,47 @@
+import { cookies } from "next/headers";
 import { api } from "@/lib/axios";
+import {
+  AUTH_COOKIE_NAME,
+  AUTH_COOKIE_OPTIONS,
+  getTokenFromCookie,
+} from "@/lib/auth-server";
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
-    const authorization = request.headers.get("authorization") ?? undefined;
+    const token = await getTokenFromCookie();
 
-    if (!authorization) {
+    if (!token) {
       return Response.json(
-        { error: "Header Authorization é obrigatório" },
-        { status: 400 }
+        { error: "Sessão inválida ou expirada" },
+        { status: 401 }
       );
     }
 
     const response = await api.post(
       "/auth/refresh",
       {},
-      {
-        headers: {
-          Authorization: authorization,
-        },
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    return Response.json(response.data, {
-      status: response.status,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const newToken = response.data?.authorization?.token;
+    if (!newToken) {
+      return Response.json(
+        { error: "Resposta de refresh inválida" },
+        { status: 502 }
+      );
+    }
+
+    const store = await cookies();
+    store.set(AUTH_COOKIE_NAME, newToken, AUTH_COOKIE_OPTIONS);
+
+    // Não expor o token no body — cookie já foi atualizado
+    return Response.json(
+      { success: true },
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error: any) {
     console.error("Erro na API Route de refresh token:", error);
     const status = error?.response?.status || 500;

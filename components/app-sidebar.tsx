@@ -6,6 +6,7 @@ import {
   Bell,
   Grid3x3,
   FileText,
+  Eye,
   ChevronRight,
   type LucideIcon,
 } from "lucide-react";
@@ -35,6 +36,7 @@ interface SidebarItem {
 const SIDEBAR_ITEMS: SidebarItem[] = [
   { label: "Avisos", href: "/avisos", icon: Bell },
   { label: "Painel do desenvolvedor", href: "/painel", icon: Grid3x3 },
+  // { label: "Minha Visão", href: "/painel/minha-visao", icon: Eye },
   { label: "Casos", href: "/casos", icon: FileText },
 ];
 
@@ -86,14 +88,10 @@ export function AppSidebar({
           {SIDEBAR_ITEMS.map((item) => {
             const isActive =
               pathname === item.href ||
-              (item.href !== "/" && pathname?.startsWith(item.href));
+              (item.href !== "/" && pathname?.endsWith(item.href));
             const Icon = item.icon;
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="block w-full"
-              >
+              <Link key={item.href} href={item.href} className="block w-full">
                 <SidebarNavItem
                   isActive={isActive}
                   className={cn("w-full", isCollapsed && "justify-center")}

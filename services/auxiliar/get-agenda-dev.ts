@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface AgendaDevItem {
@@ -22,17 +21,10 @@ export interface AgendaDevItem {
 export async function getAgendaDev(params: {
   id_colaborador: string;
 }): Promise<AgendaDevItem[]> {
-  const token = getToken();
-
   const url = new URL("/api/auxiliar/agenda-dev", window.location.origin);
   url.searchParams.set("id_colaborador", params.id_colaborador);
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

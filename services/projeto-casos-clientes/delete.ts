@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface DeleteClienteCasoResponse {
@@ -12,19 +11,12 @@ export interface DeleteClienteCasoResponse {
 export async function deleteClienteCaso(
   id: number | string
 ): Promise<DeleteClienteCasoResponse> {
-  const token = getToken();
-
   const url = new URL(
     `/api/projeto-casos-clientes/${encodeURIComponent(String(id))}`,
     window.location.origin
   );
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "DELETE",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "DELETE" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

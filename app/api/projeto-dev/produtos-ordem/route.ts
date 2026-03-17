@@ -1,7 +1,12 @@
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
   try {
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
     const url = new URL(request.url);
     const id_colaborador = url.searchParams.get("id_colaborador");
 
@@ -12,15 +17,11 @@ export async function GET(request: Request) {
       );
     }
 
-    const authorization = request.headers.get("authorization") ?? undefined;
-
     const response = await api.get("/projeto-dev-produtos-ordem", {
       params: {
         id_colaborador,
       },
-      headers: {
-        ...(authorization ? { Authorization: authorization } : {}),
-      },
+      headers: authHeaders,
     });
 
     return Response.json(response.data, {

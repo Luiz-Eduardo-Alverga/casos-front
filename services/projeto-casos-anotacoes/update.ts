@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 import type { AnotacaoItem } from "./create";
 
@@ -19,8 +18,6 @@ export async function updateAnotacao(
   id: number | string,
   data: UpdateAnotacaoRequest
 ): Promise<UpdateAnotacaoResponse> {
-  const token = getToken();
-
   const url = new URL(
     `/api/projeto-casos-anotacoes/${encodeURIComponent(String(id))}`,
     window.location.origin
@@ -28,10 +25,7 @@ export async function updateAnotacao(
 
   const response = await fetchWithAuth(url.toString(), {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 

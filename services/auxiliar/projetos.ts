@@ -1,4 +1,4 @@
-import { getToken, getUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface Projeto {
@@ -15,7 +15,6 @@ export async function getProjetos(params?: {
   numero_projeto?: number;
   search?: string;
 }): Promise<Projeto[]> {
-  const token = getToken();
   const user = getUser();
 
   if (!user) {
@@ -40,12 +39,7 @@ export async function getProjetos(params?: {
     url.searchParams.set("search", params.search);
   }
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

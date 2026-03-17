@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface DeleteAnotacaoResponse {
@@ -12,19 +11,12 @@ export interface DeleteAnotacaoResponse {
 export async function deleteAnotacao(
   id: number | string
 ): Promise<DeleteAnotacaoResponse> {
-  const token = getToken();
-
   const url = new URL(
     `/api/projeto-casos-anotacoes/${encodeURIComponent(String(id))}`,
     window.location.origin
   );
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "DELETE",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "DELETE" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

@@ -25,15 +25,13 @@ API Externa (http://10.0.0.20:83/api-soft-flow/api)
 **Responsabilidade**: Fazer requisições para as rotas da API do Next.js.
 
 **Características**:
-- Usa `getToken()` de `@/lib/auth` para obter o token de autenticação
 - Usa `fetchWithAuth()` de `@/lib/fetch` para fazer requisições com tratamento automático de erros 401
 - Define interfaces TypeScript para os tipos de dados
 - Chama rotas da API do Next.js (ex: `/api/projeto-dev/produtos-ordem`)
-- Passa o token no header `Authorization: Bearer {token}`
+- O token não é enviado pelo cliente: fica em cookie HttpOnly; as requisições usam `credentials: "include"` (padrão em same-origin)
 
 **Exemplo**:
 ```typescript
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface ProdutoOrdem {
@@ -49,17 +47,10 @@ export interface ProdutoOrdem {
 export async function getProdutosOrdem(params: {
   id_colaborador: string;
 }): Promise<ProdutoOrdem[]> {
-  const token = getToken();
-
   const url = new URL("/api/projeto-dev/produtos-ordem", window.location.origin);
   url.searchParams.set("id_colaborador", params.id_colaborador);
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
@@ -76,17 +67,23 @@ export async function getProdutosOrdem(params: {
 
 **Características**:
 - Usa `api` de `@/lib/axios` (configurado com `NEXT_PUBLIC_API_BASE_URL`)
-- Extrai query params e headers da requisição do cliente
-- Repassa o header `Authorization` para a API externa
+- Obtém o token do cookie HttpOnly via `getAuthorizationHeader()` de `@/lib/auth-server`
+- Extrai query params da requisição do cliente
+- Repassa o header `Authorization` para a API externa (token lido do cookie)
 - Trata erros e retorna respostas apropriadas
-- A baseURL do axios aponta para `http://10.0.0.20:83/api-soft-flow/api`
+- A baseURL do axios aponta para a API externa
 
 **Exemplo**:
 ```typescript
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
   try {
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
     const url = new URL(request.url);
     const id_colaborador = url.searchParams.get("id_colaborador");
 
@@ -97,22 +94,14 @@ export async function GET(request: Request) {
       );
     }
 
-    const authorization = request.headers.get("authorization") ?? undefined;
-
     const response = await api.get("/projeto-dev-produtos-ordem", {
-      params: {
-        id_colaborador,
-      },
-      headers: {
-        ...(authorization ? { Authorization: authorization } : {}),
-      },
+      params: { id_colaborador },
+      headers: authHeaders,
     });
 
     return Response.json(response.data, {
       status: response.status,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error: any) {
     console.error("Erro na API Route de produtos ordem:", error);
@@ -153,8 +142,8 @@ export function useProdutosOrdem(params: { id_colaborador: string }) {
 
 1. **Componente** chama o hook: `const { data, isLoading } = useProdutosOrdem({ id_colaborador: "202" })`
 2. **Hook** executa a query do React Query, que chama o service
-3. **Service** faz requisição para `/api/projeto-dev/produtos-ordem?id_colaborador=202` com token no header
-4. **API Route** recebe a requisição, extrai params e headers, e faz requisição para a API externa usando axios
+3. **Service** faz requisição para `/api/projeto-dev/produtos-ordem?id_colaborador=202` (cookie de sessão é enviado automaticamente)
+4. **API Route** recebe a requisição, lê o token do cookie HttpOnly, extrai params e faz requisição para a API externa com o header Authorization
 5. **API Externa** retorna os dados
 6. **API Route** retorna os dados para o service
 7. **Service** retorna os dados para o hook
@@ -166,12 +155,12 @@ export function useProdutosOrdem(params: { id_colaborador: string }) {
 
 - `NEXT_PUBLIC_API_BASE_URL`: URL base da API externa (ex: `http://10.0.0.20:83/api-soft-flow/api`)
 
-### Autenticação
+### Autenticação (Cookie HttpOnly)
 
-- Token armazenado em `localStorage` com chave `@casos:token`
-- Token obtido via `getToken()` de `@/lib/auth`
-- Token enviado no header `Authorization: Bearer {token}`
-- Erros 401 são tratados automaticamente por `fetchWithAuth()`, que limpa a autenticação e redireciona para `/login`
+- Token armazenado em cookie HttpOnly (`casos_token`), não acessível ao JavaScript do cliente
+- Nas API Routes, o token é lido via `getAuthorizationHeader()` de `@/lib/auth-server` e repassado à API externa
+- O cliente não envia o token: as requisições para as rotas do Next.js são same-origin e o cookie é enviado automaticamente
+- Erros 401 são tratados por `fetchWithAuth()`: tenta refresh da sessão; se falhar, chama `/api/auth/logout`, limpa dados locais e redireciona para `/login`
 
 ## Convenções
 

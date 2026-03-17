@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface Usuario {
@@ -11,20 +10,10 @@ export interface Usuario {
 export async function getUsuarios(params?: {
   search?: string;
 }): Promise<Usuario[]> {
-  const token = getToken();
-
   const url = new URL("/api/auxiliar/usuarios", window.location.origin);
-  
-  if (params?.search) {
-    url.searchParams.set("search", params.search);
-  }
+  if (params?.search) url.searchParams.set("search", params.search);
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

@@ -48,8 +48,12 @@ export function ComboboxField({
   const {
     control,
     formState: { errors },
+    setValue,
+    getValues,
   } = useFormContext();
   const error = errors[name];
+
+  console.log(getValues());
 
   return (
     <div className="space-y-2">

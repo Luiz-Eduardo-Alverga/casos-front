@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 /** Dados do caso clonado retornados pela API */
@@ -74,8 +73,6 @@ export interface ClonarCasoResponse {
 export async function clonarCaso(
   id: number | string
 ): Promise<ClonarCasoResponse> {
-  const token = getToken();
-
   const url = new URL(
     `/api/projeto-casos/clonar/${encodeURIComponent(String(id))}`,
     window.location.origin
@@ -83,10 +80,7 @@ export async function clonarCaso(
 
   const response = await fetchWithAuth(url.toString(), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({}),
   });
 

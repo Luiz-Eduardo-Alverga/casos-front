@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 /** Payload enviado na atualização de produção */
@@ -44,7 +43,6 @@ export async function atualizarProducao(
   sequencia: number | string,
   payload: AtualizarProducaoPayload
 ): Promise<AtualizarProducaoResponse> {
-  const token = getToken();
   const id = encodeURIComponent(String(sequencia));
 
   const url = new URL(
@@ -54,10 +52,7 @@ export async function atualizarProducao(
 
   const response = await fetchWithAuth(url.toString(), {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
 

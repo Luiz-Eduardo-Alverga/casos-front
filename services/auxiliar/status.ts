@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface StatusItem {
@@ -16,16 +15,9 @@ export interface StatusItem {
 }
 
 export async function getStatus(): Promise<StatusItem[]> {
-  const token = getToken();
-
   const url = new URL("/api/auxiliar/status", window.location.origin);
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

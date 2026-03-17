@@ -172,7 +172,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     try {
       await deleteCaso.mutateAsync(Number(casoId));
       toast.success("Caso excluído com sucesso.");
-      router.push("/casos");
+      invalidate();
+      router.back();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao excluir caso.");
     }
@@ -373,7 +374,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                   item?.caso?.status?.status_tempo
                 }
                 onSalvar={handleSalvar}
-                onCancelar={() => router.push("/casos")}
+                onCancelar={() => router.back()}
                 onProducaoAlterada={invalidate}
                 onRedirecionarParaAbaProducao={() => setTabValue("producao")}
                 isLoading={updateCaso.isPending}

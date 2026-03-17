@@ -54,10 +54,10 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
   }, [filtrosIniciais.tipo_categoria, categorias]);
 
   const methods = useForm<CasosFiltersForm>({
-    defaultValues: {
-      ...filtrosIniciais,
-      categoria: categoriaIdFromUrl || filtrosIniciais.tipo_categoria,
-    },
+    // defaultValues: {
+    //   ...filtrosIniciais,
+    //   categoria: categoriaIdFromUrl || filtrosIniciais.tipo_categoria,
+    // },
   });
 
   // Sincronizar form quando filtros iniciais ou categorias mudarem (URL mudou ou categorias carregaram)
@@ -88,8 +88,11 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
       params.set("modulo", values.modulo.trim());
     }
     if (values.categoria?.trim()) {
-      const categoria = categorias.find((c) => c.id === values.categoria.trim());
-      const valorTipoCategoria = categoria?.tipo_categoria ?? values.categoria.trim();
+      const categoria = categorias.find(
+        (c) => c.id === values.categoria.trim(),
+      );
+      const valorTipoCategoria =
+        categoria?.tipo_categoria ?? values.categoria.trim();
       params.set("tipo_categoria", valorTipoCategoria);
     }
     if (values.descricao_resumo?.trim()) {
@@ -98,18 +101,6 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
 
     router.push(`/casos?${params.toString()}`);
   }, [methods, router, categorias]);
-
-  const handleLimparFiltros = useCallback(() => {
-    methods.reset({
-      produto: "",
-      versao: "",
-      status: "",
-      modulo: "",
-      categoria: "",
-      descricao_resumo: "",
-    });
-    router.push("/casos");
-  }, [methods, router]);
 
   const providerValue = useMemo(
     () => ({

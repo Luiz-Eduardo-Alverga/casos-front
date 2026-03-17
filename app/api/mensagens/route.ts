@@ -1,14 +1,17 @@
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
   try {
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
     const url = new URL(request.url);
     const id = url.searchParams.get("id");
     const lido = url.searchParams.get("lido");
     const data_msg_inicio = url.searchParams.get("data_msg_inicio");
     const data_msg_fim = url.searchParams.get("data_msg_fim");
-
-    const authorization = request.headers.get("authorization") ?? undefined;
 
     const params: Record<string, string> = {};
     if (id != null && id !== "") params.id = id;
@@ -20,9 +23,7 @@ export async function GET(request: Request) {
 
     const response = await api.get("/mensagens", {
       params,
-      headers: {
-        ...(authorization ? { Authorization: authorization } : {}),
-      },
+      headers: authHeaders,
     });
 
     return Response.json(response.data, {

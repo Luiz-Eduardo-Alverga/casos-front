@@ -1,14 +1,18 @@
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function POST(request: Request) {
   try {
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
     const body = await request.json();
-    const authorization = request.headers.get("authorization") ?? undefined;
 
     const response = await api.post("/projeto-casos-anotacoes", body, {
       headers: {
         "Content-Type": "application/json",
-        ...(authorization ? { Authorization: authorization } : {}),
+        ...authHeaders,
       },
     });
 

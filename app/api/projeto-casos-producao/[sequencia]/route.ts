@@ -1,10 +1,15 @@
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ sequencia: string }> }
 ) {
   try {
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
     const { sequencia } = await params;
 
     if (!sequencia) {
@@ -15,7 +20,6 @@ export async function PUT(
     }
 
     const body = await request.json().catch(() => ({}));
-    const authorization = request.headers.get("authorization") ?? undefined;
 
     const response = await api.put(
       `/projeto-casos-producao/${encodeURIComponent(sequencia)}`,
@@ -23,7 +27,7 @@ export async function PUT(
       {
         headers: {
           "Content-Type": "application/json",
-          ...(authorization ? { Authorization: authorization } : {}),
+          ...authHeaders,
         },
       }
     );
@@ -58,10 +62,14 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ sequencia: string }> }
 ) {
   try {
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
     const { sequencia } = await params;
 
     if (!sequencia) {
@@ -71,14 +79,10 @@ export async function DELETE(
       );
     }
 
-    const authorization = request.headers.get("authorization") ?? undefined;
-
     const response = await api.delete(
       `/projeto-casos-producao/${encodeURIComponent(sequencia)}`,
       {
-        headers: {
-          ...(authorization ? { Authorization: authorization } : {}),
-        },
+        headers: authHeaders,
       }
     );
 

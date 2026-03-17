@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
   try {
@@ -6,7 +7,10 @@ export async function GET(request: Request) {
     const produto_id = url.searchParams.get("produto_id");
     const search = url.searchParams.get("search") ?? undefined;
 
-    const authorization = request.headers.get("authorization") ?? undefined;
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
 
     if (!produto_id) {
       return Response.json({ error: "produto_id é obrigatório" }, { status: 400 });
@@ -17,9 +21,7 @@ export async function GET(request: Request) {
         produto_id,
         ...(search ? { search } : {}),
       },
-      headers: {
-        ...(authorization ? { Authorization: authorization } : {}),
-      },
+      headers: authHeaders,
     });
 
     return Response.json(response.data, {

@@ -1,10 +1,15 @@
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function PUT(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
     const { id } = await params;
 
     if (!id) {
@@ -14,12 +19,8 @@ export async function PUT(
       );
     }
 
-    const authorization = request.headers.get("authorization") ?? undefined;
-
     const response = await api.put(`/mensagens/${id}/lido`, undefined, {
-      headers: {
-        ...(authorization ? { Authorization: authorization } : {}),
-      },
+      headers: authHeaders,
     });
 
     return Response.json(response.data, {

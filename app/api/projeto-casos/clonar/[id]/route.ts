@@ -1,10 +1,15 @@
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function POST(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
     const { id } = await params;
 
     if (!id) {
@@ -14,12 +19,10 @@ export async function POST(
       );
     }
 
-    const authorization = request.headers.get("authorization") ?? undefined;
-
     const response = await api.post(`/projeto-casos/clonar/${id}`, {}, {
       headers: {
         "Content-Type": "application/json",
-        ...(authorization ? { Authorization: authorization } : {}),
+        ...authHeaders,
       },
     });
 

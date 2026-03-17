@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 import type {
   ProjetoMemoriaItemResponse,
@@ -36,8 +35,6 @@ export type {
 export async function getProjetoMemoria(
   params: ProjetoMemoriaParams = {},
 ): Promise<ProjetoMemoriaResponse> {
-  const token = getToken();
-
   const url = new URL("/api/projeto-memoria", window.location.origin);
 
   const stringParams: Array<[string, string | undefined | null]> = [
@@ -77,12 +74,7 @@ export async function getProjetoMemoria(
     url.searchParams.set("cursor", params.cursor);
   }
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
@@ -101,19 +93,12 @@ export async function getProjetoMemoria(
 export async function getProjetoMemoriaById(
   id: number | string,
 ): Promise<ProjetoMemoriaItemResponse> {
-  const token = getToken();
-
   const url = new URL(
     `/api/projeto-memoria/${encodeURIComponent(String(id))}`,
     window.location.origin,
   );
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

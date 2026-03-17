@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface ProdutoOrdem {
@@ -24,17 +23,10 @@ export interface ProdutosOrdemResponse {
 export async function getProdutosOrdem(params: {
   id_colaborador: string;
 }): Promise<ProdutosOrdemResponse> {
-  const token = getToken();
-
   const url = new URL("/api/projeto-dev/produtos-ordem", window.location.origin);
   url.searchParams.set("id_colaborador", params.id_colaborador);
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "GET",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 /** Payload de sucesso da API ao parar produção */
@@ -37,7 +36,6 @@ export interface PararProducaoResponse {
 export async function pararProducao(
   registro: number | string
 ): Promise<PararProducaoResponse> {
-  const token = getToken();
   const id = encodeURIComponent(String(registro));
 
   const url = new URL(
@@ -47,10 +45,7 @@ export async function pararProducao(
 
   const response = await fetchWithAuth(url.toString(), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers: { "Content-Type": "application/json" },
   });
 
   const body = await response.json().catch(() => ({}));

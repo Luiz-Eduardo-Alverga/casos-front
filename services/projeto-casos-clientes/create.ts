@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface CreateClienteCasoRequest {
@@ -28,16 +27,11 @@ export interface CreateClienteCasoResponse {
 export async function createClienteCaso(
   data: CreateClienteCasoRequest
 ): Promise<CreateClienteCasoResponse> {
-  const token = getToken();
-
   const response = await fetchWithAuth(
     `${window.location.origin}/api/projeto-casos-clientes`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     }
   );

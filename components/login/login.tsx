@@ -53,11 +53,8 @@ export function Login() {
         senha: data.password,
       });
 
-      if (response.success && response.authorization && response.user) {
-        saveAuthData({
-          authorization: response.authorization,
-          user: response.user,
-        });
+      if (response.success && response.user) {
+        saveAuthData({ user: response.user });
 
         if (rememberMe) {
           localStorage.setItem(REMEMBER_ME_KEY, "true");

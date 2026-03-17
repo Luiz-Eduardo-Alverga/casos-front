@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 export interface ExcluirProducaoResponse {
@@ -12,7 +11,6 @@ export interface ExcluirProducaoResponse {
 export async function excluirProducao(
   sequencia: number | string
 ): Promise<ExcluirProducaoResponse> {
-  const token = getToken();
   const id = encodeURIComponent(String(sequencia));
 
   const url = new URL(
@@ -20,12 +18,7 @@ export async function excluirProducao(
     window.location.origin
   );
 
-  const response = await fetchWithAuth(url.toString(), {
-    method: "DELETE",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  const response = await fetchWithAuth(url.toString(), { method: "DELETE" });
 
   const body = await response.json().catch(() => ({}));
 

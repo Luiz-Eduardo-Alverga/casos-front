@@ -25,7 +25,8 @@ export function UserDropDown() {
   const router = useRouter();
   const user = getUser();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     clearAuthData();
     toast.success("Logout realizado com sucesso", {
       position: "top-right",

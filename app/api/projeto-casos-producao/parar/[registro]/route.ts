@@ -1,10 +1,15 @@
 import { api } from "@/lib/axios";
+import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function POST(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ registro: string }> }
 ) {
   try {
+    const authHeaders = await getAuthorizationHeader();
+    if (!authHeaders.Authorization) {
+      return Response.json({ error: "Não autorizado" }, { status: 401 });
+    }
     const { registro } = await params;
 
     if (!registro) {
@@ -14,15 +19,13 @@ export async function POST(
       );
     }
 
-    const authorization = request.headers.get("authorization") ?? undefined;
-
     const response = await api.post(
       `/projeto-casos-producao/parar/${encodeURIComponent(registro)}`,
       {},
       {
         headers: {
           "Content-Type": "application/json",
-          ...(authorization ? { Authorization: authorization } : {}),
+          ...authHeaders,
         },
       }
     );

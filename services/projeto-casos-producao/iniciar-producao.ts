@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import { fetchWithAuth } from "@/lib/fetch";
 
 /** Payload de sucesso da API ao iniciar produção */
@@ -66,7 +65,6 @@ export class IniciarProducaoError extends Error {
 export async function iniciarProducao(
   registro: number | string
 ): Promise<IniciarProducaoResponse> {
-  const token = getToken();
   const id = encodeURIComponent(String(registro));
 
   const url = new URL(
@@ -76,10 +74,7 @@ export async function iniciarProducao(
 
   const response = await fetchWithAuth(url.toString(), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers: { "Content-Type": "application/json" },
   });
 
   const body = await response.json().catch(() => ({}));

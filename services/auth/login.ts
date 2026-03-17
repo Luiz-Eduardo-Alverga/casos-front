@@ -3,13 +3,10 @@ interface LoginParams {
     senha: string;
 }
 
-interface LoginResponse {
+/** Resposta do login: token fica em cookie HttpOnly, cliente recebe apenas success e user. */
+export interface LoginResponse {
     success: boolean;
-    message: string;
-    authorization: {
-        token: string;
-        type: string;
-    };
+    message?: string;
     user: {
         id: number;
         nome: string;
