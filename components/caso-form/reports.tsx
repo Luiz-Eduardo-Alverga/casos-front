@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
@@ -37,10 +37,19 @@ import {
   Users,
   Check,
   RefreshCcw,
+  Zap,
 } from "lucide-react";
 import { SuccessModal } from "@/components/reports-form/success-modal";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
+import { ConfirmacaoModal } from "@/components/confirmacao-modal";
+import { Badge } from "@/components/ui/badge";
+import {
+  incrementAberturaStats,
+  clearAberturaStats,
+  getIgnoreAutoFill,
+  setIgnoreAutoFill,
+} from "@/lib/casos-abertura-rapida-storage";
 
 const assistantSFormSchema = z.object({
   description: z.string(),
@@ -86,11 +95,22 @@ type ReportsFormData = z.infer<typeof reportsFormSchema>;
 
 type AssistantFormData = z.infer<typeof assistantSFormSchema>;
 
+/** Limpa só campos de texto livre (igual ao fluxo pós-envio). */
+function clearTextOnlyFields(
+  setValue: (name: keyof ReportsFormData, value: string) => void,
+) {
+  setValue("DescricaoResumo", "");
+  setValue("DescricaoCompleta", "");
+  setValue("InformacoesAdicionais", "");
+}
+
 export function Reports() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [numeroCaso, setNumeroCaso] = useState<number | null>(null);
   const [isAssistantModalOpen, setIsAssistantModalOpen] = useState(false);
+  const [quickMode, setQuickMode] = useState(false);
+  const [showQuickModeConfirm, setShowQuickModeConfirm] = useState(false);
 
   const { register, handleSubmit, reset } = useForm<AssistantFormData>({
     resolver: zodResolver(assistantSFormSchema),
@@ -119,6 +139,55 @@ export function Reports() {
   });
 
   const produto = methods.watch("produto");
+  /** Produto no momento em que o modo rápido foi ativado (para sair ao trocar produto). */
+  const quickModeProdutoRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      setQuickMode(false);
+    };
+  }, []);
+
+  /** Encerra o modo rápido e zera o contador no armazenamento (ex.: Limpar formulário). */
+  const exitQuickMode = useCallback(() => {
+    quickModeProdutoRef.current = null;
+    setQuickMode(false);
+    clearAberturaStats();
+  }, []);
+
+  useEffect(() => {
+    if (!quickMode || quickModeProdutoRef.current === null) return;
+    const atual = (produto ?? "").trim();
+    const esperado = quickModeProdutoRef.current;
+    if (atual !== esperado) {
+      exitQuickMode();
+    }
+  }, [produto, quickMode, exitQuickMode]);
+
+  const handleNovoCasoAfterSuccess = useCallback(() => {
+    const produtoId = methods.getValues("produto")?.trim() || "";
+    const versao = methods.getValues("versao")?.trim() || "";
+    if (!produtoId || !versao) return;
+    const { shouldPromptQuickMode } = incrementAberturaStats(produtoId, versao);
+    if (shouldPromptQuickMode && !getIgnoreAutoFill()) {
+      setShowQuickModeConfirm(true);
+    }
+  }, [methods]);
+
+  const acceptQuickMode = () => {
+    quickModeProdutoRef.current = methods.getValues("produto")?.trim() || "";
+    setQuickMode(true);
+    clearTextOnlyFields(methods.setValue);
+    setShowQuickModeConfirm(false);
+  };
+
+  const refuseQuickMode = () => {
+    quickModeProdutoRef.current = null;
+    clearAberturaStats();
+    setIgnoreAutoFill(true);
+    setQuickMode(false);
+    setShowQuickModeConfirm(false);
+  };
 
   const { mutateAsync: assistantMutateAsync, isPending: isAssistantPending } =
     useAssistant();
@@ -231,16 +300,21 @@ export function Reports() {
       };
 
       const response = await createCasoAsync(casoData);
-      // Armazenar o número do caso e abrir o modal
       if (response?.data?.registro) {
         setNumeroCaso(response.data.registro);
-        setIsModalOpen(true);
+        if (quickMode) {
+          toast.success(
+            `Caso ${response.data.registro} aberto. Preencha o próximo resumo e descrição.`,
+            { duration: 3500 },
+          );
+          clearTextOnlyFields(methods.setValue);
+        } else {
+          setIsModalOpen(true);
+          clearTextOnlyFields(methods.setValue);
+        }
+      } else {
+        clearTextOnlyFields(methods.setValue);
       }
-      // Resetar formulário após sucesso
-      // methods.reset();
-      methods.setValue("DescricaoResumo", "");
-      methods.setValue("DescricaoCompleta", "");
-      methods.setValue("InformacoesAdicionais", "");
     } catch (error) {
       console.error("Erro ao criar caso:", error);
     }
@@ -274,6 +348,7 @@ export function Reports() {
                   variant="outline"
                   className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
                   onClick={() => {
+                    setQuickMode(false);
                     router.back();
                   }}
                 >
@@ -286,6 +361,7 @@ export function Reports() {
                   variant="outline"
                   className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
                   onClick={() => {
+                    exitQuickMode();
                     methods.reset();
                   }}
                 >
@@ -312,11 +388,25 @@ export function Reports() {
                 {/* Card Informações */}
                 <Card className="bg-card shadow-card rounded-lg">
                   <CardHeader className="p-5 pb-2 border-b border-border-divider">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-3.5 w-3.5 text-text-primary" />
-                      <CardTitle className="text-sm font-semibold text-text-primary">
-                        Informações
-                      </CardTitle>
+                    <div className="flex justify-between items-center gap-2">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-3.5 w-3.5 text-text-primary" />
+                        <CardTitle className="text-sm font-semibold text-text-primary">
+                          Informações
+                        </CardTitle>
+                      </div>
+
+                      <div>
+                        {quickMode && (
+                          <Badge
+                            variant="secondary"
+                            className="h-7 shrink-0 rounded-full border-transparent bg-sky-100 px-2.5 text-sm font-semibold text-text-primary hover:bg-sky-100/80"
+                          >
+                            <Zap className="h-3.5 w-3.5 mr-2" />
+                            Modo de preenchimento rápido ativo
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="p-6 pt-3 space-y-4">
@@ -403,6 +493,18 @@ export function Reports() {
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               numeroCaso={numeroCaso}
+              onNovoCasoClick={handleNovoCasoAfterSuccess}
+            />
+
+            <ConfirmacaoModal
+              open={showQuickModeConfirm}
+              onOpenChange={setShowQuickModeConfirm}
+              titulo="Preenchimento rápido"
+              descricao="Você está abrindo vários casos para o mesmo produto e versão. Deseja manter os dados preenchidos para os próximos e agilizar o envio?"
+              cancelarLabel="Não"
+              confirmarLabel="Sim, ativar"
+              onConfirm={acceptQuickMode}
+              onCancel={refuseQuickMode}
             />
           </form>
         </FormProvider>

@@ -13,9 +13,16 @@ interface SuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
   numeroCaso: number | null;
+  /** Chamado ao clicar em &quot;Novo caso&quot; (antes de fechar), ex.: persistir LocalStorage. */
+  onNovoCasoClick?: () => void;
 }
 
-export function SuccessModal({ isOpen, onClose, numeroCaso }: SuccessModalProps) {
+export function SuccessModal({
+  isOpen,
+  onClose,
+  numeroCaso,
+  onNovoCasoClick,
+}: SuccessModalProps) {
   const { reset } = useFormContext()
   const [copied, setCopied] = useState(false);
   const [progress, setProgress] = useState(100);
@@ -136,7 +143,13 @@ export function SuccessModal({ isOpen, onClose, numeroCaso }: SuccessModalProps)
                     </>
                   )}
                 </Button>
-                <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" onClick={onClose}>
+                <Button
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={() => {
+                    onNovoCasoClick?.();
+                    onClose();
+                  }}
+                >
                   <>
                     <Plus className="h-4 w-4 " />
                     Novo caso

@@ -99,13 +99,13 @@ export function AbaClientes({
 
   return (
     <FormProvider {...methods}>
-      <Card className="bg-card shadow-card rounded-lg flex flex-col h-full">
+      <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
         <CasoEditCardHeader
           title="Clientes vinculados"
           icon={Users}
           badge={casoId}
         />
-        <CardContent className="p-6 pt-3 space-y-4 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
+        <CardContent className="p-6 pt-3 space-y-4 lg:flex-1 ">
           <div className="flex flex-wrap items-end gap-4 p-4 rounded-lg border border-border-divider bg-muted/30">
             <div className="space-y-2 min-w-[220px] flex-1">
               <CasoEditClienteCombobox

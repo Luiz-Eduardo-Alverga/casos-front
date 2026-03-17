@@ -106,7 +106,7 @@ export function AbaAnotacoes({
           badge={casoId}
         />
 
-        <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 lg:min-h-0">
+        <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 ">
           {/* Nova anotação: Descrição Completa + textarea + Salvar */}
           <div className="shrink-0 flex flex-col items-end gap-3 border-b border-border-divider pb-4 space-y-2">
             <div className="w-full space-y-2">

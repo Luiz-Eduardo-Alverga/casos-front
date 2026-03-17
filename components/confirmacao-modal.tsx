@@ -18,6 +18,8 @@ export interface ConfirmacaoModalProps {
   confirmarLabel?: string;
   cancelarLabel?: string;
   onConfirm: () => void | Promise<void>;
+  /** Chamado ao cancelar, fechar pelo X, clique fora ou Esc (não após confirmar). */
+  onCancel?: () => void;
   variant?: "danger" | "default";
   isLoading?: boolean;
 }
@@ -30,6 +32,7 @@ export function ConfirmacaoModal({
   confirmarLabel = "Confirmar",
   cancelarLabel = "Cancelar",
   onConfirm,
+  onCancel,
   variant = "default",
   isLoading = false,
 }: ConfirmacaoModalProps) {
@@ -38,11 +41,20 @@ export function ConfirmacaoModal({
     onOpenChange(false);
   };
 
+  const dismiss = () => {
+    onCancel?.();
+    onOpenChange(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="sm:max-w-md gap-0 p-0 overflow-hidden"
-        onPointerDownOutside={(e) => isLoading && e.preventDefault()}
+        onPointerDownOutside={(e) => {
+          if (isLoading) e.preventDefault();
+          else onCancel?.();
+        }}
+        onEscapeKeyDown={() => onCancel?.()}
       >
         <div className="flex flex-col items-center px-6 pt-8 pb-6">
           <div className="flex justify-center mb-6">
@@ -69,7 +81,7 @@ export function ConfirmacaoModal({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={dismiss}
             disabled={isLoading}
             className="flex-1"
           >
@@ -81,7 +93,7 @@ export function ConfirmacaoModal({
               "flex-1",
               variant === "danger"
                 ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                : "bg-[#2d2d2d] text-white hover:bg-[#3d3d3d]"
+                : "bg-[#2d2d2d] text-white hover:bg-[#3d3d3d]",
             )}
             onClick={handleConfirm}
             disabled={isLoading}
