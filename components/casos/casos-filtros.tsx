@@ -18,6 +18,7 @@ import {
 import { importanceOptions } from "@/mocks/teste";
 import { useCategorias } from "@/hooks/use-categorias";
 import { Filter, Search } from "lucide-react";
+import { ExampleCombobox } from "@/components/example-combobox";
 
 interface CasosFiltersForm {
   produto: string;
@@ -131,6 +132,8 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
               <CasoFormModulo required={false} />
               <CasoFormStatus />
               <CasoFormCategoria required={false} />
+
+              {/* <ExampleCombobox /> */}
             </div>
 
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">

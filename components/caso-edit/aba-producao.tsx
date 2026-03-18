@@ -52,6 +52,20 @@ function formatMinutos(minutos: number): string {
   return `${minutos} minutos`;
 }
 
+/** Exibe tempo realizado/teste: abaixo de 1h em minutos; a partir de 1h como "1 hora e 30 minutos". */
+function formatMinutosHoraEMinutos(minutos: number): string {
+  if (minutos === 0) return "0 minutos";
+  if (minutos < 60) {
+    return minutos === 1 ? "1 minuto" : `${minutos} minutos`;
+  }
+  const h = Math.floor(minutos / 60);
+  const m = minutos % 60;
+  const parteHoras = h === 1 ? "1 hora" : `${h} horas`;
+  if (m === 0) return parteHoras;
+  const parteMin = m === 1 ? "1 minuto" : `${m} minutos`;
+  return `${parteHoras} e ${parteMin}`;
+}
+
 function formatTempoExcedido(estimado: number, realizado: number): string {
   const diff = realizado - estimado;
   const sign = diff >= 0 ? "" : "-";
@@ -351,7 +365,7 @@ export function AbaProducao({
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <ProducaoMetricaCard
                     label="Tempo Produção"
-                    value={formatMinutos(realizadoMin)}
+                    value={formatMinutosHoraEMinutos(realizadoMin)}
                     valueVariant="sky"
                   />
                   <ProducaoMetricaCard
@@ -361,7 +375,7 @@ export function AbaProducao({
                   />
                   <ProducaoMetricaCard
                     label="Total horas teste"
-                    value={formatMinutos(testandoMin)}
+                    value={formatMinutosHoraEMinutos(testandoMin)}
                   />
                 </div>
               ) : (
@@ -373,7 +387,7 @@ export function AbaProducao({
                   />
                   <ProducaoMetricaCard
                     label="Tempo Produção"
-                    value={formatMinutos(realizadoMin)}
+                    value={formatMinutosHoraEMinutos(realizadoMin)}
                     valueVariant="sky"
                   />
                   <ProducaoMetricaCard
@@ -384,13 +398,21 @@ export function AbaProducao({
                     }
                   />
                   <ProducaoMetricaCard
-                    label="Total horas"
-                    value={formatMinutos(realizadoMin)}
+                    label={
+                      realizadoMin < 60
+                        ? "Total Minutos desenvolvidos"
+                        : "Total horas desenvolvidas"
+                    }
+                    value={formatMinutosHoraEMinutos(realizadoMin)}
                     valueVariant="sky"
                   />
                   <ProducaoMetricaCard
-                    label="Total horas teste"
-                    value={formatMinutos(testandoMin)}
+                    label={
+                      testandoMin < 60
+                        ? "Total minutos de teste"
+                        : "Total horas teste"
+                    }
+                    value={formatMinutosHoraEMinutos(testandoMin)}
                     valueVariant="sky"
                   />
                 </div>

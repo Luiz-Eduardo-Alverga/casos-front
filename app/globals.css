@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -51,7 +50,7 @@
     --sidebar-border: 215 20% 30%;
     --sidebar-text: 215 10% 80%;
     --sidebar-text-secondary: 215 16% 47%;
-    
+
     /* Cores do Painel do Desenvolvedor */
     --panel-bg: 220 14% 96%;
     --panel-card-bg: 0 0% 100%;
@@ -136,7 +135,7 @@
     --sidebar-border: 215 20% 30%;
     --sidebar-text: 215 10% 80%;
     --sidebar-text-secondary: 215 16% 47%;
-    
+
     /* Cores do Painel do Desenvolvedor - dark mode */
     --panel-bg: 224 71.4% 4.1%;
     --panel-card-bg: 215 27.9% 16.9%;
@@ -174,7 +173,6 @@
     --login-footer-text: 210 7% 57%;
   }
 }
-
 
 @layer base {
   * {
