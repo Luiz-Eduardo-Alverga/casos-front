@@ -134,7 +134,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         formData.versao?.split("-")[1]?.trim() || formData.versao || "";
       const payload: UpdateCasoRequest = {
         DescricaoResumo: formData.DescricaoResumo,
-        DescricaoCompleta: formData.DescricaoCompleta,
+        DescricaoCompleta: (formData.DescricaoCompleta || "").replace(
+          /\r?\n/g,
+          "\r\n",
+        ),
         InformacoesAdicionais: formData.InformacoesAdicionais ?? undefined,
         Prioridade: Number(formData.importancia),
         Categoria: Number(formData.categoria),
