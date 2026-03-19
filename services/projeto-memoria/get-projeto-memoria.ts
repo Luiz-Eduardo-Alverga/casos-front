@@ -54,6 +54,7 @@ export async function getProjetoMemoria(
     ["produto_nome", params.produto_nome],
     ["versao_produto", params.versao_produto],
     ["tipo_categoria", params.tipo_categoria],
+    ["modulo", params.modulo],
   ];
 
   for (const [key, value] of stringParams) {

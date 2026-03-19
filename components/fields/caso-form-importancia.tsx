@@ -2,7 +2,7 @@
 
 import { AlertTriangle } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "../provider";
+import { useCasoForm } from "@/components/caso-form/provider";
 import { importanceOptions } from "@/mocks/teste";
 
 export function CasoFormImportancia() {

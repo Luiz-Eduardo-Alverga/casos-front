@@ -3,18 +3,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { User } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "../provider";
+import { useCasoForm } from "@/components/caso-form/provider";
 import { useFormContext } from "react-hook-form";
 import { useUsuarios } from "@/hooks/use-usuarios";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
-export function CasoFormQaAtribuido() {
+export function CasoFormDevAtribuido() {
   const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
-  const qaAtribuido = watch("qaAtribuido");
+  const devAtribuido = watch("devAtribuido");
   const produtoValue = watch("produto");
   const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
-  const [qaSelecionado, setQaSelecionado] = useState<Usuario | null>(null);
+  const [devSelecionado, setDevSelecionado] = useState<Usuario | null>(null);
 
   const produtoAtual = produtoValue || produto;
 
@@ -22,7 +22,7 @@ export function CasoFormQaAtribuido() {
     enabled: optionsRequested,
   });
 
-  const qasOptions = useMemo(() => {
+  const devOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
     const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
     
@@ -39,46 +39,47 @@ export function CasoFormQaAtribuido() {
       });
     }
     
-    if (qaAtribuido && qaSelecionado) {
-      const qaValue = qaSelecionado.id;
-      if (!valuesAdded.has(qaValue)) {
-        options.unshift({ value: qaValue, label: qaSelecionado.nome_suporte });
-        valuesAdded.add(qaValue);
+    if (devAtribuido && devSelecionado) {
+      const devValue = devSelecionado.id;
+      if (!valuesAdded.has(devValue)) {
+        options.unshift({ value: devValue, label: devSelecionado.nome_suporte });
+        valuesAdded.add(devValue);
       }
     }
 
-    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.qa && qaAtribuido && !valuesAdded.has(qaAtribuido)) {
-      const u = editCaseItem.caso.usuarios.qa;
+    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.desenvolvimento && devAtribuido && !valuesAdded.has(devAtribuido)) {
+      const u = editCaseItem.caso.usuarios.desenvolvimento;
       options.unshift({ value: String(u.id), label: u.nome ?? String(u.id) });
     }
 
     return options;
-  }, [usuarios, qaAtribuido, qaSelecionado, lazyLoadComboboxOptions, editCaseItem]);
+  }, [usuarios, devAtribuido, devSelecionado, lazyLoadComboboxOptions, editCaseItem]);
   
-  // Quando QA é selecionado, buscar e salvar os dados completos
+  // Quando dev é selecionado, buscar e salvar os dados completos
   useEffect(() => {
-    if (qaAtribuido && usuarios && Array.isArray(usuarios)) {
-      const qaEncontrado = usuarios.find(u => u.id === qaAtribuido);
-      if (qaEncontrado) {
-        setQaSelecionado(qaEncontrado);
+    if (devAtribuido && usuarios && Array.isArray(usuarios)) {
+      const devEncontrado = usuarios.find(u => u.id === devAtribuido);
+      if (devEncontrado) {
+        setDevSelecionado(devEncontrado);
       }
-    } else if (!qaAtribuido) {
-      setQaSelecionado(null);
+    } else if (!devAtribuido) {
+      setDevSelecionado(null);
     }
-  }, [qaAtribuido, usuarios]);
+  }, [devAtribuido, usuarios]);
   
   return (
     <div className="space-y-2">
       <ComboboxField
-        name="qaAtribuido"
-        label="QA Atribuído"
+        name="devAtribuido"
+        label="Dev Atribuído"
         icon={User}
-        options={qasOptions}
-        placeholder="Selecione o QA atribuído..."
+        options={devOptions}
+        placeholder="Selecione o dev atribuído..."
         emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
+        required
         onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>

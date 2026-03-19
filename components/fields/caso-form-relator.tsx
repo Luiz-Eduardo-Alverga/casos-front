@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { User } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "../provider";
+import { useCasoForm } from "@/components/caso-form/provider";
 import { useFormContext } from "react-hook-form";
 import { useUsuarios } from "@/hooks/use-usuarios";
 import { getUser } from "@/lib/auth";

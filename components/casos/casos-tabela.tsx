@@ -29,10 +29,11 @@ interface CasosTabelaProps {
   filtros: {
     produto: string;
     versao: string;
-    status: string;
     modulo: string;
     tipo_categoria: string;
     descricao_resumo: string;
+    status_ids: string[];
+    usuario_abertura_id: string;
   };
 }
 
@@ -95,24 +96,41 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
       per_page: 15,
       ...(filtros.produto ? { produto_id: filtros.produto } : {}),
       ...(versaoProduto ? { versao_produto: versaoProduto } : {}),
-      ...(filtros.status ? { status_id: filtros.status } : {}),
-      ...(filtros.modulo ? { modulo: filtros.modulo } : {}),
-      ...(filtros.tipo_categoria ? { tipo_categoria: filtros.tipo_categoria } : {}),
-      ...(filtros.descricao_resumo?.trim() ? { descricao_resumo: filtros.descricao_resumo.trim() } : {}),
+      ...(filtros.status_ids.length > 0
+        ? { status_id: filtros.status_ids }
+        : {}),
+      ...(filtros.modulo?.trim() ? { modulo: filtros.modulo.trim() } : {}),
+      ...(filtros.tipo_categoria
+        ? { tipo_categoria: filtros.tipo_categoria }
+        : {}),
+      ...(filtros.descricao_resumo?.trim()
+        ? { descricao_resumo: filtros.descricao_resumo.trim() }
+        : {}),
+      ...(filtros.usuario_abertura_id?.trim()
+        ? { usuario_abertura_id: filtros.usuario_abertura_id.trim() }
+        : {}),
     }),
     [
       filtros.produto,
       versaoProduto,
-      filtros.status,
+      filtros.status_ids,
       filtros.modulo,
       filtros.tipo_categoria,
       filtros.descricao_resumo,
-    ]
+      filtros.usuario_abertura_id,
+    ],
   );
 
-  // Verificar se há algum filtro preenchido
   const hasFilters = useMemo(() => {
-    return Object.values(filtros).some((value) => value.trim() !== "");
+    if (filtros.status_ids.length > 0) return true;
+    if (filtros.usuario_abertura_id?.trim()) return true;
+    return (
+      !!filtros.produto?.trim() ||
+      !!filtros.versao?.trim() ||
+      !!filtros.modulo?.trim() ||
+      !!filtros.tipo_categoria?.trim() ||
+      !!filtros.descricao_resumo?.trim()
+    );
   }, [filtros]);
 
   const {

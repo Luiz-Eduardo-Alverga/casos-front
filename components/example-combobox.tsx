@@ -1,61 +1,7 @@
 "use client";
 
-import {
-  Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxValue,
-  useComboboxAnchor,
-} from "@/components/ui/v2/combobox2";
-
-import * as React from "react";
-
-const frameworks = [
-  "Next.js",
-  "SvelteKit",
-  "Nuxt.js",
-  "Remix",
-  "Astro",
-] as const;
-
-export function ExampleCombobox() {
-  const anchor = useComboboxAnchor();
-
-  return (
-    <Combobox
-      multiple
-      autoHighlight
-      items={frameworks}
-      defaultValue={[frameworks[0]]}
-    >
-      <ComboboxChips ref={anchor} className="w-full">
-        <ComboboxValue>
-          {(values) => (
-            <React.Fragment>
-              {values.map((value: string) => (
-                <ComboboxChip key={value}>{value}</ComboboxChip>
-              ))}
-              <ComboboxChipsInput />
-            </React.Fragment>
-          )}
-        </ComboboxValue>
-      </ComboboxChips>
-      <ComboboxContent anchor={anchor}>
-        <ComboboxEmpty>No items found.</ComboboxEmpty>
-        <ComboboxList>
-          {(item) => (
-            <ComboboxItem key={item} value={item}>
-              {item}
-            </ComboboxItem>
-          )}
-        </ComboboxList>
-      </ComboboxContent>
-    </Combobox>
-  );
-}
+/**
+ * O combobox de exemplo foi substituído por `StatusMultiSelect`
+ * (`@/components/fields/status-multi-select`), alimentado por `useStatus`.
+ */
+export { StatusMultiSelect } from "@/components/fields/status-multi-select";

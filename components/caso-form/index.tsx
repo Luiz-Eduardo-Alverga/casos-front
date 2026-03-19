@@ -15,4 +15,4 @@ export {
   CasoFormDescricaoResumo,
   CasoFormDescricaoCompleta,
   CasoFormInformacoesAdicionais,
-} from "./fields";
+} from "@/components/fields";

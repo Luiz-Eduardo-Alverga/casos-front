@@ -11,22 +11,33 @@ export function Casos() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Ler filtros da URL
   const filtros = useMemo(() => {
     const produto = searchParams.get("produto") || "";
     const versao = searchParams.get("versao") || "";
-    const status = searchParams.get("status") || "";
     const modulo = searchParams.get("modulo") || "";
     const tipo_categoria = searchParams.get("tipo_categoria") || "";
     const descricao_resumo = searchParams.get("descricao_resumo") || "";
+    const usuario_abertura_id =
+      searchParams.get("usuario_abertura_id") || "";
+
+    let status_ids = searchParams
+      .getAll("status_id")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    const legacyStatus = searchParams.get("status")?.trim();
+    if (status_ids.length === 0 && legacyStatus) {
+      status_ids = [legacyStatus];
+    }
 
     return {
       produto,
       versao,
-      status,
       modulo,
       tipo_categoria,
       descricao_resumo,
+      status_ids,
+      usuario_abertura_id,
     };
   }, [searchParams]);
 
