@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { CasoEditCardHeader } from "./caso-edit-card-header";
 import { Button } from "@/components/ui/button";
@@ -85,6 +85,74 @@ function formatDataHoraProducao(value: string | null | undefined): string {
   return `${d}/${m}/${y} ${h}:${min}`;
 }
 
+/** Classifica tipo de produção para somar tempo em aberto nas métricas de dev vs. teste. */
+function isProducaoTipoTeste(tipo: string | null | undefined): boolean {
+  const t = (tipo ?? "")
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase();
+  return (
+    t.includes("teste") ||
+    t.includes("test") ||
+    t.includes("qa") ||
+    t.includes("qualidade")
+  );
+}
+
+/**
+ * Parse data/hora da API com segundos (YYYY-MM-DD HH:mm:ss).
+ * O `apiStringToDate` do date-picker zera os segundos e distorce os minutos de duração.
+ */
+function parseDataHoraProducaoApi(
+  value: string | null | undefined,
+): Date | undefined {
+  if (!value?.trim()) return undefined;
+  const s = value.trim();
+  const m = s.match(
+    /^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?/,
+  );
+  if (!m) return undefined;
+  const [, y, mo, d, h, min, sec = "0"] = m;
+  return new Date(
+    Number(y),
+    Number(mo) - 1,
+    Number(d),
+    Number(h),
+    Number(min),
+    Number(sec),
+  );
+}
+
+/** Minutos inteiros decorridos (floor) entre abertura e fechamento; sem fechamento, usa `agora`. */
+function minutosDuracaoProducaoApi(
+  abertura: string | null | undefined,
+  fechamento: string | null | undefined,
+  agora: Date,
+): number | null {
+  const dAb = parseDataHoraProducaoApi(abertura);
+  if (!dAb) return null;
+  const dFe = fechamento?.trim()
+    ? parseDataHoraProducaoApi(fechamento)
+    : undefined;
+  const fim = dFe ?? agora;
+  return Math.max(0, Math.floor((fim.getTime() - dAb.getTime()) / 60000));
+}
+
+function minutosDuracaoEdicao(
+  abertura: Date | undefined,
+  fechamento: Date | undefined,
+  agora: Date,
+): number | null {
+  if (!abertura) return null;
+  const fim = fechamento ?? agora;
+  return Math.max(0, Math.floor((fim.getTime() - abertura.getTime()) / 60000));
+}
+
+function formatDuracaoMinutos(minutos: number | null): string {
+  if (minutos == null) return "—";
+  return formatMinutosHoraEMinutos(minutos);
+}
+
 /** Aplica máscara HH:MM (00:00) no valor do input de tempo estimado */
 function maskHHMM(value: string): string {
   const digits = value.replace(/\D/g, "");
@@ -114,6 +182,9 @@ function buildTempoEstimadoParaApi(
   return `${y}-${month}-${day} ${hour}:${m}:00`;
 }
 
+/** Intervalo para atualizar duração e métricas de produções em aberto (ms). */
+const PRODUCAO_TEMPO_ATUALIZACAO_MS = 1000;
+
 export function AbaProducao({
   casoId,
   item,
@@ -124,16 +195,72 @@ export function AbaProducao({
   const caso = item?.caso;
   const tempos = caso?.tempos;
   const naoPlanejadoFlag = caso?.flags?.nao_planejado ?? false;
-  const producaoList = Array.isArray(caso?.producao) ? caso.producao : [];
+  const producaoList = useMemo(
+    () => (Array.isArray(caso?.producao) ? caso.producao : []),
+    [caso?.producao],
+  );
   const hasProducao =
     naoPlanejadoFlag ||
     producaoList.length > 0 ||
     (caso?.quantidades_apontadas?.producao ?? 0) > 0;
 
+  const [tempoTick, setTempoTick] = useState(0);
+  const agoraAtual = useMemo(() => {
+    void tempoTick;
+    return new Date();
+  }, [tempoTick]);
+
+  const temProducaoAbertaNaLista = useMemo(
+    () =>
+      producaoList.some(
+        (row) =>
+          Boolean(row.datas?.abertura?.trim()) &&
+          !row.datas?.fechamento?.trim(),
+      ),
+    [producaoList],
+  );
+
   const estimadoMin = tempos?.estimado_minutos ?? 0;
-  const realizadoMin = tempos?.realizado_minutos ?? 0;
-  const desenvolvendoMin = tempos?.desenvolvendo_minutos ?? 0;
-  const testandoMin = tempos?.testando_minutos ?? 0;
+  const realizadoMinBase = tempos?.realizado_minutos ?? 0;
+  const desenvolvendoMinBase = tempos?.desenvolvendo_minutos ?? 0;
+  const testandoMinBase = tempos?.testando_minutos ?? 0;
+
+  /**
+   * Métricas derivadas da mesma regra da coluna Duração (soma das linhas).
+   * Evita duplicar tempo que a API já inclui em desenvolvendo_* / realizado_*.
+   */
+  const minutosAgregadosDaLista = useMemo(() => {
+    let realizado = 0;
+    let desenvolvendo = 0;
+    let testando = 0;
+    for (const row of producaoList) {
+      const mins = minutosDuracaoProducaoApi(
+        row.datas?.abertura,
+        row.datas?.fechamento,
+        agoraAtual,
+      );
+      if (mins == null) continue;
+      realizado += mins;
+      if (isProducaoTipoTeste(row.tipo)) {
+        testando += mins;
+      } else {
+        desenvolvendo += mins;
+      }
+    }
+    return { realizado, desenvolvendo, testando };
+  }, [producaoList, agoraAtual]);
+
+  const usarMetricasDaLista = producaoList.length > 0;
+
+  const realizadoMin = usarMetricasDaLista
+    ? minutosAgregadosDaLista.realizado
+    : realizadoMinBase;
+  const desenvolvendoMin = usarMetricasDaLista
+    ? minutosAgregadosDaLista.desenvolvendo
+    : desenvolvendoMinBase;
+  const testandoMin = usarMetricasDaLista
+    ? minutosAgregadosDaLista.testando
+    : testandoMinBase;
 
   const [showForm, setShowForm] = useState(
     estimadoMin === 0 && !naoPlanejadoFlag,
@@ -155,6 +282,19 @@ export function AbaProducao({
     open: boolean;
     sequencia: number;
   }>({ open: false, sequencia: 0 });
+
+  const edicaoComTempoAberto =
+    editandoSequencia != null &&
+    editandoAbertura != null &&
+    editandoFechamento == null;
+
+  useEffect(() => {
+    if (!temProducaoAbertaNaLista && !edicaoComTempoAberto) return;
+    const id = window.setInterval(() => {
+      setTempoTick((n) => n + 1);
+    }, PRODUCAO_TEMPO_ATUALIZACAO_MS);
+    return () => window.clearInterval(id);
+  }, [temProducaoAbertaNaLista, edicaoComTempoAberto]);
 
   const atualizarProducao = useAtualizarProducao();
   const excluirProducao = useExcluirProducao();
@@ -392,9 +532,9 @@ export function AbaProducao({
                   />
                   <ProducaoMetricaCard
                     label="Tempo Excedido"
-                    value={formatTempoExcedido(estimadoMin, realizadoMin)}
+                    value={formatTempoExcedido(estimadoMin, desenvolvendoMin)}
                     valueVariant={
-                      realizadoMin > estimadoMin ? "destructive" : "default"
+                      desenvolvendoMin > estimadoMin ? "destructive" : "default"
                     }
                   />
                   <ProducaoMetricaCard
@@ -403,7 +543,7 @@ export function AbaProducao({
                         ? "Total Minutos desenvolvidos"
                         : "Total horas desenvolvidas"
                     }
-                    value={formatMinutosHoraEMinutos(realizadoMin)}
+                    value={formatMinutosHoraEMinutos(desenvolvendoMin)}
                     valueVariant="sky"
                   />
                   <ProducaoMetricaCard
@@ -438,6 +578,9 @@ export function AbaProducao({
                         </TableHead>
                         <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
                           Fechamento
+                        </TableHead>
+                        <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5 whitespace-nowrap">
+                          Duração
                         </TableHead>
                         <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
                           Tipo
@@ -484,6 +627,23 @@ export function AbaProducao({
                             ) : (
                               formatDataHoraProducao(row.datas?.fechamento)
                             )}
+                          </TableCell>
+                          <TableCell className="py-3 px-2.5 text-sm text-text-primary whitespace-nowrap">
+                            {editandoSequencia === row.sequencia
+                              ? formatDuracaoMinutos(
+                                  minutosDuracaoEdicao(
+                                    editandoAbertura,
+                                    editandoFechamento,
+                                    agoraAtual,
+                                  ),
+                                )
+                              : formatDuracaoMinutos(
+                                  minutosDuracaoProducaoApi(
+                                    row.datas?.abertura,
+                                    row.datas?.fechamento,
+                                    agoraAtual,
+                                  ),
+                                )}
                           </TableCell>
                           <TableCell className="py-3 px-2.5">
                             {editandoSequencia === row.sequencia ? (
