@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useEffect } from "react";
+import { useCallback, useMemo, useEffect, useState } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -13,13 +13,14 @@ import {
   CasoFormVersao,
   CasoFormModulo,
   CasoFormCategoria,
+  CasoFormUsuarioAbertura,
 } from "@/components/caso-form";
-import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { importanceOptions } from "@/mocks/teste";
 import { useCategorias } from "@/hooks/use-categorias";
 import { useUsuarios } from "@/hooks/use-usuarios";
-import { Filter, Search, User } from "lucide-react";
+import { Filter, Search, SlidersHorizontal } from "lucide-react";
+import { CasosFiltrosSheet } from "@/components/casos/casos-filtros-sheet";
 
 interface CasosFiltersForm {
   produto: string;
@@ -29,6 +30,10 @@ interface CasosFiltersForm {
   descricao_resumo: string;
   status_ids: string[];
   usuario_abertura_id: string;
+  usuario_dev_id: string;
+  usuario_qa_id: string;
+  data_producao_inicio: Date | undefined;
+  data_producao_fim: Date | undefined;
 }
 
 interface CasosFiltrosProps {
@@ -40,13 +45,35 @@ interface CasosFiltrosProps {
     descricao_resumo: string;
     status_ids: string[];
     usuario_abertura_id: string;
+    usuario_dev_id?: string;
+    usuario_qa_id?: string;
+    data_producao_inicio?: string;
+    data_producao_fim?: string;
   };
+}
+
+function parseYmdToDate(value: string | null | undefined): Date | undefined {
+  if (!value?.trim()) return undefined;
+  const s = value.trim();
+  const match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return undefined;
+  const [, y, m, d] = match;
+  return new Date(Number(y), Number(m) - 1, Number(d), 0, 0, 0);
+}
+
+function dateToYmd(date: Date | undefined): string | undefined {
+  if (!date) return undefined;
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
   const router = useRouter();
   const { data: categorias = [] } = useCategorias();
   const { data: usuarios = [] } = useUsuarios({ enabled: true });
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const usuarioOptions = useMemo(
     () =>
@@ -75,6 +102,10 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
       descricao_resumo: "",
       status_ids: [],
       usuario_abertura_id: "",
+      usuario_dev_id: "",
+      usuario_qa_id: "",
+      data_producao_inicio: undefined,
+      data_producao_fim: undefined,
     },
   });
 
@@ -85,8 +116,14 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
       modulo: filtrosIniciais.modulo,
       descricao_resumo: filtrosIniciais.descricao_resumo,
       categoria: categoriaIdFromUrl || filtrosIniciais.tipo_categoria,
-      status_ids: [...(filtrosIniciais.status_ids ?? [])].slice(0, 3),
+      status_ids: [...(filtrosIniciais.status_ids ?? [])].slice(0, 5),
       usuario_abertura_id: filtrosIniciais.usuario_abertura_id ?? "",
+      usuario_dev_id: filtrosIniciais.usuario_dev_id ?? "",
+      usuario_qa_id: filtrosIniciais.usuario_qa_id ?? "",
+      data_producao_inicio: parseYmdToDate(
+        filtrosIniciais.data_producao_inicio,
+      ),
+      data_producao_fim: parseYmdToDate(filtrosIniciais.data_producao_fim),
     });
   }, [filtrosIniciais, categoriaIdFromUrl, methods]);
 
@@ -123,9 +160,27 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
     if (values.usuario_abertura_id?.trim()) {
       params.set("usuario_abertura_id", values.usuario_abertura_id.trim());
     }
+    if (values.usuario_dev_id?.trim()) {
+      params.set("usuario_dev_id", values.usuario_dev_id.trim());
+    }
+    if (values.usuario_qa_id?.trim()) {
+      params.set("usuario_qa_id", values.usuario_qa_id.trim());
+    }
+
+    const dataInicio = dateToYmd(values.data_producao_inicio);
+    const dataFim = dateToYmd(values.data_producao_fim);
+    if (dataInicio) params.set("data_producao_inicio", dataInicio);
+    if (dataFim) params.set("data_producao_fim", dataFim);
 
     router.push(`/casos?${params.toString()}`);
   }, [methods, router, categorias]);
+
+  const handleLimparFiltrosSheet = useCallback(() => {
+    methods.setValue("usuario_dev_id", "");
+    methods.setValue("usuario_qa_id", "");
+    methods.setValue("data_producao_inicio", undefined);
+    methods.setValue("data_producao_fim", undefined);
+  }, [methods]);
 
   const providerValue = useMemo(
     () => ({
@@ -141,12 +196,29 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
     <CasoFormProvider value={providerValue}>
       <FormProvider {...methods}>
         <Card className="bg-card shadow-card rounded-lg shrink-0 mb-6">
-          <CardHeader className="p-5 pb-2 border-b border-border-divider">
+          <CardHeader className="flex flex-row justify-between px-5 py-2 border-b border-border-divider">
             <div className="flex items-center gap-2">
               <Filter className="h-3.5 w-3.5 text-text-primary" />
               <CardTitle className="text-sm font-semibold text-text-primary">
                 Filtros
               </CardTitle>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <CasosFiltrosSheet
+                open={sheetOpen}
+                onOpenChange={setSheetOpen}
+                trigger={
+                  <Button size="sm" variant="outline" type="button">
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    Mais filtros
+                  </Button>
+                }
+                usuarioOptions={usuarioOptions}
+                methods={methods}
+                onFiltrar={handleFiltrar}
+                onLimpar={handleLimparFiltrosSheet}
+              />
             </div>
           </CardHeader>
           <CardContent className="p-6 pt-3">
@@ -155,16 +227,7 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
               <CasoFormVersao required={false} />
               <CasoFormModulo required={false} />
               <CasoFormCategoria required={false} />
-              <ComboboxField
-                name="usuario_abertura_id"
-                label="Aberto por"
-                icon={User}
-                options={usuarioOptions}
-                placeholder="Quem abriu o caso..."
-                emptyText="Nenhum usuário encontrado."
-                searchDebounceMs={450}
-                required={false}
-              />
+              <CasoFormUsuarioAbertura required={false} />
             </div>
 
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">

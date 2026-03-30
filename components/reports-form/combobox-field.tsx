@@ -53,8 +53,6 @@ export function ComboboxField({
   } = useFormContext();
   const error = errors[name];
 
-  console.log(getValues());
-
   return (
     <div className="space-y-2">
       <div className="flex justify-between">

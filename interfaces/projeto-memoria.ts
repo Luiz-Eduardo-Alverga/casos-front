@@ -264,4 +264,6 @@ export interface ProjetoMemoriaParams {
   status_id?: string | string[] | null;
   tipo_categoria?: string;
   modulo?: string;
+  data_producao_inicio?: string;
+  data_producao_fim?: string;
 }

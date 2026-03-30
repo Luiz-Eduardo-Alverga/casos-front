@@ -17,8 +17,11 @@ export function Casos() {
     const modulo = searchParams.get("modulo") || "";
     const tipo_categoria = searchParams.get("tipo_categoria") || "";
     const descricao_resumo = searchParams.get("descricao_resumo") || "";
-    const usuario_abertura_id =
-      searchParams.get("usuario_abertura_id") || "";
+    const usuario_abertura_id = searchParams.get("usuario_abertura_id") || "";
+    const usuario_dev_id = searchParams.get("usuario_dev_id") || "";
+    const usuario_qa_id = searchParams.get("usuario_qa_id") || "";
+    const data_producao_inicio = searchParams.get("data_producao_inicio") || "";
+    const data_producao_fim = searchParams.get("data_producao_fim") || "";
 
     let status_ids = searchParams
       .getAll("status_id")
@@ -38,6 +41,10 @@ export function Casos() {
       descricao_resumo,
       status_ids,
       usuario_abertura_id,
+      usuario_dev_id,
+      usuario_qa_id,
+      data_producao_inicio,
+      data_producao_fim,
     };
   }, [searchParams]);
 

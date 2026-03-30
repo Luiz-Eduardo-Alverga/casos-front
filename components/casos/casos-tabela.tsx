@@ -34,6 +34,10 @@ interface CasosTabelaProps {
     descricao_resumo: string;
     status_ids: string[];
     usuario_abertura_id: string;
+    usuario_dev_id: string;
+    usuario_qa_id: string;
+    data_producao_inicio: string;
+    data_producao_fim: string;
   };
 }
 
@@ -47,7 +51,7 @@ function formatMinutesToHHMM(minutes: number): string {
 // Função para obter cores do badge de categoria
 function getCategoriaBadgeStyles(categoria: string) {
   const categoriaUpper = categoria?.toUpperCase() || "";
-  
+
   if (categoriaUpper.includes("MELHORIA")) {
     return "bg-purple-100 text-purple-700";
   }
@@ -109,6 +113,18 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
       ...(filtros.usuario_abertura_id?.trim()
         ? { usuario_abertura_id: filtros.usuario_abertura_id.trim() }
         : {}),
+      ...(filtros.usuario_dev_id?.trim()
+        ? { usuario_dev_id: filtros.usuario_dev_id.trim() }
+        : {}),
+      ...(filtros.usuario_qa_id?.trim()
+        ? { usuario_qa_id: filtros.usuario_qa_id.trim() }
+        : {}),
+      ...(filtros.data_producao_inicio?.trim()
+        ? { data_producao_inicio: filtros.data_producao_inicio.trim() }
+        : {}),
+      ...(filtros.data_producao_fim?.trim()
+        ? { data_producao_fim: filtros.data_producao_fim.trim() }
+        : {}),
     }),
     [
       filtros.produto,
@@ -118,6 +134,10 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
       filtros.tipo_categoria,
       filtros.descricao_resumo,
       filtros.usuario_abertura_id,
+      filtros.usuario_dev_id,
+      filtros.usuario_qa_id,
+      filtros.data_producao_inicio,
+      filtros.data_producao_fim,
     ],
   );
 
@@ -133,19 +153,14 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
     );
   }, [filtros]);
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = useProjetoMemoria(projetoMemoriaParams, {
-    enabled: hasFilters,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useProjetoMemoria(projetoMemoriaParams, {
+      enabled: hasFilters,
+    });
 
   const itens = useMemo(
     () => data?.pages.flatMap((p) => p.data.map(mapItemToRow)) ?? [],
-    [data]
+    [data],
   );
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -153,7 +168,9 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
 
   useEffect(() => {
     const onScroll = () => {
-      setShowScrollTop(typeof window !== "undefined" && window.scrollY >= window.innerHeight);
+      setShowScrollTop(
+        typeof window !== "undefined" && window.scrollY >= window.innerHeight,
+      );
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -170,7 +187,7 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
           fetchNextPage();
         }
       },
-      { root: null, rootMargin: "100px", threshold: 0 }
+      { root: null, rootMargin: "100px", threshold: 0 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -192,7 +209,6 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
               Total de casos: {totalItens}
             </span>
           </div> */}
-          
         </div>
       </CardHeader>
       <CardContent className="p-6 pt-3">
@@ -257,7 +273,7 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
                       <div className="flex justify-center">
                         <Badge
                           className={`${getCategoriaBadgeStyles(
-                            row.categoria
+                            row.categoria,
                           )} border-transparent rounded-full h-7 px-2.5 flex items-center justify-center`}
                         >
                           <span className="text-xs font-semibold">
@@ -291,9 +307,7 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
                     </TableCell>
                   </TableRow>
                 ))}
-                {isFetchingNextPage && (
-                  <CasosTabelaSkeletonRows count={3} />
-                )}
+                {isFetchingNextPage && <CasosTabelaSkeletonRows count={3} />}
               </TableBody>
             </Table>
             {hasNextPage && itens.length > 0 && (

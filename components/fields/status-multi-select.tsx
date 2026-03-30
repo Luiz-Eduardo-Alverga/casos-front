@@ -18,7 +18,7 @@ import {
   useComboboxAnchor,
 } from "@/components/ui/v2/combobox2";
 
-const MAX_STATUS = 3;
+const MAX_STATUS = 5;
 
 export interface StatusMultiSelectProps {
   /** IDs de status (Registro) */
@@ -58,7 +58,7 @@ export function StatusMultiSelect({
         ? next.filter((v): v is string => typeof v === "string")
         : [];
       if (arr.length > MAX_STATUS) {
-        toast.message("No máximo 3 status podem ser selecionados.");
+        toast.message(`No máximo ${MAX_STATUS} status podem ser selecionados.`);
         return;
       }
       onChange(arr);
@@ -86,7 +86,7 @@ export function StatusMultiSelect({
         onValueChange={handleValueChange}
         disabled={disabled}
       >
-        <ComboboxChips ref={anchor} className="w-full  h-[42px] ">
+        <ComboboxChips ref={anchor} className="w-full min-h-[42px] h-auto ">
           <ComboboxValue>
             {(values: string[]) => (
               <React.Fragment>

@@ -9,6 +9,7 @@ export {
   CasoFormOrigem,
   CasoFormCategoria,
   CasoFormRelator,
+  CasoFormUsuarioAbertura,
   CasoFormDevAtribuido,
   CasoFormQaAtribuido,
   CasoFormStatus,

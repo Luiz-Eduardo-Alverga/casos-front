@@ -73,6 +73,72 @@ export interface DateTimePickerProps {
   id?: string;
 }
 
+export interface DatePickerProps {
+  value: Date | undefined;
+  onChange: (date: Date | undefined) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+  id?: string;
+}
+
+/**
+ * DatePicker (shadcn) somente data.
+ * Exibe calendário no Popover e retorna um Date sem seleção de horário.
+ */
+export function DatePicker({
+  value,
+  onChange,
+  placeholder = "Selecione uma data",
+  disabled = false,
+  className,
+  id,
+}: DatePickerProps) {
+  const [open, setOpen] = React.useState(false);
+  const [date, setDate] = React.useState<Date | undefined>(value);
+
+  React.useEffect(() => {
+    setDate(value);
+  }, [value]);
+
+  const displayText = value
+    ? format(value, "dd/MM/yyyy", { locale: ptBR })
+    : placeholder;
+
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            id={id}
+            variant="outline"
+            disabled={disabled}
+            className={cn(
+              "w-full justify-start text-left font-normal h-9 text-sm",
+              !value && "text-muted-foreground",
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {displayText}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={(d) => {
+              setDate(d);
+              onChange(d);
+              setOpen(false);
+            }}
+            defaultMonth={date}
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
 /**
  * DatePicker (shadcn) com campo de hora para data/hora no formato da API.
  * Exibe calendário no Popover e input de hora ao lado.
