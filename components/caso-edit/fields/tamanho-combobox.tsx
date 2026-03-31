@@ -89,44 +89,40 @@ export function TamanhoCombobox({
       <Label htmlFor={id} className="text-sm font-medium text-text-label">
         {label}
       </Label>
-      <div className="group flex items-center">
-        <div
-          className={cn(
-            "flex-1 min-w-0 [&_button]:border-border-input [&_button]:rounded-lg [&_button]:h-[42px] [&_button]:px-[17px] [&_button]:py-3",
-            value &&
-              "[&_button]:rounded-l-lg [&_button]:rounded-r-none [&_button]:border-r-0",
-            !value && "[&_button]:rounded-lg",
-          )}
-        >
-          <Combobox
-            options={options}
-            value={value || undefined}
-            onValueChange={handleValueChange}
-            placeholder={isLoading ? "Carregando..." : placeholder}
-            emptyText="Nenhum tamanho encontrado."
-            disabled={disabled || isLoading}
-            className="text-left"
-          />
-        </div>
-        {value && (
-          <Button
-            tabIndex={-1}
-            type="button"
-            variant="outline"
-            size="icon"
-            className={cn(
-              "h-[42px] w-[42px] shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input",
-              "group-hover:bg-accent group-hover:text-accent-foreground",
-              "group-focus-within:ring-1 group-focus-within:ring-ring",
-            )}
-            onClick={() => onValueChange(undefined)}
-            disabled={disabled}
-            aria-label="Remover seleção"
-          >
-            <X className="h-4 w-4 opacity-50" />
-          </Button>
+      <Combobox
+        options={options}
+        value={value || undefined}
+        onValueChange={handleValueChange}
+        placeholder={isLoading ? "Carregando..." : placeholder}
+        emptyText="Nenhum tamanho encontrado."
+        disabled={disabled || isLoading}
+        anchorClassName={cn("group", "[&_button]:border-border-input")}
+        className={cn(
+          "h-[42px] px-[17px] py-3 text-left",
+          value && "rounded-l-lg rounded-r-none border-r-0",
+          !value && "rounded-lg",
         )}
-      </div>
+        suffix={
+          value ? (
+            <Button
+              tabIndex={-1}
+              type="button"
+              variant="outline"
+              size="icon"
+              className={cn(
+                "h-[42px] w-[42px] shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input",
+                "group-hover:bg-accent group-hover:text-accent-foreground",
+                "group-focus-within:ring-1 group-focus-within:ring-ring",
+              )}
+              onClick={() => onValueChange(undefined)}
+              disabled={disabled}
+              aria-label="Remover seleção"
+            >
+              <X className="h-4 w-4 opacity-50" />
+            </Button>
+          ) : null
+        }
+      />
     </div>
   );
 }

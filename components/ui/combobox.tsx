@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/command";
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
@@ -43,6 +45,14 @@ export interface ComboboxProps {
   isLoadingMore?: boolean;
   /** Chamado quando o usuário chega ao final da lista (para carregar mais). */
   onLoadMore?: () => void;
+  /**
+   * Conteúdo após o gatilho (ex.: botão limpar), dentro da mesma âncora do Popover
+   * para o painel usar a largura do grupo inteiro (Radix: --radix-popover-trigger-width
+   * segue a âncora quando há PopoverAnchor).
+   */
+  suffix?: ReactNode;
+  /** Classes no container flex que envolve gatilho + suffix. */
+  anchorClassName?: string;
 }
 
 export function Combobox({
@@ -60,6 +70,8 @@ export function Combobox({
   hasMore = false,
   isLoadingMore = false,
   onLoadMore,
+  suffix,
+  anchorClassName,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -110,37 +122,53 @@ export function Combobox({
     setOpen(false);
   };
 
-  const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onValueChange?.(undefined);
-    setSearchValue("");
-  };
+  const useAnchorLayout = suffix != null && suffix !== false;
+
+  const triggerButton = (
+    <Button
+      variant="outline"
+      role="combobox"
+      aria-expanded={open}
+      disabled={disabled}
+      className={cn(
+        "w-full justify-between h-9",
+        useAnchorLayout && value && "rounded-l-lg rounded-r-none border-r-0 pr-0",
+        useAnchorLayout && !value && "rounded-lg",
+        !useAnchorLayout && value && "pr-0",
+        !value && "text-muted-foreground",
+        className,
+      )}
+    >
+      <span className="truncate">
+        {selectedOption ? selectedOption.label : placeholder}
+      </span>
+
+      <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+    </Button>
+  );
 
   return (
     <Popover
       open={disabled ? false : open}
       onOpenChange={disabled ? undefined : handleOpenChange}
     >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          disabled={disabled}
-          className={cn(
-            "w-full justify-between h-9",
-            value && "pr-0",
-            !value && "text-muted-foreground",
-            className,
-          )}
-        >
-          <span className="truncate">
-            {selectedOption ? selectedOption.label : placeholder}
-          </span>
-
-          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
+      {useAnchorLayout ? (
+        <PopoverAnchor asChild>
+          <div
+            className={cn(
+              "flex w-full min-w-0 items-stretch",
+              anchorClassName,
+            )}
+          >
+            <div className="min-w-0 flex-1">
+              <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
+            </div>
+            {suffix}
+          </div>
+        </PopoverAnchor>
+      ) : (
+        <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
+      )}
       <PopoverContent
         className="w-[--radix-popover-trigger-width] p-0"
         align="start"

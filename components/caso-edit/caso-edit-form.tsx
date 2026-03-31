@@ -106,6 +106,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
 
   const caso = item.caso;
   const numeroCaso = caso?.id ?? Number(casoId);
+  const statusIdApi = (() => {
+    const n = Number(caso?.status?.status_id);
+    return Number.isFinite(n) ? n : 0;
+  })();
   const defaultValues = useMemo(() => getDefaultValues(item), [item]);
 
   const methods = useForm<EditFormData>({
@@ -292,7 +296,11 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                     <div className="flex-1 flex flex-col gap-6 min-w-0">
                       <AbaInicial casoId={numeroCaso} />
                     </div>
-                    <CasoEditColunaDireita casoId={numeroCaso} />
+                    <CasoEditColunaDireita
+                      statusIdApi={statusIdApi}
+                      memoriaQueryId={casoId}
+                      onStatusUpdated={invalidate}
+                    />
                   </div>
                 </TabsContent>
 
@@ -311,7 +319,11 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         isCreating={createAnotacao.isPending}
                       />
                     </div>
-                    <CasoEditColunaDireita casoId={numeroCaso} />
+                    <CasoEditColunaDireita
+                      statusIdApi={statusIdApi}
+                      memoriaQueryId={casoId}
+                      onStatusUpdated={invalidate}
+                    />
                   </div>
                 </TabsContent>
 
@@ -324,7 +336,11 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       <AbaRelacoes casoId={numeroCaso} />
                       <CasoEditCardClassificacao casoId={numeroCaso} />
                     </div>
-                    <CasoEditColunaDireita casoId={numeroCaso} />
+                    <CasoEditColunaDireita
+                      statusIdApi={statusIdApi}
+                      memoriaQueryId={casoId}
+                      onStatusUpdated={invalidate}
+                    />
                   </div>
                 </TabsContent>
 
@@ -343,7 +359,11 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       />
                       <CasoEditCardClassificacao casoId={numeroCaso} />
                     </div>
-                    <CasoEditColunaDireita casoId={numeroCaso} />
+                    <CasoEditColunaDireita
+                      statusIdApi={statusIdApi}
+                      memoriaQueryId={casoId}
+                      onStatusUpdated={invalidate}
+                    />
                   </div>
                 </TabsContent>
 
@@ -361,7 +381,11 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         isSaving={updateCaso.isPending}
                       />
                     </div>
-                    <CasoEditColunaDireita casoId={numeroCaso} />
+                    <CasoEditColunaDireita
+                      statusIdApi={statusIdApi}
+                      memoriaQueryId={casoId}
+                      onStatusUpdated={invalidate}
+                    />
                   </div>
                 </TabsContent>
               </div>

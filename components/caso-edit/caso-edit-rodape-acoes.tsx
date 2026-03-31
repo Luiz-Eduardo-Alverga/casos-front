@@ -126,7 +126,7 @@ export function CasoEditRodapeAcoes({
             type="button"
             onClick={handleIniciar}
             disabled={isLoading || disabled || iniciarProducao.isPending}
-            className="w-48 px-4 bg-green-600 hover:bg-green-700 text-white"
+            className="w-48 px-4 bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             {iniciarProducao.isPending ? (
               <>

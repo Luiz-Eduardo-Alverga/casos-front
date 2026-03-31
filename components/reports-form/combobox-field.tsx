@@ -66,49 +66,45 @@ export function ComboboxField({
         name={name}
         control={control}
         render={({ field }) => (
-          <div className="group flex items-center">
-            <div
-              className={cn(
-                "flex-1 min-w-0 [&_button]:border-border-input",
-                field.value &&
-                  "[&_button]:rounded-l-lg [&_button]:rounded-r-none [&_button]:border-r-0",
-                !field.value && "[&_button]:rounded-lg",
-              )}
-            >
-              <Combobox
-                options={options}
-                value={field.value ?? ""}
-                onValueChange={(v) => field.onChange(v ?? "")}
-                placeholder={placeholder}
-                emptyText={emptyText}
-                onSearchChange={onSearchChange}
-                searchDebounceMs={searchDebounceMs}
-                disabled={disabled}
-                onOpenChange={onOpenChange}
-                hasMore={hasMore}
-                isLoadingMore={isLoadingMore}
-                onLoadMore={onLoadMore}
-              />
-            </div>
-            {field.value && (
-              <Button
-                tabIndex={-1}
-                type="button"
-                variant="outline"
-                size="icon"
-                className={cn(
-                  "h-9 w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input",
-                  "group-hover:bg-accent group-hover:text-accent-foreground",
-                  "group-focus-within:ring-1 group-focus-within:ring-ring",
-                )}
-                onClick={() => field.onChange("")}
-                disabled={disabled}
-                aria-label="Remover seleção"
-              >
-                <X className="h-4 w-4 opacity-50" />
-              </Button>
+          <Combobox
+            options={options}
+            value={field.value ?? ""}
+            onValueChange={(v) => field.onChange(v ?? "")}
+            placeholder={placeholder}
+            emptyText={emptyText}
+            onSearchChange={onSearchChange}
+            searchDebounceMs={searchDebounceMs}
+            disabled={disabled}
+            onOpenChange={onOpenChange}
+            hasMore={hasMore}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={onLoadMore}
+            anchorClassName={cn("group", "[&_button]:border-border-input")}
+            className={cn(
+              field.value && "rounded-l-lg rounded-r-none border-r-0",
+              !field.value && "rounded-lg",
             )}
-          </div>
+            suffix={
+              field.value ? (
+                <Button
+                  tabIndex={-1}
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className={cn(
+                    "h-9 w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input",
+                    "group-hover:bg-accent group-hover:text-accent-foreground",
+                    "group-focus-within:ring-1 group-focus-within:ring-ring",
+                  )}
+                  onClick={() => field.onChange("")}
+                  disabled={disabled}
+                  aria-label="Remover seleção"
+                >
+                  <X className="h-4 w-4 opacity-50" />
+                </Button>
+              ) : null
+            }
+          />
         )}
       />
     </div>
