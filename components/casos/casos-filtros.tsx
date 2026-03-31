@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useEffect, useState } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,6 @@ import {
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { importanceOptions } from "@/mocks/teste";
 import { useCategorias } from "@/hooks/use-categorias";
-import { useUsuarios } from "@/hooks/use-usuarios";
 import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { CasosFiltrosSheet } from "@/components/casos/casos-filtros-sheet";
 
@@ -30,8 +29,8 @@ interface CasosFiltersForm {
   descricao_resumo: string;
   status_ids: string[];
   usuario_abertura_id: string;
-  usuario_dev_id: string;
-  usuario_qa_id: string;
+  devAtribuido: string;
+  qaAtribuido: string;
   data_producao_inicio: Date | undefined;
   data_producao_fim: Date | undefined;
 }
@@ -71,18 +70,9 @@ function dateToYmd(date: Date | undefined): string | undefined {
 
 export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: categorias = [] } = useCategorias();
-  const { data: usuarios = [] } = useUsuarios({ enabled: true });
   const [sheetOpen, setSheetOpen] = useState(false);
-
-  const usuarioOptions = useMemo(
-    () =>
-      (usuarios ?? []).map((u) => ({
-        value: u.id,
-        label: u.nome_suporte,
-      })),
-    [usuarios],
-  );
 
   const categoriaIdFromUrl = useMemo(() => {
     const t = filtrosIniciais.tipo_categoria?.trim();
@@ -102,8 +92,8 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
       descricao_resumo: "",
       status_ids: [],
       usuario_abertura_id: "",
-      usuario_dev_id: "",
-      usuario_qa_id: "",
+      devAtribuido: "",
+      qaAtribuido: "",
       data_producao_inicio: undefined,
       data_producao_fim: undefined,
     },
@@ -118,8 +108,8 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
       categoria: categoriaIdFromUrl || filtrosIniciais.tipo_categoria,
       status_ids: [...(filtrosIniciais.status_ids ?? [])].slice(0, 5),
       usuario_abertura_id: filtrosIniciais.usuario_abertura_id ?? "",
-      usuario_dev_id: filtrosIniciais.usuario_dev_id ?? "",
-      usuario_qa_id: filtrosIniciais.usuario_qa_id ?? "",
+      devAtribuido: filtrosIniciais.usuario_dev_id ?? "",
+      qaAtribuido: filtrosIniciais.usuario_qa_id ?? "",
       data_producao_inicio: parseYmdToDate(
         filtrosIniciais.data_producao_inicio,
       ),
@@ -160,11 +150,11 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
     if (values.usuario_abertura_id?.trim()) {
       params.set("usuario_abertura_id", values.usuario_abertura_id.trim());
     }
-    if (values.usuario_dev_id?.trim()) {
-      params.set("usuario_dev_id", values.usuario_dev_id.trim());
+    if (values.devAtribuido?.trim()) {
+      params.set("usuario_dev_id", values.devAtribuido.trim());
     }
-    if (values.usuario_qa_id?.trim()) {
-      params.set("usuario_qa_id", values.usuario_qa_id.trim());
+    if (values.qaAtribuido?.trim()) {
+      params.set("usuario_qa_id", values.qaAtribuido.trim());
     }
 
     const dataInicio = dateToYmd(values.data_producao_inicio);
@@ -176,11 +166,14 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
   }, [methods, router, categorias]);
 
   const handleLimparFiltrosSheet = useCallback(() => {
-    methods.setValue("usuario_dev_id", "");
-    methods.setValue("usuario_qa_id", "");
-    methods.setValue("data_producao_inicio", undefined);
-    methods.setValue("data_producao_fim", undefined);
-  }, [methods]);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("usuario_dev_id");
+    params.delete("usuario_qa_id");
+    params.delete("data_producao_inicio");
+    params.delete("data_producao_fim");
+    const qs = params.toString();
+    router.push(qs ? `/casos?${qs}` : "/casos");
+  }, [router, searchParams]);
 
   const providerValue = useMemo(
     () => ({
@@ -214,7 +207,6 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
                     Mais filtros
                   </Button>
                 }
-                usuarioOptions={usuarioOptions}
                 methods={methods}
                 onFiltrar={handleFiltrar}
                 onLimpar={handleLimparFiltrosSheet}

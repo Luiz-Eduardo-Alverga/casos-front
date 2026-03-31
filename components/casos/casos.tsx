@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RefreshCcw } from "lucide-react";
+import { ArrowLeft, FilterX } from "lucide-react";
 import { CasosFiltros } from "./casos-filtros";
 import { CasosTabela } from "./casos-tabela";
 
@@ -69,7 +69,7 @@ export function Casos() {
             className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
             onClick={handleLimparFiltros}
           >
-            <RefreshCcw className="h-3.5 w-3.5" />
+            <FilterX className="h-3.5 w-3.5" />
             Limpar filtros
           </Button>
           <Button

@@ -48,8 +48,6 @@ export function ComboboxField({
   const {
     control,
     formState: { errors },
-    setValue,
-    getValues,
   } = useFormContext();
   const error = errors[name];
 
@@ -79,8 +77,8 @@ export function ComboboxField({
             >
               <Combobox
                 options={options}
-                value={field.value}
-                onValueChange={field.onChange}
+                value={field.value ?? ""}
+                onValueChange={(v) => field.onChange(v ?? "")}
                 placeholder={placeholder}
                 emptyText={emptyText}
                 onSearchChange={onSearchChange}
@@ -103,7 +101,7 @@ export function ComboboxField({
                   "group-hover:bg-accent group-hover:text-accent-foreground",
                   "group-focus-within:ring-1 group-focus-within:ring-ring",
                 )}
-                onClick={() => field.onChange(undefined)}
+                onClick={() => field.onChange("")}
                 disabled={disabled}
                 aria-label="Remover seleção"
               >

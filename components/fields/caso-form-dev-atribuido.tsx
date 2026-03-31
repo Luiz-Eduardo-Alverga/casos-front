@@ -8,10 +8,26 @@ import { useFormContext } from "react-hook-form";
 import { useUsuarios } from "@/hooks/use-usuarios";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
-export function CasoFormDevAtribuido() {
+export interface CasoFormDevAtribuidoProps {
+  /** Nome do campo no react-hook-form (ex.: `usuario_dev_id` nos filtros). */
+  name?: string;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  /** Se false, o campo permanece habilitado sem produto selecionado (filtros). */
+  requireProduto?: boolean;
+}
+
+export function CasoFormDevAtribuido({
+  name = "devAtribuido",
+  label = "Dev Atribuído",
+  placeholder = "Selecione o dev atribuído...",
+  required = true,
+  requireProduto = true,
+}: CasoFormDevAtribuidoProps = {}) {
   const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
-  const devAtribuido = watch("devAtribuido");
+  const devAtribuido = watch(name);
   const produtoValue = watch("produto");
   const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
   const [devSelecionado, setDevSelecionado] = useState<Usuario | null>(null);
@@ -29,25 +45,26 @@ export function CasoFormDevAtribuido() {
     // Adiciona usuários da API
     if (usuarios && Array.isArray(usuarios)) {
       usuarios.forEach((u) => {
-        if (!valuesAdded.has(u.id)) {
+        const idStr = String(u.id);
+        if (!valuesAdded.has(idStr)) {
           options.push({
-            value: u.id,
+            value: idStr,
             label: u.nome_suporte,
           });
-          valuesAdded.add(u.id);
+          valuesAdded.add(idStr);
         }
       });
     }
     
     if (devAtribuido && devSelecionado) {
-      const devValue = devSelecionado.id;
+      const devValue = String(devSelecionado.id);
       if (!valuesAdded.has(devValue)) {
         options.unshift({ value: devValue, label: devSelecionado.nome_suporte });
         valuesAdded.add(devValue);
       }
     }
 
-    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.desenvolvimento && devAtribuido && !valuesAdded.has(devAtribuido)) {
+    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.desenvolvimento && devAtribuido && !valuesAdded.has(String(devAtribuido))) {
       const u = editCaseItem.caso.usuarios.desenvolvimento;
       options.unshift({ value: String(u.id), label: u.nome ?? String(u.id) });
     }
@@ -58,7 +75,9 @@ export function CasoFormDevAtribuido() {
   // Quando dev é selecionado, buscar e salvar os dados completos
   useEffect(() => {
     if (devAtribuido && usuarios && Array.isArray(usuarios)) {
-      const devEncontrado = usuarios.find(u => u.id === devAtribuido);
+      const devEncontrado = usuarios.find(
+        (u) => String(u.id) === String(devAtribuido),
+      );
       if (devEncontrado) {
         setDevSelecionado(devEncontrado);
       }
@@ -70,16 +89,16 @@ export function CasoFormDevAtribuido() {
   return (
     <div className="space-y-2">
       <ComboboxField
-        name="devAtribuido"
-        label="Dev Atribuído"
+        name={name}
+        label={label}
         icon={User}
         options={devOptions}
-        placeholder="Selecione o dev atribuído..."
+        placeholder={placeholder}
         emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
-        disabled={isDisabled || !produtoAtual}
-        required
+        disabled={isDisabled || (requireProduto && !produtoAtual)}
+        required={required}
         onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>

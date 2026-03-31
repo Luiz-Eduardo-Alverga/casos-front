@@ -8,10 +8,26 @@ import { useFormContext } from "react-hook-form";
 import { useUsuarios } from "@/hooks/use-usuarios";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
-export function CasoFormQaAtribuido() {
+export interface CasoFormQaAtribuidoProps {
+  /** Nome do campo no react-hook-form (ex.: `usuario_qa_id` nos filtros). */
+  name?: string;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  /** Se false, o campo permanece habilitado sem produto selecionado (filtros). */
+  requireProduto?: boolean;
+}
+
+export function CasoFormQaAtribuido({
+  name = "qaAtribuido",
+  label = "QA Atribuído",
+  placeholder = "Selecione o QA atribuído...",
+  required = false,
+  requireProduto = true,
+}: CasoFormQaAtribuidoProps = {}) {
   const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
-  const qaAtribuido = watch("qaAtribuido");
+  const qaAtribuido = watch(name);
   const produtoValue = watch("produto");
   const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
   const [qaSelecionado, setQaSelecionado] = useState<Usuario | null>(null);
@@ -29,25 +45,26 @@ export function CasoFormQaAtribuido() {
     // Adiciona usuários da API
     if (usuarios && Array.isArray(usuarios)) {
       usuarios.forEach((u) => {
-        if (!valuesAdded.has(u.id)) {
+        const idStr = String(u.id);
+        if (!valuesAdded.has(idStr)) {
           options.push({
-            value: u.id,
+            value: idStr,
             label: u.nome_suporte,
           });
-          valuesAdded.add(u.id);
+          valuesAdded.add(idStr);
         }
       });
     }
     
     if (qaAtribuido && qaSelecionado) {
-      const qaValue = qaSelecionado.id;
+      const qaValue = String(qaSelecionado.id);
       if (!valuesAdded.has(qaValue)) {
         options.unshift({ value: qaValue, label: qaSelecionado.nome_suporte });
         valuesAdded.add(qaValue);
       }
     }
 
-    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.qa && qaAtribuido && !valuesAdded.has(qaAtribuido)) {
+    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.qa && qaAtribuido && !valuesAdded.has(String(qaAtribuido))) {
       const u = editCaseItem.caso.usuarios.qa;
       options.unshift({ value: String(u.id), label: u.nome ?? String(u.id) });
     }
@@ -58,7 +75,9 @@ export function CasoFormQaAtribuido() {
   // Quando QA é selecionado, buscar e salvar os dados completos
   useEffect(() => {
     if (qaAtribuido && usuarios && Array.isArray(usuarios)) {
-      const qaEncontrado = usuarios.find(u => u.id === qaAtribuido);
+      const qaEncontrado = usuarios.find(
+        (u) => String(u.id) === String(qaAtribuido),
+      );
       if (qaEncontrado) {
         setQaSelecionado(qaEncontrado);
       }
@@ -70,15 +89,16 @@ export function CasoFormQaAtribuido() {
   return (
     <div className="space-y-2">
       <ComboboxField
-        name="qaAtribuido"
-        label="QA Atribuído"
+        name={name}
+        label={label}
         icon={User}
         options={qasOptions}
-        placeholder="Selecione o QA atribuído..."
+        placeholder={placeholder}
         emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
-        disabled={isDisabled || !produtoAtual}
+        disabled={isDisabled || (requireProduto && !produtoAtual)}
+        required={required}
         onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>

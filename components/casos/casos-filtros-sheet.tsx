@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { Controller, type UseFormReturn } from "react-hook-form";
-import { Search, User } from "lucide-react";
+import { FilterX, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -11,18 +11,17 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ComboboxField } from "@/components/reports-form/combobox-field";
+import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
+import { CasoFormQaAtribuido } from "@/components/fields/caso-form-qa-atribuido";
 
 interface CasosFiltrosSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   trigger: React.ReactNode;
-  usuarioOptions: Array<{ value: string; label: string }>;
   methods: UseFormReturn<any>;
   onFiltrar: () => void;
   onLimpar: () => void;
@@ -32,7 +31,6 @@ export const CasosFiltrosSheet = ({
   open,
   onOpenChange,
   trigger,
-  usuarioOptions,
   methods,
   onFiltrar,
   onLimpar,
@@ -54,27 +52,8 @@ export const CasosFiltrosSheet = ({
 
           <div className="flex-1 overflow-auto p-6 pt-4 space-y-4">
             <div className="grid grid-cols-1 gap-4">
-              <ComboboxField
-                name="usuario_dev_id"
-                label="Desenvolvedor"
-                icon={User}
-                options={usuarioOptions}
-                placeholder="Selecione um desenvolvedor..."
-                emptyText="Nenhum usuário encontrado."
-                searchDebounceMs={450}
-                required={false}
-              />
-
-              <ComboboxField
-                name="usuario_qa_id"
-                label="QA"
-                icon={User}
-                options={usuarioOptions}
-                placeholder="Selecione um QA..."
-                emptyText="Nenhum usuário encontrado."
-                searchDebounceMs={450}
-                required={false}
-              />
+              <CasoFormDevAtribuido required={false} requireProduto={false} />
+              <CasoFormQaAtribuido required={false} requireProduto={false} />
             </div>
 
             <div className="grid grid-cols-1 gap-4">
@@ -114,7 +93,7 @@ export const CasosFiltrosSheet = ({
             </div>
           </div>
 
-          <SheetFooter className="flex flex-row p-6 pt-4 border-t gap-2">
+          <div className="flex flex-col p-6 pt-4 border-t gap-2">
             <Button
               type="button"
               onClick={() => {
@@ -133,9 +112,10 @@ export const CasosFiltrosSheet = ({
               onClick={onLimpar}
               className="w-full"
             >
-              Limpar filtros
+              <FilterX className="h-3.5 w-3.5 mr-2" />
+              <span>Limpar filtros</span>
             </Button>
-          </SheetFooter>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
