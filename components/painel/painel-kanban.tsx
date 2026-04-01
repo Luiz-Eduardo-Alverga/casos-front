@@ -1,0 +1,318 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { LayoutGrid } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PainelPageHeader } from "@/components/painel/painel-page-header";
+import { PainelKanbanFiltros } from "@/components/painel/painel-kanban-filtros";
+import type { PainelKanbanFiltrosForm } from "@/components/painel/painel-kanban-filtros-form";
+import { PainelKanbanBoard } from "@/components/painel/painel-kanban-board";
+import { PainelKanbanSkeleton } from "@/components/painel/painel-kanban-skeleton";
+import { EmptyState } from "@/components/painel/empty-state";
+import { useAgendaDev } from "@/hooks/use-agenda-dev";
+import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
+import { useUpdateCaso } from "@/hooks/use-update-caso";
+import { getUser, PAINEL_PRODUTO_ORDEM_KEY } from "@/lib/auth";
+import {
+  columnIdToApiStatus,
+  PAINEL_KANBAN_COLUMN_IDS,
+  type PainelKanbanColumnId,
+} from "@/components/painel/painel-kanban-columns";
+import {
+  mapProjetoMemoriaItemToKanban,
+  sortAbertosIniciadosPrimeiro,
+  type PainelKanbanItem,
+} from "@/components/painel/painel-kanban-map";
+import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+
+function isColumnId(id: string): id is PainelKanbanColumnId {
+  return (PAINEL_KANBAN_COLUMN_IDS as readonly string[]).includes(id);
+}
+
+export function PainelKanban() {
+  const user = getUser();
+  const idColaborador = user?.id ? String(user.id) : "";
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const updateCaso = useUpdateCaso();
+
+  const methods = useForm<PainelKanbanFiltrosForm>({
+    defaultValues: {
+      produto: "",
+      versao: "",
+      devAtribuido: "",
+    },
+  });
+
+  const { watch, setValue } = methods;
+  const produto = watch("produto");
+  const versao = watch("versao");
+  const devAtribuido = watch("devAtribuido");
+
+  const usuarioDevId = devAtribuido?.trim() || idColaborador;
+
+  const { data: agendaDevData, isLoading: isAgendaLoading } = useAgendaDev({
+    id_colaborador: idColaborador,
+  });
+
+  const agendaInitRef = useRef(false);
+  useEffect(() => {
+    if (!agendaDevData?.length || agendaInitRef.current) return;
+    agendaInitRef.current = true;
+    const storedOrdem =
+      typeof window !== "undefined"
+        ? localStorage.getItem(PAINEL_PRODUTO_ORDEM_KEY)
+        : null;
+    const match = storedOrdem
+      ? agendaDevData.find((a) => a.ordem === storedOrdem)
+      : agendaDevData[0];
+    if (match) {
+      setValue("produto", String(match.id_produto));
+      setValue("versao", match.versao ?? "");
+    }
+    if (user?.id) {
+      setValue("devAtribuido", String(user.id));
+    }
+  }, [agendaDevData, setValue, user?.id]);
+
+  useEffect(() => {
+    if (!agendaDevData?.length || !produto?.trim() || !versao?.trim()) return;
+    const match = agendaDevData.find(
+      (a) => String(a.id_produto) === produto.trim() && a.versao === versao.trim(),
+    );
+    if (match && typeof window !== "undefined") {
+      localStorage.setItem(PAINEL_PRODUTO_ORDEM_KEY, match.ordem);
+    }
+  }, [agendaDevData, produto, versao]);
+
+  const queryEnabled = Boolean(
+    produto?.trim() && versao?.trim() && usuarioDevId,
+  );
+
+  const baseParams = {
+    per_page: 15,
+    usuario_dev_id: usuarioDevId,
+    produto_id: produto?.trim() ?? "",
+    versao_produto: versao?.trim() ?? "",
+  };
+
+  const abertosQ = useProjetoMemoria(
+    { ...baseParams, status_id: ["1", "2"] },
+    { enabled: queryEnabled },
+  );
+  const corrigidosQ = useProjetoMemoria(
+    { ...baseParams, status_id: "3" },
+    { enabled: queryEnabled },
+  );
+  const retornosQ = useProjetoMemoria(
+    { ...baseParams, status_id: "4" },
+    { enabled: queryEnabled },
+  );
+  const concluidosQ = useProjetoMemoria(
+    { ...baseParams, status_id: "9" },
+    { enabled: queryEnabled },
+  );
+
+  const abertosItems = useMemo(() => {
+    const pages = abertosQ.data?.pages ?? [];
+    const raw = pages.flatMap((p) =>
+      p.data.map((item) =>
+        mapProjetoMemoriaItemToKanban(item, "abertos"),
+      ),
+    );
+    return sortAbertosIniciadosPrimeiro(raw);
+  }, [abertosQ.data]);
+
+  const corrigidosItems = useMemo(() => {
+    const pages = corrigidosQ.data?.pages ?? [];
+    return pages.flatMap((p) =>
+      p.data.map((item) =>
+        mapProjetoMemoriaItemToKanban(item, "corrigidos"),
+      ),
+    );
+  }, [corrigidosQ.data]);
+
+  const retornosItems = useMemo(() => {
+    const pages = retornosQ.data?.pages ?? [];
+    return pages.flatMap((p) =>
+      p.data.map((item) =>
+        mapProjetoMemoriaItemToKanban(item, "retornos"),
+      ),
+    );
+  }, [retornosQ.data]);
+
+  const concluidosItems = useMemo(() => {
+    const pages = concluidosQ.data?.pages ?? [];
+    return pages.flatMap((p) =>
+      p.data.map((item) =>
+        mapProjetoMemoriaItemToKanban(item, "concluidos"),
+      ),
+    );
+  }, [concluidosQ.data]);
+
+  const mergedFromApi = useMemo(
+    () => [
+      ...abertosItems,
+      ...corrigidosItems,
+      ...retornosItems,
+      ...concluidosItems,
+    ],
+    [abertosItems, corrigidosItems, retornosItems, concluidosItems],
+  );
+
+  const [kanbanData, setKanbanData] = useState<PainelKanbanItem[]>([]);
+  useEffect(() => {
+    setKanbanData(mergedFromApi);
+  }, [mergedFromApi]);
+
+  const kanbanDataRef = useRef(kanbanData);
+  kanbanDataRef.current = kanbanData;
+
+  const columnDragStartRef = useRef<string>("");
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const id = String(event.active.id);
+    const row = kanbanDataRef.current.find((i) => i.id === id);
+    columnDragStartRef.current = row?.column ?? "";
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) return;
+      const activeId = String(active.id);
+      const overId = String(over.id);
+      const fromCol = columnDragStartRef.current;
+      const dataNow = kanbanDataRef.current;
+      const overItem = dataNow.find((i) => i.id === overId);
+      const targetCol: PainelKanbanColumnId | null = overItem
+        ? (overItem.column as PainelKanbanColumnId)
+        : isColumnId(overId)
+          ? overId
+          : null;
+      if (!targetCol || !fromCol || fromCol === targetCol) {
+        return;
+      }
+      const status = columnIdToApiStatus(targetCol);
+      updateCaso.mutate(
+        { id: activeId, data: { status } },
+        {
+          onSuccess: () => {
+            toast.success("Status atualizado com sucesso.");
+            queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
+          },
+          onError: (err) => {
+            toast.error(
+              err instanceof Error ? err.message : "Erro ao atualizar status.",
+            );
+            queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
+          },
+        },
+      );
+    },
+    [queryClient, updateCaso],
+  );
+
+  const handleAtualizar = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["agenda-dev"] });
+    queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
+  }, [queryClient]);
+
+  const columnLoad = useMemo(
+    () => ({
+      abertos: {
+        hasNextPage: Boolean(abertosQ.hasNextPage),
+        isFetchingNextPage: abertosQ.isFetchingNextPage,
+        fetchNextPage: () => void abertosQ.fetchNextPage(),
+        isLoading: abertosQ.isLoading,
+      },
+      corrigidos: {
+        hasNextPage: Boolean(corrigidosQ.hasNextPage),
+        isFetchingNextPage: corrigidosQ.isFetchingNextPage,
+        fetchNextPage: () => void corrigidosQ.fetchNextPage(),
+        isLoading: corrigidosQ.isLoading,
+      },
+      retornos: {
+        hasNextPage: Boolean(retornosQ.hasNextPage),
+        isFetchingNextPage: retornosQ.isFetchingNextPage,
+        fetchNextPage: () => void retornosQ.fetchNextPage(),
+        isLoading: retornosQ.isLoading,
+      },
+      concluidos: {
+        hasNextPage: Boolean(concluidosQ.hasNextPage),
+        isFetchingNextPage: concluidosQ.isFetchingNextPage,
+        fetchNextPage: () => void concluidosQ.fetchNextPage(),
+        isLoading: concluidosQ.isLoading,
+      },
+    }),
+    [abertosQ, corrigidosQ, retornosQ, concluidosQ],
+  );
+
+  if (!idColaborador) {
+    return (
+      <div className="px-6 pt-20 py-10 flex-1 flex flex-col">
+        <PainelPageHeader
+          onVerCasos={() => router.push("/casos")}
+          onAtualizar={handleAtualizar}
+        />
+        <EmptyState
+          icon={LayoutGrid}
+          title="Sessão inválida"
+          description="Não foi possível identificar o colaborador logado."
+        />
+      </div>
+    );
+  }
+
+  if (isAgendaLoading) {
+    return <PainelKanbanSkeleton />;
+  }
+
+  return (
+    <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
+      <PainelPageHeader
+        onVerCasos={() => router.push("/casos")}
+        onAtualizar={handleAtualizar}
+      />
+
+      <PainelKanbanFiltros
+        methods={methods}
+        agendaItems={agendaDevData ?? []}
+      />
+
+      {!queryEnabled ? (
+        <Card className="bg-card shadow-card rounded-lg flex flex-col lg:min-h-0 lg:flex-1">
+          <CardHeader className="p-5 pb-2 border-b border-border-divider shrink-0">
+            <div className="flex items-center gap-2">
+              <LayoutGrid className="h-3.5 w-3.5 text-text-primary" />
+              <CardTitle className="text-sm font-semibold text-text-primary">
+                Quadro Kanban
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 pt-3 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
+            <EmptyState
+              icon={LayoutGrid}
+              title="Selecione produto e versão"
+              description="Escolha o produto, o responsável e a versão nos filtros acima para carregar os casos no quadro."
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <PainelKanbanBoard
+            data={kanbanData}
+            onDataChange={setKanbanData}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            columnLoad={columnLoad}
+          />
+        </div>
+      )}
+    </div>
+  );
+}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PainelContagemStatusBadge } from "@/components/painel/painel-contagem-status-badge";
 import {
   Table,
   TableHeader,
@@ -125,23 +125,23 @@ export function ProdutosPriorizados({
                   </TableCell>
                   <TableCell className="w-[30px] py-3 px-2.5">
                     <div className="flex justify-center">
-                      <Badge className="bg-blue-100 text-blue-700 border-transparent rounded-full w-9 h-7 flex items-center justify-center hover:bg-blue-100">
+                      <PainelContagemStatusBadge variant="abertos">
                         {produto.abertos}
-                      </Badge>
+                      </PainelContagemStatusBadge>
                     </div>
                   </TableCell>
                   <TableCell className="w-[80px] text-center py-3 px-2.5">
                     <div className="flex justify-center">
-                      <Badge className="bg-green-100 text-green-700 border-transparent rounded-full w-9 h-7 flex items-center justify-center hover:bg-green-100">
+                      <PainelContagemStatusBadge variant="corrigidos">
                         {produto.corrigidos}
-                      </Badge>
+                      </PainelContagemStatusBadge>
                     </div>
                   </TableCell>
                   <TableCell className="w-[80px] text-center py-3 px-2.5">
                     <div className="flex justify-center">
-                      <Badge className="bg-orange-100 text-orange-700 border-transparent rounded-full w-9 h-7 flex items-center justify-center hover:bg-orange-100">
+                      <PainelContagemStatusBadge variant="retornos">
                         {produto.retornos}
-                      </Badge>
+                      </PainelContagemStatusBadge>
                     </div>
                   </TableCell>
                 </TableRow>

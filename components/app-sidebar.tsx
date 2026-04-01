@@ -5,8 +5,8 @@ import Link from "next/link";
 import {
   Bell,
   Grid3x3,
+  Columns3,
   FileText,
-  Eye,
   ChevronRight,
   type LucideIcon,
 } from "lucide-react";
@@ -31,11 +31,19 @@ interface SidebarItem {
   label: string;
   href: string;
   icon: LucideIcon;
+  /** Se true, só ativa com pathname exato (evita /painel ativo em /painel/kanban). */
+  exact?: boolean;
 }
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   { label: "Avisos", href: "/avisos", icon: Bell },
-  { label: "Painel do desenvolvedor", href: "/painel", icon: Grid3x3 },
+  {
+    label: "Painel do desenvolvedor",
+    href: "/painel",
+    icon: Grid3x3,
+    exact: true,
+  },
+  // { label: "Painel (Kanban)", href: "/painel/kanban", icon: Columns3, exact: true },
   // { label: "Minha Visão", href: "/painel/minha-visao", icon: Eye },
   { label: "Casos", href: "/casos", icon: FileText },
 ];
@@ -86,9 +94,11 @@ export function AppSidebar({
 
         <SidebarNav className={isCollapsed ? "items-center" : ""}>
           {SIDEBAR_ITEMS.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/" && pathname?.endsWith(item.href));
+            const isActive = item.exact
+              ? pathname === item.href
+              : pathname === item.href ||
+                (item.href !== "/" &&
+                  Boolean(pathname?.startsWith(`${item.href}/`)));
             const Icon = item.icon;
             return (
               <Link key={item.href} href={item.href} className="block w-full">
