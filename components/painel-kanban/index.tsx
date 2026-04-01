@@ -8,25 +8,27 @@ import toast from "react-hot-toast";
 import { LayoutGrid } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PainelPageHeader } from "@/components/painel/painel-page-header";
-import { PainelKanbanFiltros } from "@/components/painel/painel-kanban-filtros";
-import type { PainelKanbanFiltrosForm } from "@/components/painel/painel-kanban-filtros-form";
-import { PainelKanbanBoard } from "@/components/painel/painel-kanban-board";
-import { PainelKanbanSkeleton } from "@/components/painel/painel-kanban-skeleton";
+import { PainelKanbanFiltros } from "@/components/painel-kanban/painel-kanban-filtros";
+import type { PainelKanbanFiltrosForm } from "@/components/painel-kanban/painel-kanban-filtros-form";
+import { PainelKanbanBoard } from "@/components/painel-kanban/painel-kanban-board";
+import { PainelKanbanSkeleton } from "@/components/painel-kanban/skeleton/painel-kanban-skeleton";
 import { EmptyState } from "@/components/painel/empty-state";
 import { useAgendaDev } from "@/hooks/use-agenda-dev";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
+import { parseAgendaDevCount } from "@/services/auxiliar/get-agenda-dev";
 import { useUpdateCaso } from "@/hooks/use-update-caso";
 import { getUser, PAINEL_PRODUTO_ORDEM_KEY } from "@/lib/auth";
 import {
   columnIdToApiStatus,
   PAINEL_KANBAN_COLUMN_IDS,
   type PainelKanbanColumnId,
-} from "@/components/painel/painel-kanban-columns";
+} from "@/components/painel-kanban/painel-kanban-columns";
 import {
+  dedupePainelKanbanItemsById,
   mapProjetoMemoriaItemToKanban,
   sortAbertosIniciadosPrimeiro,
   type PainelKanbanItem,
-} from "@/components/painel/painel-kanban-map";
+} from "@/components/painel-kanban/painel-kanban-map";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 
 function isColumnId(id: string): id is PainelKanbanColumnId {
@@ -82,7 +84,8 @@ export function PainelKanban() {
   useEffect(() => {
     if (!agendaDevData?.length || !produto?.trim() || !versao?.trim()) return;
     const match = agendaDevData.find(
-      (a) => String(a.id_produto) === produto.trim() && a.versao === versao.trim(),
+      (a) =>
+        String(a.id_produto) === produto.trim() && a.versao === versao.trim(),
     );
     if (match && typeof window !== "undefined") {
       localStorage.setItem(PAINEL_PRODUTO_ORDEM_KEY, match.ordem);
@@ -92,6 +95,32 @@ export function PainelKanban() {
   const queryEnabled = Boolean(
     produto?.trim() && versao?.trim() && usuarioDevId,
   );
+
+  const agendaRowForFilters = useMemo(() => {
+    if (!agendaDevData?.length || !produto?.trim() || !versao?.trim()) {
+      return null;
+    }
+    return (
+      agendaDevData.find(
+        (a) =>
+          String(a.id_produto) === produto.trim() &&
+          a.versao === versao.trim(),
+      ) ?? null
+    );
+  }, [agendaDevData, produto, versao]);
+
+  /** Totais da agenda (API) por coluna; `resolvidos` alinha à coluna concluídos. */
+  const columnBadgeCounts = useMemo(():
+    | Partial<Record<PainelKanbanColumnId, number>>
+    | undefined => {
+    if (!agendaRowForFilters) return undefined;
+    return {
+      abertos: parseAgendaDevCount(agendaRowForFilters.abertos),
+      corrigidos: parseAgendaDevCount(agendaRowForFilters.corrigidos),
+      retornos: parseAgendaDevCount(agendaRowForFilters.retornos),
+      concluidos: parseAgendaDevCount(agendaRowForFilters.resolvidos),
+    };
+  }, [agendaRowForFilters]);
 
   const baseParams = {
     per_page: 15,
@@ -120,9 +149,7 @@ export function PainelKanban() {
   const abertosItems = useMemo(() => {
     const pages = abertosQ.data?.pages ?? [];
     const raw = pages.flatMap((p) =>
-      p.data.map((item) =>
-        mapProjetoMemoriaItemToKanban(item, "abertos"),
-      ),
+      p.data.map((item) => mapProjetoMemoriaItemToKanban(item, "abertos")),
     );
     return sortAbertosIniciadosPrimeiro(raw);
   }, [abertosQ.data]);
@@ -130,37 +157,32 @@ export function PainelKanban() {
   const corrigidosItems = useMemo(() => {
     const pages = corrigidosQ.data?.pages ?? [];
     return pages.flatMap((p) =>
-      p.data.map((item) =>
-        mapProjetoMemoriaItemToKanban(item, "corrigidos"),
-      ),
+      p.data.map((item) => mapProjetoMemoriaItemToKanban(item, "corrigidos")),
     );
   }, [corrigidosQ.data]);
 
   const retornosItems = useMemo(() => {
     const pages = retornosQ.data?.pages ?? [];
     return pages.flatMap((p) =>
-      p.data.map((item) =>
-        mapProjetoMemoriaItemToKanban(item, "retornos"),
-      ),
+      p.data.map((item) => mapProjetoMemoriaItemToKanban(item, "retornos")),
     );
   }, [retornosQ.data]);
 
   const concluidosItems = useMemo(() => {
     const pages = concluidosQ.data?.pages ?? [];
     return pages.flatMap((p) =>
-      p.data.map((item) =>
-        mapProjetoMemoriaItemToKanban(item, "concluidos"),
-      ),
+      p.data.map((item) => mapProjetoMemoriaItemToKanban(item, "concluidos")),
     );
   }, [concluidosQ.data]);
 
   const mergedFromApi = useMemo(
-    () => [
-      ...abertosItems,
-      ...corrigidosItems,
-      ...retornosItems,
-      ...concluidosItems,
-    ],
+    () =>
+      dedupePainelKanbanItemsById([
+        ...abertosItems,
+        ...corrigidosItems,
+        ...retornosItems,
+        ...concluidosItems,
+      ]),
     [abertosItems, corrigidosItems, retornosItems, concluidosItems],
   );
 
@@ -204,12 +226,14 @@ export function PainelKanban() {
           onSuccess: () => {
             toast.success("Status atualizado com sucesso.");
             queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
+            queryClient.invalidateQueries({ queryKey: ["agenda-dev"] });
           },
           onError: (err) => {
             toast.error(
               err instanceof Error ? err.message : "Erro ao atualizar status.",
             );
             queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
+            queryClient.invalidateQueries({ queryKey: ["agenda-dev"] });
           },
         },
       );
@@ -309,6 +333,7 @@ export function PainelKanban() {
             onDataChange={setKanbanData}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            columnBadgeCounts={columnBadgeCounts}
             columnLoad={columnLoad}
           />
         </div>

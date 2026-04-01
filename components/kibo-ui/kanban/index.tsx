@@ -150,15 +150,19 @@ export type KanbanCardsProps<T extends KanbanItemProps = KanbanItemProps> =
   Omit<HTMLAttributes<HTMLDivElement>, "children" | "id"> & {
     children: (item: T) => ReactNode;
     id: string;
+    /** Conteúdo após os cartões, dentro da área rolável (ex.: sentinel de infinite scroll). */
+    listFooter?: ReactNode;
   };
 
 export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
   children,
   className,
-  ...props
+  listFooter,
+  id,
+  ...rest
 }: KanbanCardsProps<T>) => {
   const { data } = useContext(KanbanContext) as KanbanContextProps<T>;
-  const filteredData = data.filter((item) => item.column === props.id);
+  const filteredData = data.filter((item) => item.column === id);
   const items = filteredData.map((item) => item.id);
 
   return (
@@ -166,9 +170,11 @@ export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
       <SortableContext items={items}>
         <div
           className={cn("flex flex-grow flex-col gap-2 p-2", className)}
-          {...props}
+          id={id}
+          {...rest}
         >
           {filteredData.map(children)}
+          {listFooter}
         </div>
       </SortableContext>
       <ScrollBar orientation="vertical" />

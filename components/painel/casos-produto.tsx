@@ -68,11 +68,7 @@ export function CasosProduto({
 
   const casos = data?.pages.flatMap((p) => p.data.map(mapItemToCaso)) ?? [];
   casos.sort((a, b) =>
-    a.statusTempo === "INICIADO"
-      ? -1
-      : b.statusTempo === "INICIADO"
-        ? 1
-        : 0,
+    a.statusTempo === "INICIADO" ? -1 : b.statusTempo === "INICIADO" ? 1 : 0,
   );
 
   const loadMoreRef = useRef<HTMLDivElement>(null);

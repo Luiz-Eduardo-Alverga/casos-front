@@ -5,7 +5,7 @@ import { BriefcaseBusiness, GitBranch } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useFormContext } from "react-hook-form";
 import type { AgendaDevItem } from "@/services/auxiliar/get-agenda-dev";
-import type { PainelKanbanFiltrosForm } from "@/components/painel/painel-kanban-filtros-form";
+import type { PainelKanbanFiltrosForm } from "@/components/painel-kanban/painel-kanban-filtros-form";
 
 interface PainelKanbanAgendaFieldsProps {
   agendaItems: AgendaDevItem[];

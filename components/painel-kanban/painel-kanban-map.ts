@@ -1,5 +1,5 @@
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
-import type { PainelKanbanColumnId } from "@/components/painel/painel-kanban-columns";
+import type { PainelKanbanColumnId } from "@/components/painel-kanban/painel-kanban-columns";
 
 export interface PainelKanbanItem extends Record<string, unknown> {
   id: string;
@@ -47,10 +47,22 @@ export function mapProjetoMemoriaItemToKanban(
 
 export function sortAbertosIniciadosPrimeiro(items: PainelKanbanItem[]) {
   return [...items].sort((a, b) =>
-    a.statusTempo === "INICIADO"
-      ? -1
-      : b.statusTempo === "INICIADO"
-        ? 1
-        : 0,
+    a.statusTempo === "INICIADO" ? -1 : b.statusTempo === "INICIADO" ? 1 : 0,
   );
+}
+
+/**
+ * Remove duplicatas por `id`, mantendo a primeira ocorrência na ordem do array.
+ * Útil ao unir listas por status quando a API pode devolver o mesmo caso em mais de uma query.
+ */
+export function dedupePainelKanbanItemsById(
+  items: PainelKanbanItem[],
+): PainelKanbanItem[] {
+  const byId = new Map<string, PainelKanbanItem>();
+  for (const item of items) {
+    if (!byId.has(item.id)) {
+      byId.set(item.id, item);
+    }
+  }
+  return [...byId.values()];
 }

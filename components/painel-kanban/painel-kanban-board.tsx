@@ -1,18 +1,13 @@
 "use client";
 
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Ghost, Loader2, MoreHorizontal, Play } from "lucide-react";
+import { Ghost, Play } from "lucide-react";
 import { SortableContext } from "@dnd-kit/sortable";
-import { Badge } from "@/components/ui/badge";
+import { CasosProdutoSkeletonList } from "@/components/painel/casos-produto-skeleton";
 import { PainelContagemStatusBadge } from "@/components/painel/painel-contagem-status-badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { EmptyState } from "@/components/painel/empty-state";
 import { ImportanciaBadge } from "@/components/importancia-badge";
@@ -27,8 +22,8 @@ import { cn } from "@/lib/utils";
 import {
   PAINEL_KANBAN_COLUMNS,
   type PainelKanbanColumnId,
-} from "@/components/painel/painel-kanban-columns";
-import type { PainelKanbanItem } from "@/components/painel/painel-kanban-map";
+} from "@/components/painel-kanban/painel-kanban-columns";
+import type { PainelKanbanItem } from "@/components/painel-kanban/painel-kanban-map";
 
 export interface PainelKanbanColumnLoadState {
   hasNextPage: boolean;
@@ -42,6 +37,8 @@ interface PainelKanbanBoardProps {
   onDataChange: (data: PainelKanbanItem[]) => void;
   onDragStart?: (event: DragStartEvent) => void;
   onDragEnd?: (event: DragEndEvent) => void;
+  /** Totais por coluna vindos da agenda (API); se ausente, o badge usa a contagem local dos itens carregados. */
+  columnBadgeCounts?: Partial<Record<PainelKanbanColumnId, number>>;
   columnLoad?: Partial<
     Record<PainelKanbanColumnId, PainelKanbanColumnLoadState>
   >;
@@ -60,10 +57,7 @@ function PainelKanbanCardBody({ item }: { item: PainelKanbanItem }) {
       role="presentation"
     >
       <div className="flex gap-3 items-start pb-2 border-b border-border-divider">
-        <ImportanciaBadge
-          importancia={item.importancia}
-          className="shrink-0"
-        />
+        <ImportanciaBadge importancia={item.importancia} className="shrink-0" />
         <div className="flex-1 flex flex-wrap gap-2 items-start min-w-0">
           <span className="text-xs font-semibold text-text-primary">
             #{item.numero}
@@ -73,25 +67,11 @@ function PainelKanbanCardBody({ item }: { item: PainelKanbanItem }) {
           </p>
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-2 pt-2.5">
-        {item.modulo ? (
-          <Badge variant="secondary" className="rounded-full px-3 py-0.5 text-[10px]">
-            {item.modulo}
-          </Badge>
-        ) : null}
-        {urgente ? (
-          <Badge
-            variant="destructive"
-            className="rounded-full px-3 py-0.5 text-[10px]"
-          >
-            URGENTE
-          </Badge>
-        ) : null}
-        <span className="text-xs font-semibold text-text-secondary ml-auto">
+      <div className="flex items-center justify-between mt-2 ">
+        <span className="text-xs font-semibold text-text-secondary ">
           E: {item.tempoEstimado} / R: {item.tempoRealizado}
         </span>
-      </div>
-      <div className="flex justify-end mt-2">
+
         <Button
           type="button"
           size="sm"
@@ -103,6 +83,44 @@ function PainelKanbanCardBody({ item }: { item: PainelKanbanItem }) {
           Iniciar
         </Button>
       </div>
+    </div>
+  );
+}
+
+function KanbanColumnLoadSentinel({
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage,
+}: {
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  fetchNextPage: () => void;
+}) {
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el || !hasNextPage || isFetchingNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { root: null, rootMargin: "100px", threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  return (
+    <div ref={loadMoreRef} className="mt-4 w-full shrink-0">
+      {isFetchingNextPage ? (
+        <CasosProdutoSkeletonList count={3} />
+      ) : (
+        <div className="h-4 w-full shrink-0" aria-hidden />
+      )}
     </div>
   );
 }
@@ -129,6 +147,7 @@ export function PainelKanbanBoard({
   onDataChange,
   onDragStart,
   onDragEnd,
+  columnBadgeCounts,
   columnLoad,
 }: PainelKanbanBoardProps) {
   const columns = PAINEL_KANBAN_COLUMNS;
@@ -143,7 +162,9 @@ export function PainelKanbanBoard({
       className="grid min-h-0 w-full flex-1 auto-cols-fr grid-flow-col gap-4 overflow-x-auto pb-2"
     >
       {(column) => {
-        const count = data.filter((d) => d.column === column.id).length;
+        const itemsInColumn = data.filter((d) => d.column === column.id).length;
+        const badgeCount =
+          columnBadgeCounts?.[column.id] ?? itemsInColumn;
         const load = columnLoad?.[column.id];
         return (
           <div
@@ -160,7 +181,10 @@ export function PainelKanbanBoard({
               <KanbanHeader className="m-0 flex shrink-0 items-center justify-between gap-2 border-b border-border-divider px-3 py-3">
                 <div className="flex min-w-0 items-center gap-2">
                   <span
-                    className={cn("size-2 shrink-0 rounded-full", column.dotClass)}
+                    className={cn(
+                      "size-2 shrink-0 rounded-full",
+                      column.dotClass,
+                    )}
                     aria-hidden
                   />
                   <span className="truncate text-sm font-semibold text-text-primary">
@@ -170,30 +194,12 @@ export function PainelKanbanBoard({
                     variant={column.id}
                     className="shrink-0"
                   >
-                    {count}
+                    {badgeCount}
                   </PainelContagemStatusBadge>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 shrink-0"
-                      aria-label="Opções da coluna"
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem disabled>
-                      Em breve
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </KanbanHeader>
 
-              {count === 0 ? (
+              {itemsInColumn === 0 ? (
                 <ScrollArea className="min-h-[200px] flex-1 overflow-hidden">
                   <SortableContext items={[]}>
                     <div className="flex flex-col gap-2 p-2">
@@ -206,6 +212,15 @@ export function PainelKanbanBoard({
                 <KanbanCards
                   id={column.id}
                   className="max-h-[min(60vh,520px)] min-h-0 flex-1"
+                  listFooter={
+                    load?.hasNextPage && itemsInColumn > 0 ? (
+                      <KanbanColumnLoadSentinel
+                        hasNextPage={load.hasNextPage}
+                        isFetchingNextPage={load.isFetchingNextPage}
+                        fetchNextPage={load.fetchNextPage}
+                      />
+                    ) : null
+                  }
                 >
                   {(item: PainelKanbanItem) => (
                     <KanbanCard
@@ -224,28 +239,6 @@ export function PainelKanbanBoard({
                   )}
                 </KanbanCards>
               )}
-
-              {load?.hasNextPage ? (
-                <div className="shrink-0 border-t border-border-divider p-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    disabled={load.isFetchingNextPage}
-                    onClick={() => load.fetchNextPage()}
-                  >
-                    {load.isFetchingNextPage ? (
-                      <>
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Carregando...
-                      </>
-                    ) : (
-                      "Carregar mais"
-                    )}
-                  </Button>
-                </div>
-              ) : null}
             </KanbanBoard>
           </div>
         );
