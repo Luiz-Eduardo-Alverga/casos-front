@@ -1,5 +1,5 @@
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
-import type { PainelKanbanColumnId } from "@/components/painel-kanban/painel-kanban-columns";
+import type { PainelKanbanColumnId } from "@/components/painel-kanban/kanban/painel-kanban-columns";
 
 export interface PainelKanbanItem extends Record<string, unknown> {
   id: string;

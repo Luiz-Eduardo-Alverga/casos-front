@@ -8,10 +8,10 @@ import toast from "react-hot-toast";
 import { LayoutGrid } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PainelPageHeader } from "@/components/painel/painel-page-header";
-import { PainelKanbanFiltros } from "@/components/painel-kanban/painel-kanban-filtros";
-import type { PainelKanbanFiltrosForm } from "@/components/painel-kanban/painel-kanban-filtros-form";
-import { PainelKanbanBoard } from "@/components/painel-kanban/painel-kanban-board";
-import { PainelKanbanSkeleton } from "@/components/painel-kanban/skeleton/painel-kanban-skeleton";
+import { PainelKanbanFiltros } from "@/components/painel-kanban/filtros/painel-kanban-filtros";
+import type { PainelKanbanFiltrosForm } from "@/interfaces/kanban/painel-kanban-filtros-form";
+import { PainelKanbanBoard } from "@/components/painel-kanban/kanban/painel-kanban-board";
+import { PainelKanbanSkeleton } from "@/components/painel-kanban/layout/painel-kanban-skeleton";
 import { EmptyState } from "@/components/painel/empty-state";
 import { useAgendaDev } from "@/hooks/use-agenda-dev";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
@@ -22,13 +22,13 @@ import {
   columnIdToApiStatus,
   PAINEL_KANBAN_COLUMN_IDS,
   type PainelKanbanColumnId,
-} from "@/components/painel-kanban/painel-kanban-columns";
+} from "@/components/painel-kanban/kanban/painel-kanban-columns";
 import {
   dedupePainelKanbanItemsById,
   mapProjetoMemoriaItemToKanban,
   sortAbertosIniciadosPrimeiro,
   type PainelKanbanItem,
-} from "@/components/painel-kanban/painel-kanban-map";
+} from "@/components/painel-kanban/kanban/painel-kanban-map";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 
 function isColumnId(id: string): id is PainelKanbanColumnId {
@@ -103,8 +103,7 @@ export function PainelKanban() {
     return (
       agendaDevData.find(
         (a) =>
-          String(a.id_produto) === produto.trim() &&
-          a.versao === versao.trim(),
+          String(a.id_produto) === produto.trim() && a.versao === versao.trim(),
       ) ?? null
     );
   }, [agendaDevData, produto, versao]);

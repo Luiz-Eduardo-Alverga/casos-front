@@ -7,12 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CasoFormProvider, CasoFormDevAtribuido } from "@/components/caso-form";
 import { importanceOptions } from "@/mocks/teste";
 import type { AgendaDevItem } from "@/services/auxiliar/get-agenda-dev";
-import {
-  PainelKanbanAgendaProdutoField,
-  PainelKanbanAgendaVersaoField,
-} from "@/components/painel-kanban/painel-kanban-agenda-fields";
-import type { PainelKanbanFiltrosForm } from "@/components/painel-kanban/painel-kanban-filtros-form";
-import { Button } from "../ui/button";
+import { PainelKanbanAgendaProdutoField } from "@/components/painel-kanban/fields/kanban-agenda-produto-field";
+import { PainelKanbanAgendaVersaoField } from "@/components/painel-kanban/fields/kanban-agenda-versao-field";
+import { Button } from "@/components/ui/button";
+import type { PainelKanbanFiltrosForm } from "@/interfaces/kanban/painel-kanban-filtros-form";
 
 export type { PainelKanbanFiltrosForm };
 

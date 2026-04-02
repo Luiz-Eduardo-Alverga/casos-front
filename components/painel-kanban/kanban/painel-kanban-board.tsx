@@ -1,16 +1,9 @@
 "use client";
 
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { Ghost, Play } from "lucide-react";
 import { SortableContext } from "@dnd-kit/sortable";
-import { CasosProdutoSkeletonList } from "@/components/painel/casos-produto-skeleton";
 import { PainelContagemStatusBadge } from "@/components/painel/painel-contagem-status-badge";
-import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { EmptyState } from "@/components/painel/empty-state";
-import { ImportanciaBadge } from "@/components/importancia-badge";
 import {
   KanbanProvider,
   KanbanBoard,
@@ -22,8 +15,11 @@ import { cn } from "@/lib/utils";
 import {
   PAINEL_KANBAN_COLUMNS,
   type PainelKanbanColumnId,
-} from "@/components/painel-kanban/painel-kanban-columns";
-import type { PainelKanbanItem } from "@/components/painel-kanban/painel-kanban-map";
+} from "@/components/painel-kanban/kanban/painel-kanban-columns";
+import type { PainelKanbanItem } from "@/components/painel-kanban/kanban/painel-kanban-map";
+import { EmptyColumnPlaceholder } from "../layout/empty-colums-placeholder";
+import { PainelKanbanCardBody } from "@/components/painel-kanban/kanban/painel-kanban-card-body";
+import { KanbanColumnLoadSentinel } from "@/components/painel-kanban/kanban/kanban-column-load-sentinel";
 
 export interface PainelKanbanColumnLoadState {
   hasNextPage: boolean;
@@ -42,104 +38,6 @@ interface PainelKanbanBoardProps {
   columnLoad?: Partial<
     Record<PainelKanbanColumnId, PainelKanbanColumnLoadState>
   >;
-}
-
-function PainelKanbanCardBody({ item }: { item: PainelKanbanItem }) {
-  const router = useRouter();
-  const urgente =
-    item.tipoCategoria.toLowerCase().includes("urgente") ||
-    item.importancia >= 8;
-
-  return (
-    <div
-      className="flex flex-col gap-0"
-      onClick={() => router.push(`/casos/${item.id}`)}
-      role="presentation"
-    >
-      <div className="flex gap-3 items-start pb-2 border-b border-border-divider">
-        <ImportanciaBadge importancia={item.importancia} className="shrink-0" />
-        <div className="flex-1 flex flex-wrap gap-2 items-start min-w-0">
-          <span className="text-xs font-semibold text-text-primary">
-            #{item.numero}
-          </span>
-          <p className="text-[10px] font-semibold text-text-secondary leading-5 w-full">
-            {item.descricao || item.name}
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center justify-between mt-2 ">
-        <span className="text-xs font-semibold text-text-secondary ">
-          E: {item.tempoEstimado} / R: {item.tempoRealizado}
-        </span>
-
-        <Button
-          type="button"
-          size="sm"
-          className="h-8 bg-green-600 text-white hover:bg-green-700"
-          disabled
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Play className="h-3 w-3" />
-          Iniciar
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function KanbanColumnLoadSentinel({
-  hasNextPage,
-  isFetchingNextPage,
-  fetchNextPage,
-}: {
-  hasNextPage: boolean;
-  isFetchingNextPage: boolean;
-  fetchNextPage: () => void;
-}) {
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = loadMoreRef.current;
-    if (!el || !hasNextPage || isFetchingNextPage) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { root: null, rootMargin: "100px", threshold: 0 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  return (
-    <div ref={loadMoreRef} className="mt-4 w-full shrink-0">
-      {isFetchingNextPage ? (
-        <CasosProdutoSkeletonList count={3} />
-      ) : (
-        <div className="h-4 w-full shrink-0" aria-hidden />
-      )}
-    </div>
-  );
-}
-
-function EmptyColumnPlaceholder({
-  columnId,
-}: {
-  columnId: PainelKanbanColumnId;
-}) {
-  const meta = PAINEL_KANBAN_COLUMNS.find((c) => c.id === columnId);
-  if (!meta) return null;
-  return (
-    <EmptyState
-      icon={columnId === "retornos" ? Ghost : undefined}
-      title={meta.emptyTitle}
-      description={meta.emptyDescription}
-      className="min-h-[160px] py-6"
-    />
-  );
 }
 
 export function PainelKanbanBoard({
@@ -163,8 +61,7 @@ export function PainelKanbanBoard({
     >
       {(column) => {
         const itemsInColumn = data.filter((d) => d.column === column.id).length;
-        const badgeCount =
-          columnBadgeCounts?.[column.id] ?? itemsInColumn;
+        const badgeCount = columnBadgeCounts?.[column.id] ?? itemsInColumn;
         const load = columnLoad?.[column.id];
         return (
           <div
@@ -211,7 +108,7 @@ export function PainelKanbanBoard({
               ) : (
                 <KanbanCards
                   id={column.id}
-                  className="max-h-[min(60vh,520px)] min-h-0 flex-1"
+                  className="max-h-[min(60vh,520px)] min-h-0 flex-1 p-4"
                   listFooter={
                     load?.hasNextPage && itemsInColumn > 0 ? (
                       <KanbanColumnLoadSentinel

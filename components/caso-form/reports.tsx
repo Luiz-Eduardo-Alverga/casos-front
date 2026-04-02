@@ -222,7 +222,6 @@ export function Reports() {
       }
 
       const response = await assistantMutateAsync(submitData);
-      console.log(response.data);
       if (response.data.title && response.data.description) {
         methods.setValue("DescricaoResumo", response.data.title);
         methods.setValue("DescricaoCompleta", response.data.description);

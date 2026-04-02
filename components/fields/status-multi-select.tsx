@@ -27,6 +27,8 @@ export interface StatusMultiSelectProps {
   disabled?: boolean;
   label?: string;
   id?: string;
+  /** Mensagem quando não há status ou nenhum resultado na busca (como `emptyText` do ComboboxField). */
+  emptyText?: string;
 }
 
 export function StatusMultiSelect({
@@ -35,6 +37,7 @@ export function StatusMultiSelect({
   disabled = false,
   label = "Status",
   id,
+  emptyText,
 }: StatusMultiSelectProps) {
   const anchor = useComboboxAnchor();
   const { data: statusList = [], isLoading } = useStatus();
@@ -66,6 +69,18 @@ export function StatusMultiSelect({
     [onChange],
   );
 
+  /** Base UI filtra pelo valor do item (ID); aqui buscamos pela descrição exibida. */
+  const filterByLabel = React.useCallback(
+    (itemValue: unknown, query: string) => {
+      const q = query.trim().toLowerCase();
+      if (!q) return true;
+      const id = String(itemValue);
+      const label = (labelById.get(id) ?? id).toLowerCase();
+      return label.includes(q) || id.toLowerCase().includes(q);
+    },
+    [labelById],
+  );
+
   return (
     <div className="space-y-2">
       <Label
@@ -85,6 +100,7 @@ export function StatusMultiSelect({
         value={value}
         onValueChange={handleValueChange}
         disabled={disabled}
+        filter={filterByLabel}
       >
         <ComboboxChips ref={anchor} className="w-full min-h-[42px] h-auto ">
           <ComboboxValue>
@@ -110,7 +126,9 @@ export function StatusMultiSelect({
         </ComboboxChips>
         <ComboboxContent anchor={anchor}>
           <ComboboxEmpty>
-            {isLoading ? "Carregando status..." : "Nenhum status encontrado."}
+            {isLoading
+              ? "Carregando status..."
+              : (emptyText ?? "Nenhum status encontrado.")}
           </ComboboxEmpty>
           <ComboboxList>
             {(item: string) => (

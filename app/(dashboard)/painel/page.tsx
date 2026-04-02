@@ -1,7 +1,7 @@
 "use client";
 
-import { Painel } from "@/components/painel/painel";
+import { PainelKanban } from "@/components/painel-kanban";
 
 export default function PainelPage() {
-  return <Painel />;
+  return <PainelKanban />;
 }

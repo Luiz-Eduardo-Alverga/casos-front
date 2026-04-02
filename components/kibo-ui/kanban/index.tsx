@@ -12,8 +12,7 @@ import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
+  PointerSensor,
   useDroppable,
   useSensor,
   useSensors,
@@ -79,7 +78,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
       className={cn(
         "flex size-full min-h-40 flex-col divide-y overflow-hidden rounded-md border bg-secondary text-xs shadow-sm ring-2 transition-all",
         isOver ? "ring-primary" : "ring-transparent",
-        className
+        className,
       )}
       ref={setNodeRef}
     >
@@ -121,9 +120,11 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
       <div style={style} {...listeners} {...attributes} ref={setNodeRef}>
         <Card
           className={cn(
-            "cursor-grab gap-4 rounded-md p-3 shadow-sm",
+            "cursor-pointer gap-4 rounded-md p-3 shadow-sm touch-manipulation",
+            /* Mesmo anel do Input (focus-visible:ring-1 ring-ring), aqui em hover */
+            "transition-colors outline-none hover:ring-1 hover:ring-ring",
             isDragging && "pointer-events-none cursor-grabbing opacity-30",
-            className
+            className,
           )}
         >
           {children ?? <p className="m-0 font-medium text-sm">{name}</p>}
@@ -133,9 +134,8 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
         <t.In>
           <Card
             className={cn(
-              "cursor-grab gap-4 rounded-md p-3 shadow-sm ring-2 ring-primary",
-              isDragging && "cursor-grabbing",
-              className
+              "cursor-grabbing gap-4 rounded-md p-3 shadow-sm ring-2 ring-primary touch-manipulation",
+              className,
             )}
           >
             {children ?? <p className="m-0 font-medium text-sm">{name}</p>}
@@ -218,10 +218,12 @@ export const KanbanProvider = <
 }: KanbanProviderProps<T, C>) => {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
+  /** Distância mínima (px) antes de iniciar o arraste: permite clique no card (ex.: abrir caso) sem conflitar com o DnD — padrão próximo ao Trello. */
   const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor),
-    useSensor(KeyboardSensor)
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor),
   );
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -322,7 +324,7 @@ export const KanbanProvider = <
         <div
           className={cn(
             "grid size-full auto-cols-fr grid-flow-col gap-4",
-            className
+            className,
           )}
         >
           {columns.map((column) => children(column))}
@@ -332,7 +334,7 @@ export const KanbanProvider = <
             <DragOverlay>
               <t.Out />
             </DragOverlay>,
-            document.body
+            document.body,
           )}
       </DndContext>
     </KanbanContext.Provider>

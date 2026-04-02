@@ -37,8 +37,6 @@ export async function getProjetoMemoria(
 ): Promise<ProjetoMemoriaResponse> {
   const url = new URL("/api/projeto-memoria", window.location.origin);
 
-  console.log("params", params);
-
   const stringParams: Array<[string, string | undefined | null]> = [
     ["per_page", params.per_page != null ? String(params.per_page) : undefined],
     ["page", params.page != null ? String(params.page) : undefined],

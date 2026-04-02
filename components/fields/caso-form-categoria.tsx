@@ -15,7 +15,9 @@ export function CasoFormCategoria({ required = true }: CasoFormCategoriaProps) {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
   const categoriaValue = watch("categoria");
-  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
+  const [optionsRequested, setOptionsRequested] = useState(
+    !lazyLoadComboboxOptions,
+  );
 
   const { data: categorias, isLoading: isCategoriasLoading } = useCategorias({
     enabled: optionsRequested,
@@ -26,9 +28,17 @@ export function CasoFormCategoria({ required = true }: CasoFormCategoriaProps) {
       value: categoria.id,
       label: categoria.tipo_categoria,
     }));
-    if (lazyLoadComboboxOptions && editCaseItem?.caso?.caracteristicas && categoriaValue && !list.some((o) => o.value === categoriaValue)) {
+    if (
+      lazyLoadComboboxOptions &&
+      editCaseItem?.caso?.caracteristicas &&
+      categoriaValue &&
+      !list.some((o) => o.value === categoriaValue)
+    ) {
       const c = editCaseItem.caso.caracteristicas;
-      list.unshift({ value: String(c.categoria), label: c.tipo_categoria ?? String(c.categoria) });
+      list.unshift({
+        value: String(c.categoria),
+        label: c.tipo_categoria ?? String(c.categoria),
+      });
     }
     return list;
   }, [categorias, lazyLoadComboboxOptions, editCaseItem, categoriaValue]);
@@ -50,7 +60,11 @@ export function CasoFormCategoria({ required = true }: CasoFormCategoriaProps) {
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}
-        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
+        onOpenChange={
+          lazyLoadComboboxOptions
+            ? (open) => open && setOptionsRequested(true)
+            : undefined
+        }
       />
     </div>
   );
