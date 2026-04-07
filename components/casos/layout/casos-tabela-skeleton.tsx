@@ -86,3 +86,4 @@ export function CasosTabelaSkeleton() {
     </Table>
   );
 }
+

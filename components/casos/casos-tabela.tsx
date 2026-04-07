@@ -1,19 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { StatusBadge } from "@/components/status-badge";
-import { ImportanciaBadge } from "@/components/importancia-badge";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
 import { getUser } from "@/lib/auth";
@@ -21,9 +9,12 @@ import { Box, ChevronUp } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
 import {
   CasosTabelaSkeleton,
-  CasosTabelaSkeletonRows,
-} from "@/components/casos/casos-tabela-skeleton";
+} from "@/components/casos/layout/casos-tabela-skeleton";
 import { Button } from "@/components/ui/button";
+import {
+  CasosTabelaTable,
+  type CasosTabelaRow,
+} from "@/components/casos/tabela/casos-tabela-table";
 
 interface CasosTabelaProps {
   filtros: {
@@ -41,31 +32,7 @@ interface CasosTabelaProps {
   };
 }
 
-function formatMinutesToHHMM(minutes: number): string {
-  if (!Number.isFinite(minutes) || minutes < 0) return "00:00";
-  const h = Math.floor(minutes / 60);
-  const m = Math.floor(minutes % 60);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-}
-
-// Função para obter cores do badge de categoria
-function getCategoriaBadgeStyles(categoria: string) {
-  const categoriaUpper = categoria?.toUpperCase() || "";
-
-  if (categoriaUpper.includes("MELHORIA")) {
-    return "bg-purple-100 text-purple-700";
-  }
-  if (categoriaUpper.includes("BUG")) {
-    return "bg-red-100 text-red-700";
-  }
-  if (categoriaUpper.includes("REQUISITO")) {
-    return "bg-blue-100 text-blue-700";
-  }
-  // Default
-  return "bg-gray-100 text-gray-700";
-}
-
-function mapItemToRow(item: ProjetoMemoriaItem) {
+function mapItemToRow(item: ProjetoMemoriaItem): CasosTabelaRow {
   const prioridade = item.caso.caracteristicas.prioridade;
   return {
     id: String(item.caso.id),
@@ -74,16 +41,12 @@ function mapItemToRow(item: ProjetoMemoriaItem) {
     versao: item.produto.versao ?? "",
     numero: String(item.caso.id),
     descricao: item.caso.textos.descricao_resumo ?? "",
-    status: item.caso.status?.descricao ?? "",
+    status: item.caso.status?.status_tipo ?? "",
     categoria: item.caso.caracteristicas.tipo_categoria ?? "",
-    modulo: item.caso.caracteristicas.modulo ?? "",
-    tempoEstimado: formatMinutesToHHMM(item.caso.tempos.estimado_minutos),
-    tempoRealizado: formatMinutesToHHMM(item.caso.tempos.realizado_minutos),
   };
 }
 
 export function CasosTabela({ filtros }: CasosTabelaProps) {
-  const router = useRouter();
   const user = getUser();
   const usuarioDevId = user?.id != null ? String(user.id) : "";
 
@@ -203,12 +166,6 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
               Listagem de Casos
             </CardTitle>
           </div>
-
-          {/* <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-text-primary">
-              Total de casos: {totalItens}
-            </span>
-          </div> */}
         </div>
       </CardHeader>
       <CardContent className="p-6 pt-3">
@@ -234,82 +191,10 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
           />
         ) : (
           <>
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-white border-b border-white hover:bg-white">
-                  <TableHead className="w-[60px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-                    Registro
-                  </TableHead>
-                  <TableHead className="w-[100px] text-center font-medium text-sm text-text-primary h-auto py-4 px-5">
-                    Categoria
-                  </TableHead>
-                  <TableHead className="w-[200px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-                    Produto
-                  </TableHead>
-                  <TableHead className="flex-1 font-medium text-sm text-text-primary h-auto py-4 px-5">
-                    Resumo
-                  </TableHead>
-                  <TableHead className="w-[100px] text-center font-medium text-sm text-text-primary h-auto py-4 px-5">
-                    Importância
-                  </TableHead>
-                  <TableHead className="w-[150px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-                    Status
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {itens.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    className="bg-white border-t border-[#e0e0e0] hover:bg-muted/50 cursor-pointer transition-colors"
-                    onClick={() => router.push(`/casos/${row.id}`)}
-                  >
-                    <TableCell className="w-[60px] py-3 px-5">
-                      <span className="text-base font-light text-[#1d1d1d] whitespace-nowrap">
-                        #{row.numero}
-                      </span>
-                    </TableCell>
-                    <TableCell className="w-[100px] py-3 px-5">
-                      <div className="flex justify-center">
-                        <Badge
-                          className={`${getCategoriaBadgeStyles(
-                            row.categoria,
-                          )} border-transparent rounded-full h-7 px-2.5 flex items-center justify-center`}
-                        >
-                          <span className="text-xs font-semibold">
-                            {row.categoria || "—"}
-                          </span>
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell className="w-[200px] py-3 px-5">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm font-light text-[#1d1d1d]">
-                          {row.produto}
-                        </span>
-                        <span className="text-xs font-light text-[#1d1d1d]">
-                          {row.versao}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="flex-1 py-3 px-5">
-                      <span className="text-sm font-light text-[#1d1d1d]">
-                        {row.descricao || "—"}
-                      </span>
-                    </TableCell>
-                    <TableCell className="w-[100px] py-3 px-5">
-                      <div className="flex justify-center">
-                        <ImportanciaBadge importancia={row.importancia} />
-                      </div>
-                    </TableCell>
-                    <TableCell className="w-[150px] py-3 px-5">
-                      <StatusBadge status={row.status} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {isFetchingNextPage && <CasosTabelaSkeletonRows count={3} />}
-              </TableBody>
-            </Table>
+            <CasosTabelaTable
+              itens={itens}
+              isFetchingNextPage={isFetchingNextPage}
+            />
             {hasNextPage && itens.length > 0 && (
               <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />
             )}

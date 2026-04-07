@@ -32,7 +32,7 @@ export function CasoFormProduto({ required = true }: CasoFormProdutoProps) {
       produtos.forEach((p) => {
         options.push({
           value: String(p.id),
-          label: `${p.nome_projeto} - ${p.setor}`,
+          label: p.nome_projeto,
         });
       });
     }

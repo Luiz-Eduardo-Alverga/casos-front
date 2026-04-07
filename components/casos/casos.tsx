@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, FilterX } from "lucide-react";
-import { CasosFiltros } from "./casos-filtros";
+import { CasosFiltros } from "./filtros/casos-filtros";
 import { CasosTabela } from "./casos-tabela";
 
 export function Casos() {

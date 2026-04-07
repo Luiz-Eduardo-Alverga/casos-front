@@ -19,7 +19,7 @@ import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { importanceOptions } from "@/mocks/teste";
 import { useCategorias } from "@/hooks/use-categorias";
 import { Filter, Search, SlidersHorizontal } from "lucide-react";
-import { CasosFiltrosSheet } from "@/components/casos/casos-filtros-sheet";
+import { CasosFiltrosSheet } from "@/components/casos/filtros/casos-filtros-sheet";
 
 interface CasosFiltersForm {
   produto: string;
@@ -110,9 +110,7 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
       usuario_abertura_id: filtrosIniciais.usuario_abertura_id ?? "",
       devAtribuido: filtrosIniciais.usuario_dev_id ?? "",
       qaAtribuido: filtrosIniciais.usuario_qa_id ?? "",
-      data_producao_inicio: parseYmdToDate(
-        filtrosIniciais.data_producao_inicio,
-      ),
+      data_producao_inicio: parseYmdToDate(filtrosIniciais.data_producao_inicio),
       data_producao_fim: parseYmdToDate(filtrosIniciais.data_producao_fim),
     });
   }, [filtrosIniciais, categoriaIdFromUrl, methods]);
@@ -137,9 +135,7 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
       params.set("modulo", values.modulo.trim());
     }
     if (values.categoria?.trim()) {
-      const categoria = categorias.find(
-        (c) => c.id === values.categoria.trim(),
-      );
+      const categoria = categorias.find((c) => c.id === values.categoria.trim());
       const valorTipoCategoria =
         categoria?.tipo_categoria ?? values.categoria.trim();
       params.set("tipo_categoria", valorTipoCategoria);
@@ -267,3 +263,4 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
     </CasoFormProvider>
   );
 }
+

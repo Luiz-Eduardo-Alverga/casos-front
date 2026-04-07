@@ -23,7 +23,7 @@ export const STATUS_BADGE_CONFIG: StatusBadgeConfigItem[] = [
     className: "bg-green-100 text-green-700 hover:bg-green-100",
   },
   {
-    values: ["ATRIBUÍDO"],
+    values: ["EM DESENVOLVIMENTO"],
     className: "bg-blue-100 text-blue-700 hover:bg-blue-100",
   },
   {
