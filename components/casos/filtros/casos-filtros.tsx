@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useEffect, useState } from "react";
+import { useCallback, useMemo, useEffect, useState, useRef } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -49,6 +49,8 @@ interface CasosFiltrosProps {
     data_producao_inicio?: string;
     data_producao_fim?: string;
   };
+  /** Mesma string usada no pai (`searchParams.toString()`): só muda quando a query da URL muda. */
+  urlQueryKey: string;
 }
 
 function parseYmdToDate(value: string | null | undefined): Date | undefined {
@@ -68,7 +70,7 @@ function dateToYmd(date: Date | undefined): string | undefined {
   return `${y}-${m}-${d}`;
 }
 
-export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
+export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: categorias = [] } = useCategorias();
@@ -99,21 +101,36 @@ export function CasosFiltros({ filtrosIniciais }: CasosFiltrosProps) {
     },
   });
 
+  const lastSyncedUrlQueryKeyRef = useRef<string | null>(null);
+
   useEffect(() => {
-    methods.reset({
-      produto: filtrosIniciais.produto,
-      versao: filtrosIniciais.versao,
-      modulo: filtrosIniciais.modulo,
-      descricao_resumo: filtrosIniciais.descricao_resumo,
-      categoria: categoriaIdFromUrl || filtrosIniciais.tipo_categoria,
-      status_ids: [...(filtrosIniciais.status_ids ?? [])].slice(0, 5),
-      usuario_abertura_id: filtrosIniciais.usuario_abertura_id ?? "",
-      devAtribuido: filtrosIniciais.usuario_dev_id ?? "",
-      qaAtribuido: filtrosIniciais.usuario_qa_id ?? "",
-      data_producao_inicio: parseYmdToDate(filtrosIniciais.data_producao_inicio),
-      data_producao_fim: parseYmdToDate(filtrosIniciais.data_producao_fim),
-    });
-  }, [filtrosIniciais, categoriaIdFromUrl, methods]);
+    const prevKey = lastSyncedUrlQueryKeyRef.current;
+    if (prevKey !== urlQueryKey) {
+      lastSyncedUrlQueryKeyRef.current = urlQueryKey;
+      methods.reset({
+        produto: filtrosIniciais.produto,
+        versao: filtrosIniciais.versao,
+        modulo: filtrosIniciais.modulo,
+        descricao_resumo: filtrosIniciais.descricao_resumo,
+        categoria: categoriaIdFromUrl || filtrosIniciais.tipo_categoria,
+        status_ids: [...(filtrosIniciais.status_ids ?? [])].slice(0, 5),
+        usuario_abertura_id: filtrosIniciais.usuario_abertura_id ?? "",
+        devAtribuido: filtrosIniciais.usuario_dev_id ?? "",
+        qaAtribuido: filtrosIniciais.usuario_qa_id ?? "",
+        data_producao_inicio: parseYmdToDate(
+          filtrosIniciais.data_producao_inicio,
+        ),
+        data_producao_fim: parseYmdToDate(filtrosIniciais.data_producao_fim),
+      });
+      return;
+    }
+    methods.setValue(
+      "categoria",
+      categoriaIdFromUrl || filtrosIniciais.tipo_categoria || "",
+      { shouldDirty: false, shouldTouch: false, shouldValidate: false },
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `methods.reset`/`setValue` estáveis; não incluir `methods` para não resetar a cada render
+  }, [urlQueryKey, categoriaIdFromUrl, filtrosIniciais]);
 
   const produto = methods.watch("produto");
 

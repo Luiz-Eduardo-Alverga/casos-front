@@ -10,25 +10,28 @@ import { CasosTabela } from "./casos-tabela";
 export function Casos() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  /** Referência estável: evita novo objeto `filtros` a cada render quando a query não mudou. */
+  const urlQueryKey = searchParams.toString();
 
   const filtros = useMemo(() => {
-    const produto = searchParams.get("produto") || "";
-    const versao = searchParams.get("versao") || "";
-    const modulo = searchParams.get("modulo") || "";
-    const tipo_categoria = searchParams.get("tipo_categoria") || "";
-    const descricao_resumo = searchParams.get("descricao_resumo") || "";
-    const usuario_abertura_id = searchParams.get("usuario_abertura_id") || "";
-    const usuario_dev_id = searchParams.get("usuario_dev_id") || "";
-    const usuario_qa_id = searchParams.get("usuario_qa_id") || "";
-    const data_producao_inicio = searchParams.get("data_producao_inicio") || "";
-    const data_producao_fim = searchParams.get("data_producao_fim") || "";
+    const params = new URLSearchParams(urlQueryKey);
+    const produto = params.get("produto") || "";
+    const versao = params.get("versao") || "";
+    const modulo = params.get("modulo") || "";
+    const tipo_categoria = params.get("tipo_categoria") || "";
+    const descricao_resumo = params.get("descricao_resumo") || "";
+    const usuario_abertura_id = params.get("usuario_abertura_id") || "";
+    const usuario_dev_id = params.get("usuario_dev_id") || "";
+    const usuario_qa_id = params.get("usuario_qa_id") || "";
+    const data_producao_inicio = params.get("data_producao_inicio") || "";
+    const data_producao_fim = params.get("data_producao_fim") || "";
 
-    let status_ids = searchParams
+    let status_ids = params
       .getAll("status_id")
       .map((s) => s.trim())
       .filter(Boolean)
       .slice(0, 3);
-    const legacyStatus = searchParams.get("status")?.trim();
+    const legacyStatus = params.get("status")?.trim();
     if (status_ids.length === 0 && legacyStatus) {
       status_ids = [legacyStatus];
     }
@@ -46,7 +49,7 @@ export function Casos() {
       data_producao_inicio,
       data_producao_fim,
     };
-  }, [searchParams]);
+  }, [urlQueryKey]);
 
   const handleLimparFiltros = useCallback(() => {
     router.push("/casos");
@@ -84,7 +87,7 @@ export function Casos() {
         </div>
       </div>
 
-      <CasosFiltros filtrosIniciais={filtros} />
+      <CasosFiltros filtrosIniciais={filtros} urlQueryKey={urlQueryKey} />
       <CasosTabela filtros={filtros} />
     </div>
   );

@@ -74,7 +74,7 @@ export function Login() {
 
   return (
     <FormProvider {...methods}>
-      <div className="grid h-screen min-h-screen w-full grid-cols-1 overflow-hidden bg-login-gradient lg:grid-cols-2">
+      <div className="grid h-screen min-h-screen w-full grid-cols-1 overflow-hidden bg-primary lg:grid-cols-2">
         <aside className="hidden h-full lg:block">
           <LoginBanner />
         </aside>
