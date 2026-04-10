@@ -1,5 +1,5 @@
 {
-  "id": "3a62e6e5-1021-470d-8fe6-36f36a3a041a",
+  "id": "664d9a7e-2969-4b3e-935d-e250fbeefa15",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -12,15 +12,13 @@
           "name": "status_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "device_id": {
           "name": "device_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "android_version": {
           "name": "android_version",
@@ -87,8 +85,7 @@
           "name": "acquirer_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "status": {
           "name": "status",
@@ -257,25 +254,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "auth.users": {
-      "name": "users",
-      "schema": "auth",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.devices": {
       "name": "devices",
       "schema": "",
@@ -307,70 +285,6 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.profiles": {
-      "name": "profiles",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "full_name": {
-          "name": "full_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'admin'"
-        },
-        "avatar_url": {
-          "name": "avatar_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "profiles_id_users_id_fk": {
-          "name": "profiles_id_users_id_fk",
-          "tableFrom": "profiles",
-          "tableTo": "users",
-          "schemaTo": "auth",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "profiles_role_check": {
-          "name": "profiles_role_check",
-          "value": "\"profiles\".\"role\" = ANY (ARRAY['admin'::text, 'editor'::text])"
-        }
-      },
       "isRLSEnabled": false
     },
     "public.versions": {

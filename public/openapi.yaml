@@ -1,0 +1,1103 @@
+openapi: 3.1.0
+info:
+  title: Casos Front — API interna Postgres (/api/db)
+  description: |
+    Endpoints Next.js que acessam o Supabase via Drizzle. Todas as respostas JSON com corpo seguem envelope:
+    - **Sucesso (2xx):** `{ "data": ... }`
+    - **Erro (4xx/5xx com corpo):** `{ "error": { "message": string } }`
+    - **204 No Content:** corpo vazio (DELETE bem-sucedido).
+
+    **Autenticação:** cookie HttpOnly `casos_token` após `POST /api/login` (mesma origem; use `credentials: include`).
+  version: 1.0.0
+  contact:
+    name: Casos Front
+
+servers:
+  - url: /
+    description: Origem do Next.js (dev ou produção)
+
+tags:
+  - name: Ping
+    description: Sanidade de sessão e banco
+  - name: Acquirers
+    description: Adquirentes
+  - name: Devices
+    description: Dispositivos
+  - name: Versions
+    description: Versões de software
+  - name: AcquirerStatus
+    description: Status por adquirente
+  - name: CompatibleDevices
+    description: Dispositivos compatíveis por status
+
+security:
+  - sessionCookie: []
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: casos_token
+      description: Definido pelo `POST /api/login` (HttpOnly).
+
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [message]
+          properties:
+            message:
+              type: string
+              example: Não autorizado
+
+    PingData:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+          example: true
+
+    SuccessPing:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/PingData"
+
+    Acquirer:
+      type: object
+      required: [id, name, has4g]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        logoUrl:
+          type: string
+          nullable: true
+        has4g:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    AcquirerCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        logoUrl:
+          type: string
+          format: uri
+          nullable: true
+        has4g:
+          type: boolean
+
+    AcquirerUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+        logoUrl:
+          type: string
+          format: uri
+          nullable: true
+        has4g:
+          type: boolean
+
+    AcquirerListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Acquirer"
+
+    AcquirerOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/Acquirer"
+
+    Device:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    DeviceCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+
+    DeviceUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+
+    DeviceListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Device"
+
+    DeviceOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/Device"
+
+    Version:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+          nullable: true
+
+    VersionCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+
+    VersionUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          nullable: true
+
+    VersionListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Version"
+
+    VersionOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/Version"
+
+    StatusType:
+      type: string
+      enum: [not_started]
+      description: Valores do enum Postgres `status_type`.
+
+    AcquirerStatus:
+      type: object
+      required: [id, acquirerId, status, currentVersionId, isActive]
+      properties:
+        id:
+          type: string
+          format: uuid
+        acquirerId:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/StatusType"
+        currentVersionId:
+          type: string
+          format: uuid
+        nextVersionId:
+          type: string
+          format: uuid
+          nullable: true
+        deliveryDate:
+          type: string
+          format: date
+          nullable: true
+          description: YYYY-MM-DD
+        recommendedDeviceId:
+          type: string
+          format: uuid
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        sortOrder:
+          type: integer
+          nullable: true
+        isActive:
+          type: boolean
+        obs:
+          type: string
+          nullable: true
+
+    AcquirerStatusCreate:
+      type: object
+      required: [acquirerId, currentVersionId]
+      properties:
+        acquirerId:
+          type: string
+          format: uuid
+        currentVersionId:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/StatusType"
+        nextVersionId:
+          type: string
+          format: uuid
+          nullable: true
+        deliveryDate:
+          type: string
+          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+          nullable: true
+        recommendedDeviceId:
+          type: string
+          format: uuid
+          nullable: true
+        sortOrder:
+          type: integer
+        isActive:
+          type: boolean
+        obs:
+          type: string
+          nullable: true
+
+    AcquirerStatusUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        acquirerId:
+          type: string
+          format: uuid
+        currentVersionId:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/StatusType"
+        nextVersionId:
+          type: string
+          format: uuid
+          nullable: true
+        deliveryDate:
+          type: string
+          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+          nullable: true
+        recommendedDeviceId:
+          type: string
+          format: uuid
+          nullable: true
+        sortOrder:
+          type: integer
+        isActive:
+          type: boolean
+        obs:
+          type: string
+          nullable: true
+
+    AcquirerStatusListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AcquirerStatus"
+
+    AcquirerStatusOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/AcquirerStatus"
+
+    CompatibleDevice:
+      type: object
+      required: [statusId, deviceId]
+      properties:
+        statusId:
+          type: string
+          format: uuid
+        deviceId:
+          type: string
+          format: uuid
+        androidVersion:
+          type: string
+          nullable: true
+
+    CompatibleDeviceCreate:
+      type: object
+      required: [deviceId]
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        androidVersion:
+          type: string
+          nullable: true
+
+    CompatibleDeviceLinkBody:
+      type: object
+      required: [statusId, deviceId]
+      properties:
+        statusId:
+          type: string
+          format: uuid
+          description: ID de `acquirer_status`.
+        deviceId:
+          type: string
+          format: uuid
+          description: ID de `devices`.
+        androidVersion:
+          type: string
+          nullable: true
+
+    CompatibleDeviceListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompatibleDevice"
+
+    CompatibleDeviceOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/CompatibleDevice"
+
+  parameters:
+    ListSearchQuery:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+      description: |
+        Busca case-insensitive por substring (`ILIKE`).
+        **Adquirentes e dispositivos:** coluna `name`.
+        **Versões:** coluna `name` ou `id` (UUID como texto).
+        Caracteres `%`, `_` e `\` no termo são tratados de forma literal.
+
+  responses:
+    Unauthorized:
+      description: Cookie `casos_token` ausente ou rota não autenticada.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          example:
+            error:
+              message: Não autorizado
+    BadRequest:
+      description: JSON inválido ou validação Zod falhou.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    NotFound:
+      description: Recurso não encontrado.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    Conflict:
+      description: Violação de FK ou unique (Postgres 23503 / 23505).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    InternalError:
+      description: Erro interno não tratado.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    ServiceUnavailable:
+      description: Falha ao conectar ou consultar o banco (apenas ping).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+
+paths:
+  /api/db/ping:
+    get:
+      tags: [Ping]
+      summary: Ping do banco
+      description: Exige sessão; executa `SELECT 1` no Postgres.
+      operationId: dbPing
+      responses:
+        "200":
+          description: Banco acessível.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessPing"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /api/db/acquirers:
+    get:
+      tags: [Acquirers]
+      summary: Listar adquirentes
+      operationId: listAcquirers
+      parameters:
+        - $ref: "#/components/parameters/ListSearchQuery"
+      responses:
+        "200":
+          description: Lista ordenada por nome.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcquirerListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags: [Acquirers]
+      summary: Criar adquirente
+      operationId: createAcquirer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcquirerCreate"
+      responses:
+        "201":
+          description: Criado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcquirerOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/acquirers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Acquirers]
+      summary: Obter adquirente por ID
+      operationId: getAcquirerById
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcquirerOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      tags: [Acquirers]
+      summary: Atualizar adquirente (parcial)
+      operationId: updateAcquirer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcquirerUpdate"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcquirerOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      tags: [Acquirers]
+      summary: Excluir adquirente
+      operationId: deleteAcquirer
+      responses:
+        "204":
+          description: Removido; sem corpo.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/devices:
+    get:
+      tags: [Devices]
+      summary: Listar dispositivos
+      operationId: listDevices
+      parameters:
+        - $ref: "#/components/parameters/ListSearchQuery"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags: [Devices]
+      summary: Criar dispositivo
+      operationId: createDevice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceCreate"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/devices/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Devices]
+      summary: Obter dispositivo por ID
+      operationId: getDeviceById
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      tags: [Devices]
+      summary: Atualizar dispositivo (parcial)
+      operationId: updateDevice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceUpdate"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      tags: [Devices]
+      summary: Excluir dispositivo
+      operationId: deleteDevice
+      responses:
+        "204":
+          description: Removido; sem corpo.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/versions:
+    get:
+      tags: [Versions]
+      summary: Listar versões
+      operationId: listVersions
+      parameters:
+        - $ref: "#/components/parameters/ListSearchQuery"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags: [Versions]
+      summary: Criar versão
+      operationId: createVersion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionCreate"
+            example: {}
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/versions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Versions]
+      summary: Obter versão por ID
+      operationId: getVersionById
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      tags: [Versions]
+      summary: Atualizar versão (parcial)
+      operationId: updateVersion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionUpdate"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      tags: [Versions]
+      summary: Excluir versão
+      operationId: deleteVersion
+      responses:
+        "204":
+          description: Removido; sem corpo.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/acquirer-status:
+    get:
+      tags: [AcquirerStatus]
+      summary: Listar status de adquirentes
+      operationId: listAcquirerStatus
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcquirerStatusListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags: [AcquirerStatus]
+      summary: Criar status de adquirente
+      operationId: createAcquirerStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcquirerStatusCreate"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcquirerStatusOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/acquirer-status/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ID de `acquirer_status`.
+    get:
+      tags: [AcquirerStatus]
+      summary: Obter status por ID
+      operationId: getAcquirerStatusById
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcquirerStatusOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      tags: [AcquirerStatus]
+      summary: Atualizar status (parcial)
+      operationId: updateAcquirerStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcquirerStatusUpdate"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcquirerStatusOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      tags: [AcquirerStatus]
+      summary: Excluir status
+      operationId: deleteAcquirerStatus
+      responses:
+        "204":
+          description: Removido; sem corpo.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/acquirer-compatible-devices:
+    get:
+      tags: [CompatibleDevices]
+      summary: Listar dispositivos compatíveis (query statusId)
+      description: Equivalente a `GET .../acquirer-status/{id}/compatible-devices`.
+      operationId: listCompatibleDevicesFlat
+      parameters:
+        - name: statusId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de `acquirer_status`.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompatibleDeviceListResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags: [CompatibleDevices]
+      summary: Vincular dispositivo compatível (corpo com statusId e deviceId)
+      operationId: createCompatibleDeviceFlat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompatibleDeviceLinkBody"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompatibleDeviceOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      tags: [CompatibleDevices]
+      summary: Remover vínculo (queries statusId e deviceId)
+      operationId: deleteCompatibleDeviceFlat
+      parameters:
+        - name: statusId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: deviceId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Removido; sem corpo.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/acquirer-status/{id}/compatible-devices:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ID de `acquirer_status`.
+    get:
+      tags: [CompatibleDevices]
+      summary: Listar dispositivos compatíveis do status
+      operationId: listCompatibleDevices
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompatibleDeviceListResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags: [CompatibleDevices]
+      summary: Associar dispositivo ao status
+      operationId: createCompatibleDevice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompatibleDeviceCreate"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompatibleDeviceOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/acquirer-status/{id}/compatible-devices/{deviceId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ID de `acquirer_status`.
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ID de `devices`.
+    delete:
+      tags: [CompatibleDevices]
+      summary: Remover associação status/dispositivo
+      operationId: deleteCompatibleDevice
+      responses:
+        "204":
+          description: Removido; sem corpo.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"

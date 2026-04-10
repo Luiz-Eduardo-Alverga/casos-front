@@ -30,3 +30,44 @@ export async function getAuthorizationHeader(): Promise<{ Authorization: string 
   if (!token) return {};
   return { Authorization: `Bearer ${token}` };
 }
+
+/** Dados da sessão quando o cookie de login está presente (Route Handlers / Server Actions). */
+export type SessionAuthSuccess = {
+  token: string;
+  authorizationHeader: { Authorization: string };
+};
+
+/**
+ * Resultado de {@link requireSessionAuth}: ou sessão válida ou resposta 401 pronta para retornar.
+ */
+export type SessionAuthResult =
+  | ({ authenticated: true } & SessionAuthSuccess)
+  | { authenticated: false; response: Response };
+
+/**
+ * Exige cookie `casos_token` (login na API externa). Use em rotas que acessam Drizzle/Supabase.
+ *
+ * @example
+ * ```ts
+ * const auth = await requireSessionAuth();
+ * if (!auth.authenticated) return auth.response;
+ * // auth.token, auth.authorizationHeader
+ * ```
+ */
+export async function requireSessionAuth(): Promise<SessionAuthResult> {
+  const token = await getTokenFromCookie();
+  if (!token) {
+    return {
+      authenticated: false,
+      response: Response.json(
+        { error: { message: "Não autorizado" } },
+        { status: 401 },
+      ),
+    };
+  }
+  return {
+    authenticated: true,
+    token,
+    authorizationHeader: { Authorization: `Bearer ${token}` },
+  };
+}

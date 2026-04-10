@@ -248,3 +248,7 @@ export function useVersoes(params?: { produto_id?: string; search?: string }) {
 4. **Sempre definir interfaces TypeScript** para os dados retornados
 5. **Sempre incluir o token no header Authorization** quando disponível
 6. **Query keys devem ser únicas** e incluir todos os parâmetros relevantes para o cache
+
+## API interna Postgres (`/api/db`)
+
+Dados no Supabase via Drizzle seguem outro fluxo (sessão + `DATABASE_URL`). Ver [API_DB_ARQUITETURA.md](./API_DB_ARQUITETURA.md).
