@@ -5,7 +5,7 @@ import { User } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/caso-form/provider";
 import { useFormContext } from "react-hook-form";
-import { useUsuarios } from "@/hooks/use-usuarios";
+import { useUsuariosProjetos } from "@/hooks/use-usuarios";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
 export interface CasoFormQaAtribuidoProps {
@@ -34,7 +34,7 @@ export function CasoFormQaAtribuido({
 
   const produtoAtual = produtoValue || produto;
 
-  const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios({
+  const { data: usuarios, isLoading: isUsuariosLoading } = useUsuariosProjetos({
     enabled: optionsRequested,
   });
 

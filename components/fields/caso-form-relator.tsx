@@ -5,7 +5,7 @@ import { User } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/caso-form/provider";
 import { useFormContext } from "react-hook-form";
-import { useUsuarios } from "@/hooks/use-usuarios";
+import { useRelatores } from "@/hooks/use-usuarios";
 import { getUser } from "@/lib/auth";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
@@ -18,7 +18,7 @@ export function CasoFormRelator() {
 
   const user = getUser();
 
-  const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios({
+  const { data: usuarios, isLoading: isUsuariosLoading } = useRelatores({
     enabled: optionsRequested,
   });
 
