@@ -4,7 +4,7 @@ import * as React from "react";
 import { CircleDot } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { useStatus } from "@/hooks/use-status";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import {
   Combobox,
   ComboboxChip,
@@ -61,7 +61,7 @@ export function StatusMultiSelect({
         ? next.filter((v): v is string => typeof v === "string")
         : [];
       if (arr.length > MAX_STATUS) {
-        toast.message(`No máximo ${MAX_STATUS} status podem ser selecionados.`);
+        toast(`No máximo ${MAX_STATUS} status podem ser selecionados.`);
         return;
       }
       onChange(arr);

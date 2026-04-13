@@ -1,16 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { createAcquirerAction } from "@/app/(dashboard)/cadastros/_actions/cadastros-db";
+import toast from "react-hot-toast";
+import { useCreateAcquirer, useUpdateAcquirer } from "@/hooks/use-create-acquirer";
 import { acquirerCreateSchema } from "@/lib/validators/db/acquirers";
 import type { AcquirerCreateInput } from "@/lib/validators/db/acquirers";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SwitchChoiceCard } from "@/components/ui/switch-choice-card";
 
 const formSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -32,14 +32,24 @@ type FormValues = z.infer<typeof formSchema>;
 interface AdquirentesModalNovoProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  mode?: "create" | "edit";
+  initialData?: {
+    id: string;
+    name: string;
+    logoUrl: string | null;
+    has4g: boolean | null;
+  } | null;
 }
 
 export function AdquirentesModalNovo({
   open,
   onOpenChange,
+  mode = "create",
+  initialData = null,
 }: AdquirentesModalNovoProps) {
   const queryClient = useQueryClient();
-  const [pending, startTransition] = useTransition();
+  const createAcquirerMutation = useCreateAcquirer();
+  const updateAcquirerMutation = useUpdateAcquirer();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -47,6 +57,20 @@ export function AdquirentesModalNovo({
   });
 
   const [logoError, setLogoError] = useState<string | undefined>();
+  const isEditMode = mode === "edit" && Boolean(initialData?.id);
+  const isSubmitting =
+    createAcquirerMutation.isPending || updateAcquirerMutation.isPending;
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: initialData?.name ?? "",
+        logoUrl: initialData?.logoUrl ?? "",
+        has4g: initialData?.has4g ?? false,
+      });
+      setLogoError(undefined);
+    }
+  }, [open, initialData, form]);
 
   const handleClose = (next: boolean) => {
     if (!next) {
@@ -56,7 +80,7 @@ export function AdquirentesModalNovo({
     onOpenChange(next);
   };
 
-  const onSubmit = form.handleSubmit((values) => {
+  const onSubmit = form.handleSubmit(async (values) => {
     const trimmedLogo = values.logoUrl?.trim() ?? "";
     const body: AcquirerCreateInput = {
       name: values.name.trim(),
@@ -72,30 +96,52 @@ export function AdquirentesModalNovo({
     }
     setLogoError(undefined);
 
-    startTransition(async () => {
-      const res = await createAcquirerAction(parsed.data);
-      if (!res.ok) {
-        toast.error(res.message);
-        return;
+    try {
+      if (isEditMode && initialData?.id) {
+        await updateAcquirerMutation.mutateAsync({
+          id: initialData.id,
+          input: parsed.data,
+        });
+        toast.success("Adquirente atualizado.");
+      } else {
+        await createAcquirerMutation.mutateAsync(parsed.data);
+        toast.success("Adquirente cadastrado.");
       }
-      toast.success("Adquirente cadastrado.");
       handleClose(false);
       await queryClient.invalidateQueries({ queryKey: ["db-acquirers"] });
-    });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Erro ao cadastrar adquirente";
+      toast.error(message);
+    }
   });
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Novo adquirente</DialogTitle>
+      <DialogContent className="sm:max-w-[520px] p-0 gap-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-8 pb-0 space-y-1.5">
+          <DialogTitle className="text-xl font-bold tracking-tight text-zinc-900">
+            {isEditMode ? "Editar adquirente" : "Nova adquirente"}
+          </DialogTitle>
+          <p className="text-sm font-semibold text-zinc-400">
+            {isEditMode
+              ? "Atualize os dados da adquirente abaixo"
+              : "Preencha os dados da adquirente abaixo"}
+          </p>
         </DialogHeader>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="acq-name">Nome</Label>
+        <form onSubmit={onSubmit} className="px-6 pb-8 pt-6 space-y-4">
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="acq-name"
+              className="text-sm font-medium text-zinc-900"
+            >
+              Nome<span className="text-red-500">*</span>
+            </Label>
             <Input
               id="acq-name"
               autoComplete="off"
+              placeholder="Ex: Getnet, Rede, Stone..."
+              className="h-11 rounded-lg px-4 border-zinc-200 placeholder:text-zinc-400"
               {...form.register("name")}
             />
             {form.formState.errors.name && (
@@ -104,12 +150,19 @@ export function AdquirentesModalNovo({
               </p>
             )}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="acq-logo">URL do logo (opcional)</Label>
+
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="acq-logo"
+              className="text-sm font-medium text-zinc-900"
+            >
+              URL da logo
+            </Label>
             <Input
               id="acq-logo"
               type="url"
-              placeholder="https://..."
+              placeholder="https://logoexemplo.com"
+              className="h-11 rounded-lg px-4 border-zinc-200 placeholder:text-zinc-400"
               autoComplete="off"
               {...form.register("logoUrl")}
             />
@@ -117,29 +170,39 @@ export function AdquirentesModalNovo({
               <p className="text-sm text-destructive">{logoError}</p>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="acq-4g"
-              checked={form.watch("has4g")}
-              onCheckedChange={(c) =>
-                form.setValue("has4g", c === true, { shouldValidate: true })
-              }
-            />
-            <Label htmlFor="acq-4g" className="font-normal cursor-pointer">
-              Possui 4G
-            </Label>
-          </div>
-          <DialogFooter className="gap-2 sm:gap-0">
+
+          <SwitchChoiceCard
+            id="acq-4g"
+            title="Suporta 4G"
+            description="Indica se a adquirente tem suporte para conexão 4G"
+            checked={form.watch("has4g")}
+            onCheckedChange={(checked) =>
+              form.setValue("has4g", checked, { shouldValidate: true })
+            }
+          />
+
+          <DialogFooter className="gap-2 sm:justify-end pt-2">
             <Button
               type="button"
               variant="outline"
+              className="h-10 rounded-lg border-zinc-200 px-6 text-zinc-900"
               onClick={() => handleClose(false)}
-              disabled={pending}
+              disabled={isSubmitting}
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={pending}>
-              {pending ? "Salvando…" : "Salvar"}
+            <Button
+              type="submit"
+              className="h-10 rounded-lg px-6 bg-slate-600 hover:bg-slate-700"
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? isEditMode
+                  ? "Salvando..."
+                  : "Cadastrando..."
+                : isEditMode
+                  ? "Salvar"
+                  : "Cadastrar"}
             </Button>
           </DialogFooter>
         </form>

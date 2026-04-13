@@ -38,7 +38,7 @@ export const versions = pgTable("versions", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-  name: text("name"),
+  name: text("name").notNull(),
 });
 
 export const acquirerStatus = pgTable("acquirer_status", {

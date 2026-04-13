@@ -44,7 +44,10 @@ export async function PATCH(request: Request, context: RouteCtx) {
     const parsed = versionUpdateSchema.safeParse(body);
     if (!parsed.success) return badRequestFromZod(parsed.error);
     try {
-      const row = await updateVersion(idParsed.data, parsed.data);
+      const v = parsed.data;
+      const row = await updateVersion(idParsed.data, {
+        ...(v.name !== undefined ? { name: v.name ?? undefined } : {}),
+      });
       if (!row) return jsonError("Versão não encontrada", 404);
       return jsonOk(row);
     } catch (e) {

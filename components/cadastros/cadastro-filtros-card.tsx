@@ -4,6 +4,7 @@ import { Filter, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatusFilterSelect } from "@/components/cadastros/status-filter-select";
 
 interface CadastroFiltrosCardProps {
   /** Rótulo do campo (ex.: "Nome") */
@@ -12,6 +13,11 @@ interface CadastroFiltrosCardProps {
   value: string;
   onChange: (value: string) => void;
   inputAriaLabel: string;
+  /** Filtro por tipo de certificação (`status_type`), ex.: cadastro de adquirentes. */
+  statusSelect?: {
+    value: string;
+    onChange: (value: string) => void;
+  };
 }
 
 export function CadastroFiltrosCard({
@@ -20,6 +26,7 @@ export function CadastroFiltrosCard({
   value,
   onChange,
   inputAriaLabel,
+  statusSelect,
 }: CadastroFiltrosCardProps) {
   return (
     <Card className="bg-card shadow-card rounded-lg shrink-0 mb-6">
@@ -48,6 +55,12 @@ export function CadastroFiltrosCard({
               />
             </div>
           </div>
+          {/* {statusSelect ? (
+            <StatusFilterSelect
+              value={statusSelect.value}
+              onChange={statusSelect.onChange}
+            />
+          ) : null} */}
         </div>
       </CardContent>
     </Card>

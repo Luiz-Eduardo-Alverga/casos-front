@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
     try {
       const row = await insertVersion({
-        name: parsed.data.name ?? undefined,
+        name: parsed.data.name?.trim() ?? "",
       });
       return jsonOk(row, 201);
     } catch (e) {

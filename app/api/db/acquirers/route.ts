@@ -5,11 +5,13 @@ import {
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
 import { withSession } from "@/lib/api-db/with-session";
+import { listAcquirersExpanded } from "@/lib/db/acquirers-expanded";
 import { insertAcquirer, listAcquirers } from "@/lib/db/acquirers";
 import {
   acquirerCreateSchema,
   type AcquirerCreateInput,
 } from "@/lib/validators/db/acquirers";
+import { statusTypeSchema } from "@/lib/validators/db/shared";
 
 function toInsertValues(
   input: AcquirerCreateInput,
@@ -21,11 +23,25 @@ function toInsertValues(
   };
 }
 
+const EXPAND_STATUS = "status";
+
 export async function GET(request: Request) {
   return withSession(async () => {
     try {
-      const search = new URL(request.url).searchParams.get("search") ?? undefined;
-      const rows = await listAcquirers(search);
+      const sp = new URL(request.url).searchParams;
+      const search = sp.get("search") ?? undefined;
+      const expand = sp.get("expand");
+      const rawStatus = sp.get("status");
+      let statusFilter: string | undefined;
+      if (rawStatus != null && rawStatus.trim()) {
+        const parsed = statusTypeSchema.safeParse(rawStatus.trim());
+        if (!parsed.success) return badRequestFromZod(parsed.error);
+        statusFilter = parsed.data;
+      }
+      const rows =
+        expand === EXPAND_STATUS
+          ? await listAcquirersExpanded(search, statusFilter)
+          : await listAcquirers(search);
       return jsonOk(rows);
     } catch (e) {
       return handleDbRouteError(e, "[api/db/acquirers GET]");

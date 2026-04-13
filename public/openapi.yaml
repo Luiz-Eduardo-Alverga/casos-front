@@ -125,6 +125,69 @@ components:
           items:
             $ref: "#/components/schemas/Acquirer"
 
+    AcquirerCompatibleDeviceRow:
+      type: object
+      required: [deviceId, deviceName, isPrimary]
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        deviceName:
+          type: string
+        androidVersion:
+          type: string
+          nullable: true
+        isPrimary:
+          type: boolean
+          description: |
+            `true` quando o dispositivo corresponde a `recommended_device_id` do `acquirer_status` ativo.
+
+    AcquirerListExpandedItem:
+      type: object
+      required: [acquirer, compatibleDevices]
+      properties:
+        acquirer:
+          $ref: "#/components/schemas/Acquirer"
+        acquirerStatusId:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID do `acquirer_status` ativo usado no enriquecimento (`is_active = true`), se existir.
+        status:
+          type: string
+          nullable: true
+          description: Valor do enum Postgres `status_type` (ex. Concluído, Em homologação).
+        currentVersionName:
+          type: string
+          nullable: true
+          description: Nome (`versions.name`) da versão atual (`current_version_id`).
+        nextVersionName:
+          type: string
+          nullable: true
+          description: Nome da próxima versão (`next_version_id`), se houver.
+        deliveryDate:
+          type: string
+          format: date
+          nullable: true
+        recommendedDeviceId:
+          type: string
+          format: uuid
+          nullable: true
+        compatibleDevices:
+          type: array
+          items:
+            $ref: "#/components/schemas/AcquirerCompatibleDeviceRow"
+          description: Linhas de `acquirer_compatible_devices` + nome do dispositivo, para o status ativo.
+
+    AcquirerListExpandedResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AcquirerListExpandedItem"
+
     AcquirerOneResponse:
       type: object
       required: [data]
@@ -419,6 +482,37 @@ components:
         **Versões:** coluna `name` ou `id` (UUID como texto).
         Caracteres `%`, `_` e `\` no termo são tratados de forma literal.
 
+    ListAcquirersExpandQuery:
+      name: expand
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [status]
+      description: |
+        **`status`:** cada elemento de `data` inclui o objeto `acquirer` e, quando existir um `acquirer_status`
+        ativo para o adquirente (`is_active = true`, escolha por `sort_order` e `created_at`), os campos
+        de status, nomes das versões atual/próxima e a lista `compatibleDevices` derivada de `acquirer_compatible_devices`.
+        Sem este parâmetro (ou com valor diferente de `status`), `data` é um array de `Acquirer` apenas.
+
+    ListAcquirersStatusQuery:
+      name: status
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - Em desenvolvimento
+          - Em teste
+          - Em homologação
+          - Em certificação
+          - Concluído
+      description: |
+        Filtra adquirentes pelo valor `status` (`status_type`) do registro **ativo** de `acquirer_status`
+        associado ao adquirente. Adquirentes sem status ativo ou com outro valor não entram no resultado.
+        Efeito prático quando `expand=status` (lista enriquecida). Se `expand` não for `status`, o parâmetro
+        ainda é validado quando enviado, mas não altera o formato nem o conteúdo da lista básica de adquirentes.
+
   responses:
     Unauthorized:
       description: Cookie `casos_token` ausente ou rota não autenticada.
@@ -483,16 +577,26 @@ paths:
     get:
       tags: [Acquirers]
       summary: Listar adquirentes
+      description: |
+        Lista ordenada por nome. Use `expand=status` para obter, por adquirente, o status ativo no certificado,
+        rótulos de versão e dispositivos compatíveis (ver schema `AcquirerListExpandedItem`).
       operationId: listAcquirers
       parameters:
         - $ref: "#/components/parameters/ListSearchQuery"
+        - $ref: "#/components/parameters/ListAcquirersExpandQuery"
+        - $ref: "#/components/parameters/ListAcquirersStatusQuery"
       responses:
         "200":
-          description: Lista ordenada por nome.
+          description: |
+            Corpo `data`: array de adquirentes. Formato depende de `expand` — ver `oneOf`.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AcquirerListResponse"
+                oneOf:
+                  - $ref: "#/components/schemas/AcquirerListResponse"
+                  - $ref: "#/components/schemas/AcquirerListExpandedResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "500":

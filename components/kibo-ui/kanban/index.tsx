@@ -36,16 +36,17 @@ const t = tunnel();
 
 export type { DragEndEvent } from "@dnd-kit/core";
 
-type KanbanItemProps = {
+/** Base do item do quadro; o Provider aceita `T extends KanbanItemProps` com campos extras (ex.: `row`). */
+export type KanbanItemProps = {
   id: string;
   name: string;
   column: string;
-} & Record<string, unknown>;
+};
 
-type KanbanColumnProps = {
+export type KanbanColumnProps = {
   id: string;
   name: string;
-} & Record<string, unknown>;
+};
 
 type KanbanContextProps<
   T extends KanbanItemProps = KanbanItemProps,

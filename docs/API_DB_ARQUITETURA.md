@@ -27,7 +27,7 @@ Listagem com busca (`?search=`) e **novo registro** em modal estão em:
 - **`/cadastros/versoes`** — `GET/POST` via `/api/db/versions`
 - **`/cadastros/dispositivos`** — `GET/POST` via `/api/db/devices`
 
-A listagem inicial é feita em **Server Components** com `fetch` e tags de cache (`db-acquirers`, `db-devices`, `db-versions` — helper em [`lib/server/fetch-api-db.ts`](../lib/server/fetch-api-db.ts)). As mutações usam **Server Actions** em [`app/(dashboard)/cadastros/_actions/cadastros-db.ts`](../app/(dashboard)/cadastros/_actions/cadastros-db.ts) (`POST` na mesma API, cookies repassados), depois `revalidateTag` no servidor e invalidação das queries TanStack (`db-acquirers`, `db-devices`, `db-versions`) no cliente. A busca na listagem após o carregamento inicial usa `fetchWithAuth` + React Query, sem recarregar a página inteira.
+A **listagem** (incluindo busca com debounce e `?search=` via `history.replaceState`) é feita no **cliente** com **`fetchWithAuth`** e **TanStack React Query** (chaves `db-acquirers`, `db-devices`, `db-versions`; adquirentes usa `expand=status`). As páginas RSC só repassam `searchParams` iniciais — sem `fetch` no servidor para esses dados. As **mutações** usam **Server Actions** em [`app/(dashboard)/cadastros/_actions/cadastros-db.ts`](../app/(dashboard)/cadastros/_actions/cadastros-db.ts) (`POST` na mesma API, cookies repassados), depois `revalidateTag` no servidor e invalidação das mesmas queries no cliente.
 
 ## Prefixo e convenções
 

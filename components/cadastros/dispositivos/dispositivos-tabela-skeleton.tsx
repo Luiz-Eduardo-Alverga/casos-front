@@ -16,10 +16,16 @@ function SkeletonRow() {
   return (
     <TableRow className="bg-white border-t border-border-divider hover:bg-white">
       <TableCell className="py-3 px-2.5">
-        <Skeleton className="h-4 w-[180px]" />
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-4 w-4 shrink-0 rounded-sm" />
+          <Skeleton className="h-4 w-[140px]" />
+        </div>
       </TableCell>
-      <TableCell className="py-3 px-2.5">
-        <Skeleton className="h-4 w-[120px]" />
+      <TableCell className="py-3 px-2.5 text-center">
+        <Skeleton className="h-4 w-[88px] mx-auto" />
+      </TableCell>
+      <TableCell className="py-3 px-2.5 text-right">
+        <Skeleton className="h-8 w-8 rounded-md ml-auto" />
       </TableCell>
     </TableRow>
   );
@@ -30,11 +36,14 @@ export function DispositivosTabelaSkeleton() {
     <Table>
       <TableHeader>
         <TableRow className="bg-white border-b border-white hover:bg-white">
-          <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
-            Nome
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5">
+            Dispositivo
           </TableHead>
-          <TableHead className="w-[160px] font-medium text-sm text-text-primary h-auto py-3 px-2.5">
-            Criado em
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 w-[200px] text-center">
+            Data de cadastro
+          </TableHead>
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 w-[88px] text-right">
+            Ações
           </TableHead>
         </TableRow>
       </TableHeader>

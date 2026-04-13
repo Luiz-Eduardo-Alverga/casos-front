@@ -23,6 +23,28 @@ export async function getAcquirerStatusById(
   return rows[0];
 }
 
+export async function getAcquirerStatusByAcquirerId(
+  acquirerId: string,
+): Promise<AcquirerStatusRow | undefined> {
+  const rows = await db
+    .select()
+    .from(acquirerStatus)
+    .where(eq(acquirerStatus.acquirerId, acquirerId))
+    .limit(1);
+  return rows[0];
+}
+
+export async function getAcquirerStatusBySortOrder(
+  sortOrder: number,
+): Promise<AcquirerStatusRow | undefined> {
+  const rows = await db
+    .select()
+    .from(acquirerStatus)
+    .where(eq(acquirerStatus.sortOrder, sortOrder))
+    .limit(1);
+  return rows[0];
+}
+
 export async function insertAcquirerStatus(
   values: AcquirerStatusInsert,
 ): Promise<AcquirerStatusRow> {

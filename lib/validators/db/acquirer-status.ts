@@ -8,6 +8,14 @@ export const acquirerStatusCreateSchema = z.object({
   nextVersionId: uuidSchema.nullable().optional(),
   deliveryDate: isoDateStringSchema.nullable().optional(),
   recommendedDeviceId: uuidSchema.nullable().optional(),
+  compatibleDevices: z
+    .array(
+      z.object({
+        deviceId: uuidSchema,
+        androidVersion: z.string().nullable().optional(),
+      }),
+    )
+    .optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
   obs: z.string().nullable().optional(),

@@ -16,16 +16,31 @@ function SkeletonRow() {
   return (
     <TableRow className="bg-white border-t border-border-divider hover:bg-white">
       <TableCell className="py-3 px-2.5">
-        <Skeleton className="h-4 w-[140px]" />
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-9 w-9 rounded-full shrink-0" />
+          <Skeleton className="h-4 w-[120px]" />
+        </div>
       </TableCell>
       <TableCell className="py-3 px-2.5">
-        <Skeleton className="h-4 w-[200px] max-w-[280px]" />
-      </TableCell>
-      <TableCell className="py-3 px-2.5 text-center">
-        <Skeleton className="h-4 w-8 mx-auto" />
+        <Skeleton className="h-4 w-14" />
       </TableCell>
       <TableCell className="py-3 px-2.5">
-        <Skeleton className="h-4 w-[120px]" />
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-2 w-2 rounded-full" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+      </TableCell>
+      <TableCell className="py-3 px-2.5">
+        <Skeleton className="h-4 w-14" />
+      </TableCell>
+      <TableCell className="py-3 px-2.5">
+        <div className="flex gap-1.5">
+          <Skeleton className="h-6 w-16 rounded-md" />
+          <Skeleton className="h-6 w-12 rounded-md" />
+        </div>
+      </TableCell>
+      <TableCell className="py-3 px-2.5 text-right">
+        <Skeleton className="h-8 w-8 rounded-md ml-auto" />
       </TableCell>
     </TableRow>
   );
@@ -36,17 +51,23 @@ export function AdquirentesTabelaSkeleton() {
     <Table>
       <TableHeader>
         <TableRow className="bg-white border-b border-white hover:bg-white">
-          <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
-            Nome
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5">
+            Adquirente
           </TableHead>
-          <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
-            Logo (URL)
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5">
+            Versão
           </TableHead>
-          <TableHead className="w-[100px] text-center font-medium text-sm text-text-primary h-auto py-3 px-2.5">
-            4G
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5">
+            Status
           </TableHead>
-          <TableHead className="w-[160px] font-medium text-sm text-text-primary h-auto py-3 px-2.5">
-            Criado em
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5">
+            Próxima
+          </TableHead>
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5">
+            Dispositivos
+          </TableHead>
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 text-right">
+            Ações
           </TableHead>
         </TableRow>
       </TableHeader>

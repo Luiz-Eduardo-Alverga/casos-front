@@ -53,8 +53,9 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   { label: "Casos", href: "/casos", icon: FileText },
 ];
 
-const CADASTROS_SUBITEMS: { label: string; href: string }[] = [
-  { label: "Adquirentes", href: "/cadastros/adquirentes" },
+const CADASTROS_SUBITEMS: { label: string; href: string; exact?: boolean }[] = [
+  { label: "Adquirentes", href: "/cadastros/adquirentes", exact: true },
+  { label: "Status Adquirentes", href: "/cadastros/adquirentes/status" },
   { label: "Versões", href: "/cadastros/versoes" },
   { label: "Dispositivos", href: "/cadastros/dispositivos" },
 ];
@@ -73,8 +74,10 @@ export function AppSidebar({
     else setCadastrosOpen(false);
   }, [underCadastros]);
 
-  const cadastrosGroupActive = CADASTROS_SUBITEMS.some(
-    (s) => pathname === s.href || pathname?.startsWith(`${s.href}/`),
+  const cadastrosGroupActive = CADASTROS_SUBITEMS.some((s) =>
+    s.exact
+      ? pathname === s.href
+      : pathname === s.href || pathname?.startsWith(`${s.href}/`),
   );
 
   function renderNavItem(item: SidebarItem) {
@@ -186,9 +189,10 @@ export function AppSidebar({
               </CollapsibleTrigger>
               <CollapsibleContent className="flex flex-col gap-0.5 pl-2 pt-1 pb-1">
                 {CADASTROS_SUBITEMS.map((sub) => {
-                  const subActive =
-                    pathname === sub.href ||
-                    pathname?.startsWith(`${sub.href}/`);
+                  const subActive = sub.exact
+                    ? pathname === sub.href
+                    : pathname === sub.href ||
+                      pathname?.startsWith(`${sub.href}/`);
                   return (
                     <Link key={sub.href} href={sub.href} className="block w-full">
                       <span

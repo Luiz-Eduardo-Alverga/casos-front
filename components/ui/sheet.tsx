@@ -54,15 +54,51 @@ interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
+/** Lista do Combobox (Base UI) abre em portal no `body`; o alvo do clique vem em `detail.originalEvent`. */
+function isInsidePortaledComboboxPopup(target: EventTarget | null): boolean {
+  return (
+    target instanceof Element &&
+    Boolean(
+      target.closest('[data-slot="combobox-content"]') ||
+        target.closest("[data-base-ui-portal]"),
+    )
+  )
+}
+
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
+>(
+  (
+    {
+      side = "right",
+      className,
+      children,
+      onPointerDownOutside,
+      onFocusOutside,
+      ...props
+    },
+    ref,
+  ) => (
   <SheetPortal>
     <SheetOverlay />
     <SheetPrimitive.Content
       ref={ref}
       className={cn(sheetVariants({ side }), className)}
+      onPointerDownOutside={(event) => {
+        const target = event.detail.originalEvent.target
+        if (isInsidePortaledComboboxPopup(target)) {
+          event.preventDefault()
+        }
+        onPointerDownOutside?.(event)
+      }}
+      onFocusOutside={(event) => {
+        const related = event.detail.originalEvent.relatedTarget
+        if (isInsidePortaledComboboxPopup(related)) {
+          event.preventDefault()
+        }
+        onFocusOutside?.(event)
+      }}
       {...props}
     >
       {children}
@@ -72,7 +108,8 @@ const SheetContent = React.forwardRef<
       </SheetPrimitive.Close>
     </SheetPrimitive.Content>
   </SheetPortal>
-))
+  ),
+)
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
 const SheetHeader = ({
