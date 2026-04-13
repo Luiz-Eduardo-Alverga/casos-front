@@ -85,9 +85,12 @@ export function StatusAdquirentes({
     setSheetOpen(true);
   }, []);
 
-  const isColumnId = useCallback((id: string): id is AcquirerStatusKanbanColumn => {
-    return (ACQUIRER_STATUS_KANBAN_ORDER as readonly string[]).includes(id);
-  }, []);
+  const isColumnId = useCallback(
+    (id: string): id is AcquirerStatusKanbanColumn => {
+      return (ACQUIRER_STATUS_KANBAN_ORDER as readonly string[]).includes(id);
+    },
+    [],
+  );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const activeId = String(event.active.id);
@@ -128,7 +131,9 @@ export function StatusAdquirentes({
           },
           onError: (error) => {
             toast.error(
-              error instanceof Error ? error.message : "Erro ao atualizar status.",
+              error instanceof Error
+                ? error.message
+                : "Erro ao atualizar status.",
             );
             void queryClient.invalidateQueries({ queryKey: ["db-acquirers"] });
           },
@@ -142,25 +147,14 @@ export function StatusAdquirentes({
     <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3 shrink-0">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold text-text-primary">Status Adquirentes</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            Status Adquirentes
+          </h1>
           <p className="text-sm text-text-secondary">
             Visualize e gerencie os status de homologação das adquirentes
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-          <Button
-            variant="outline"
-            type="button"
-            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
-            disabled={!temBuscaAtiva}
-            onClick={() => {
-              setSearchInput("");
-              statusFilter?.setValue("");
-            }}
-          >
-            <FilterX className="h-3.5 w-3.5" />
-            Limpar busca
-          </Button>
           <Button
             type="button"
             className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
@@ -172,7 +166,7 @@ export function StatusAdquirentes({
         </div>
       </div>
 
-      <CadastroFiltrosCard
+      {/* <CadastroFiltrosCard
         fieldLabel="Resumo"
         placeholder="Digite para pesquisar pelo resumo..."
         value={searchInput}
@@ -186,7 +180,7 @@ export function StatusAdquirentes({
               }
             : undefined
         }
-      />
+      /> */}
 
       {showTableSkeleton ? (
         <StatusAdquirentesSkeleton />

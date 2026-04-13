@@ -45,7 +45,7 @@ export function DispositivosTabela({
           <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 w-[200px] text-center">
             Data de cadastro
           </TableHead>
-          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 w-[88px] text-right">
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 w-[88px] text-center">
             Ações
           </TableHead>
         </TableRow>
@@ -71,7 +71,7 @@ export function DispositivosTabela({
             <TableCell className="text-sm font-normal text-text-primary py-3 px-2.5 text-center">
               {formatDatePt(row.createdAt)}
             </TableCell>
-            <TableCell className="py-3 px-2.5 text-right">
+            <TableCell className="py-3 px-2.5 text-center">
               <div className="flex items-center justify-end gap-1">
                 <Button
                   type="button"
@@ -81,7 +81,7 @@ export function DispositivosTabela({
                   aria-label="Editar dispositivo"
                   onClick={() => onEdit(row)}
                 >
-                  <SquarePen className="h-4 w-4" />
+                  <SquarePen className="h-4 w-4 text-emerald-500" />
                 </Button>
                 <Button
                   type="button"
@@ -91,7 +91,7 @@ export function DispositivosTabela({
                   aria-label="Excluir dispositivo"
                   onClick={() => onDelete(row)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
             </TableCell>

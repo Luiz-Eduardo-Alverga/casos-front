@@ -21,6 +21,8 @@ tags:
     description: Sanidade de sessão e banco
   - name: Acquirers
     description: Adquirentes
+  - name: PublicAcquirers
+    description: Listagem pública de adquirentes (sem sessão)
   - name: Devices
     description: Dispositivos
   - name: Versions
@@ -42,6 +44,88 @@ components:
       description: Definido pelo `POST /api/login` (HttpOnly).
 
   schemas:
+    OpaqueId:
+      type: string
+      description: |
+        Identificador público opaco (não é UUID). Gerado de forma determinística via HMAC no servidor
+        e estável para a mesma entidade.
+      example: acq_KwQ2n2G8Vx7iQy3p2qkR4w
+
+    PublicAcquirer:
+      type: object
+      required: [id, name, has4g]
+      properties:
+        id:
+          $ref: "#/components/schemas/OpaqueId"
+        name:
+          type: string
+        logoUrl:
+          type: string
+          nullable: true
+        has4g:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    PublicAcquirerCompatibleDeviceRow:
+      type: object
+      required: [deviceId, deviceName, isPrimary]
+      properties:
+        deviceId:
+          $ref: "#/components/schemas/OpaqueId"
+        deviceName:
+          type: string
+        androidVersion:
+          type: string
+          nullable: true
+        isPrimary:
+          type: boolean
+          description: |
+            `true` quando o dispositivo corresponde a `recommendedDeviceId` do status ativo.
+
+    PublicAcquirerListExpandedItem:
+      type: object
+      required: [acquirer, compatibleDevices]
+      properties:
+        acquirer:
+          $ref: "#/components/schemas/PublicAcquirer"
+        acquirerStatusId:
+          $ref: "#/components/schemas/OpaqueId"
+          nullable: true
+          description: ID público do status ativo usado no enriquecimento, se existir.
+        status:
+          type: string
+          nullable: true
+          description: Valor do enum Postgres `status_type` (ex. Concluído, Em homologação).
+        currentVersionName:
+          type: string
+          nullable: true
+        nextVersionName:
+          type: string
+          nullable: true
+        deliveryDate:
+          type: string
+          format: date
+          nullable: true
+        recommendedDeviceId:
+          $ref: "#/components/schemas/OpaqueId"
+          nullable: true
+        compatibleDevices:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicAcquirerCompatibleDeviceRow"
+
+    PublicAcquirerListExpandedResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicAcquirerListExpandedItem"
+
     ErrorEnvelope:
       type: object
       required: [error]
@@ -651,6 +735,46 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/public/acquirers:
+    get:
+      tags: [PublicAcquirers]
+      summary: Listar adquirentes (público)
+      description: |
+        Lista pública de adquirentes com enriquecimento equivalente a `expand=status`.
+        **Não exige sessão** e retorna IDs **opacos** (não UUID) para uso como `key` no front.
+      operationId: listPublicAcquirers
+      security: []
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Busca por nome (case-insensitive).
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filtra pelo status (enum `status_type`).
+      responses:
+        "200":
+          description: Lista retornada com IDs opacos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicAcquirerListExpandedResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          description: Rate limit excedido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
         "500":
           $ref: "#/components/responses/InternalError"
     patch:

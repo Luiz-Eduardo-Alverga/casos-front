@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,8 +20,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { SwitchChoiceCard } from "@/components/ui/switch-choice-card";
-import { useQuery } from "@tanstack/react-query";
-import { listDevicesClient } from "@/services/db-api/list-cadastros";
+import { StatusAdquirentesSheetSkeleton } from "./status-adquirentes-sheet-skeleton";
+import { useDbDevices } from "@/hooks/use-db-devices";
 import {
   useAcquirerCompatibleDevicesByStatus,
   useAcquirerStatusById,
@@ -88,12 +88,17 @@ export function StatusAdquirentesSheet({
 
   const createMutation = useCreateAcquirerStatus();
   const updateMutation = useUpdateAcquirerStatus();
-  const getStatusByIdMutation = useAcquirerStatusById();
-  const getCompatiblesMutation = useAcquirerCompatibleDevicesByStatus();
+  const statusQuery = useAcquirerStatusById({
+    id: statusId,
+    enabled: open && mode === "edit",
+  });
+  const compatibleDevicesQuery = useAcquirerCompatibleDevicesByStatus({
+    statusId,
+    enabled: open && mode === "edit",
+  });
   const linkDeviceMutation = useLinkAcquirerCompatibleDevice();
   const unlinkDeviceMutation = useUnlinkAcquirerCompatibleDevice();
 
-  const [isLoadingEditData, setIsLoadingEditData] = useState(false);
   const initialDeviceIdsRef = useRef<string[]>([]);
   const onOpenChangeRef = useRef(onOpenChange);
   onOpenChangeRef.current = onOpenChange;
@@ -122,10 +127,6 @@ export function StatusAdquirentesSheet({
   /** `reset` do RHF muda a cada render; não pode ir nas deps do efeito de abrir o sheet. */
   const resetRef = useRef(reset);
   resetRef.current = reset;
-  const getStatusByIdMutateRef = useRef(getStatusByIdMutation.mutateAsync);
-  getStatusByIdMutateRef.current = getStatusByIdMutation.mutateAsync;
-  const getCompatiblesMutateRef = useRef(getCompatiblesMutation.mutateAsync);
-  getCompatiblesMutateRef.current = getCompatiblesMutation.mutateAsync;
 
   const selectedDeviceIds = useWatch({
     control: form.control,
@@ -136,13 +137,7 @@ export function StatusAdquirentesSheet({
     name: "recommendedDeviceId",
   });
 
-  const { data: devicesList } = useQuery({
-    queryKey: ["db-devices", "sheet-options"],
-    queryFn: () => listDevicesClient(),
-    staleTime: 60_000,
-    refetchOnWindowFocus: false,
-    retry: 1,
-  });
+  const { data: devicesList } = useDbDevices();
 
   const deviceNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -157,6 +152,11 @@ export function StatusAdquirentesSheet({
     updateMutation.isPending ||
     linkDeviceMutation.isPending ||
     unlinkDeviceMutation.isPending;
+
+  const isLoadingEditData =
+    mode === "edit" &&
+    open &&
+    (statusQuery.isLoading || compatibleDevicesQuery.isLoading);
 
   /**
    * Só reage a `open`, `mode` e `statusId`. Não incluir `reset` nem retornos de
@@ -184,52 +184,58 @@ export function StatusAdquirentesSheet({
     }
 
     if (!statusId) return;
-
-    let cancelled = false;
-    const load = async () => {
-      setIsLoadingEditData(true);
-      try {
-        const [statusRow, linkedDevices] = await Promise.all([
-          getStatusByIdMutateRef.current(statusId),
-          getCompatiblesMutateRef.current(statusId),
-        ]);
-        if (cancelled) return;
-
-        const linkedIds = linkedDevices.map((item) => item.deviceId);
-        initialDeviceIdsRef.current = linkedIds;
-
-        resetRef.current({
-          acquirerId: statusRow.acquirerId,
-          status: statusRow.status,
-          currentVersionId: statusRow.currentVersionId,
-          nextVersionId: statusRow.nextVersionId ?? "",
-          supportedDeviceIds: linkedIds,
-          recommendedDeviceId: statusRow.recommendedDeviceId ?? null,
-          deliveryDate: isoToDate(statusRow.deliveryDate),
-          sortOrder:
-            typeof statusRow.sortOrder === "number" ? String(statusRow.sortOrder) : "",
-          obs: statusRow.obs ?? "",
-          isActive: statusRow.isActive,
-        });
-      } catch (error) {
-        if (!cancelled) {
-          const message =
-            error instanceof Error
-              ? error.message
-              : "Erro ao carregar dados do status.";
-          toast.error(message);
-          onOpenChangeRef.current(false);
-        }
-      } finally {
-        if (!cancelled) setIsLoadingEditData(false);
-      }
-    };
-
-    void load();
-    return () => {
-      cancelled = true;
-    };
   }, [open, mode, statusId]);
+
+  useEffect(() => {
+    if (!open || mode !== "edit") return;
+    if (!statusId) return;
+
+    const error = statusQuery.error ?? compatibleDevicesQuery.error;
+    if (!error) return;
+
+    const message =
+      error instanceof Error ? error.message : "Erro ao carregar dados do status.";
+    toast.error(message);
+    onOpenChangeRef.current(false);
+  }, [
+    open,
+    mode,
+    statusId,
+    statusQuery.error,
+    compatibleDevicesQuery.error,
+  ]);
+
+  useEffect(() => {
+    if (!open || mode !== "edit") return;
+    if (!statusId) return;
+    if (!statusQuery.data || !compatibleDevicesQuery.data) return;
+
+    const statusRow = statusQuery.data;
+    const linkedDevices = compatibleDevicesQuery.data;
+
+    const linkedIds = linkedDevices.map((item) => item.deviceId);
+    initialDeviceIdsRef.current = linkedIds;
+
+    resetRef.current({
+      acquirerId: statusRow.acquirerId,
+      status: statusRow.status,
+      currentVersionId: statusRow.currentVersionId,
+      nextVersionId: statusRow.nextVersionId ?? "",
+      supportedDeviceIds: linkedIds,
+      recommendedDeviceId: statusRow.recommendedDeviceId ?? null,
+      deliveryDate: isoToDate(statusRow.deliveryDate),
+      sortOrder:
+        typeof statusRow.sortOrder === "number" ? String(statusRow.sortOrder) : "",
+      obs: statusRow.obs ?? "",
+      isActive: statusRow.isActive,
+    });
+  }, [
+    open,
+    mode,
+    statusId,
+    statusQuery.data,
+    compatibleDevicesQuery.data,
+  ]);
 
   const selectedDevicesKey = useMemo(
     () => JSON.stringify(selectedDeviceIds ?? []),
@@ -343,7 +349,10 @@ export function StatusAdquirentesSheet({
       }
 
       await queryClient.invalidateQueries({ queryKey: ["db-acquirers"] });
-      await queryClient.invalidateQueries({ queryKey: ["db-acquirers", "sheet-options"] });
+      await queryClient.invalidateQueries({ queryKey: ["db-acquirer-status"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["db-acquirer-compatible-devices"],
+      });
       onOpenChange(false);
     } catch (error) {
       const message =
@@ -373,9 +382,7 @@ export function StatusAdquirentesSheet({
             </SheetHeader>
 
             {isLoadingEditData ? (
-              <div className="flex min-h-0 flex-1 items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-              </div>
+              <StatusAdquirentesSheetSkeleton />
             ) : (
               <>
                 <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-6 space-y-4">

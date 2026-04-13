@@ -14,6 +14,7 @@ import type { AcquirerRow } from "@/lib/db/acquirers";
 export type AcquirerListExpandedItem = {
   acquirer: AcquirerRow;
   acquirerStatusId: string | null;
+  sortOrder: number | null;
   status: string | null;
   currentVersionName: string | null;
   nextVersionName: string | null;
@@ -145,6 +146,7 @@ export async function listAcquirersExpanded(
     return {
       acquirer: a,
       acquirerStatusId: st?.id ?? null,
+      sortOrder: st?.sortOrder ?? null,
       status: st?.status ?? null,
       currentVersionName: st
         ? (versionLabelById.get(st.currentVersionId) ?? null)

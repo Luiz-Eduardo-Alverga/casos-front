@@ -1,8 +1,8 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import type { AcquirerListExpandedItem } from "@/components/cadastros/types";
 import { AcquirerLogo } from "@/components/cadastros/adquirentes/acquirer-logo";
+import { AcquirerDevicesBadges } from "@/components/cadastros/adquirentes/acquirer-devices-badges";
 import { formatDeliveryDate } from "@/components/cadastros/adquirentes/adquirentes-shared";
 
 interface StatusAdquirentesCardBodyProps {
@@ -14,11 +14,6 @@ export function StatusAdquirentesCardBody({
   row,
   onClick,
 }: StatusAdquirentesCardBodyProps) {
-  const primaryDevice = row.compatibleDevices.find((d) => d.isPrimary);
-  const secondaryDevices = row.compatibleDevices
-    .filter((d) => !d.isPrimary)
-    .slice(0, 2);
-
   return (
     <div className="flex flex-col gap-0" onClick={onClick} role="presentation">
       <div className="flex items-center gap-2">
@@ -33,7 +28,9 @@ export function StatusAdquirentesCardBody({
       </div>
 
       <div className="mt-2 rounded-md border border-border-divider bg-muted/30 px-2 py-1.5 text-center">
-        <p className="text-[10px] font-semibold text-text-secondary">Versão atual</p>
+        <p className="text-[10px] font-semibold text-text-secondary">
+          Versão atual
+        </p>
         <p className="text-xs font-bold text-text-primary">
           {row.currentVersionName ?? "—"}
         </p>
@@ -46,32 +43,19 @@ export function StatusAdquirentesCardBody({
         </div>
         <div className="text-right">
           <p className="text-text-secondary">Enviada em</p>
-          <p className="text-text-primary">{formatDeliveryDate(row.deliveryDate)}</p>
+          <p className="text-text-primary">
+            {formatDeliveryDate(row.deliveryDate)}
+          </p>
         </div>
       </div>
 
       <div className="mt-2 flex flex-wrap gap-1.5 border-t border-border-divider pt-2">
-        {primaryDevice ? (
-          <Badge className="rounded-md border border-violet-600 bg-violet-600 px-2 py-0 text-[10px] text-white">
-            {primaryDevice.deviceName}
-          </Badge>
-        ) : null}
-
-        {secondaryDevices.map((device) => (
-          <Badge
-            key={device.deviceId}
-            variant="secondary"
-            className="rounded-md border border-border-divider bg-white px-2 py-0 text-[10px] font-semibold text-muted-foreground"
-          >
-            {device.deviceName}
-          </Badge>
-        ))}
-
-        {!primaryDevice && secondaryDevices.length === 0 ? (
-          <span className="text-[10px] font-semibold text-muted-foreground">
-            Sem dispositivos
-          </span>
-        ) : null}
+        <AcquirerDevicesBadges
+          devices={row.compatibleDevices}
+          maxInline={3}
+          emptyLabel="Sem dispositivos"
+          className="items-start"
+        />
       </div>
     </div>
   );

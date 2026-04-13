@@ -14,7 +14,7 @@ export function EmptyColumnPlaceholder({
   if (!meta) return null;
   return (
     <EmptyState
-      icon={columnId === "retornos" ? Ghost : undefined}
+      icon={Ghost}
       title={meta.emptyTitle}
       description={meta.emptyDescription}
       className="min-h-[160px] py-6"

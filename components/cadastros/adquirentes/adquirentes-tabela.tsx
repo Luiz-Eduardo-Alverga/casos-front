@@ -1,13 +1,13 @@
 "use client";
 
-import { Building2, SquarePen, Star, Trash2 } from "lucide-react";
+import { Building2, SquarePen, Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
 import type { AcquirerListExpandedItem } from "@/components/cadastros/types";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getAcquirerStatusDotClass } from "./adquirentes-shared";
 import { AcquirerLogo } from "./acquirer-logo";
+import { AcquirerDevicesBadges } from "./acquirer-devices-badges";
 import {
   Table,
   TableBody,
@@ -17,44 +17,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const MAX_INLINE_DEVICES = 2;
+const MAX_INLINE_DEVICES = 5;
 
 function DevicesCell({ row }: { row: AcquirerListExpandedItem }) {
-  const list = row.compatibleDevices;
-  if (list.length === 0) {
-    return <span className="text-sm text-muted-foreground">—</span>;
-  }
-  const shown = list.slice(0, MAX_INLINE_DEVICES);
-  const overflow = list.length - shown.length;
-
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      {shown.map((d) => (
-        <Badge
-          key={d.deviceId}
-          variant="secondary"
-          className={cn(
-            "gap-1 font-normal px-2 py-0.5 text-xs border-0",
-            d.isPrimary
-              ? "bg-violet-600 text-white hover:bg-violet-600/90"
-              : "bg-muted text-foreground",
-          )}
-        >
-          {d.isPrimary ? (
-            <Star className="h-3 w-3 fill-current shrink-0" aria-hidden />
-          ) : null}
-          {d.deviceName}
-        </Badge>
-      ))}
-      {overflow > 0 ? (
-        <Badge
-          variant="secondary"
-          className="font-normal px-2 py-0.5 text-xs border-0 bg-muted text-foreground"
-        >
-          +{overflow}
-        </Badge>
-      ) : null}
-    </div>
+    <AcquirerDevicesBadges devices={row.compatibleDevices} maxInline={MAX_INLINE_DEVICES} />
   );
 }
 
@@ -98,7 +65,7 @@ export function AdquirentesTabela({
           <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 min-w-[200px]">
             Dispositivos
           </TableHead>
-          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 w-[72px] text-right">
+          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 w-[72px] text-center">
             Ações
           </TableHead>
         </TableRow>
@@ -146,7 +113,7 @@ export function AdquirentesTabela({
               <TableCell className="py-3 px-2.5">
                 <DevicesCell row={row} />
               </TableCell>
-              <TableCell className="py-3 px-2.5 text-right">
+              <TableCell className="py-3 px-2.5 text-center">
                 <div className="flex items-center justify-end gap-1">
                   <Button
                     type="button"
@@ -156,7 +123,7 @@ export function AdquirentesTabela({
                     aria-label="Editar adquirente"
                     onClick={() => onEdit(row)}
                   >
-                    <SquarePen className="h-4 w-4" />
+                    <SquarePen className="h-4 w-4 text-emerald-500" />
                   </Button>
                   <Button
                     type="button"
@@ -166,7 +133,7 @@ export function AdquirentesTabela({
                     aria-label="Excluir adquirente"
                     onClick={() => onDelete(row)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
               </TableCell>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createAcquirerStatusClient,
   getAcquirerStatusByIdClient,
@@ -28,15 +28,32 @@ export function useUpdateAcquirerStatus() {
   });
 }
 
-export function useAcquirerStatusById() {
-  return useMutation({
-    mutationFn: (id: string) => getAcquirerStatusByIdClient(id),
+export function useAcquirerStatusById(params?: { id?: string | null; enabled?: boolean }) {
+  const id = params?.id ?? null;
+  const enabled = params?.enabled ?? Boolean(id);
+
+  return useQuery({
+    queryKey: ["db-acquirer-status", id ?? ""],
+    enabled: Boolean(id) && enabled,
+    queryFn: () => getAcquirerStatusByIdClient(id!),
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 }
 
-export function useAcquirerCompatibleDevicesByStatus() {
-  return useMutation({
-    mutationFn: (statusId: string) => listAcquirerCompatibleDevicesClient(statusId),
+export function useAcquirerCompatibleDevicesByStatus(params?: {
+  statusId?: string | null;
+  enabled?: boolean;
+}) {
+  const statusId = params?.statusId ?? null;
+  const enabled = params?.enabled ?? Boolean(statusId);
+
+  return useQuery({
+    queryKey: ["db-acquirer-compatible-devices", statusId ?? ""],
+    enabled: Boolean(statusId) && enabled,
+    queryFn: () => listAcquirerCompatibleDevicesClient(statusId!),
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 }
 

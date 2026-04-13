@@ -10,7 +10,11 @@ import { usePathname } from "next/navigation";
 
 // Rotas que devem ter scroll interno (overflow-hidden)
 // A maioria das telas terá scroll do navegador
-const ROUTES_WITH_INTERNAL_SCROLL = [ "/avisos", "/painel/kanban"];
+const ROUTES_WITH_INTERNAL_SCROLL = [
+  "/avisos",
+  "/painel/kanban",
+  "/cadastros/adquirentes/status",
+];
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();

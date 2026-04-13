@@ -19,6 +19,10 @@ import {
 import type { StatusAdquirentesKanbanItem } from "./status-adquirentes-map";
 import { StatusAdquirentesCardBody } from "./status-adquirentes-card-body";
 import { StatusAdquirentesEmptyColumn } from "../layout/status-adquirentes-empty-column";
+import {
+  PainelContagemStatusBadge,
+  PainelContagemStatusVariant,
+} from "@/components/painel/painel-contagem-status-badge";
 
 interface StatusAdquirentesBoardProps {
   data: StatusAdquirentesKanbanItem[];
@@ -73,14 +77,12 @@ export function StatusAdquirentesBoard({
                   <span className="truncate text-sm font-semibold text-text-primary">
                     {column.name}
                   </span>
-                  <Badge
-                    className={cn(
-                      "rounded-full px-2 py-0 text-xs font-semibold border-0",
-                      column.badgeClass,
-                    )}
+                  <PainelContagemStatusBadge
+                    variant={column.id as PainelContagemStatusVariant}
+                    className="shrink-0"
                   >
                     {itemsInColumn}
-                  </Badge>
+                  </PainelContagemStatusBadge>
                 </div>
               </KanbanHeader>
 
