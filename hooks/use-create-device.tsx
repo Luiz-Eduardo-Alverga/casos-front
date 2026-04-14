@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import {
   createDeviceClient,
   deleteDeviceClient,
-  getDeviceByIdClient,
   updateDeviceClient,
   type CreateDeviceClientInput,
 } from "@/services/db-api/create-cadastros";
@@ -29,8 +28,3 @@ export function useDeleteDevice() {
   });
 }
 
-export function useDeviceById() {
-  return useMutation({
-    mutationFn: (id: string) => getDeviceByIdClient(id),
-  });
-}

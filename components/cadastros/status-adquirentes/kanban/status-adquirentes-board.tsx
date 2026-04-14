@@ -39,6 +39,7 @@ export function StatusAdquirentesBoard({
   onDragEnd,
   onCardClick,
 }: StatusAdquirentesBoardProps) {
+  console.log("data", data);
   return (
     <KanbanProvider<StatusAdquirentesKanbanItem, StatusAdquirentesColumnMeta>
       columns={STATUS_ADQUIRENTES_COLUMNS}

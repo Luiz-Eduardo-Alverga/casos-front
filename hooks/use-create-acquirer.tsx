@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import {
   createAcquirerClient,
   deleteAcquirerClient,
-  getAcquirerByIdClient,
   updateAcquirerClient,
   type CreateAcquirerClientInput,
 } from "@/services/db-api/create-cadastros";
@@ -29,8 +28,3 @@ export function useDeleteAcquirer() {
   });
 }
 
-export function useAcquirerById() {
-  return useMutation({
-    mutationFn: (id: string) => getAcquirerByIdClient(id),
-  });
-}

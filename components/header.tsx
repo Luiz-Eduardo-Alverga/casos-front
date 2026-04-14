@@ -9,6 +9,7 @@ import {
   Plus,
   Maximize,
   Minimize,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserDropDown } from "@/components/user-dropdown";
@@ -86,9 +87,20 @@ export function Header() {
         </div>
 
         {/* Right side - Icons and User */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           {/* Notification Bell - abre dropdown de avisos (filtro: mês atual) */}
           <AvisosDropdown />
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 hover:bg-muted"
+            onClick={() => {
+              window.open("/adquirentes", "_blank");
+            }}
+          >
+            <ExternalLink className="h-[18px] w-[15.75px] text-foreground" />
+          </Button>
 
           <Button
             variant="ghost"

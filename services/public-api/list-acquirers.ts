@@ -14,6 +14,8 @@ export type PublicAcquirerListItem = {
   nextVersionName: string | null;
   deliveryDate: string | null;
   recommendedDeviceId: string | null;
+  /** Indica `acquirer_status.is_active` do status usado no enriquecimento. */
+  isActive: boolean | null;
   compatibleDevices: {
     deviceId: string;
     deviceName: string;
@@ -49,9 +51,11 @@ function buildPublicAcquirersUrl(search?: string, status?: string): string {
 }
 
 /**
- * Lista adquirentes publicamente (sem autenticação), retornando o mesmo shape do `expand=status`.
+ * Lista adquirentes publicamente (sem autenticação), via `/api/public/acquirers`.
+ * Não usa `fetchWithAuth`: rota pública (sem cookie de sessão obrigatório).
+ * Mesmo shape enriquecido que `expand=status` na API interna.
  */
-export async function listPublicAcquirersClient(params?: {
+export async function getPublicAcquirers(params?: {
   search?: string;
   status?: string;
 }): Promise<PublicAcquirerListItem[]> {

@@ -112,6 +112,10 @@ components:
         recommendedDeviceId:
           $ref: "#/components/schemas/OpaqueId"
           nullable: true
+        isActive:
+          type: boolean
+          nullable: true
+          description: Indica se o `acquirer_status` usado no enriquecimento está ativo (`is_active`).
         compatibleDevices:
           type: array
           items:
@@ -257,11 +261,15 @@ components:
           type: string
           format: uuid
           nullable: true
+        isActive:
+          type: boolean
+          nullable: true
+          description: Valor de `acquirer_status.is_active` da linha de status usada no enriquecimento.
         compatibleDevices:
           type: array
           items:
             $ref: "#/components/schemas/AcquirerCompatibleDeviceRow"
-          description: Linhas de `acquirer_compatible_devices` + nome do dispositivo, para o status ativo.
+          description: Linhas de `acquirer_compatible_devices` + nome do dispositivo, para o status selecionado.
 
     AcquirerListExpandedResponse:
       type: object

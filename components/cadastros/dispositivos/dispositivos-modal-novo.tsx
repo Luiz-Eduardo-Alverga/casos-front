@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DispositivosModalSkeleton } from "./dispositivos-modal-skeleton";
 
 type FormValues = DeviceCreateInput;
 
@@ -25,6 +27,7 @@ interface DispositivosModalNovoProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode?: "create" | "edit";
+  isLoadingEdit?: boolean;
   initialData?: {
     id: string;
     name: string;
@@ -35,6 +38,7 @@ export function DispositivosModalNovo({
   open,
   onOpenChange,
   mode = "create",
+  isLoadingEdit = false,
   initialData = null,
 }: DispositivosModalNovoProps) {
   const queryClient = useQueryClient();
@@ -46,7 +50,8 @@ export function DispositivosModalNovo({
     defaultValues: { name: "" },
   });
 
-  const isEditMode = mode === "edit" && Boolean(initialData?.id);
+  const isEditMode =
+    mode === "edit" && Boolean(initialData?.id) && !isLoadingEdit;
   const isSubmitting =
     createDeviceMutation.isPending || updateDeviceMutation.isPending;
 
@@ -75,6 +80,11 @@ export function DispositivosModalNovo({
       }
       handleClose(false);
       await queryClient.invalidateQueries({ queryKey: ["db-devices"] });
+      if (isEditMode && initialData?.id) {
+        await queryClient.invalidateQueries({
+          queryKey: ["db-device", initialData.id],
+        });
+      }
     } catch (error) {
       const message =
         error instanceof Error
@@ -89,14 +99,21 @@ export function DispositivosModalNovo({
       <DialogContent className="sm:max-w-[520px] p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-6 pt-8 pb-0 space-y-1.5">
           <DialogTitle className="text-xl font-bold tracking-tight text-zinc-900">
-            {isEditMode ? "Editar dispositivo" : "Novo dispositivo"}
+            {mode === "edit" ? "Editar dispositivo" : "Novo dispositivo"}
           </DialogTitle>
-          <p className="text-sm font-semibold text-zinc-400">
-            {isEditMode
-              ? "Atualize o nome do dispositivo abaixo"
-              : "Preencha o nome do dispositivo abaixo"}
-          </p>
+          {isLoadingEdit ? (
+            <Skeleton className="h-4 w-[min(100%,260px)] mt-1" />
+          ) : (
+            <p className="text-sm font-semibold text-zinc-400">
+              {isEditMode
+                ? "Atualize o nome do dispositivo abaixo"
+                : "Preencha o nome do dispositivo abaixo"}
+            </p>
+          )}
         </DialogHeader>
+        {isLoadingEdit ? (
+          <DispositivosModalSkeleton />
+        ) : (
         <form onSubmit={onSubmit} className="px-6 pb-8 pt-6 space-y-8">
           <div className="space-y-1.5">
             <Label
@@ -147,6 +164,7 @@ export function DispositivosModalNovo({
             </Button>
           </DialogFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

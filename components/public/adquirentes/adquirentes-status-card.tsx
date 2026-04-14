@@ -1,4 +1,5 @@
-import { GlobeLock, Signal, Wifi } from "lucide-react";
+import { CellSignalSlashIcon, CellSignalFullIcon } from "@phosphor-icons/react";
+import { Wifi } from "lucide-react";
 import { AcquirerLogo } from "@/components/cadastros/adquirentes/acquirer-logo";
 import { formatDeliveryDate } from "@/components/cadastros/adquirentes/adquirentes-shared";
 import { cn } from "@/lib/utils";
@@ -74,7 +75,9 @@ export function AdquirentesStatusCard({ row }: AdquirentesStatusCardProps) {
       </div>
 
       <div className="mb-3">
-        <p className="mb-1 text-sm font-semibold text-muted-foreground">Conexão</p>
+        <p className="mb-1 text-sm font-semibold text-muted-foreground">
+          Conexão
+        </p>
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-4 py-2 text-[11px] text-blue-600">
             <Wifi className="h-4 w-4" />
@@ -89,9 +92,13 @@ export function AdquirentesStatusCard({ row }: AdquirentesStatusCardProps) {
             )}
           >
             {row.acquirer.has4g ? (
-              <Signal className="h-4 w-4" />
+              <CellSignalFullIcon className="h-4 w-4 shrink-0" />
             ) : (
-              <GlobeLock className="h-4 w-4" />
+              <CellSignalSlashIcon
+                className="h-4 w-4 shrink-0"
+                aria-hidden
+                weight="regular"
+              />
             )}
             4G
           </span>
@@ -109,4 +116,3 @@ export function AdquirentesStatusCard({ row }: AdquirentesStatusCardProps) {
     </article>
   );
 }
-

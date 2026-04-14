@@ -80,7 +80,7 @@ export function usePublicCadastroList<T>({
       ),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     retry: 1,
   });
 
@@ -101,4 +101,3 @@ export function usePublicCadastroList<T>({
       : {}),
   };
 }
-

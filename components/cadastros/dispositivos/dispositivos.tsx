@@ -10,10 +10,8 @@ import { Button } from "@/components/ui/button";
 import type { DeviceRow } from "@/components/cadastros/types";
 import { CadastroFiltrosCard } from "@/components/cadastros/cadastro-filtros-card";
 import { CadastroListagemCard } from "@/components/cadastros/cadastro-listagem-card";
-import {
-  useDeleteDevice,
-  useDeviceById,
-} from "@/hooks/use-create-device";
+import { useDeleteDevice } from "@/hooks/use-create-device";
+import { useDeviceDetailQuery } from "@/hooks/use-db-cadastro-detail";
 import { useDbCadastroList } from "@/hooks/use-db-cadastro-list";
 import { listDevicesClient } from "@/services/db-api/list-cadastros";
 import { DispositivosModalNovo } from "./dispositivos-modal-novo";
@@ -29,10 +27,15 @@ export function Dispositivos({ initialSearch }: DispositivosProps) {
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [editingDevice, setEditingDevice] = useState<DeviceRow | null>(null);
+  const [editingDeviceId, setEditingDeviceId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DeviceRow | null>(null);
   const deleteDeviceMutation = useDeleteDevice();
-  const getDeviceByIdMutation = useDeviceById();
+
+  const editDetailEnabled = modalOpen && modalMode === "edit";
+  const deviceDetailQuery = useDeviceDetailQuery(
+    editingDeviceId,
+    editDetailEnabled,
+  );
 
   const {
     searchInput,
@@ -53,26 +56,51 @@ export function Dispositivos({ initialSearch }: DispositivosProps) {
     }
   }, [isError, error]);
 
+  useEffect(() => {
+    if (
+      !modalOpen ||
+      modalMode !== "edit" ||
+      !editingDeviceId ||
+      !deviceDetailQuery.isError ||
+      !deviceDetailQuery.error
+    ) {
+      return;
+    }
+    toast.error(deviceDetailQuery.error.message);
+    queryClient.removeQueries({
+      queryKey: ["db-device", editingDeviceId],
+    });
+    setModalOpen(false);
+    setEditingDeviceId(null);
+  }, [
+    modalOpen,
+    modalMode,
+    editingDeviceId,
+    deviceDetailQuery.isError,
+    deviceDetailQuery.error,
+    queryClient,
+  ]);
+
   const temBuscaAtiva =
     searchInput.trim().length > 0 || initialSearch.trim().length > 0;
 
+  const handleModalOpenChange = (open: boolean) => {
+    setModalOpen(open);
+    if (!open) {
+      setEditingDeviceId(null);
+    }
+  };
+
   const openCreateModal = () => {
     setModalMode("create");
-    setEditingDevice(null);
+    setEditingDeviceId(null);
     setModalOpen(true);
   };
 
-  const openEditModal = async (row: DeviceRow) => {
-    try {
-      const full = await getDeviceByIdMutation.mutateAsync(row.id);
-      setEditingDevice(full);
-      setModalMode("edit");
-      setModalOpen(true);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Erro ao carregar dispositivo";
-      toast.error(message);
-    }
+  const openEditModal = (row: DeviceRow) => {
+    setModalMode("edit");
+    setEditingDeviceId(row.id);
+    setModalOpen(true);
   };
 
   const confirmDelete = async () => {
@@ -81,6 +109,9 @@ export function Dispositivos({ initialSearch }: DispositivosProps) {
       await deleteDeviceMutation.mutateAsync(deleteTarget.id);
       toast.success("Dispositivo excluído.");
       await queryClient.invalidateQueries({ queryKey: ["db-devices"] });
+      queryClient.removeQueries({
+        queryKey: ["db-device", deleteTarget.id],
+      });
       setDeleteTarget(null);
     } catch (error) {
       const message =
@@ -151,11 +182,19 @@ export function Dispositivos({ initialSearch }: DispositivosProps) {
 
       <DispositivosModalNovo
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={handleModalOpenChange}
         mode={modalMode}
+        isLoadingEdit={
+          modalMode === "edit" &&
+          Boolean(editingDeviceId) &&
+          deviceDetailQuery.isLoading
+        }
         initialData={
-          modalMode === "edit" && editingDevice
-            ? { id: editingDevice.id, name: editingDevice.name }
+          modalMode === "edit" && deviceDetailQuery.data
+            ? {
+                id: deviceDetailQuery.data.id,
+                name: deviceDetailQuery.data.name,
+              }
             : null
         }
       />

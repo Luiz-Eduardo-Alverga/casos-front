@@ -5,7 +5,7 @@ import { acquirerStatus } from "@/db/schema";
 export type AcquirerStatusRow = typeof acquirerStatus.$inferSelect;
 export type AcquirerStatusInsert = typeof acquirerStatus.$inferInsert;
 
-export async function listAcquirerStatuses(): Promise<AcquirerStatusRow[]> {
+export async function listAcquirerStatus(): Promise<AcquirerStatusRow[]> {
   return db
     .select()
     .from(acquirerStatus)

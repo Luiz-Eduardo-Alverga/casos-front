@@ -2,16 +2,15 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
-import { FilterX, LayoutGrid, Plus } from "lucide-react";
+import { LayoutGrid, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { CadastroFiltrosCard } from "@/components/cadastros/cadastro-filtros-card";
+
 import { EmptyState } from "@/components/painel/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ACQUIRER_STATUS_KANBAN_ORDER,
-  hasAdquirentesFiltrosAtivos,
   useAdquirentesList,
   type AcquirerStatusKanbanColumn,
 } from "@/components/cadastros/adquirentes/adquirentes-shared";
@@ -33,28 +32,16 @@ export function StatusAdquirentes({
   const queryClient = useQueryClient();
   const updateAcquirerStatusMutation = useUpdateAcquirerStatus();
 
-  const {
-    searchInput,
-    setSearchInput,
-    statusFilter,
-    rows,
-    showTableSkeleton,
-    isError,
-    error,
-  } = useAdquirentesList(initialSearch, initialStatus);
+  const { rows, showTableSkeleton, isError, error } = useAdquirentesList(
+    initialSearch,
+    initialStatus,
+  );
 
   useEffect(() => {
     if (isError && error) {
       toast.error(error.message);
     }
   }, [isError, error]);
-
-  const temBuscaAtiva = hasAdquirentesFiltrosAtivos({
-    searchInput,
-    initialSearch,
-    statusValue: statusFilter?.value,
-    initialStatus,
-  });
 
   const mappedRows = useMemo(() => mapAdquirentesRowsToKanban(rows), [rows]);
   const [kanbanData, setKanbanData] = useState(mappedRows);
@@ -165,22 +152,6 @@ export function StatusAdquirentes({
           </Button>
         </div>
       </div>
-
-      {/* <CadastroFiltrosCard
-        fieldLabel="Resumo"
-        placeholder="Digite para pesquisar pelo resumo..."
-        value={searchInput}
-        onChange={setSearchInput}
-        inputAriaLabel="Buscar por resumo da adquirente"
-        statusSelect={
-          statusFilter
-            ? {
-                value: statusFilter.value,
-                onChange: statusFilter.setValue,
-              }
-            : undefined
-        }
-      /> */}
 
       {showTableSkeleton ? (
         <StatusAdquirentesSkeleton />

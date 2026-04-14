@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import {
   createVersionClient,
   deleteVersionClient,
-  getVersionByIdClient,
   updateVersionClient,
   type CreateVersionClientInput,
 } from "@/services/db-api/create-cadastros";
@@ -29,8 +28,3 @@ export function useDeleteVersion() {
   });
 }
 
-export function useVersionById() {
-  return useMutation({
-    mutationFn: (id: string) => getVersionByIdClient(id),
-  });
-}

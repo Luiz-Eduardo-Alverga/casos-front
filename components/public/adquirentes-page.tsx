@@ -13,25 +13,29 @@ interface AdquirentesPageProps {
   initialStatus: string;
 }
 
+function errorMessage(error: unknown): string {
+  if (error instanceof Error && error.message.trim()) return error.message;
+  return "Não foi possível carregar as adquirentes. Tente novamente em instantes.";
+}
+
 export function AdquirentesPage({
   initialSearch,
   initialStatus,
 }: AdquirentesPageProps) {
-  const { searchInput, setSearchInput, statusFilter, rows, showTableSkeleton } =
-    usePublicAcquirersList(initialSearch, initialStatus);
+  const {
+    searchInput,
+    setSearchInput,
+    statusFilter,
+    rows,
+    showTableSkeleton,
+    isError,
+    error,
+  } = usePublicAcquirersList(initialSearch, initialStatus);
 
   const statusOptions = useMemo(() => STATUS_TYPE_VALUES, []);
-  const orderedRows = useMemo(() => {
-    return [...rows].sort((a, b) => {
-      const ao = a.sortOrder ?? Number.MAX_SAFE_INTEGER;
-      const bo = b.sortOrder ?? Number.MAX_SAFE_INTEGER;
-      if (ao !== bo) return ao - bo;
-      return a.acquirer.name.localeCompare(b.acquirer.name, "pt-BR");
-    });
-  }, [rows]);
 
   return (
-    <main className="min-h-screen bg-[#eef1f5]">
+    <main className="min-h-screen bg-page-background">
       <AdquirentesPageHeader />
 
       <section className="w-full px-4 py-4 md:px-14">
@@ -45,13 +49,17 @@ export function AdquirentesPage({
 
         {showTableSkeleton ? (
           <AdquirentesSkeletonGrid />
-        ) : orderedRows.length === 0 ? (
+        ) : isError ? (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-8 text-center text-destructive">
+            {errorMessage(error)}
+          </div>
+        ) : rows.length === 0 ? (
           <div className="rounded-lg border border-[#d7dde4] bg-white p-8 text-center text-[#6b7280]">
             Nenhuma adquirente encontrada para os filtros selecionados.
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-            {orderedRows.map((row) => (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6">
+            {rows.map((row) => (
               <AdquirentesStatusCard key={row.acquirer.id} row={row} />
             ))}
           </div>

@@ -5,7 +5,7 @@ import {
   getAcquirerStatusByAcquirerId,
   getAcquirerStatusBySortOrder,
   insertAcquirerStatus,
-  listAcquirerStatuses,
+  listAcquirerStatus,
 } from "@/lib/db/acquirer-status";
 import { insertCompatibleDevice } from "@/lib/db/acquirer-compatible-devices";
 import { acquirerStatusCreateSchema } from "@/lib/validators/db/acquirer-status";
@@ -13,7 +13,7 @@ import { acquirerStatusCreateSchema } from "@/lib/validators/db/acquirer-status"
 export async function GET() {
   return withSession(async () => {
     try {
-      const rows = await listAcquirerStatuses();
+      const rows = await listAcquirerStatus();
       return jsonOk(rows);
     } catch (e) {
       return handleDbRouteError(e, "[api/db/acquirer-status GET]");
@@ -33,15 +33,25 @@ export async function POST(request: Request) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
     const d = parsed.data;
     try {
-      const existingByAcquirer = await getAcquirerStatusByAcquirerId(d.acquirerId);
+      const existingByAcquirer = await getAcquirerStatusByAcquirerId(
+        d.acquirerId,
+      );
       if (existingByAcquirer) {
-        return jsonError("A adquirente selecionada já possui um status cadastrado.", 409);
+        return jsonError(
+          "A adquirente selecionada já possui um status cadastrado.",
+          409,
+        );
       }
 
       if (typeof d.sortOrder === "number") {
-        const existingBySortOrder = await getAcquirerStatusBySortOrder(d.sortOrder);
+        const existingBySortOrder = await getAcquirerStatusBySortOrder(
+          d.sortOrder,
+        );
         if (existingBySortOrder) {
-          return jsonError("A ordem de exibição informada já está em uso.", 409);
+          return jsonError(
+            "A ordem de exibição informada já está em uso.",
+            409,
+          );
         }
       }
 

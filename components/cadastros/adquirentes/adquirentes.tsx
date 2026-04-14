@@ -10,10 +10,8 @@ import { Button } from "@/components/ui/button";
 import type { AcquirerListExpandedItem } from "@/components/cadastros/types";
 import { CadastroFiltrosCard } from "@/components/cadastros/cadastro-filtros-card";
 import { CadastroListagemCard } from "@/components/cadastros/cadastro-listagem-card";
-import {
-  useAcquirerById,
-  useDeleteAcquirer,
-} from "@/hooks/use-create-acquirer";
+import { useDeleteAcquirer } from "@/hooks/use-create-acquirer";
+import { useAcquirerDetailQuery } from "@/hooks/use-db-cadastro-detail";
 import { AdquirentesModalNovo } from "./adquirentes-modal-novo";
 import {
   hasAdquirentesFiltrosAtivos,
@@ -35,13 +33,18 @@ export function Adquirentes({
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [editingAcquirer, setEditingAcquirer] = useState<
-    AcquirerListExpandedItem["acquirer"] | null
-  >(null);
+  const [editingAcquirerId, setEditingAcquirerId] = useState<string | null>(
+    null,
+  );
   const [deleteTarget, setDeleteTarget] =
     useState<AcquirerListExpandedItem | null>(null);
   const deleteAcquirerMutation = useDeleteAcquirer();
-  const getAcquirerByIdMutation = useAcquirerById();
+
+  const editDetailEnabled = modalOpen && modalMode === "edit";
+  const acquirerDetailQuery = useAcquirerDetailQuery(
+    editingAcquirerId,
+    editDetailEnabled,
+  );
 
   const {
     searchInput,
@@ -59,6 +62,31 @@ export function Adquirentes({
     }
   }, [isError, error]);
 
+  useEffect(() => {
+    if (
+      !modalOpen ||
+      modalMode !== "edit" ||
+      !editingAcquirerId ||
+      !acquirerDetailQuery.isError ||
+      !acquirerDetailQuery.error
+    ) {
+      return;
+    }
+    toast.error(acquirerDetailQuery.error.message);
+    queryClient.removeQueries({
+      queryKey: ["db-acquirer", editingAcquirerId],
+    });
+    setModalOpen(false);
+    setEditingAcquirerId(null);
+  }, [
+    modalOpen,
+    modalMode,
+    editingAcquirerId,
+    acquirerDetailQuery.isError,
+    acquirerDetailQuery.error,
+    queryClient,
+  ]);
+
   const temBuscaAtiva = hasAdquirentesFiltrosAtivos({
     searchInput,
     initialSearch,
@@ -66,23 +94,23 @@ export function Adquirentes({
     initialStatus,
   });
 
+  const handleModalOpenChange = (open: boolean) => {
+    setModalOpen(open);
+    if (!open) {
+      setEditingAcquirerId(null);
+    }
+  };
+
   const openCreateModal = () => {
     setModalMode("create");
-    setEditingAcquirer(null);
+    setEditingAcquirerId(null);
     setModalOpen(true);
   };
 
-  const openEditModal = async (row: AcquirerListExpandedItem) => {
-    try {
-      const full = await getAcquirerByIdMutation.mutateAsync(row.acquirer.id);
-      setEditingAcquirer(full);
-      setModalMode("edit");
-      setModalOpen(true);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Erro ao carregar adquirente";
-      toast.error(message);
-    }
+  const openEditModal = (row: AcquirerListExpandedItem) => {
+    setModalMode("edit");
+    setEditingAcquirerId(row.acquirer.id);
+    setModalOpen(true);
   };
 
   const confirmDelete = async () => {
@@ -91,6 +119,9 @@ export function Adquirentes({
       await deleteAcquirerMutation.mutateAsync(deleteTarget.acquirer.id);
       toast.success("Adquirente excluído.");
       await queryClient.invalidateQueries({ queryKey: ["db-acquirers"] });
+      queryClient.removeQueries({
+        queryKey: ["db-acquirer", deleteTarget.acquirer.id],
+      });
       setDeleteTarget(null);
     } catch (error) {
       const message =
@@ -172,15 +203,20 @@ export function Adquirentes({
 
       <AdquirentesModalNovo
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={handleModalOpenChange}
         mode={modalMode}
+        isLoadingEdit={
+          modalMode === "edit" &&
+          Boolean(editingAcquirerId) &&
+          acquirerDetailQuery.isLoading
+        }
         initialData={
-          modalMode === "edit" && editingAcquirer
+          modalMode === "edit" && acquirerDetailQuery.data
             ? {
-                id: editingAcquirer.id,
-                name: editingAcquirer.name,
-                logoUrl: editingAcquirer.logoUrl,
-                has4g: editingAcquirer.has4g ?? false,
+                id: acquirerDetailQuery.data.id,
+                name: acquirerDetailQuery.data.name,
+                logoUrl: acquirerDetailQuery.data.logoUrl,
+                has4g: acquirerDetailQuery.data.has4g ?? false,
               }
             : null
         }

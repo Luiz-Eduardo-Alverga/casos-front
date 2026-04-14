@@ -31,6 +31,8 @@ export function StatusAdquirentesSkeleton() {
               <div className="flex flex-1 flex-col gap-2 p-3">
                 <Skeleton className="h-32 w-full rounded-lg" />
                 <Skeleton className="h-32 w-full rounded-lg" />
+                <Skeleton className="h-32 w-full rounded-lg" />
+                <Skeleton className="h-32 w-full rounded-lg" />
               </div>
             </div>
           ))}

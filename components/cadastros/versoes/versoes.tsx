@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import type { VersionRow } from "@/components/cadastros/types";
 import { CadastroFiltrosCard } from "@/components/cadastros/cadastro-filtros-card";
 import { CadastroListagemCard } from "@/components/cadastros/cadastro-listagem-card";
-import { useDeleteVersion, useVersionById } from "@/hooks/use-create-version";
+import { useDeleteVersion } from "@/hooks/use-create-version";
+import { useVersionDetailQuery } from "@/hooks/use-db-cadastro-detail";
 import { useDbCadastroList } from "@/hooks/use-db-cadastro-list";
 import { listVersionsClient } from "@/services/db-api/list-cadastros";
 import { VersoesModalNovo } from "./versoes-modal-novo";
@@ -26,10 +27,15 @@ export function Versoes({ initialSearch }: VersoesProps) {
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [editingVersion, setEditingVersion] = useState<VersionRow | null>(null);
+  const [editingVersionId, setEditingVersionId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<VersionRow | null>(null);
   const deleteVersionMutation = useDeleteVersion();
-  const getVersionByIdMutation = useVersionById();
+
+  const editDetailEnabled = modalOpen && modalMode === "edit";
+  const versionDetailQuery = useVersionDetailQuery(
+    editingVersionId,
+    editDetailEnabled,
+  );
 
   const {
     searchInput,
@@ -50,26 +56,51 @@ export function Versoes({ initialSearch }: VersoesProps) {
     }
   }, [isError, error]);
 
+  useEffect(() => {
+    if (
+      !modalOpen ||
+      modalMode !== "edit" ||
+      !editingVersionId ||
+      !versionDetailQuery.isError ||
+      !versionDetailQuery.error
+    ) {
+      return;
+    }
+    toast.error(versionDetailQuery.error.message);
+    queryClient.removeQueries({
+      queryKey: ["db-version", editingVersionId],
+    });
+    setModalOpen(false);
+    setEditingVersionId(null);
+  }, [
+    modalOpen,
+    modalMode,
+    editingVersionId,
+    versionDetailQuery.isError,
+    versionDetailQuery.error,
+    queryClient,
+  ]);
+
   const temBuscaAtiva =
     searchInput.trim().length > 0 || initialSearch.trim().length > 0;
 
+  const handleModalOpenChange = (open: boolean) => {
+    setModalOpen(open);
+    if (!open) {
+      setEditingVersionId(null);
+    }
+  };
+
   const openCreateModal = () => {
     setModalMode("create");
-    setEditingVersion(null);
+    setEditingVersionId(null);
     setModalOpen(true);
   };
 
-  const openEditModal = async (row: VersionRow) => {
-    try {
-      const full = await getVersionByIdMutation.mutateAsync(row.id);
-      setEditingVersion(full);
-      setModalMode("edit");
-      setModalOpen(true);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Erro ao carregar versão";
-      toast.error(message);
-    }
+  const openEditModal = (row: VersionRow) => {
+    setModalMode("edit");
+    setEditingVersionId(row.id);
+    setModalOpen(true);
   };
 
   const confirmDelete = async () => {
@@ -78,6 +109,9 @@ export function Versoes({ initialSearch }: VersoesProps) {
       await deleteVersionMutation.mutateAsync(deleteTarget.id);
       toast.success("Versão excluída.");
       await queryClient.invalidateQueries({ queryKey: ["db-versions"] });
+      queryClient.removeQueries({
+        queryKey: ["db-version", deleteTarget.id],
+      });
       setDeleteTarget(null);
     } catch (error) {
       const message =
@@ -148,11 +182,19 @@ export function Versoes({ initialSearch }: VersoesProps) {
 
       <VersoesModalNovo
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={handleModalOpenChange}
         mode={modalMode}
+        isLoadingEdit={
+          modalMode === "edit" &&
+          Boolean(editingVersionId) &&
+          versionDetailQuery.isLoading
+        }
         initialData={
-          modalMode === "edit" && editingVersion
-            ? { id: editingVersion.id, name: editingVersion.name ?? "" }
+          modalMode === "edit" && versionDetailQuery.data
+            ? {
+                id: versionDetailQuery.data.id,
+                name: versionDetailQuery.data.name ?? "",
+              }
             : null
         }
       />

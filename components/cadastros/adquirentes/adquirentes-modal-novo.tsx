@@ -20,6 +20,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SwitchChoiceCard } from "@/components/ui/switch-choice-card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AdquirentesModalSkeleton } from "./adquirentes-modal-skeleton";
 
 const formSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -33,6 +35,8 @@ interface AdquirentesModalNovoProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode?: "create" | "edit";
+  /** Enquanto o GET por id não retorna (edição). */
+  isLoadingEdit?: boolean;
   initialData?: {
     id: string;
     name: string;
@@ -45,6 +49,7 @@ export function AdquirentesModalNovo({
   open,
   onOpenChange,
   mode = "create",
+  isLoadingEdit = false,
   initialData = null,
 }: AdquirentesModalNovoProps) {
   const queryClient = useQueryClient();
@@ -57,7 +62,8 @@ export function AdquirentesModalNovo({
   });
 
   const [logoError, setLogoError] = useState<string | undefined>();
-  const isEditMode = mode === "edit" && Boolean(initialData?.id);
+  const isEditMode =
+    mode === "edit" && Boolean(initialData?.id) && !isLoadingEdit;
   const isSubmitting =
     createAcquirerMutation.isPending || updateAcquirerMutation.isPending;
 
@@ -109,6 +115,11 @@ export function AdquirentesModalNovo({
       }
       handleClose(false);
       await queryClient.invalidateQueries({ queryKey: ["db-acquirers"] });
+      if (isEditMode && initialData?.id) {
+        await queryClient.invalidateQueries({
+          queryKey: ["db-acquirer", initialData.id],
+        });
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Erro ao cadastrar adquirente";
@@ -121,14 +132,21 @@ export function AdquirentesModalNovo({
       <DialogContent className="sm:max-w-[520px] p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-6 pt-8 pb-0 space-y-1.5">
           <DialogTitle className="text-xl font-bold tracking-tight text-zinc-900">
-            {isEditMode ? "Editar adquirente" : "Nova adquirente"}
+            {mode === "edit" ? "Editar adquirente" : "Nova adquirente"}
           </DialogTitle>
-          <p className="text-sm font-semibold text-zinc-400">
-            {isEditMode
-              ? "Atualize os dados da adquirente abaixo"
-              : "Preencha os dados da adquirente abaixo"}
-          </p>
+          {isLoadingEdit ? (
+            <Skeleton className="h-4 w-[min(100%,280px)] mt-1" />
+          ) : (
+            <p className="text-sm font-semibold text-zinc-400">
+              {isEditMode
+                ? "Atualize os dados da adquirente abaixo"
+                : "Preencha os dados da adquirente abaixo"}
+            </p>
+          )}
         </DialogHeader>
+        {isLoadingEdit ? (
+          <AdquirentesModalSkeleton />
+        ) : (
         <form onSubmit={onSubmit} className="px-6 pb-8 pt-6 space-y-4">
           <div className="space-y-1.5">
             <Label
@@ -206,6 +224,7 @@ export function AdquirentesModalNovo({
             </Button>
           </DialogFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

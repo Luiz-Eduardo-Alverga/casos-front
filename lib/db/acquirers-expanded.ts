@@ -10,7 +10,7 @@ import {
 import { ilikeContains } from "@/lib/db/search-ilike";
 import type { AcquirerRow } from "@/lib/db/acquirers";
 
-/** Item de listagem de adquirentes com status ativo, versões e dispositivos compatíveis (API/UI). */
+/** Item de listagem de adquirentes com status, versões e dispositivos compatíveis (API/UI). */
 export type AcquirerListExpandedItem = {
   acquirer: AcquirerRow;
   acquirerStatusId: string | null;
@@ -20,6 +20,8 @@ export type AcquirerListExpandedItem = {
   nextVersionName: string | null;
   deliveryDate: string | null;
   recommendedDeviceId: string | null;
+  /** `acquirer_status.is_active`; `null` se não houver linha de status. */
+  isActive: boolean | null;
   compatibleDevices: {
     deviceId: string;
     deviceName: string;
@@ -30,7 +32,7 @@ export type AcquirerListExpandedItem = {
 
 /**
  * Lista adquirentes com filtro opcional por nome e enriquecimento:
- * um registro `acquirer_status` ativo por adquirente (menor `sort_order`, desempate `created_at`),
+ * um registro `acquirer_status` por adquirente (menor `sort_order`, desempate `created_at`),
  * nomes das versões atual/próxima e dispositivos de `acquirer_compatible_devices`.
  */
 export async function listAcquirersExpanded(
@@ -47,21 +49,17 @@ export async function listAcquirersExpanded(
 
   if (acquirerRows.length === 0) return [];
 
-  const activeStatuses = await db
+  const statusRows = await db
     .select()
     .from(acquirerStatus)
-    .where(eq(acquirerStatus.isActive, true))
     .orderBy(
       asc(acquirerStatus.acquirerId),
       asc(acquirerStatus.sortOrder),
       desc(acquirerStatus.createdAt),
     );
 
-  const statusByAcquirer = new Map<
-    string,
-    (typeof activeStatuses)[number]
-  >();
-  for (const s of activeStatuses) {
+  const statusByAcquirer = new Map<string, (typeof statusRows)[number]>();
+  for (const s of statusRows) {
     if (!statusByAcquirer.has(s.acquirerId)) {
       statusByAcquirer.set(s.acquirerId, s);
     }
@@ -87,10 +85,7 @@ export async function listAcquirersExpanded(
       : [];
 
   const versionLabelById = new Map(
-    versionRows.map((v) => [
-      v.id,
-      v.name?.trim() ? v.name : v.id.slice(0, 8),
-    ]),
+    versionRows.map((v) => [v.id, v.name?.trim() ? v.name : v.id.slice(0, 8)]),
   );
 
   const compatJoined =
@@ -128,8 +123,7 @@ export async function listAcquirersExpanded(
 
   const items = acquirerRows.map((a) => {
     const st = statusByAcquirer.get(a.id) ?? null;
-    let compatibleDevices: AcquirerListExpandedItem["compatibleDevices"] =
-      [];
+    let compatibleDevices: AcquirerListExpandedItem["compatibleDevices"] = [];
 
     if (st) {
       const raw = devicesByStatus.get(st.id) ?? [];
@@ -149,14 +143,15 @@ export async function listAcquirersExpanded(
       sortOrder: st?.sortOrder ?? null,
       status: st?.status ?? null,
       currentVersionName: st
-        ? (versionLabelById.get(st.currentVersionId) ?? null)
+        ? versionLabelById.get(st.currentVersionId) ?? null
         : null,
       nextVersionName:
         st?.nextVersionId != null
-          ? (versionLabelById.get(st.nextVersionId) ?? null)
+          ? versionLabelById.get(st.nextVersionId) ?? null
           : null,
       deliveryDate: st?.deliveryDate ?? null,
       recommendedDeviceId: st?.recommendedDeviceId ?? null,
+      isActive: st?.isActive ?? null,
       compatibleDevices,
     };
   });

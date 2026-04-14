@@ -1,4 +1,4 @@
-import { StatusAdquirentes } from "@/components/cadastros/adquirentes/status-adquirentes";
+import { StatusAdquirentes } from "@/components/cadastros/status-adquirentes/index";
 
 export default async function CadastrosStatusAdquirentesPage({
   searchParams,
