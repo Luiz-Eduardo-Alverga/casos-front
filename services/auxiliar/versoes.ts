@@ -12,10 +12,12 @@ export interface Versao {
 export async function getVersoes(params: {
   produto_id: string;
   search?: string;
+  todas?: boolean;
 }): Promise<Versao[]> {
   const url = new URL("/api/auxiliar/versoes", window.location.origin);
   url.searchParams.set("produto_id", params.produto_id);
   if (params.search) url.searchParams.set("search", params.search);
+  url.searchParams.set("todas", String(params.todas ?? false));
 
   const response = await fetchWithAuth(url.toString(), { method: "GET" });
 

@@ -6,6 +6,8 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const produto_id = url.searchParams.get("produto_id");
     const search = url.searchParams.get("search") ?? undefined;
+    const todasParam = url.searchParams.get("todas");
+    const todas = todasParam === "true";
 
     if (!produto_id) {
       return Response.json(
@@ -22,6 +24,7 @@ export async function GET(request: Request) {
     const response = await api.get("/auxiliar/versoes", {
       params: {
         produto_id,
+        todas,
         ...(search ? { search } : {}),
       },
       headers: authHeaders,

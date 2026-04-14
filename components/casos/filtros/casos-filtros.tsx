@@ -229,7 +229,7 @@ export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps
           <CardContent className="p-6 pt-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <CasoFormProduto required={false} />
-              <CasoFormVersao required={false} />
+              <CasoFormVersao required={false} todas />
               <CasoFormModulo required={false} />
               <CasoFormCategoria required={false} />
               <CasoFormUsuarioAbertura required={false} />

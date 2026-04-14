@@ -9,9 +9,13 @@ import { useVersoes } from "@/hooks/use-versoes";
 
 interface CasoFormVersaoProps {
   required?: boolean;
+  todas?: boolean;
 }
 
-export function CasoFormVersao({ required = true }: CasoFormVersaoProps) {
+export function CasoFormVersao({
+  required = true,
+  todas = false,
+}: CasoFormVersaoProps) {
   const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
   const produtoValue = watch("produto");
@@ -22,6 +26,7 @@ export function CasoFormVersao({ required = true }: CasoFormVersaoProps) {
   const { data: versoes, isLoading: isVersoesLoading } = useVersoes({
     produto_id: produtoAtual,
     enabled: optionsRequested,
+    todas,
   });
 
   const versoesOptions = useMemo(() => {

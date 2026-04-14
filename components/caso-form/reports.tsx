@@ -450,7 +450,7 @@ export function Reports() {
                   </CardHeader>
                   <CardContent className="p-6 pt-3 space-y-4">
                     <CasoFormProduto />
-                    <CasoFormVersao />
+                    <CasoFormVersao todas={false} />
                     <CasoFormModulo required={false} />
                     <CasoFormProjeto />
                   </CardContent>

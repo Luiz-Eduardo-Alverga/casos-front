@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Database,
   type LucideIcon,
+  Kanban,
 } from "lucide-react";
 import {
   Sidebar,
@@ -60,8 +61,21 @@ const MAIN_NAV: MainNavEntry[] = [
     icon: Grid3x3,
     exact: true,
   },
-  { type: "cadastros", order: 40 },
-  { type: "link", order: 30, label: "Casos", href: "/casos", icon: FileText },
+  { type: "cadastros", order: 50 },
+  {
+    type: "link",
+    order: 30,
+    label: "Listagem de Casos",
+    href: "/casos",
+    icon: FileText,
+  },
+  {
+    type: "link",
+    order: 40,
+    label: "Kanban Adquirentes",
+    href: "/cadastros/adquirentes/status",
+    icon: Kanban,
+  },
 ];
 
 const MAIN_NAV_SORTED = [...MAIN_NAV].sort((a, b) => a.order - b.order);
@@ -80,11 +94,7 @@ const CADASTROS_SUBITEMS: CadastroSubitem[] = [
     href: "/cadastros/adquirentes",
     exact: true,
   },
-  {
-    order: 10,
-    label: "Kanban Adquirentes",
-    href: "/cadastros/adquirentes/status",
-  },
+
   { order: 30, label: "Versões", href: "/cadastros/versoes" },
   { order: 40, label: "Dispositivos", href: "/cadastros/dispositivos" },
 ];
@@ -230,7 +240,7 @@ export function AppSidebar({
                       >
                         <div className="flex items-center gap-3">
                           <Database className="h-3.5 w-3.5 shrink-0" />
-                          <span>Cadastros</span>
+                          <span>Cadastros Smart</span>
                         </div>
                         <ChevronDown
                           className={cn(
