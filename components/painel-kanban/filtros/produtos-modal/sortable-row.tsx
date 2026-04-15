@@ -106,7 +106,7 @@ export function SortableRow({
             type="button"
             variant="ghost"
             size="icon-sm"
-            className="text-emerald-600 hover:text-emerald-700"
+            className="text-emerald-500 hover:text-emerald-700"
             onClick={() => onConfirmEdit(item)}
             disabled={isSavingEdicao || !editVersao.trim()}
           >
@@ -153,4 +153,3 @@ export function SortableRow({
     </div>
   );
 }
-

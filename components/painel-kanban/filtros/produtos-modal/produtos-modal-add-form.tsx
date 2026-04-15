@@ -47,7 +47,7 @@ export function ProdutosModalAddForm({
             <CasoFormVersao required={false} todas={false} />
             <Button
               type="submit"
-              className="h-[42px] min-w-[154px]"
+              className="h-9 min-w-[154px]"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Adicionando..." : "+ Adicionar"}
@@ -58,4 +58,3 @@ export function ProdutosModalAddForm({
     </CasoFormProvider>
   );
 }
-
