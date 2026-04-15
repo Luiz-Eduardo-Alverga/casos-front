@@ -9,6 +9,7 @@ import { LayoutGrid } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PainelPageHeader } from "@/components/painel/painel-page-header";
 import { PainelKanbanFiltros } from "@/components/painel-kanban/filtros/painel-kanban-filtros";
+import { PainelKanbanProdutosModal } from "@/components/painel-kanban/filtros/painel-kanban-produtos-modal";
 import type { PainelKanbanFiltrosForm } from "@/interfaces/kanban/painel-kanban-filtros-form";
 import { PainelKanbanBoard } from "@/components/painel-kanban/kanban/painel-kanban-board";
 import { PainelKanbanSkeleton } from "@/components/painel-kanban/layout/painel-kanban-skeleton";
@@ -183,6 +184,7 @@ export function PainelKanban() {
   );
 
   const [kanbanData, setKanbanData] = useState<PainelKanbanItem[]>([]);
+  const [isProdutosModalOpen, setIsProdutosModalOpen] = useState(false);
   useEffect(() => {
     setKanbanData(mergedFromApi);
   }, [mergedFromApi]);
@@ -302,6 +304,13 @@ export function PainelKanban() {
       <PainelKanbanFiltros
         methods={methods}
         agendaItems={agendaDevData ?? []}
+        onEditarQuadroClick={() => setIsProdutosModalOpen(true)}
+      />
+
+      <PainelKanbanProdutosModal
+        open={isProdutosModalOpen}
+        onOpenChange={setIsProdutosModalOpen}
+        idColaborador={usuarioDevId}
       />
 
       {!queryEnabled ? (

@@ -22,9 +22,11 @@ export interface ProdutosOrdemResponse {
 
 export async function getProdutosOrdem(params: {
   id_colaborador: string;
+  page?: number;
 }): Promise<ProdutosOrdemResponse> {
   const url = new URL("/api/projeto-dev/produtos-ordem", window.location.origin);
   url.searchParams.set("id_colaborador", params.id_colaborador);
+  if (params.page != null) url.searchParams.set("page", String(params.page));
 
   const response = await fetchWithAuth(url.toString(), { method: "GET" });
 

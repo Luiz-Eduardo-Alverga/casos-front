@@ -18,11 +18,13 @@ interface PainelKanbanFiltrosProps {
   methods: UseFormReturn<PainelKanbanFiltrosForm>;
   /** Itens da agenda do desenvolvedor (`useAgendaDev`); produto e versão vêm apenas daqui. */
   agendaItems: AgendaDevItem[];
+  onEditarQuadroClick: () => void;
 }
 
 export function PainelKanbanFiltros({
   methods,
   agendaItems,
+  onEditarQuadroClick,
 }: PainelKanbanFiltrosProps) {
   const produto = methods.watch("produto");
 
@@ -49,24 +51,36 @@ export function PainelKanbanFiltros({
                   Filtros
                 </CardTitle>
               </div>
-
-              <Button type="button" variant="outline" size="sm">
-                <Pencil className="h-3.5 w-3.5" />
-                Editar Quadro
-              </Button>
             </div>
           </CardHeader>
           <CardContent className="p-6 pt-3">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end flex-1 min-w-0">
-                <CasoFormDevAtribuido
-                  required={false}
-                  requireProduto={false}
-                  label="Ver como"
-                  placeholder="Selecione a pessoa que deseja ver..."
-                />
-                <PainelKanbanAgendaProdutoField agendaItems={agendaItems} />
-                <PainelKanbanAgendaVersaoField agendaItems={agendaItems} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4 items-end flex-1 min-w-0">
+                <div className="col-span-2">
+                  <CasoFormDevAtribuido
+                    required={false}
+                    requireProduto={false}
+                    label="Ver como"
+                    placeholder="Selecione a pessoa que deseja ver..."
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <PainelKanbanAgendaProdutoField agendaItems={agendaItems} />
+                </div>
+
+                <div className="col-span-2">
+                  <PainelKanbanAgendaVersaoField agendaItems={agendaItems} />
+                </div>
+
+                <Button
+                  type="button"
+                  className="h-9"
+                  onClick={onEditarQuadroClick}
+                >
+                  <Pencil className="h-3.5 w-3.5 " />
+                  Editar Quadro
+                </Button>
               </div>
             </div>
           </CardContent>
