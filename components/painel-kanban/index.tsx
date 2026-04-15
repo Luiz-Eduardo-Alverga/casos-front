@@ -46,7 +46,7 @@ export function PainelKanban() {
     defaultValues: {
       produto: "",
       versao: "",
-      devAtribuido: "",
+      devAtribuido: idColaborador,
     },
   });
 
@@ -58,7 +58,7 @@ export function PainelKanban() {
   const usuarioDevId = devAtribuido?.trim() || idColaborador;
 
   const { data: agendaDevData, isLoading: isAgendaLoading } = useAgendaDev({
-    id_colaborador: idColaborador,
+    id_colaborador: usuarioDevId,
   });
 
   const agendaInitRef = useRef(false);
@@ -76,10 +76,7 @@ export function PainelKanban() {
       setValue("produto", String(match.id_produto));
       setValue("versao", match.versao ?? "");
     }
-    if (user?.id) {
-      setValue("devAtribuido", String(user.id));
-    }
-  }, [agendaDevData, setValue, user?.id]);
+  }, [agendaDevData, setValue]);
 
   useEffect(() => {
     if (!agendaDevData?.length || !produto?.trim() || !versao?.trim()) return;

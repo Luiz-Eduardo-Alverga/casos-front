@@ -20,14 +20,15 @@ export function AdquirentesPageHeader() {
             </p>
           </div>
         </div>
-        <Image
-          src="/images/logo.svg"
-          className="sr-only lg:not-sr-only"
-          alt="Softcom"
-          width={180}
-          height={28}
-          priority
-        />
+        <div>
+          <Image
+            src="/images/logo.svg"
+            className="sr-only lg:not-sr-only !w-40 !h-12"
+            alt="Softcom"
+            width={96}
+            height={36}
+          />
+        </div>
       </div>
     </header>
   );

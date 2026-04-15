@@ -6,6 +6,7 @@ import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/caso-form/provider";
 import { useFormContext } from "react-hook-form";
 import { useUsuariosProjetos } from "@/hooks/use-usuarios";
+import { getUser } from "@/lib/auth";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
 export interface CasoFormDevAtribuidoProps {
@@ -32,6 +33,8 @@ export function CasoFormDevAtribuido({
   const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
   const [devSelecionado, setDevSelecionado] = useState<Usuario | null>(null);
 
+  const user = getUser();
+
   const produtoAtual = produtoValue || produto;
 
   const { data: usuarios, isLoading: isUsuariosLoading } = useUsuariosProjetos({
@@ -41,8 +44,20 @@ export function CasoFormDevAtribuido({
   const devOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
     const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
-    
-    // Adiciona usuários da API
+
+    // Adiciona usuário logado (dev padrão / "ver como" com valor inicial)
+    if (user) {
+      const userId = user.id.toString();
+      if (!valuesAdded.has(userId)) {
+        options.push({
+          value: userId,
+          label: user.nome,
+        });
+        valuesAdded.add(userId);
+      }
+    }
+
+    // Adiciona usuários da API (apenas se não foram adicionados ainda)
     if (usuarios && Array.isArray(usuarios)) {
       usuarios.forEach((u) => {
         const idStr = String(u.id);
@@ -70,7 +85,14 @@ export function CasoFormDevAtribuido({
     }
 
     return options;
-  }, [usuarios, devAtribuido, devSelecionado, lazyLoadComboboxOptions, editCaseItem]);
+  }, [
+    usuarios,
+    devAtribuido,
+    devSelecionado,
+    user,
+    lazyLoadComboboxOptions,
+    editCaseItem,
+  ]);
   
   // Quando dev é selecionado, buscar e salvar os dados completos
   useEffect(() => {

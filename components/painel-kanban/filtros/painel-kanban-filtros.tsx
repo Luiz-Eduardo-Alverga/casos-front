@@ -59,12 +59,12 @@ export function PainelKanbanFiltros({
           <CardContent className="p-6 pt-3">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end flex-1 min-w-0">
-                {/* <CasoFormDevAtribuido
+                <CasoFormDevAtribuido
                   required={false}
                   requireProduto={false}
-                  label="Responsável"
-                  placeholder="Selecione o responsável..."
-                /> */}
+                  label="Ver como"
+                  placeholder="Selecione a pessoa que deseja ver..."
+                />
                 <PainelKanbanAgendaProdutoField agendaItems={agendaItems} />
                 <PainelKanbanAgendaVersaoField agendaItems={agendaItems} />
               </div>
