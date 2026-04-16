@@ -2,15 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Pause, Play, Save, X } from "lucide-react";
+import { Loader2, Save, X } from "lucide-react";
 import { useSidebar } from "@/components/sidebar-provider";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 
-import { useIniciarProducao } from "@/hooks/use-iniciar-producao";
-import { usePararProducao } from "@/hooks/use-parar-producao";
-import { IniciarProducaoError } from "@/services/projeto-casos-producao/iniciar-producao";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
+import { useCasoProducaoActions } from "@/components/caso-resumo-modal/use-caso-producao-actions";
+import { CasoProducaoActionButton } from "@/components/caso-resumo-modal/caso-producao-action-button";
 
 export interface CasoEditRodapeAcoesProps {
   casoId: number | string;
@@ -37,13 +34,23 @@ export function CasoEditRodapeAcoes({
 }: CasoEditRodapeAcoesProps) {
   const { isCollapsed } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
-  const [casoAbertoModalOpen, setCasoAbertoModalOpen] = useState(false);
-  const [casoAbertoId, setCasoAbertoId] = useState<number | null>(null);
-  const [tempoEstimadoModalOpen, setTempoEstimadoModalOpen] = useState(false);
-  const router = useRouter();
-
-  const iniciarProducao = useIniciarProducao();
-  const pararProducao = usePararProducao();
+  const {
+    iniciarProducao,
+    pararProducao,
+    handleIniciar,
+    handleParar,
+    casoAbertoModalOpen,
+    setCasoAbertoModalOpen,
+    setCasoAbertoId,
+    tempoEstimadoModalOpen,
+    setTempoEstimadoModalOpen,
+    handleConfirmarVisualizarCaso,
+    handleIrParaAbaProducao,
+  } = useCasoProducaoActions({
+    casoId,
+    onProducaoAlterada,
+    onRedirecionarParaAbaProducao,
+  });
 
   const showIniciar = tempoStatus === "INICIAR" && statusTempo === "PARADO";
   const showParar = tempoStatus === "PARAR" && statusTempo === "INICIADO";
@@ -54,60 +61,6 @@ export function CasoEditRodapeAcoes({
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
-
-  const handleIniciar = () => {
-    iniciarProducao.mutate(casoId, {
-      onSuccess: () => {
-        toast.success("Produção iniciada.");
-        onProducaoAlterada?.();
-      },
-      onError: (e) => {
-        if (e instanceof IniciarProducaoError) {
-          if (e.code === "CASO_JA_ABERTO") {
-            if (e.caso_aberto != null) {
-              setCasoAbertoId(e.caso_aberto);
-              setCasoAbertoModalOpen(true);
-            } else {
-              toast.error(e.message);
-            }
-          } else if (e.code === "TEMPO_ESTIMADO_OBRIGATORIO") {
-            setTempoEstimadoModalOpen(true);
-          } else {
-            toast.error(e.message);
-          }
-        } else {
-          toast.error(
-            e instanceof Error ? e.message : "Erro ao iniciar produção.",
-          );
-        }
-      },
-    });
-  };
-
-  const handleParar = () => {
-    pararProducao.mutate(casoId, {
-      onSuccess: () => {
-        toast.success("Produção parada.");
-        onProducaoAlterada?.();
-      },
-      onError: (e) => {
-        toast.error(e instanceof Error ? e.message : "Erro ao parar produção.");
-      },
-    });
-  };
-
-  const handleConfirmarVisualizarCaso = () => {
-    if (casoAbertoId != null) {
-      router.push(`/casos/${casoAbertoId}`);
-    }
-    setCasoAbertoModalOpen(false);
-    setCasoAbertoId(null);
-  };
-
-  const handleIrParaAbaProducao = () => {
-    onRedirecionarParaAbaProducao?.();
-    setTempoEstimadoModalOpen(false);
-  };
 
   return (
     <>
@@ -122,44 +75,20 @@ export function CasoEditRodapeAcoes({
         }}
       >
         {showIniciar && (
-          <Button
-            type="button"
+          <CasoProducaoActionButton
+            mode="iniciar"
             onClick={handleIniciar}
-            disabled={isLoading || disabled || iniciarProducao.isPending}
-            className="w-48 px-4 bg-emerald-600 hover:bg-emerald-700 text-white"
-          >
-            {iniciarProducao.isPending ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
-                Iniciando...
-              </>
-            ) : (
-              <>
-                <Play className="h-3.5 w-3.5 mr-2" />
-                Iniciar
-              </>
-            )}
-          </Button>
+            disabled={isLoading || disabled}
+            isPending={iniciarProducao.isPending}
+          />
         )}
         {showParar && (
-          <Button
-            type="button"
+          <CasoProducaoActionButton
+            mode="parar"
             onClick={handleParar}
-            disabled={isLoading || disabled || pararProducao.isPending}
-            className="w-48 px-4 bg-red-600 hover:bg-red-700 text-white"
-          >
-            {pararProducao.isPending ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
-                Parando...
-              </>
-            ) : (
-              <>
-                <Pause className="h-3.5 w-3.5 mr-2" />
-                Parar
-              </>
-            )}
-          </Button>
+            disabled={isLoading || disabled}
+            isPending={pararProducao.isPending}
+          />
         )}
         <Button
           type="button"
@@ -195,7 +124,9 @@ export function CasoEditRodapeAcoes({
         open={casoAbertoModalOpen}
         onOpenChange={(open) => {
           setCasoAbertoModalOpen(open);
-          if (!open) setCasoAbertoId(null);
+          if (!open) {
+            setCasoAbertoId(null);
+          }
         }}
         titulo="Caso em produção"
         descricao="Já existe um caso em produção. Deseja visualizar o caso aberto?"

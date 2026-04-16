@@ -20,6 +20,8 @@ import type { PainelKanbanItem } from "@/components/painel-kanban/kanban/painel-
 import { EmptyColumnPlaceholder } from "../layout/empty-colums-placeholder";
 import { PainelKanbanCardBody } from "@/components/painel-kanban/kanban/painel-kanban-card-body";
 import { KanbanColumnLoadSentinel } from "@/components/painel-kanban/kanban/kanban-column-load-sentinel";
+import { useState } from "react";
+import { CasoResumoModal } from "@/components/caso-resumo-modal";
 
 export interface PainelKanbanColumnLoadState {
   hasNextPage: boolean;
@@ -49,9 +51,14 @@ export function PainelKanbanBoard({
   columnLoad,
 }: PainelKanbanBoardProps) {
   const columns = PAINEL_KANBAN_COLUMNS;
+  const [openResumo, setOpenResumo] = useState(false);
+  const [itemSelecionado, setItemSelecionado] = useState<PainelKanbanItem | null>(
+    null,
+  );
 
   return (
-    <KanbanProvider
+    <>
+      <KanbanProvider
       columns={columns}
       data={data}
       onDataChange={onDataChange}
@@ -131,7 +138,13 @@ export function PainelKanbanBoard({
                           "border-l-4 border-l-primary",
                       )}
                     >
-                      <PainelKanbanCardBody item={item} />
+                      <PainelKanbanCardBody
+                        item={item}
+                        onExpand={(selected) => {
+                          setItemSelecionado(selected);
+                          setOpenResumo(true);
+                        }}
+                      />
                     </KanbanCard>
                   )}
                 </KanbanCards>
@@ -140,6 +153,13 @@ export function PainelKanbanBoard({
           </div>
         );
       }}
-    </KanbanProvider>
+      </KanbanProvider>
+      <CasoResumoModal
+        open={openResumo}
+        onOpenChange={setOpenResumo}
+        variant="kanban"
+        initialCaseId={itemSelecionado?.id}
+      />
+    </>
   );
 }

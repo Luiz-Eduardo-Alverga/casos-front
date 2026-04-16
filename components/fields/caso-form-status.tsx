@@ -7,11 +7,13 @@ import { useCasoForm } from "@/components/caso-form/provider";
 import { useFormContext } from "react-hook-form";
 import { useStatus } from "@/hooks/use-status";
 
-export function CasoFormStatus() {
+export function CasoFormStatus({ disabled = false }: { disabled?: boolean }) {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
   const statusValue = watch("status");
-  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
+  const [optionsRequested, setOptionsRequested] = useState(
+    !lazyLoadComboboxOptions,
+  );
 
   const { data: statusList, isLoading: isStatusLoading } = useStatus({
     enabled: optionsRequested,
@@ -22,9 +24,17 @@ export function CasoFormStatus() {
       value: String(item.Registro),
       label: item.descricao ?? item.tipo ?? String(item.Registro),
     }));
-    if (lazyLoadComboboxOptions && editCaseItem?.caso?.status && statusValue && !list.some((o) => o.value === statusValue)) {
+    if (
+      lazyLoadComboboxOptions &&
+      editCaseItem?.caso?.status &&
+      statusValue &&
+      !list.some((o) => o.value === statusValue)
+    ) {
       const s = editCaseItem.caso.status;
-      list.unshift({ value: String(s.status_id), label: s.descricao ?? s.codigo ?? String(s.status_id) });
+      list.unshift({
+        value: String(s.status_id),
+        label: s.descricao ?? s.codigo ?? String(s.status_id),
+      });
     }
     return list;
   }, [statusList, lazyLoadComboboxOptions, editCaseItem, statusValue]);
@@ -41,8 +51,12 @@ export function CasoFormStatus() {
           isStatusLoading ? "Carregando status..." : "Nenhum status encontrado."
         }
         searchDebounceMs={450}
-        disabled={isDisabled}
-        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
+        disabled={isDisabled || disabled}
+        onOpenChange={
+          lazyLoadComboboxOptions
+            ? (open) => open && setOptionsRequested(true)
+            : undefined
+        }
       />
     </div>
   );

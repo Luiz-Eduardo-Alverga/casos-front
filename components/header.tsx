@@ -2,14 +2,11 @@
 
 import {
   Menu,
-  Bell,
-  Moon,
-  Maximize2,
-  Minimize2,
   Plus,
   Maximize,
   Minimize,
   ExternalLink,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserDropDown } from "@/components/user-dropdown";
@@ -17,11 +14,14 @@ import { useSidebar } from "@/components/sidebar-provider";
 import { AvisosDropdown } from "@/components/avisos/avisos-dropdown";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { CasoResumoModal } from "@/components/caso-resumo-modal";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const { toggleSidebar, isCollapsed } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [openCaseSearch, setOpenCaseSearch] = useState(false);
   const router = useRouter();
   const handleToggleFullScreen = () => {
     // Verifica se já estamos em tela cheia
@@ -50,6 +50,21 @@ export function Header() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      if (event.key.toLowerCase() !== "k") return;
+
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, [contenteditable='true']")) return;
+      event.preventDefault();
+      setOpenCaseSearch(true);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   return (
     <header
       className="fixed bg-white border-b border-border top-0 z-30 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.05)] transition-all duration-300"
@@ -62,8 +77,6 @@ export function Header() {
       }}
     >
       <div className="flex items-center justify-between px-6 h-[60px] w-full">
-        {/* Menu Hamburger */}
-
         <div className="flex items-center gap-2 lg:space-x-2 ">
           <Button
             variant="ghost"
@@ -86,9 +99,23 @@ export function Header() {
           </Button>
         </div>
 
-        {/* Right side - Icons and User */}
+        <Button
+          type="button"
+          variant="outline"
+          className={cn(
+            "hidden lg:flex items-center gap-4 h-10 min-w-[320px] justify-between rounded-lg bg-muted/30 text-foreground",
+          )}
+          onClick={() => setOpenCaseSearch(true)}
+        >
+          <span className="text-sm font-normal">Pesquisar caso</span>
+          <span className="inline-flex items-center gap-2 text-xs font-medium">
+            Ctrl+K
+            <span className="h-5 w-px bg-border-input" />
+            <Search className="h-4 w-4" />
+          </span>
+        </Button>
+
         <div className="flex items-center gap-4">
-          {/* Notification Bell - abre dropdown de avisos (filtro: mês atual) */}
           <AvisosDropdown />
 
           <Button
@@ -115,13 +142,16 @@ export function Header() {
             )}
           </Button>
 
-          {/* Vertical Divider */}
           <div className="h-8 w-px bg-border-input" />
 
-          {/* User Dropdown */}
           <UserDropDown />
         </div>
       </div>
+      <CasoResumoModal
+        open={openCaseSearch}
+        onOpenChange={setOpenCaseSearch}
+        variant="pesquisa"
+      />
     </header>
   );
 }
