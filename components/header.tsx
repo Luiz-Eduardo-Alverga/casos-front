@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CasoResumoModal } from "@/components/caso-resumo-modal";
 import { cn } from "@/lib/utils";
+import { Separator } from "./ui/separator";
 
 export function Header() {
   const { toggleSidebar, isCollapsed } = useSidebar();
@@ -97,23 +98,28 @@ export function Header() {
             <Plus className="h-3.5 w-3.5" />
             Adicionar Caso
           </Button>
-        </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          className={cn(
-            "hidden lg:flex items-center gap-4 h-10 min-w-[320px] justify-between rounded-lg bg-muted/30 text-foreground",
-          )}
-          onClick={() => setOpenCaseSearch(true)}
-        >
-          <span className="text-sm font-normal">Pesquisar caso</span>
-          <span className="inline-flex items-center gap-2 text-xs font-medium">
-            Ctrl+K
-            <span className="h-5 w-px bg-border-input" />
-            <Search className="h-4 w-4" />
-          </span>
-        </Button>
+          <Separator
+            orientation="vertical"
+            className="h-8 w-px bg-border-input"
+          />
+
+          <Button
+            type="button"
+            variant="outline"
+            className={cn(
+              "hidden lg:flex items-center gap-4 h-10 min-w-[320px] justify-between rounded-lg bg-muted/30 text-foreground",
+            )}
+            onClick={() => setOpenCaseSearch(true)}
+          >
+            <span className="text-sm font-normal">Pesquisar caso</span>
+            <span className="inline-flex items-center gap-2 text-xs font-medium">
+              Ctrl+K
+              <span className="h-5 w-px bg-border-input" />
+              <Search className="h-4 w-4" />
+            </span>
+          </Button>
+        </div>
 
         <div className="flex items-center gap-4">
           <AvisosDropdown />

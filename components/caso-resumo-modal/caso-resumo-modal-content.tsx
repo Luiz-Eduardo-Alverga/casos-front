@@ -27,6 +27,7 @@ interface CasoResumoModalContentProps {
   producaoDisabled?: boolean;
   resultBannerText?: string;
   searchHeader?: React.ReactNode;
+  hasAnotations?: boolean;
 }
 
 export function CasoResumoModalContent({
@@ -45,6 +46,7 @@ export function CasoResumoModalContent({
   producaoDisabled = false,
   resultBannerText,
   searchHeader,
+  hasAnotations,
 }: CasoResumoModalContentProps) {
   if (showEmptyForSearch) {
     return (
@@ -91,6 +93,8 @@ export function CasoResumoModalContent({
   const caso = item.caso;
   const statusLabel = caso?.status?.descricao ?? "Não informado";
   const statusIdApi = Number(caso?.status?.status_id ?? 0);
+
+  console.log("hasAnotations", hasAnotations);
 
   return (
     <div className="flex flex-col max-h-[90vh] bg-card">
@@ -165,15 +169,16 @@ export function CasoResumoModalContent({
                 statusIdApi={statusIdApi}
                 memoriaQueryId={memoriaQueryId}
                 onStatusUpdated={onStatusUpdated}
+                statusDisabled={true}
               />
             </div>
           )}
 
-          {!caso?.textos?.informacoes_adicionais?.trim() && (
+          {hasAnotations && (
             <div className="bg-blue-100 border border-blue-200 flex items-center justify-center h-[55px] px-2 py-0.5 rounded-lg w-full">
               <p className="text-xs font-bold text-center text-blue-700 leading-4 flex items-center justify-center">
                 <Info className=" mr-2" />
-                <span>Este caso não possui anotações adicionais</span>
+                <span>Este caso possui anotações adicionais</span>
               </p>
             </div>
           )}

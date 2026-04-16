@@ -13,12 +13,14 @@ interface CasoResumoStatusActionsProps {
   statusIdApi: number;
   memoriaQueryId: string;
   onStatusUpdated: () => void;
+  statusDisabled?: boolean;
 }
 
 export function CasoResumoStatusActions({
   statusIdApi,
   memoriaQueryId,
   onStatusUpdated,
+  statusDisabled = false,
 }: CasoResumoStatusActionsProps) {
   const { setValue } = useFormContext<{ status: string }>();
   const updateCaso = useUpdateCaso();
@@ -65,7 +67,7 @@ export function CasoResumoStatusActions({
   return (
     <div className="flex flex-row gap-2 items-end">
       <div className="flex-1">
-        <CasoFormStatus disabled={true} />
+        <CasoFormStatus disabled={statusDisabled} />
       </div>
       {exibirReverter && (
         <Button

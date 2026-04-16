@@ -130,6 +130,8 @@ export function CasoResumoModal({
   const showIniciar = tempoStatus === "INICIAR" && statusTempo === "PARADO";
   const showParar = tempoStatus === "PARAR" && statusTempo === "INICIADO";
   const showProducaoButton = variant === "kanban" && (showIniciar || showParar);
+  const hasAnotations =
+    loadedItem?.caso.anotacoes && loadedItem?.caso.anotacoes.length > 0;
 
   const providerValue = useMemo(
     () => ({
@@ -164,7 +166,9 @@ export function CasoResumoModal({
                         <Input
                           value={searchValue}
                           onChange={(e) =>
-                            setSearchValue(formatCaseSearchValue(e.target.value))
+                            setSearchValue(
+                              formatCaseSearchValue(e.target.value),
+                            )
                           }
                           maxLength={5}
                           inputMode="numeric"
@@ -189,13 +193,16 @@ export function CasoResumoModal({
                   onAcaoProducao={showIniciar ? handleIniciar : handleParar}
                   producaoMode={showIniciar ? "iniciar" : "parar"}
                   producaoIsPending={
-                    showIniciar ? iniciarProducao.isPending : pararProducao.isPending
+                    showIniciar
+                      ? iniciarProducao.isPending
+                      : pararProducao.isPending
                   }
                   producaoDisabled={
                     iniciarProducao.isPending ||
                     pararProducao.isPending ||
                     !showProducaoButton
                   }
+                  hasAnotations={hasAnotations}
                 />
               </div>
             </CasoFormProvider>
