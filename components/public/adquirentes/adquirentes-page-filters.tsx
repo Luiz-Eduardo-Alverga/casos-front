@@ -36,7 +36,7 @@ export function AdquirentesPageFilters({
           onChange={(e) => onSearchInputChange(e.target.value)}
           placeholder="Pesquise a adquirente desejada"
           aria-label="Buscar adquirente"
-          className="h-14 w-full rounded-2xl border-[#d7dde4] bg-white pl-10 pr-3 text-sm text-[#1f2937] placeholder:text-[#9aa4b2] focus-visible:ring-1 focus-visible:ring-orange-500"
+          className="h-14 w-full rounded-2xl border-[#d7dde4] bg-white pl-10 pr-3 text-base  text-[#1f2937] placeholder:text-[#9aa4b2] focus-visible:ring-1 focus-visible:ring-orange-500"
         />
       </div>
 
