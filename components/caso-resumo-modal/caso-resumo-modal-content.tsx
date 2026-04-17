@@ -54,6 +54,7 @@ export function CasoResumoModalContent({
         {searchHeader}
         <div className="flex-1 px-6 pb-6">
           <EmptyState
+            imageSrc="/images/empty-state-casos-produto.svg"
             title="Pesquise um caso"
             description="Digite o código do caso com 5 dígitos para carregar a visualização resumida."
           />
@@ -97,7 +98,7 @@ export function CasoResumoModalContent({
   console.log("hasAnotations", hasAnotations);
 
   return (
-    <div className="flex flex-col max-h-[90vh] bg-card">
+    <div className="flex max-h-[90vh] w-full min-w-0 flex-col bg-card">
       {searchHeader}
       {resultBannerText && (
         <div className="w-full bg-muted px-6 py-2.5 shrink-0">
@@ -113,8 +114,8 @@ export function CasoResumoModalContent({
         <StatusBadge status={statusLabel} />
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-6 pb-6 space-y-6">
+      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="min-w-0 space-y-6 px-6 pb-6">
           <div className="space-y-5">
             <CasoResumoInfoBox
               title="Resumo (Título)"

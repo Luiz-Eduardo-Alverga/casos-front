@@ -16,13 +16,13 @@ export function CasoResumoInfoBox({
   contentClassName,
 }: CasoResumoInfoBoxProps) {
   return (
-    <div className="content-stretch flex flex-col gap-2 items-start relative shrink-0 w-full">
-      <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
+    <div className="content-stretch relative flex w-full min-w-0 max-w-full shrink-0 flex-col items-start gap-2">
+      <div className="content-stretch relative flex w-full min-w-0 max-w-full shrink-0 flex-col items-start">
         <p className="text-sm font-medium text-text-secondary leading-5">{title}</p>
       </div>
       <div
         className={cn(
-          "w-full rounded-lg bg-muted/30 p-2.5 border-l-4 border-primary text-xs font-semibold leading-5 text-foreground whitespace-pre-wrap",
+          "w-full min-w-0 max-w-full rounded-lg border-l-4 border-primary bg-muted/30 p-2.5 text-xs font-semibold leading-5 text-foreground whitespace-pre-wrap [overflow-wrap:anywhere]",
           ALTURA_MIN_ANOTACAO,
           contentClassName,
         )}

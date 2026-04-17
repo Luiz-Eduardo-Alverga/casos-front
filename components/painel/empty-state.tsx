@@ -44,10 +44,8 @@ export function EmptyState({
         </div>
       ) : null}
       <div className="space-y-1">
-        <p className="text-sm font-semibold text-text-primary">{title}</p>
-        <p className="text-sm text-text-secondary max-w-[240px]">
-          {description}
-        </p>
+        <p className="text-sm font-semibold text-text-secondary">{title}</p>
+        <p className="text-sm font-semibold max-w-[440px]">{description}</p>
       </div>
     </div>
   );

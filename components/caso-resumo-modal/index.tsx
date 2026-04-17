@@ -149,7 +149,7 @@ export function CasoResumoModal({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTitle className="sr-only">Caso Resumo</DialogTitle>
-        <DialogContent className="max-w-[580px] p-0 overflow-hidden max-h-[90vh]">
+        <DialogContent className="max-h-[90vh] max-w-[580px] min-w-0 overflow-hidden p-0">
           <FormProvider {...statusForm}>
             <CasoFormProvider value={providerValue}>
               <div className="bg-card rounded-lg">
