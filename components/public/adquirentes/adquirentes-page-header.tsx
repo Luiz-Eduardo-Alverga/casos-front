@@ -10,14 +10,15 @@ export function AdquirentesPageHeader() {
       <div
         className={`flex items-center justify-between ${ADQUIRENTES_PAGE_CONTENT_SHELL}`}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3 lg:flex-initial">
           <Image
             src="/images/logosmart.svg"
             alt="Softcom"
             width={48}
             height={28}
+            className="shrink-0"
           />
-          <div>
+          <div className="min-w-0">
             <h1 className="text-xl font-bold leading-6">
               Adquirentes Softcom Smart
             </h1>
@@ -26,13 +27,13 @@ export function AdquirentesPageHeader() {
             </p>
           </div>
         </div>
-        <div>
+        <div className="hidden shrink-0 lg:block">
           <Image
             src="/images/logo.svg"
-            className="sr-only lg:not-sr-only !w-40 !h-12"
             alt="Softcom"
-            width={96}
-            height={36}
+            width={160}
+            height={48}
+            className="h-12 w-40 object-contain"
           />
         </div>
       </div>
