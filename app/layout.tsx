@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body>
+      <body className="flex flex-col ">
         <Toaster />
         <ReactQueryProvider>{children}</ReactQueryProvider>
       </body>

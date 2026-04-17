@@ -10,4 +10,3 @@ export default async function PublicAdquirentesRoute({
   const status = typeof sp.status === "string" ? sp.status : "";
   return <AdquirentesPage initialSearch={search} initialStatus={status} />;
 }
-

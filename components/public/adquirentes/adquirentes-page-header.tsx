@@ -1,9 +1,15 @@
 import Image from "next/image";
 
+/** Shell horizontal compartilhado com `AdquirentesPage` (filtros + grid mesma largura que o header). */
+export const ADQUIRENTES_PAGE_CONTENT_SHELL =
+  "mx-auto box-border w-full min-w-0 max-w-full px-4 py-4 md:px-14";
+
 export function AdquirentesPageHeader() {
   return (
-    <header className="border-b border-[#d7dde4] bg-white">
-      <div className="flex w-full items-center justify-between px-4 py-4 md:px-14">
+    <header className="w-full min-w-0 shrink-0 border-b border-[#d7dde4] bg-white">
+      <div
+        className={`flex items-center justify-between ${ADQUIRENTES_PAGE_CONTENT_SHELL}`}
+      >
         <div className="flex items-center gap-3">
           <Image
             src="/images/logosmart.svg"

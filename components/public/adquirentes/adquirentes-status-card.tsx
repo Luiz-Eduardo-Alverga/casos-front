@@ -29,7 +29,7 @@ export function AdquirentesStatusCard({ row }: AdquirentesStatusCardProps) {
   const statusLabel = row.status ?? "Sem status";
 
   return (
-    <article className="space-y-6 rounded-2xl border border-[#d7dde4] bg-white p-6 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
+    <article className="min-w-0 space-y-6 rounded-2xl border border-[#d7dde4] bg-white p-6 transition-all duration-200 md:hover:scale-[1.02] hover:shadow-lg">
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           <AcquirerLogo
@@ -37,7 +37,7 @@ export function AdquirentesStatusCard({ row }: AdquirentesStatusCardProps) {
             logoUrl={row.acquirer.logoUrl}
             className="h-14 w-14 shrink-0 rounded-full border border-[#d7dde4] object-cover"
           />
-          <div className="flex flex-col items-start">
+          <div className="flex min-w-0 flex-col items-start">
             <p className="truncate text-[32px] font-bold md:text-xl">
               {row.acquirer.name}
             </p>
