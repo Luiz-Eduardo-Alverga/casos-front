@@ -92,7 +92,7 @@ export function CasoResumoModalContent({
   }
 
   const caso = item.caso;
-  const statusLabel = caso?.status?.descricao ?? "Não informado";
+  const statusLabel = caso?.status?.resolucao ?? "Não informado";
   const statusIdApi = Number(caso?.status?.status_id ?? 0);
 
   console.log("hasAnotations", hasAnotations);

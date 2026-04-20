@@ -87,10 +87,7 @@ function formatDataHoraProducao(value: string | null | undefined): string {
 
 /** Classifica tipo de produção para somar tempo em aberto nas métricas de dev vs. teste. */
 function isProducaoTipoTeste(tipo: string | null | undefined): boolean {
-  const t = (tipo ?? "")
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase();
+  const t = (tipo ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
   return (
     t.includes("teste") ||
     t.includes("test") ||
@@ -123,7 +120,19 @@ function parseDataHoraProducaoApi(
   );
 }
 
-/** Minutos inteiros decorridos (floor) entre abertura e fechamento; sem fechamento, usa `agora`. */
+function normalizeDateToMinute(d: Date): Date {
+  return new Date(
+    d.getFullYear(),
+    d.getMonth(),
+    d.getDate(),
+    d.getHours(),
+    d.getMinutes(),
+    0,
+    0,
+  );
+}
+
+/** Minutos decorridos (precisão de minuto) entre abertura e fechamento; sem fechamento, usa `agora`. */
 function minutosDuracaoProducaoApi(
   abertura: string | null | undefined,
   fechamento: string | null | undefined,
@@ -134,8 +143,9 @@ function minutosDuracaoProducaoApi(
   const dFe = fechamento?.trim()
     ? parseDataHoraProducaoApi(fechamento)
     : undefined;
-  const fim = dFe ?? agora;
-  return Math.max(0, Math.floor((fim.getTime() - dAb.getTime()) / 60000));
+  const inicio = normalizeDateToMinute(dAb);
+  const fim = normalizeDateToMinute(dFe ?? agora);
+  return Math.max(0, Math.round((fim.getTime() - inicio.getTime()) / 60000));
 }
 
 function minutosDuracaoEdicao(
@@ -144,8 +154,9 @@ function minutosDuracaoEdicao(
   agora: Date,
 ): number | null {
   if (!abertura) return null;
-  const fim = fechamento ?? agora;
-  return Math.max(0, Math.floor((fim.getTime() - abertura.getTime()) / 60000));
+  const inicio = normalizeDateToMinute(abertura);
+  const fim = normalizeDateToMinute(fechamento ?? agora);
+  return Math.max(0, Math.round((fim.getTime() - inicio.getTime()) / 60000));
 }
 
 function formatDuracaoMinutos(minutos: number | null): string {
@@ -504,17 +515,29 @@ export function AbaProducao({
                 /* 2.2: 3 métricas */
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <ProducaoMetricaCard
-                    label="Tempo Produção"
+                    label={
+                      realizadoMin < 60
+                        ? "Total minutos produção"
+                        : "Total horas produção"
+                    }
                     value={formatMinutosHoraEMinutos(realizadoMin)}
                     valueVariant="sky"
                   />
                   <ProducaoMetricaCard
-                    label="Total horas desenvolvidas"
-                    value={formatMinutos(desenvolvendoMin)}
+                    label={
+                      desenvolvendoMin < 60
+                        ? "Total minutos desenvolvidos"
+                        : "Total horas desenvolvidas"
+                    }
+                    value={formatMinutosHoraEMinutos(desenvolvendoMin)}
                     valueVariant="purple"
                   />
                   <ProducaoMetricaCard
-                    label="Total horas teste"
+                    label={
+                      testandoMin < 60
+                        ? "Total minutos de teste"
+                        : "Total horas teste"
+                    }
                     value={formatMinutosHoraEMinutos(testandoMin)}
                   />
                 </div>
@@ -522,21 +545,14 @@ export function AbaProducao({
                 /* 2.1: 5 métricas */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                   <ProducaoMetricaCard
-                    label="Tempo Estimado"
-                    value={formatMinutos(estimadoMin)}
-                  />
-                  <ProducaoMetricaCard
-                    label="Tempo Produção"
-                    value={formatMinutosHoraEMinutos(realizadoMin)}
-                    valueVariant="sky"
-                  />
-                  <ProducaoMetricaCard
-                    label="Tempo Excedido"
-                    value={formatTempoExcedido(estimadoMin, desenvolvendoMin)}
-                    valueVariant={
-                      desenvolvendoMin > estimadoMin ? "destructive" : "default"
+                    label={
+                      estimadoMin < 60
+                        ? "Total minutos estimado"
+                        : "Total horas estimado"
                     }
+                    value={formatMinutosHoraEMinutos(estimadoMin)}
                   />
+
                   <ProducaoMetricaCard
                     label={
                       realizadoMin < 60
@@ -546,6 +562,21 @@ export function AbaProducao({
                     value={formatMinutosHoraEMinutos(desenvolvendoMin)}
                     valueVariant="sky"
                   />
+
+                  <ProducaoMetricaCard
+                    label={
+                      desenvolvendoMin > estimadoMin
+                        ? "Tempo excedido"
+                        : "Tempo dentro do estimado"
+                    }
+                    value={formatMinutosHoraEMinutos(
+                      Math.abs(desenvolvendoMin - estimadoMin),
+                    )}
+                    valueVariant={
+                      desenvolvendoMin > estimadoMin ? "destructive" : "default"
+                    }
+                  />
+
                   <ProducaoMetricaCard
                     label={
                       testandoMin < 60
@@ -553,6 +584,12 @@ export function AbaProducao({
                         : "Total horas teste"
                     }
                     value={formatMinutosHoraEMinutos(testandoMin)}
+                    valueVariant="sky"
+                  />
+
+                  <ProducaoMetricaCard
+                    label="Tempo Produção"
+                    value={formatMinutosHoraEMinutos(realizadoMin)}
                     valueVariant="sky"
                   />
                 </div>

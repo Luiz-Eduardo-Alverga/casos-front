@@ -20,10 +20,12 @@ export function CasoFormStatus({ disabled = false }: { disabled?: boolean }) {
   });
 
   const statusOptions = useMemo(() => {
-    const list = (statusList ?? []).map((item) => ({
+    const list = (statusList ?? [])
+      .filter((item) => item.tipo_status === "CASO")
+      .map((item) => ({
       value: String(item.Registro),
       label: item.descricao ?? item.tipo ?? String(item.Registro),
-    }));
+      }));
     if (
       lazyLoadComboboxOptions &&
       editCaseItem?.caso?.status &&

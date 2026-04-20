@@ -42,18 +42,23 @@ export function StatusMultiSelect({
   const anchor = useComboboxAnchor();
   const { data: statusList = [], isLoading } = useStatus();
 
-  const items = React.useMemo(
-    () => (statusList ?? []).map((s) => String(s.Registro)),
+  const statusCasoList = React.useMemo(
+    () => (statusList ?? []).filter((s) => s.tipo_status === "CASO"),
     [statusList],
+  );
+
+  const items = React.useMemo(
+    () => statusCasoList.map((s) => String(s.Registro)),
+    [statusCasoList],
   );
 
   const labelById = React.useMemo(() => {
     const m = new Map<string, string>();
-    for (const s of statusList ?? []) {
+    for (const s of statusCasoList) {
       m.set(String(s.Registro), s.descricao ?? s.tipo ?? String(s.Registro));
     }
     return m;
-  }, [statusList]);
+  }, [statusCasoList]);
 
   const handleValueChange = React.useCallback(
     (next: unknown) => {
