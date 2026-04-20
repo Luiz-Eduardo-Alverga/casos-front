@@ -22,6 +22,7 @@ interface CasosTabelaProps {
     versao: string;
     modulo: string;
     tipo_categoria: string;
+    tipo_abertura: string;
     descricao_resumo: string;
     status_ids: string[];
     usuario_abertura_id: string;
@@ -43,6 +44,7 @@ function mapItemToRow(item: ProjetoMemoriaItem): CasosTabelaRow {
     descricao: item.caso.textos.descricao_resumo ?? "",
     status: item.caso.status?.status_tipo ?? "",
     categoria: item.caso.caracteristicas.tipo_categoria ?? "",
+    tipo_abertura: item.report?.tipo_abertura ?? "CASO",
   };
 }
 
@@ -70,6 +72,15 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
       ...(filtros.tipo_categoria
         ? { tipo_categoria: filtros.tipo_categoria }
         : {}),
+      ...(filtros.tipo_abertura?.trim()
+        ? {
+            tipo_abertura:
+              filtros.tipo_abertura.trim() === "CASO" ||
+              filtros.tipo_abertura.trim() === "REPORT"
+                ? (filtros.tipo_abertura.trim() as "CASO" | "REPORT")
+                : undefined,
+          }
+        : {}),
       ...(filtros.descricao_resumo?.trim()
         ? { descricao_resumo: filtros.descricao_resumo.trim() }
         : {}),
@@ -95,6 +106,7 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
       filtros.status_ids,
       filtros.modulo,
       filtros.tipo_categoria,
+      filtros.tipo_abertura,
       filtros.descricao_resumo,
       filtros.usuario_abertura_id,
       filtros.usuario_dev_id,
@@ -112,6 +124,7 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
       !!filtros.versao?.trim() ||
       !!filtros.modulo?.trim() ||
       !!filtros.tipo_categoria?.trim() ||
+      !!filtros.tipo_abertura?.trim() ||
       !!filtros.descricao_resumo?.trim()
     );
   }, [filtros]);

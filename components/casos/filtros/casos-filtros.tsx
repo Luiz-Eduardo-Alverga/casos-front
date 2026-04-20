@@ -26,6 +26,7 @@ interface CasosFiltersForm {
   versao: string;
   modulo: string;
   categoria: string;
+  tipo_abertura: "" | "CASO" | "REPORT";
   descricao_resumo: string;
   status_ids: string[];
   usuario_abertura_id: string;
@@ -41,6 +42,7 @@ interface CasosFiltrosProps {
     versao: string;
     modulo: string;
     tipo_categoria: string;
+    tipo_abertura?: string;
     descricao_resumo: string;
     status_ids: string[];
     usuario_abertura_id: string;
@@ -91,6 +93,7 @@ export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps
       versao: "",
       modulo: "",
       categoria: "",
+      tipo_abertura: "",
       descricao_resumo: "",
       status_ids: [],
       usuario_abertura_id: "",
@@ -113,6 +116,11 @@ export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps
         modulo: filtrosIniciais.modulo,
         descricao_resumo: filtrosIniciais.descricao_resumo,
         categoria: categoriaIdFromUrl || filtrosIniciais.tipo_categoria,
+        tipo_abertura:
+          filtrosIniciais.tipo_abertura === "CASO" ||
+          filtrosIniciais.tipo_abertura === "REPORT"
+            ? filtrosIniciais.tipo_abertura
+            : "",
         status_ids: [...(filtrosIniciais.status_ids ?? [])].slice(0, 5),
         usuario_abertura_id: filtrosIniciais.usuario_abertura_id ?? "",
         devAtribuido: filtrosIniciais.usuario_dev_id ?? "",
@@ -157,6 +165,9 @@ export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps
         categoria?.tipo_categoria ?? values.categoria.trim();
       params.set("tipo_categoria", valorTipoCategoria);
     }
+    if (values.tipo_abertura?.trim()) {
+      params.set("tipo_abertura", values.tipo_abertura.trim());
+    }
     if (values.descricao_resumo?.trim()) {
       params.set("descricao_resumo", values.descricao_resumo.trim());
     }
@@ -184,6 +195,7 @@ export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps
     params.delete("usuario_qa_id");
     params.delete("data_producao_inicio");
     params.delete("data_producao_fim");
+    params.delete("tipo_abertura");
     const qs = params.toString();
     router.push(qs ? `/casos?${qs}` : "/casos");
   }, [router, searchParams]);

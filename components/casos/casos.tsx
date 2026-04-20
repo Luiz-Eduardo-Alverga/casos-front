@@ -19,6 +19,7 @@ export function Casos() {
     const versao = params.get("versao") || "";
     const modulo = params.get("modulo") || "";
     const tipo_categoria = params.get("tipo_categoria") || "";
+    const tipo_abertura = params.get("tipo_abertura") || "";
     const descricao_resumo = params.get("descricao_resumo") || "";
     const usuario_abertura_id = params.get("usuario_abertura_id") || "";
     const usuario_dev_id = params.get("usuario_dev_id") || "";
@@ -41,6 +42,7 @@ export function Casos() {
       versao,
       modulo,
       tipo_categoria,
+      tipo_abertura,
       descricao_resumo,
       status_ids,
       usuario_abertura_id,

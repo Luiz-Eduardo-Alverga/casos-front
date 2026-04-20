@@ -23,8 +23,8 @@ export function CasoFormStatus({ disabled = false }: { disabled?: boolean }) {
     const list = (statusList ?? [])
       .filter((item) => item.tipo_status === "CASO")
       .map((item) => ({
-      value: String(item.Registro),
-      label: item.descricao ?? item.tipo ?? String(item.Registro),
+        value: String(item.Registro),
+        label: item.tipo ?? item.tipo ?? String(item.Registro),
       }));
     if (
       lazyLoadComboboxOptions &&
@@ -35,7 +35,7 @@ export function CasoFormStatus({ disabled = false }: { disabled?: boolean }) {
       const s = editCaseItem.caso.status;
       list.unshift({
         value: String(s.status_id),
-        label: s.descricao ?? s.codigo ?? String(s.status_id),
+        label: s.status_tipo ?? s.codigo ?? String(s.status_id),
       });
     }
     return list;

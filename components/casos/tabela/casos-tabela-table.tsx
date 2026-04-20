@@ -24,6 +24,7 @@ export interface CasosTabelaRow {
   status: string;
   categoria: string;
   importancia: number;
+  tipo_abertura?: string;
 }
 
 interface CasosTabelaTableProps {
@@ -86,9 +87,16 @@ export function CasosTabelaTable({
                 <span className="text-sm font-light text-[#1d1d1d]">
                   {row.produto}
                 </span>
-                <span className="text-xs font-light text-[#1d1d1d]">
-                  {row.versao}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-light text-[#1d1d1d]">
+                    {row.versao}
+                  </span>
+                  {String(row.tipo_abertura ?? "")
+                    .trim()
+                    .toUpperCase() === "REPORT" && (
+                    <span className=" font-bold  text-xs">REPORT</span>
+                  )}
+                </div>
               </div>
             </TableCell>
 
@@ -115,4 +123,3 @@ export function CasosTabelaTable({
     </Table>
   );
 }
-

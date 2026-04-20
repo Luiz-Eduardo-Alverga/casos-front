@@ -203,7 +203,7 @@ export interface ProjetoMemoriaReport {
   analise_status: string;
   analise_data_conclusao: string | null;
   sla: string | null;
-  tipo_abertura: string;
+  tipo_abertura: "CASO" | "REPORT";
   responsavel_feedback_nome: string | null;
 }
 
@@ -266,4 +266,5 @@ export interface ProjetoMemoriaParams {
   modulo?: string;
   data_producao_inicio?: string;
   data_producao_fim?: string;
+  tipo_abertura?: "CASO" | "REPORT";
 }

@@ -1,12 +1,14 @@
 "use client";
 
-import type React from "react";
+import * as React from "react";
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { FilterX, Search } from "lucide-react";
+import { CircleDot } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
+import { ComboboxField } from "@/components/reports-form/combobox-field";
 import {
   Sheet,
   SheetContent,
@@ -35,6 +37,14 @@ export const CasosFiltrosSheet = ({
   onFiltrar,
   onLimpar,
 }: CasosFiltrosSheetProps) => {
+  const tipoAberturaOptions = React.useMemo(
+    () => [
+      { value: "CASO", label: "CASO" },
+      { value: "REPORT", label: "REPORT" },
+    ],
+    [],
+  );
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>{trigger}</SheetTrigger>
@@ -57,6 +67,15 @@ export const CasosFiltrosSheet = ({
             </div>
 
             <div className="grid grid-cols-1 gap-4">
+              <ComboboxField
+                name="tipo_abertura"
+                label="Tipo de abertura"
+                icon={CircleDot}
+                options={tipoAberturaOptions}
+                placeholder="Todos"
+                emptyText="Nenhuma opção encontrada."
+              />
+
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-text-label">
                   Produção (início)
