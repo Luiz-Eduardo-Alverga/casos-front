@@ -129,6 +129,16 @@ export interface ClienteCasoItem {
   incidente: number;
 }
 
+export interface CasoRelacoes {
+  sequencia: number;
+  registro: number;
+  data_relacao: string | null;
+  tipo_relacao: number;
+  tipo_relacao_nome: string | null;
+  caso_relacionado: number;
+  descricao_resumo: string | null;
+}
+
 /** Datas de um item de produção (retorno da API projeto-memoria por id) */
 export interface ProducaoItemDatas {
   abertura: string | null;
@@ -165,6 +175,7 @@ export interface CasoItem {
   producao?: ProducaoDetalheItem[];
   anotacoes?: AnotacaoCasoItem[];
   clientes?: ClienteCasoItem[];
+  relacoes?: CasoRelacoes[];
 }
 
 export interface ProjetoMemoriaDatas {

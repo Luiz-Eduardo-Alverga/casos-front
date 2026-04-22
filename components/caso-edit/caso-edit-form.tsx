@@ -16,6 +16,9 @@ import { useUpdateAnotacao } from "@/hooks/use-update-anotacao";
 import { useDeleteAnotacao } from "@/hooks/use-delete-anotacao";
 import { useCreateClienteCaso } from "@/hooks/use-create-cliente-caso";
 import { useDeleteClienteCaso } from "@/hooks/use-delete-cliente-caso";
+import { useCreateCasoRelacao } from "@/hooks/use-create-caso-relacao";
+import { useUpdateCasoRelacao } from "@/hooks/use-update-caso-relacao";
+import { useDeleteCasoRelacao } from "@/hooks/use-delete-caso-relacao";
 
 import { CasoFormProvider } from "@/components/caso-form";
 import { importanceOptions } from "@/mocks/teste";
@@ -25,10 +28,10 @@ import { CasoEditRodapeAcoes } from "./caso-edit-rodape-acoes";
 import { CasoEditColunaDireita } from "./caso-edit-coluna-direita";
 import { CasoEditCardClassificacao } from "./caso-edit-card-classificacao";
 import { AbaInicial } from "./aba-inicial";
-import { AbaAnotacoes } from "./aba-anotacoes";
-import { AbaRelacoes } from "./aba-relacoes";
-import { AbaClientes } from "./aba-clientes";
-import { AbaProducao } from "./aba-producao";
+import { AbaAnotacoes } from "./anotacoes";
+import { AbaRelacoes } from "./relacoes";
+import { AbaClientes } from "./clientes";
+import { AbaProducao } from "./producao";
 
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
@@ -127,6 +130,9 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   const deleteAnotacao = useDeleteAnotacao();
   const createClienteCaso = useCreateClienteCaso();
   const deleteClienteCaso = useDeleteClienteCaso();
+  const createCasoRelacao = useCreateCasoRelacao();
+  const updateCasoRelacao = useUpdateCasoRelacao();
+  const deleteCasoRelacao = useDeleteCasoRelacao();
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["projeto-memoria", casoId] });
@@ -226,6 +232,36 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     invalidate();
   };
 
+  const handleAddRelacao = async (payload: {
+    registro: number;
+    tipo_relacao: 1 | 2 | 3 | 4 | 5;
+    caso_relacionado: number;
+    descricao_resumo: string;
+  }) => {
+    await createCasoRelacao.mutateAsync(payload);
+    toast.success("Relação criada com sucesso.");
+    invalidate();
+  };
+
+  const handleUpdateRelacao = async (payload: {
+    id: number;
+    data: {
+      tipo_relacao: 1 | 2 | 3 | 4 | 5;
+      caso_relacionado: number;
+      descricao_resumo: string;
+    };
+  }) => {
+    await updateCasoRelacao.mutateAsync(payload);
+    toast.success("Relação atualizada com sucesso.");
+    invalidate();
+  };
+
+  const handleDeleteRelacao = async (sequencia: number) => {
+    await deleteCasoRelacao.mutateAsync(sequencia);
+    toast.success("Relação excluída com sucesso.");
+    invalidate();
+  };
+
   const handleSaveProducao = async (payload: {
     TempoEstimado?: string | null;
     tamanho?: number | null;
@@ -247,9 +283,11 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     []) as ProjetoMemoriaItem["caso"]["anotacoes"];
   const clientes = (caso?.clientes ??
     []) as ProjetoMemoriaItem["caso"]["clientes"];
+  const relacoes = (caso?.relacoes ??
+    []) as ProjetoMemoriaItem["caso"]["relacoes"];
   const countAnotacoes = Array.isArray(anotacoes) ? anotacoes.length : 0;
   const countClientes = Array.isArray(clientes) ? clientes.length : 0;
-  const countRelacoes = 0;
+  const countRelacoes = Array.isArray(relacoes) ? relacoes.length : 0;
 
   const providerValue = useMemo(
     () => ({
@@ -333,7 +371,15 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                 >
                   <div className="flex flex-col lg:flex-row gap-6 flex-1">
                     <div className="flex-1 flex flex-col gap-6 min-w-0">
-                      <AbaRelacoes casoId={numeroCaso} />
+                      <AbaRelacoes
+                        casoId={numeroCaso}
+                        relacoes={relacoes ?? []}
+                        onAdd={handleAddRelacao}
+                        onUpdate={handleUpdateRelacao}
+                        onDelete={handleDeleteRelacao}
+                        isAdding={createCasoRelacao.isPending}
+                        isUpdating={updateCasoRelacao.isPending}
+                      />
                       <CasoEditCardClassificacao casoId={numeroCaso} />
                     </div>
                     <CasoEditColunaDireita

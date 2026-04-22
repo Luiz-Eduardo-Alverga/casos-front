@@ -2,8 +2,7 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { CasoEditView } from "@/components/caso-edit/caso-edit-view";
-import { Loader2 } from "lucide-react";
+import { CasoEditView } from "@/components/caso-edit/index";
 
 interface CasoEditPageProps {
   params: Promise<{ id: string }>;
