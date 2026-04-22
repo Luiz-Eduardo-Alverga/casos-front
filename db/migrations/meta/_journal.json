@@ -15,6 +15,13 @@
       "when": 1776015979288,
       "tag": "0001_flimsy_rocket_racer",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776813943954,
+      "tag": "0002_spooky_franklin_richards",
+      "breakpoints": true
     }
   ]
 }

@@ -269,7 +269,7 @@ export function StatusAdquirentesSheet({
   }, [selectedDevicesKey]);
 
   const onSubmit = form.handleSubmit(async (values) => {
-    const nextVersionId =
+    const rawNextVersionId =
       values.nextVersionId && values.nextVersionId !== NONE_OPTION
         ? values.nextVersionId
         : null;
@@ -286,17 +286,33 @@ export function StatusAdquirentesSheet({
       deviceId,
     }));
 
+    const status = values.status as
+      | "Em desenvolvimento"
+      | "Em teste"
+      | "Em homologação"
+      | "Em certificação"
+      | "Concluído";
+
+    /** Em "Concluído", se houver próxima versão ela vira a atual e `next` é limpo. */
+    const currentVersionIdForPayload =
+      status === "Concluído" && rawNextVersionId
+        ? rawNextVersionId
+        : values.currentVersionId;
+    const nextVersionIdForPayload =
+      status === "Concluído" && rawNextVersionId ? null : rawNextVersionId;
+
+    /** Fora de "Em certificação" a data de envio não se aplica — limpa no banco. */
+    const deliveryDate =
+      status === "Em certificação"
+        ? toIsoDateOnly(values.deliveryDate)
+        : null;
+
     const payload = {
       acquirerId: values.acquirerId,
-      currentVersionId: values.currentVersionId,
-      status: values.status as
-        | "Em desenvolvimento"
-        | "Em teste"
-        | "Em homologação"
-        | "Em certificação"
-        | "Concluído",
-      nextVersionId,
-      deliveryDate: toIsoDateOnly(values.deliveryDate),
+      currentVersionId: currentVersionIdForPayload,
+      status,
+      nextVersionId: nextVersionIdForPayload,
+      deliveryDate,
       recommendedDeviceId:
         values.recommendedDeviceId && compatibleDevices.some((d) => d.deviceId === values.recommendedDeviceId)
           ? values.recommendedDeviceId

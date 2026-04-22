@@ -15,6 +15,7 @@ import {
   type AcquirerStatusKanbanColumn,
 } from "@/components/cadastros/adquirentes/adquirentes-shared";
 import { useUpdateAcquirerStatus } from "@/hooks/use-create-acquirer-status";
+import type { AcquirerStatusUpdateInput } from "@/lib/validators/db/acquirer-status";
 import { mapAdquirentesRowsToKanban } from "./kanban/status-adquirentes-map";
 import { StatusAdquirentesBoard } from "./kanban/status-adquirentes-board";
 import { StatusAdquirentesSkeleton } from "./layout/status-adquirentes-skeleton";
@@ -23,6 +24,16 @@ import { StatusAdquirentesSheet } from "./sheet/status-adquirentes-sheet";
 interface StatusAdquirentesProps {
   initialSearch: string;
   initialStatus: string;
+}
+
+/** Data civil atual em `America/Sao_Paulo`, formato `YYYY-MM-DD` (coluna `date` / `isoDateStringSchema`). */
+function getTodayIsoDateSaoPaulo(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 export function StatusAdquirentes({
@@ -104,12 +115,39 @@ export function StatusAdquirentes({
 
       if (!targetColumn || !fromColumn || fromColumn === targetColumn) return;
 
+      const draggedRow = dataNow.find((item) => item.id === activeId)?.row;
+
+      const updateInput: AcquirerStatusUpdateInput = (() => {
+        if (targetColumn === "Em certificação") {
+          return {
+            status: targetColumn,
+            deliveryDate: getTodayIsoDateSaoPaulo(),
+          };
+        }
+
+        const base: AcquirerStatusUpdateInput = {
+          status: targetColumn,
+          deliveryDate: null,
+        };
+
+        if (
+          targetColumn === "Concluído" &&
+          draggedRow?.nextVersionId
+        ) {
+          return {
+            ...base,
+            currentVersionId: draggedRow.nextVersionId,
+            nextVersionId: null,
+          };
+        }
+
+        return base;
+      })();
+
       updateAcquirerStatusMutation.mutate(
         {
           id: activeId,
-          input: {
-            status: targetColumn,
-          },
+          input: updateInput,
         },
         {
           onSuccess: async () => {

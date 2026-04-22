@@ -19,6 +19,13 @@ Componente / Hook
     → Postgres (Supabase)
 ```
 
+## Usuários e permissões (RBAC)
+
+Tabelas em [`db/schema.ts`](../db/schema.ts): `app_users` (espelho do usuário Soft Flow por `legacy_user_id` único), `permissions`, `roles`, `role_permissions`, `user_roles`. Permissões efetivas vêm sempre do join papel → permissão; usuários novos podem ficar sem papéis até atribuição em `user_roles` (lista de códigos vazia).
+
+- **Login:** [`POST /api/login`](../app/api/login/route.ts) autentica na Soft Flow, **só então** grava o cookie `casos_token` e responde com `user`, `permissions` (códigos) e `appUser` (resumo do registro em `app_users`), após upsert via [`lib/auth/sync-app-user.ts`](../lib/auth/sync-app-user.ts). Se o sync com o Postgres falhar, o cookie **não** é definido.
+- **Re-sync:** `POST /api/db/users/sync` com sessão chama `GET /auth/me` na Soft Flow, valida com Zod ([`lib/validators/db/legacy-user.ts`](../lib/validators/db/legacy-user.ts)), faz o mesmo upsert e devolve `appUser` + `permissions`. O cliente pode usar [`services/db-api/sync-app-user.ts`](../services/db-api/sync-app-user.ts) (ex.: [`ProtectedRoute`](../components/protected-route.tsx) quando ainda não há permissões no `localStorage`).
+
 ## Telas de cadastro (UI)
 
 Listagem com busca (`?search=`) e **novo registro** em modal estão em:
@@ -61,8 +68,10 @@ A **listagem** (incluindo busca com debounce e `?search=` via `history.replaceSt
 
 ## Autenticação e testes (Postman)
 
-1. `POST /api/login` com `{ "usuario", "senha" }` — o cookie `casos_token` é definido automaticamente.
+1. `POST /api/login` com `{ "usuario", "senha" }` — após sucesso na Soft Flow e sync com o Postgres, o cookie `casos_token` é definido e o corpo inclui `permissions` e `appUser`.
 2. Chamadas a `/api/db/...` na mesma origem (Postman com cookie jar para `localhost`).
+
+A Soft Flow deve expor **`GET /auth/me`** com o mesmo formato de objeto `user` do login; o servidor usa `NEXT_PUBLIC_API_BASE_URL` ([`lib/axios.ts`](../lib/axios.ts)).
 
 Variável de ambiente necessária no servidor: **`DATABASE_URL`** (connection string do Postgres do Supabase).
 
@@ -89,6 +98,7 @@ Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` 
 | Método | Caminho | Descrição |
 |--------|---------|-----------|
 | GET | `/api/db/ping` | Sessão + `select 1` (sanidade auth + banco) |
+| POST | `/api/db/users/sync` | Upsert em `app_users` via `GET /auth/me` + lista de códigos de permissão |
 | GET | `/api/db/acquirers` | Lista adquirentes |
 | POST | `/api/db/acquirers` | Cria adquirente |
 | GET | `/api/db/acquirers/[id]` | Detalhe |
@@ -125,6 +135,7 @@ Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` 
 | 404 | Recurso não encontrado |
 | 409 | Violação de FK ou unique (Postgres) |
 | 500 | Erro interno não mapeado |
+| 502 | Resposta inválida da Soft Flow ou validação do usuário em `/api/db/users/sync` |
 | 503 | Usado em `/api/db/ping` quando a query ao banco falha |
 
 Corpos de erro seguem `{ "error": { "message": "..." } }` (exceto `204`).

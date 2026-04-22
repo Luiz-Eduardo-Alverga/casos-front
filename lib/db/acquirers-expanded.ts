@@ -16,6 +16,8 @@ export type AcquirerListExpandedItem = {
   acquirerStatusId: string | null;
   sortOrder: number | null;
   status: string | null;
+  currentVersionId: string | null;
+  nextVersionId: string | null;
   currentVersionName: string | null;
   nextVersionName: string | null;
   deliveryDate: string | null;
@@ -142,6 +144,8 @@ export async function listAcquirersExpanded(
       acquirerStatusId: st?.id ?? null,
       sortOrder: st?.sortOrder ?? null,
       status: st?.status ?? null,
+      currentVersionId: st?.currentVersionId ?? null,
+      nextVersionId: st?.nextVersionId ?? null,
       currentVersionName: st
         ? versionLabelById.get(st.currentVersionId) ?? null
         : null,

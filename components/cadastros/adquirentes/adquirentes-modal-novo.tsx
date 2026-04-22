@@ -6,7 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useCreateAcquirer, useUpdateAcquirer } from "@/hooks/use-create-acquirer";
+import {
+  useCreateAcquirer,
+  useUpdateAcquirer,
+} from "@/hooks/use-create-acquirer";
 import { acquirerCreateSchema } from "@/lib/validators/db/acquirers";
 import type { AcquirerCreateInput } from "@/lib/validators/db/acquirers";
 import { Button } from "@/components/ui/button";
@@ -147,83 +150,83 @@ export function AdquirentesModalNovo({
         {isLoadingEdit ? (
           <AdquirentesModalSkeleton />
         ) : (
-        <form onSubmit={onSubmit} className="px-6 pb-8 pt-6 space-y-4">
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="acq-name"
-              className="text-sm font-medium text-zinc-900"
-            >
-              Nome<span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="acq-name"
-              autoComplete="off"
-              placeholder="Ex: Getnet, Rede, Stone..."
-              className="h-11 rounded-lg px-4 border-zinc-200 placeholder:text-zinc-400"
-              {...form.register("name")}
+          <form onSubmit={onSubmit} className="px-6 pb-8 pt-6 space-y-4">
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="acq-name"
+                className="text-sm font-medium text-zinc-900"
+              >
+                Nome<span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="acq-name"
+                autoComplete="off"
+                placeholder="Ex: Getnet, Rede, Stone..."
+                className="h-11 rounded-lg px-4 border-zinc-200 placeholder:text-zinc-400"
+                {...form.register("name")}
+              />
+              {form.formState.errors.name && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.name.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="acq-logo"
+                className="text-sm font-medium text-zinc-900"
+              >
+                URL da logo
+              </Label>
+              <Input
+                id="acq-logo"
+                type="url"
+                placeholder="https://logoexemplo.com"
+                className="h-11 rounded-lg px-4 border-zinc-200 placeholder:text-zinc-400"
+                autoComplete="off"
+                {...form.register("logoUrl")}
+              />
+              {logoError && (
+                <p className="text-sm text-destructive">{logoError}</p>
+              )}
+            </div>
+
+            <SwitchChoiceCard
+              id="acq-4g"
+              title="Suporta 4G"
+              description="Indica se a adquirente tem suporte para conexão 4G"
+              checked={form.watch("has4g")}
+              onCheckedChange={(checked) =>
+                form.setValue("has4g", checked, { shouldValidate: true })
+              }
             />
-            {form.formState.errors.name && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.name.message}
-              </p>
-            )}
-          </div>
 
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="acq-logo"
-              className="text-sm font-medium text-zinc-900"
-            >
-              URL da logo
-            </Label>
-            <Input
-              id="acq-logo"
-              type="url"
-              placeholder="https://logoexemplo.com"
-              className="h-11 rounded-lg px-4 border-zinc-200 placeholder:text-zinc-400"
-              autoComplete="off"
-              {...form.register("logoUrl")}
-            />
-            {logoError && (
-              <p className="text-sm text-destructive">{logoError}</p>
-            )}
-          </div>
-
-          <SwitchChoiceCard
-            id="acq-4g"
-            title="Suporta 4G"
-            description="Indica se a adquirente tem suporte para conexão 4G"
-            checked={form.watch("has4g")}
-            onCheckedChange={(checked) =>
-              form.setValue("has4g", checked, { shouldValidate: true })
-            }
-          />
-
-          <DialogFooter className="gap-2 sm:justify-end pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-10 rounded-lg border-zinc-200 px-6 text-zinc-900"
-              onClick={() => handleClose(false)}
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              className="h-10 rounded-lg px-6 bg-slate-600 hover:bg-slate-700"
-              disabled={isSubmitting}
-            >
-              {isSubmitting
-                ? isEditMode
-                  ? "Salvando..."
-                  : "Cadastrando..."
-                : isEditMode
-                  ? "Salvar"
-                  : "Cadastrar"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="gap-2 sm:justify-end pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 rounded-lg border-zinc-200 px-6 text-zinc-900"
+                onClick={() => handleClose(false)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                className="h-10 rounded-lg px-6 bg-primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? isEditMode
+                    ? "Salvando..."
+                    : "Cadastrando..."
+                  : isEditMode
+                    ? "Salvar"
+                    : "Cadastrar"}
+              </Button>
+            </DialogFooter>
+          </form>
         )}
       </DialogContent>
     </Dialog>

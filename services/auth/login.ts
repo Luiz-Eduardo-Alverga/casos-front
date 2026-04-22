@@ -1,3 +1,5 @@
+import type { AppUserSummary } from "@/lib/auth";
+
 interface LoginParams {
   usuario: string;
   senha: string;
@@ -14,6 +16,11 @@ export interface LoginResponse {
     usuario_grupo_id: string;
     setor: string;
   };
+  /** Códigos de permissão RBAC (`permissions.code`) após sync com o Postgres. */
+  permissions?: string[];
+  /** Espelho local em `app_users`. */
+  appUser?: AppUserSummary;
+  error?: string;
 }
 
 export async function login({

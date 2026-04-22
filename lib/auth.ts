@@ -6,18 +6,43 @@ export interface User {
   setor: string;
 }
 
+/** Registro local (`app_users`) retornado no login/sync. */
+export interface AppUserSummary {
+  id: string;
+  legacyUserId: number;
+  email: string;
+  nome: string;
+  setor: string;
+  usuarioGrupoId: string;
+}
+
 /** Token não é mais exposto ao cliente — fica apenas em cookie HttpOnly no servidor. */
 const USER_KEY = "@casos:user";
+
+const PERMISSIONS_KEY = "@casos:permissions";
+
+const APP_USER_KEY = "@casos:appUser";
 
 /** Chave do produto selecionado no Painel (ordem). Removida em clearAuthData(). */
 export const PAINEL_PRODUTO_ORDEM_KEY = "@casos:painel:produto-ordem";
 
 /**
- * Salva apenas o user no cliente (após login). O token é armazenado em cookie HttpOnly pela API.
+ * Salva user (e opcionalmente permissões / app user) no cliente após login ou sync.
+ * O token fica em cookie HttpOnly pela API.
  */
-export function saveAuthData(data: { user: User }) {
+export function saveAuthData(data: {
+  user: User;
+  permissions?: string[];
+  appUser?: AppUserSummary;
+}) {
   if (typeof window !== "undefined") {
     localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    if (data.permissions !== undefined) {
+      localStorage.setItem(PERMISSIONS_KEY, JSON.stringify(data.permissions));
+    }
+    if (data.appUser !== undefined) {
+      localStorage.setItem(APP_USER_KEY, JSON.stringify(data.appUser));
+    }
   }
 }
 
@@ -50,6 +75,30 @@ export function getUser(): User | null {
   return null;
 }
 
+/** Lista de códigos de permissão do RBAC local; `null` se ainda não sincronizado. */
+export function getPermissions(): string[] | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem(PERMISSIONS_KEY);
+  if (raw === null) return null;
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? (parsed as string[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getAppUser(): AppUserSummary | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem(APP_USER_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as AppUserSummary;
+  } catch {
+    return null;
+  }
+}
+
 /** Retorna user se existir (autenticação considerada válida se temos user + cookie no servidor). */
 export function getAuthData(): { user: User } | null {
   const user = getUser();
@@ -61,6 +110,8 @@ export function getAuthData(): { user: User } | null {
 export function clearAuthData() {
   if (typeof window !== "undefined") {
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(PERMISSIONS_KEY);
+    localStorage.removeItem(APP_USER_KEY);
     localStorage.removeItem(PAINEL_PRODUTO_ORDEM_KEY);
   }
 }

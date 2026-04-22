@@ -3,26 +3,31 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
+import { getSafeInternalReturnPath } from "@/lib/safe-callback-url";
 
 interface PublicRouteProps {
   children: React.ReactNode;
+  /** Query `callbackUrl` da página de login (rota interna segura após já autenticado). */
+  callbackUrl?: string;
 }
 
-export function PublicRoute({ children }: PublicRouteProps) {
+export function PublicRoute({ children, callbackUrl }: PublicRouteProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = () => {
       if (isAuthenticated()) {
-        router.push("/painel");
+        const dest =
+          getSafeInternalReturnPath(callbackUrl) ?? "/painel";
+        router.push(dest);
       } else {
         setIsLoading(false);
       }
     };
 
     checkAuth();
-  }, [router]);
+  }, [router, callbackUrl]);
 
   if (isLoading) {
     return (

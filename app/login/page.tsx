@@ -7,10 +7,18 @@ export const metadata: Metadata = {
   description: "Login",
 };
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}) {
+  const sp = await searchParams;
+  const callbackUrl =
+    typeof sp.callbackUrl === "string" ? sp.callbackUrl : undefined;
+
   return (
-    <PublicRoute>
-      <Login />
+    <PublicRoute callbackUrl={callbackUrl}>
+      <Login callbackUrl={callbackUrl} />
     </PublicRoute>
   );
 }

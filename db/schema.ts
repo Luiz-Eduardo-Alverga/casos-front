@@ -79,3 +79,63 @@ export const acquirerCompatibleDevices = pgTable(
     }),
   ],
 );
+
+/** Usuário espelhado da Soft Flow (fonte de identidade: `legacy_user_id`). */
+export const appUsers = pgTable("app_users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  legacyUserId: integer("legacy_user_id").notNull().unique(),
+  email: text("email").notNull().unique(),
+  nome: text("nome").notNull(),
+  setor: text("setor").notNull(),
+  usuarioGrupoId: text("usuario_grupo_id").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+export const permissions = pgTable("permissions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  description: text("description"),
+});
+
+export const roles = pgTable("roles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+});
+
+export const rolePermissions = pgTable(
+  "role_permissions",
+  {
+    roleId: uuid("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "cascade" }),
+    permissionId: uuid("permission_id")
+      .notNull()
+      .references(() => permissions.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({
+      columns: [t.roleId, t.permissionId],
+      name: "role_permissions_pkey",
+    }),
+  ],
+);
+
+export const userRoles = pgTable(
+  "user_roles",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => appUsers.id, { onDelete: "cascade" }),
+    roleId: uuid("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({
+      columns: [t.userId, t.roleId],
+      name: "user_roles_pkey",
+    }),
+  ],
+);

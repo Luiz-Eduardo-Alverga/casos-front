@@ -31,6 +31,8 @@ tags:
     description: Status por adquirente
   - name: CompatibleDevices
     description: Dispositivos compatíveis por status
+  - name: Users
+    description: Usuário local (app_users) e permissões RBAC
 
 security:
   - sessionCookie: []
@@ -156,6 +158,49 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PingData"
+
+    AppUserSummary:
+      type: object
+      required:
+        - id
+        - legacyUserId
+        - email
+        - nome
+        - setor
+        - usuarioGrupoId
+      properties:
+        id:
+          type: string
+          format: uuid
+        legacyUserId:
+          type: integer
+        email:
+          type: string
+        nome:
+          type: string
+        setor:
+          type: string
+        usuarioGrupoId:
+          type: string
+
+    UserSyncPayload:
+      type: object
+      required: [appUser, permissions]
+      properties:
+        appUser:
+          $ref: "#/components/schemas/AppUserSummary"
+        permissions:
+          type: array
+          items:
+            type: string
+          description: Códigos distintos de `permissions.code` via papéis do usuário.
+
+    SuccessUserSync:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/UserSyncPayload"
 
     Acquirer:
       type: object
@@ -664,6 +709,32 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
+
+  /api/db/users/sync:
+    post:
+      tags: [Users]
+      summary: Sincronizar usuário e permissões
+      description: |
+        Exige sessão (`casos_token`). Chama `GET /auth/me` na API Soft Flow com o Bearer do cookie,
+        valida o payload, faz upsert em `app_users` e retorna os códigos de permissão efetivos (RBAC).
+      operationId: dbUsersSync
+      responses:
+        "200":
+          description: Usuário sincronizado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessUserSync"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "502":
+          description: Resposta inválida da Soft Flow ou falha ao validar usuário.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
 
   /api/db/acquirers:
     get:

@@ -1,5 +1,13 @@
 import { clearAuthData } from "@/lib/auth";
 
+function loginHrefPreservingCurrentUrl(): string {
+  if (typeof window === "undefined") return "/login";
+  const fullPath = `${window.location.pathname}${window.location.search}`;
+  return fullPath
+    ? `/login?callbackUrl=${encodeURIComponent(fullPath)}`
+    : "/login";
+}
+
 /**
  * Tenta renovar o token via endpoint de refresh (cookie é enviado automaticamente).
  * O servidor atualiza o cookie e retorna sucesso; o cliente apenas repete a requisição.
@@ -41,7 +49,7 @@ export async function fetchWithAuth(
       clearAuthData();
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
       if (typeof window !== "undefined") {
-        window.location.href = "/login";
+        window.location.href = loginHrefPreservingCurrentUrl();
       }
     }
   }

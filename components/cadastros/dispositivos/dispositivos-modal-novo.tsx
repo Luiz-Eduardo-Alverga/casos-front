@@ -114,56 +114,56 @@ export function DispositivosModalNovo({
         {isLoadingEdit ? (
           <DispositivosModalSkeleton />
         ) : (
-        <form onSubmit={onSubmit} className="px-6 pb-8 pt-6 space-y-8">
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="dev-name"
-              className="text-sm font-medium text-zinc-900"
-            >
-              Nome<span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="dev-name"
-              autoComplete="off"
-              placeholder="Ex: L400, DX8000..."
-              className="h-11 rounded-lg px-4 border-zinc-200 placeholder:text-zinc-400"
-              {...form.register("name")}
-            />
-            {form.formState.errors.name && (
-              <p className="text-sm text-destructive pt-0.5">
-                {form.formState.errors.name.message}
+          <form onSubmit={onSubmit} className="px-6 pb-8 pt-6 space-y-8">
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="dev-name"
+                className="text-sm font-medium text-zinc-900"
+              >
+                Nome<span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="dev-name"
+                autoComplete="off"
+                placeholder="Ex: L400, DX8000..."
+                className="h-11 rounded-lg px-4 border-zinc-200 placeholder:text-zinc-400"
+                {...form.register("name")}
+              />
+              {form.formState.errors.name && (
+                <p className="text-sm text-destructive pt-0.5">
+                  {form.formState.errors.name.message}
+                </p>
+              )}
+              <p className="text-xs font-semibold text-zinc-400 pt-0.5">
+                Modelo do terminal POS (ponto de venda)
               </p>
-            )}
-            <p className="text-xs font-semibold text-zinc-400 pt-0.5">
-              Modelo do terminal POS (ponto de venda)
-            </p>
-          </div>
+            </div>
 
-          <DialogFooter className="gap-2 sm:justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-10 rounded-lg border-zinc-200 px-6 text-zinc-900"
-              onClick={() => handleClose(false)}
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              className="h-10 rounded-lg px-6 bg-slate-600 hover:bg-slate-700"
-              disabled={isSubmitting}
-            >
-              {isSubmitting
-                ? isEditMode
-                  ? "Salvando..."
-                  : "Cadastrando..."
-                : isEditMode
-                  ? "Salvar"
-                  : "Cadastrar"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="gap-2 sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 rounded-lg border-zinc-200 px-6 text-zinc-900"
+                onClick={() => handleClose(false)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                className="h-10 rounded-lg px-6 bg-primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? isEditMode
+                    ? "Salvando..."
+                    : "Cadastrando..."
+                  : isEditMode
+                    ? "Salvar"
+                    : "Cadastrar"}
+              </Button>
+            </DialogFooter>
+          </form>
         )}
       </DialogContent>
     </Dialog>

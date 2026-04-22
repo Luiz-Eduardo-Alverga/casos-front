@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import Image from "next/image";
 import { useLogin } from "@/hooks/use-login";
 import { saveAuthData } from "@/lib/auth";
+import { getSafeInternalReturnPath } from "@/lib/safe-callback-url";
 import { LoginBanner } from "./login-banner";
 import { LoginForm, type LoginFormData } from "./login-form";
 
@@ -23,7 +24,12 @@ const loginSchema = z.object({
 const REMEMBER_ME_KEY = "@casos:rememberMe";
 const REMEMBERED_EMAIL_KEY = "@casos:rememberedEmail";
 
-export function Login() {
+interface LoginProps {
+  /** Valor bruto de `callbackUrl` vindo da query (validado antes do push). */
+  callbackUrl?: string;
+}
+
+export function Login({ callbackUrl }: LoginProps) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -54,7 +60,11 @@ export function Login() {
       });
 
       if (response.success && response.user) {
-        saveAuthData({ user: response.user });
+        saveAuthData({
+          user: response.user,
+          permissions: response.permissions,
+          appUser: response.appUser,
+        });
 
         if (rememberMe) {
           localStorage.setItem(REMEMBER_ME_KEY, "true");
@@ -64,7 +74,9 @@ export function Login() {
           localStorage.removeItem(REMEMBERED_EMAIL_KEY);
         }
 
-        router.push("/painel");
+        const dest =
+          getSafeInternalReturnPath(callbackUrl) ?? "/painel";
+        router.push(dest);
       }
     } catch (error) {
       toast.error("Credenciais inválidas");
