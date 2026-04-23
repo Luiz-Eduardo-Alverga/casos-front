@@ -7,10 +7,25 @@ import { useCasoForm } from "@/components/caso-form/provider";
 import { useFormContext } from "react-hook-form";
 import { useStatus } from "@/hooks/use-status";
 
-export function CasoFormStatus({ disabled = false }: { disabled?: boolean }) {
+export interface CasoFormStatusProps {
+  name?: string;
+  label?: string;
+  required?: boolean;
+  disabled?: boolean;
+  /** Qual valor de `tipo_status` da API filtrar na lista. Padrão: `"CASO"`. */
+  tipoStatus?: "CASO" | "REPORT";
+}
+
+export function CasoFormStatus({
+  name = "status",
+  label = "Status do caso",
+  required = false,
+  disabled = false,
+  tipoStatus = "CASO",
+}: CasoFormStatusProps) {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
-  const statusValue = watch("status");
+  const statusValue = watch(name);
   const [optionsRequested, setOptionsRequested] = useState(
     !lazyLoadComboboxOptions,
   );
@@ -21,7 +36,7 @@ export function CasoFormStatus({ disabled = false }: { disabled?: boolean }) {
 
   const statusOptions = useMemo(() => {
     const list = (statusList ?? [])
-      .filter((item) => item.tipo_status === "CASO")
+      .filter((item) => item.tipo_status === tipoStatus)
       .map((item) => ({
         value: String(item.Registro),
         label: item.tipo ?? item.tipo ?? String(item.Registro),
@@ -39,13 +54,13 @@ export function CasoFormStatus({ disabled = false }: { disabled?: boolean }) {
       });
     }
     return list;
-  }, [statusList, lazyLoadComboboxOptions, editCaseItem, statusValue]);
+  }, [statusList, tipoStatus, lazyLoadComboboxOptions, editCaseItem, statusValue]);
 
   return (
     <div className="space-y-2">
       <ComboboxField
-        name="status"
-        label="Status do caso"
+        name={name}
+        label={label}
         icon={CircleDot}
         options={statusOptions}
         placeholder="Selecione o status..."
@@ -53,6 +68,7 @@ export function CasoFormStatus({ disabled = false }: { disabled?: boolean }) {
           isStatusLoading ? "Carregando status..." : "Nenhum status encontrado."
         }
         searchDebounceMs={450}
+        required={required}
         disabled={isDisabled || disabled}
         onOpenChange={
           lazyLoadComboboxOptions

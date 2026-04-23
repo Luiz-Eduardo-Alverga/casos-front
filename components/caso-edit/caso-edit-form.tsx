@@ -36,6 +36,10 @@ import { AbaProducao } from "./producao";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import type { UpdateCasoRequest } from "@/services/projeto-casos/update";
+import {
+  buildAnaliseConclusaoByStatus,
+  normalizeAnaliseStatusForForm,
+} from "./report-analise-modal/utils";
 
 const editFormSchema = z.object({
   produto: z.string().min(1, "Produto é obrigatório"),
@@ -52,6 +56,8 @@ const editFormSchema = z.object({
   DescricaoCompleta: z.string().min(1, "Descrição completa é obrigatória"),
   InformacoesAdicionais: z.string().optional(),
   status: z.string().min(1, "Status é obrigatório"),
+  analiseStatus: z.string().optional(),
+  reportPrioridade: z.string().optional(),
 });
 
 type EditFormData = z.infer<typeof editFormSchema>;
@@ -76,6 +82,8 @@ function getDefaultValues(item: ProjetoMemoriaItem): EditFormData {
     DescricaoCompleta: caso?.textos?.descricao_completa ?? "",
     InformacoesAdicionais: caso?.textos?.informacoes_adicionais ?? "",
     status: String(caso?.status?.status_id ?? "1"),
+    analiseStatus: normalizeAnaliseStatusForForm(item.report?.analise_status),
+    reportPrioridade: String(item.report?.prioridade ?? ""),
   };
 }
 
@@ -94,6 +102,8 @@ const fallbackDefaults: EditFormData = {
   DescricaoCompleta: "",
   InformacoesAdicionais: "",
   status: "1",
+  analiseStatus: "",
+  reportPrioridade: "",
 };
 
 export interface CasoEditFormProps {
@@ -142,6 +152,17 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     try {
       const versaoProduto =
         formData.versao?.split("-")[1]?.trim() || formData.versao || "";
+      const statusReportAtual = normalizeAnaliseStatusForForm(
+        item.report?.analise_status,
+      );
+      const statusReportSelecionado = (formData.analiseStatus ?? "").trim();
+      const statusReportAlterado =
+        statusReportSelecionado !== "" &&
+        statusReportSelecionado !== statusReportAtual;
+      const analiseDataConclusao = statusReportAlterado
+        ? buildAnaliseConclusaoByStatus(statusReportSelecionado)
+        : undefined;
+
       const payload: UpdateCasoRequest = {
         DescricaoResumo: formData.DescricaoResumo,
         DescricaoCompleta: (formData.DescricaoCompleta || "").replace(
@@ -159,6 +180,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         Id_Origem: Number(formData.origem),
         status: Number(formData.status) || Number(caso?.status?.status_id ?? 1),
         atribuido_qa: Number(formData.qaAtribuido),
+        analise_status: statusReportAlterado ? statusReportSelecionado : undefined,
+        analise_data_conclusao: analiseDataConclusao,
       };
       await updateCaso.mutateAsync({ id: casoId, data: payload });
       toast.success("Caso atualizado com sucesso.");
@@ -335,9 +358,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       <AbaInicial casoId={numeroCaso} />
                     </div>
                     <CasoEditColunaDireita
+                      openingType={item.report.tipo_abertura}
                       statusIdApi={statusIdApi}
                       memoriaQueryId={casoId}
                       onStatusUpdated={invalidate}
+                      report={item.report}
+                      onSalvar={handleSalvar}
+                      isSaving={updateCaso.isPending}
+                      disabled={updateCaso.isPending}
                     />
                   </div>
                 </TabsContent>
@@ -358,9 +386,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       />
                     </div>
                     <CasoEditColunaDireita
+                      openingType={item.report.tipo_abertura}
                       statusIdApi={statusIdApi}
                       memoriaQueryId={casoId}
                       onStatusUpdated={invalidate}
+                      report={item.report}
+                      onSalvar={handleSalvar}
+                      isSaving={updateCaso.isPending}
+                      disabled={updateCaso.isPending}
                     />
                   </div>
                 </TabsContent>
@@ -383,9 +416,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       <CasoEditCardClassificacao casoId={numeroCaso} />
                     </div>
                     <CasoEditColunaDireita
+                      openingType={item.report.tipo_abertura}
                       statusIdApi={statusIdApi}
                       memoriaQueryId={casoId}
                       onStatusUpdated={invalidate}
+                      report={item.report}
+                      onSalvar={handleSalvar}
+                      isSaving={updateCaso.isPending}
+                      disabled={updateCaso.isPending}
                     />
                   </div>
                 </TabsContent>
@@ -406,9 +444,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       <CasoEditCardClassificacao casoId={numeroCaso} />
                     </div>
                     <CasoEditColunaDireita
+                      openingType={item.report.tipo_abertura}
                       statusIdApi={statusIdApi}
                       memoriaQueryId={casoId}
                       onStatusUpdated={invalidate}
+                      report={item.report}
+                      onSalvar={handleSalvar}
+                      isSaving={updateCaso.isPending}
+                      disabled={updateCaso.isPending}
                     />
                   </div>
                 </TabsContent>
@@ -428,9 +471,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       />
                     </div>
                     <CasoEditColunaDireita
+                      openingType={item.report.tipo_abertura}
                       statusIdApi={statusIdApi}
                       memoriaQueryId={casoId}
                       onStatusUpdated={invalidate}
+                      report={item.report}
+                      onSalvar={handleSalvar}
+                      isSaving={updateCaso.isPending}
+                      disabled={updateCaso.isPending}
                     />
                   </div>
                 </TabsContent>

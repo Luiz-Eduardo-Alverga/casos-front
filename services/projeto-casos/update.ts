@@ -61,6 +61,8 @@ export interface UpdateCasoRequest {
   atualizacao_automatica?: boolean;
   sinc?: boolean;
   atribuido_qa?: number;
+  analise_status?: string;
+  analise_data_conclusao?: string | null;
 }
 
 export interface UpdateCasoResponse {

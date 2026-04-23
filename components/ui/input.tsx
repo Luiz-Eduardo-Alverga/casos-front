@@ -59,9 +59,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ? clearable
         : TYPES_WITH_CLEAR_BY_DEFAULT.has(type ?? "text");
 
+    const isReadOnly = Boolean(props.readOnly);
+
     const showClear =
       effectiveClearable &&
       !disabled &&
+      !isReadOnly &&
       stringValue.length > 0 &&
       type !== "password" &&
       type !== "file" &&
