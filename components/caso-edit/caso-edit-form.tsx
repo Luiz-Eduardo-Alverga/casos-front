@@ -156,6 +156,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         item.report?.analise_status,
       );
       const statusReportSelecionado = (formData.analiseStatus ?? "").trim();
+      const forceStatusEDevPorAnalise = statusReportSelecionado === "21";
       const statusReportAlterado =
         statusReportSelecionado !== "" &&
         statusReportSelecionado !== statusReportAtual;
@@ -173,15 +174,25 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         Prioridade: Number(formData.importancia),
         Categoria: Number(formData.categoria),
         Relator: Number(formData.relator),
-        AtribuidoPara: Number(formData.devAtribuido),
+        AtribuidoPara: forceStatusEDevPorAnalise
+          ? 631
+          : Number(formData.devAtribuido),
         Modulo: formData.modulo || undefined,
         VersaoProduto: versaoProduto,
         Cronograma_id: Number(formData.projeto),
         Id_Origem: Number(formData.origem),
-        status: Number(formData.status) || Number(caso?.status?.status_id ?? 1),
+        status: forceStatusEDevPorAnalise
+          ? 8
+          : Number(formData.status) || Number(caso?.status?.status_id ?? 1),
         atribuido_qa: Number(formData.qaAtribuido),
-        analise_status: statusReportAlterado ? statusReportSelecionado : undefined,
-        analise_data_conclusao: analiseDataConclusao,
+        report_analise_aprovado: statusReportAlterado,
+        report_analise_status: statusReportAlterado
+          ? statusReportSelecionado
+          : undefined,
+        report_analise_data_conclusao: analiseDataConclusao,
+        report_data_limite: forceStatusEDevPorAnalise
+          ? null
+          : analiseDataConclusao,
       };
       await updateCaso.mutateAsync({ id: casoId, data: payload });
       toast.success("Caso atualizado com sucesso.");

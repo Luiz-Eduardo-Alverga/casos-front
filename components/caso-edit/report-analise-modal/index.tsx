@@ -1,7 +1,8 @@
 "use client";
 
-import { Sparkles, X, Save, Loader2 } from "lucide-react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Sparkles, X, Save, Loader2, ArrowLeft } from "lucide-react";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
 
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
 import { CasoFormModulo } from "@/components/fields/caso-form-modulo";
@@ -50,6 +51,25 @@ export function ReportAnaliseModal({
   const responsavelFeedback = report.responsavel_feedback_nome?.trim() || "—";
   const dataConclusao = formatReportDate(report.analise_data_conclusao);
   const { control } = useFormContext();
+  const analiseStatusValue = useWatch({ control, name: "analiseStatus" });
+
+  const analiseStatusId = useMemo(() => {
+    return String(analiseStatusValue ?? "").trim();
+  }, [analiseStatusValue]);
+
+  const isStatusStepByStep = analiseStatusId === "20" || analiseStatusId === "22";
+  const isStepFlow = !analiseConcluida && isStatusStepByStep;
+  const [step, setStep] = useState<1 | 2>(1);
+
+  useEffect(() => {
+    if (!open) {
+      setStep(1);
+      return;
+    }
+    if (!isStepFlow) {
+      setStep(1);
+    }
+  }, [open, isStepFlow]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -107,14 +127,7 @@ export function ReportAnaliseModal({
               disabled={disabled}
             />
 
-            {!analiseConcluida ? (
-              <div className="min-w-0 space-y-4">
-                <CasoFormVersao todas={false} />
-                <CasoFormProjeto />
-                <CasoFormDevAtribuido />
-                <CasoFormModulo required={false} />
-              </div>
-            ) : (
+            {analiseConcluida ? (
               <div className="min-w-0 space-y-4">
                 <Separator />
                 <ReportReadonlyField
@@ -125,39 +138,124 @@ export function ReportAnaliseModal({
                   <ReportReadonlyField label="Usuário Conclusão" value="—" />
                 </div>
               </div>
-            )}
+            ) : isStepFlow && step === 2 ? (
+              <div className="min-w-0 space-y-4">
+                <CasoFormVersao todas={false} />
+                <CasoFormProjeto />
+                <CasoFormDevAtribuido />
+                <CasoFormModulo required={false} />
+              </div>
+            ) : null}
           </div>
 
-          <div className="flex min-w-0 w-full gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading || disabled}
-              className="flex-1"
-            >
-              <X className="h-3.5 w-3.5" />
-              Cancelar
-            </Button>
-            <Button
-              type="button"
-              onClick={onSalvar}
-              disabled={isLoading || disabled}
-              className="flex-1"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
-                  Salvando...
-                </>
-              ) : (
-                <>
+          {analiseConcluida ? (
+            <div className="flex min-w-0 w-full gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isLoading || disabled}
+                className="flex-1"
+              >
+                <X className="h-3.5 w-3.5" />
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                onClick={onSalvar}
+                disabled={isLoading || disabled}
+                className="flex-1"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-3.5 w-3.5 mr-2" />
+                    Salvar
+                  </>
+                )}
+              </Button>
+            </div>
+          ) : isStepFlow ? (
+            step === 1 ? (
+              <div className="flex min-w-0 w-full gap-4">
+                <Button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  disabled={isLoading || disabled}
+                  className="flex-1"
+                >
                   <Save className="h-3.5 w-3.5 mr-2" />
-                  Salvar
-                </>
-              )}
-            </Button>
-          </div>
+                  Avançar
+                </Button>
+              </div>
+            ) : (
+              <div className="flex min-w-0 w-full gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                  disabled={isLoading || disabled}
+                  className="flex-1"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  Voltar
+                </Button>
+                <Button
+                  type="button"
+                  onClick={onSalvar}
+                  disabled={isLoading || disabled}
+                  className="flex-1"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-3.5 w-3.5 mr-2" />
+                      Salvar
+                    </>
+                  )}
+                </Button>
+              </div>
+            )
+          ) : (
+            <div className="flex min-w-0 w-full gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isLoading || disabled}
+                className="flex-1"
+              >
+                <X className="h-3.5 w-3.5" />
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                onClick={onSalvar}
+                disabled={isLoading || disabled}
+                className="flex-1"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-3.5 w-3.5 mr-2" />
+                    Salvar
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

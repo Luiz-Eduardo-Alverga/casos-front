@@ -61,8 +61,10 @@ export interface UpdateCasoRequest {
   atualizacao_automatica?: boolean;
   sinc?: boolean;
   atribuido_qa?: number;
-  analise_status?: string;
-  analise_data_conclusao?: string | null;
+  report_analise_aprovado?: boolean;
+  report_analise_status?: string;
+  report_analise_data_conclusao?: string | null;
+  report_data_limite?: string | null;
 }
 
 export interface UpdateCasoResponse {
@@ -77,11 +79,11 @@ export interface UpdateCasoResponse {
  */
 export async function updateCaso(
   id: number | string,
-  data: UpdateCasoRequest
+  data: UpdateCasoRequest,
 ): Promise<UpdateCasoResponse> {
   const url = new URL(
     `/api/projeto-casos/${encodeURIComponent(String(id))}`,
-    window.location.origin
+    window.location.origin,
   );
 
   const response = await fetchWithAuth(url.toString(), {
@@ -92,9 +94,7 @@ export async function updateCaso(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error?.error || error?.message || "Erro ao atualizar caso"
-    );
+    throw new Error(error?.error || error?.message || "Erro ao atualizar caso");
   }
 
   return await response.json();
