@@ -42,4 +42,3 @@ export function RequirePermission({
   if (!allowed && permissionsLoaded()) return null;
   return <>{children}</>;
 }
-

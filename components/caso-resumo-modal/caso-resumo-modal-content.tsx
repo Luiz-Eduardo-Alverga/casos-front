@@ -3,7 +3,7 @@
 import { Eye, Info, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { StatusBadge } from "@/components/status-badge";
+import { StatusBadge } from "@/components/badges/status-badge";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import { EmptyState } from "@/components/painel/empty-state";
 import { CasoResumoInfoBox } from "@/components/caso-resumo-modal/caso-resumo-info-box";

@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ImportanciaBadge } from "@/components/importancia-badge";
+import { ImportanciaBadge } from "@/components/badges/importancia-badge";
 import {
   Table,
   TableHeader,

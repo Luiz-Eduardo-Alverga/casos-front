@@ -10,8 +10,8 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { StatusBadge } from "@/components/status-badge";
-import { ImportanciaBadge } from "@/components/importancia-badge";
+import { StatusBadge } from "@/components/badges/status-badge";
+import { ImportanciaBadge } from "@/components/badges/importancia-badge";
 import { CategoriaBadge } from "@/components/casos/tabela/categoria-badge";
 import { CasosTabelaSkeletonRows } from "@/components/casos/layout/casos-tabela-skeleton";
 

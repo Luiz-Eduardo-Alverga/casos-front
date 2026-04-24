@@ -48,7 +48,9 @@ export function SidebarCollapsibleGroup({
   titleWhenCollapsed,
 }: SidebarCollapsibleGroupProps) {
   if (subitems.length === 0) return null;
-  const groupActive = subitems.some((s) => isHrefActive(pathname, s.href, s.exact));
+  const groupActive = subitems.some((s) =>
+    isHrefActive(pathname, s.href, s.exact),
+  );
 
   if (isCollapsed) {
     return (
@@ -57,7 +59,10 @@ export function SidebarCollapsibleGroup({
         className="block w-full"
         title={titleWhenCollapsed ?? label}
       >
-        <SidebarNavItem isActive={groupActive} className="w-full justify-center">
+        <SidebarNavItem
+          isActive={groupActive}
+          className="w-full justify-center"
+        >
           <Icon className="h-3.5 w-3.5 shrink-0" />
         </SidebarNavItem>
       </Link>
@@ -110,4 +115,3 @@ export function SidebarCollapsibleGroup({
     </Collapsible>
   );
 }
-

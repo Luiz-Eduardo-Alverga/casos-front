@@ -9,7 +9,7 @@ import { importanceOptions } from "@/mocks/teste";
 import { getUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useCreateCaso } from "@/hooks/use-create-caso";
-import { AssistantModal } from "@/components/assistant-modal";
+import { AssistantModal } from "@/components/caso-form/assistant-modal";
 import {
   CasoFormProvider,
   CasoFormProduto,

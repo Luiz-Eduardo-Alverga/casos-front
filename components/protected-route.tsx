@@ -30,7 +30,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         router.push(
           fullPath
             ? `/login?callbackUrl=${encodeURIComponent(fullPath)}`
-            : "/login"
+            : "/login",
         );
         return;
       }

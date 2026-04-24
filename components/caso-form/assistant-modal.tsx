@@ -311,11 +311,7 @@ export function AssistantModal({
 
             {/* Submit Button */}
             <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-              >
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancelar
               </Button>
               <Button

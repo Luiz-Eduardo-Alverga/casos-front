@@ -9,14 +9,14 @@ import {
   Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { UserDropDown } from "@/components/user-dropdown";
-import { useSidebar } from "@/components/sidebar-provider";
+import { UserDropDown } from "@/components/header/user-dropdown";
+import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { AvisosDropdown } from "@/components/avisos/avisos-dropdown";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CasoResumoModal } from "@/components/caso-resumo-modal";
 import { cn } from "@/lib/utils";
-import { Separator } from "./ui/separator";
+import { Separator } from "../ui/separator";
 
 export function Header() {
   const { toggleSidebar, isCollapsed } = useSidebar();

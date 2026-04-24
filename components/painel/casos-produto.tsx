@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ImportanciaBadge } from "@/components/importancia-badge";
+import { ImportanciaBadge } from "@/components/badges/importancia-badge";
 import { Box } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
 import {

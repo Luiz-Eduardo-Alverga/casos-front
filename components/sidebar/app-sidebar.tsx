@@ -27,7 +27,7 @@ import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 import {
   SidebarCollapsibleGroup,
   type SidebarSubitem as SidebarSubitemBase,
-} from "@/components/sidebar-collapsible-group";
+} from "@/components/sidebar/sidebar-collapsible-group";
 
 interface AppSidebarProps {
   isCollapsed: boolean;
@@ -164,7 +164,9 @@ export function AppSidebar({
         if (entry.type !== "link") return true;
         return entry.href !== "/cadastros/adquirentes/status";
       });
-  const cadastrosSubitemsSorted = canListAcquirer ? CADASTROS_SUBITEMS_SORTED : [];
+  const cadastrosSubitemsSorted = canListAcquirer
+    ? CADASTROS_SUBITEMS_SORTED
+    : [];
   const underCadastros = Boolean(pathname?.startsWith("/cadastros"));
   const underConfiguracoes = Boolean(pathname?.startsWith("/configuracoes"));
   const [cadastrosOpen, setCadastrosOpen] = useState(underCadastros);

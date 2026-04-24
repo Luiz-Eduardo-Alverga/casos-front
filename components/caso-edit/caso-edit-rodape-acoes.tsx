@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Save, X } from "lucide-react";
-import { useSidebar } from "@/components/sidebar-provider";
+import { useSidebar } from "@/components/sidebar/sidebar-provider";
 
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { useCasoProducaoActions } from "@/components/caso-resumo-modal/use-caso-producao-actions";
