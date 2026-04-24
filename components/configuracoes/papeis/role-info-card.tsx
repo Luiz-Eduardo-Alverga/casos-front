@@ -2,12 +2,7 @@
 
 import { Info } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { RoleInfoFormValues } from "./types";
@@ -23,7 +18,7 @@ export function RoleInfoCard() {
       <CardHeader className="p-5 pb-2 border-b border-border-divider shrink-0">
         <div className="flex items-center gap-2">
           <Info className="h-3.5 w-3.5 text-text-primary" />
-          <CardTitle className="text-sm font-semibold text-text-primary">
+          <CardTitle className="text-md font-semibold text-text-primary">
             Informações Gerais
           </CardTitle>
         </div>

@@ -89,8 +89,8 @@
     --login-footer-text: 210 7% 57%;
 
     /* Cores da tela Papéis e Acessos */
-    --papeis-role-active-bg: 226 100% 97%;
-    --papeis-role-active-border: 234 89% 74%;
+    --papeis-role-active-bg: 226 100% 96%;
+    --papeis-role-active-border: 234 89% 50%;
     --papeis-role-active-text: 234 89% 48%;
     --papeis-role-active-indicator: 234 89% 60%;
     --papeis-module-icon-active-bg: 234 89% 95%;

@@ -2,16 +2,12 @@
 
 import { Plus, Search, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/painel/empty-state";
 import { RoleSidebarCard } from "./role-sidebar-card";
 import type { RoleWithCount } from "./types";
+import Image from "next/image";
 
 interface PapeisSidebarProps {
   search: string;
@@ -39,9 +35,15 @@ export function PapeisSidebar({
     <Card className="bg-card shadow-card rounded-lg flex flex-col lg:min-h-0 lg:flex-1">
       <CardHeader className="p-5 pb-2 border-b border-border-divider shrink-0">
         <div className="flex items-center gap-2">
-          <Shield className="h-3.5 w-3.5 text-text-primary" />
-          <CardTitle className="text-sm font-semibold text-text-primary">
-            Papéis
+          {/* <Shield className="h-3.5 w-3.5 text-text-primary" /> */}
+          <Image
+            src="/images/shield.svg"
+            alt="Perfis de acesso"
+            width={24}
+            height={24}
+          />
+          <CardTitle className="text-lg font-semibold text-text-primary">
+            Perfis de acesso
           </CardTitle>
         </div>
       </CardHeader>

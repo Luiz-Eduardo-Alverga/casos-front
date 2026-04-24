@@ -3,9 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
-import { Save, X } from "lucide-react";
 import toast from "react-hot-toast";
-import { Button } from "@/components/ui/button";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useDbRolesWithCount } from "@/hooks/use-db-roles-with-count";
@@ -19,6 +17,7 @@ import { PapeisSidebar } from "./papeis-sidebar";
 import { PapeisSidebarSkeleton } from "./papeis-sidebar-skeleton";
 import { PermissionMatrix } from "./permission-matrix";
 import { PermissionMatrixSkeleton } from "./permission-matrix-skeleton";
+import { PapeisEAcessosHeaderCard } from "./papeis-e-acessos-header-card";
 import { RoleInfoCard } from "./role-info-card";
 import type {
   PermissionModuleWithPerms,
@@ -100,13 +99,7 @@ export function PapeisEAcessos({
       resetForm({ name: role.name, description: role.description ?? "" });
       lastSyncedKeyRef.current = key;
     }
-  }, [
-    creatingNew,
-    selectedRoleId,
-    rolesList,
-    serverPermissionIds,
-    resetForm,
-  ]);
+  }, [creatingNew, selectedRoleId, rolesList, serverPermissionIds, resetForm]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -132,9 +125,7 @@ export function PapeisEAcessos({
     updateMutation.isPending;
 
   const [pendingAction, setPendingAction] = useState<
-    | { type: "select"; roleId: string }
-    | { type: "create-new" }
-    | null
+    { type: "select"; roleId: string } | { type: "create-new" } | null
   >(null);
 
   const performSelect = useCallback((roleId: string) => {
@@ -181,7 +172,8 @@ export function PapeisEAcessos({
     }
     if (!selectedRoleId) return;
     const role = rolesList.find((r) => r.id === selectedRoleId);
-    if (role) resetForm({ name: role.name, description: role.description ?? "" });
+    if (role)
+      resetForm({ name: role.name, description: role.description ?? "" });
     if (serverPermissionIds) setMatrix(new Set(serverPermissionIds));
   };
 
@@ -250,8 +242,7 @@ export function PapeisEAcessos({
       toast.success("Alterações salvas.");
       lastSyncedKeyRef.current = null;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Erro ao salvar";
+      const message = error instanceof Error ? error.message : "Erro ao salvar";
       toast.error(message);
     }
   };
@@ -276,8 +267,7 @@ export function PapeisEAcessos({
 
   const hasSearchActive = debouncedSearch.trim().length > 0;
 
-  const pageIsLoading =
-    rolesQuery.isLoading && modulesQuery.isLoading;
+  const pageIsLoading = rolesQuery.isLoading && modulesQuery.isLoading;
 
   if (pageIsLoading) {
     return <PapeisEAcessosSkeleton />;
@@ -292,38 +282,6 @@ export function PapeisEAcessos({
   return (
     <FormProvider {...form}>
       <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3 shrink-0">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold text-text-primary">
-              Papéis e Acessos
-            </h1>
-            <p className="text-sm text-text-secondary">
-              Ajuste as permissões e informações básicas do grupo.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-            <Button
-              variant="outline"
-              type="button"
-              className="w-full sm:w-auto px-4"
-              disabled={!isDirty || isSaving}
-              onClick={handleDiscard}
-            >
-              <X className="h-3.5 w-3.5" />
-              Descartar
-            </Button>
-            <Button
-              type="button"
-              className="w-full sm:w-auto px-4"
-              disabled={!isDirty || isSaving}
-              onClick={handleSave}
-            >
-              <Save className="h-3.5 w-3.5" />
-              {isSaving ? "Salvando..." : "Salvar"}
-            </Button>
-          </div>
-        </div>
-
         <div className="flex flex-col lg:flex-row gap-6 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
           <div className="w-full lg:w-[363px] flex flex-col lg:min-h-0">
             {rolesQuery.isLoading ? (
@@ -345,6 +303,13 @@ export function PapeisEAcessos({
           <div className="flex flex-col gap-6 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
             {showRightPanel ? (
               <>
+                <PapeisEAcessosHeaderCard
+                  mode={creatingNew ? "create" : "edit"}
+                  isDirty={isDirty}
+                  isSaving={isSaving}
+                  onDiscard={handleDiscard}
+                  onSave={handleSave}
+                />
                 <RoleInfoCard />
                 {showMatrixSkeleton ? (
                   <PermissionMatrixSkeleton />

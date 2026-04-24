@@ -14,6 +14,7 @@ const ROUTES_WITH_INTERNAL_SCROLL = [
   "/avisos",
   "/painel/kanban",
   "/cadastros/adquirentes/status",
+  "",
 ];
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {

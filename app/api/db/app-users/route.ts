@@ -1,9 +1,9 @@
 import { handleDbRouteError, jsonOk } from "@/lib/api-db/responses";
-import { withSession } from "@/lib/api-db/with-session";
+import { withPermission } from "@/lib/api-db/with-permission";
 import { listAppUsers } from "@/lib/db/app-users";
 
 export async function GET(request: Request) {
-  return withSession(async () => {
+  return withPermission("list-user", async () => {
     try {
       const search =
         new URL(request.url).searchParams.get("search") ?? undefined;

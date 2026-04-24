@@ -3,14 +3,14 @@ import {
   jsonError,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { withSession } from "@/lib/api-db/with-session";
+import { withPermission } from "@/lib/api-db/with-permission";
 import { unlinkUserRole } from "@/lib/db/app-users";
 import { uuidSchema } from "@/lib/validators/db/shared";
 
 type RouteCtx = { params: Promise<{ id: string; roleId: string }> };
 
 export async function DELETE(_request: Request, context: RouteCtx) {
-  return withSession(async () => {
+  return withPermission("assign-user-role", async () => {
     const { id, roleId } = await context.params;
     const userParsed = uuidSchema.safeParse(id);
     if (!userParsed.success) return badRequestFromZod(userParsed.error);

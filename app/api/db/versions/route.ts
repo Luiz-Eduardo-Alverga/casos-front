@@ -4,12 +4,12 @@ import {
   jsonOk,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { withSession } from "@/lib/api-db/with-session";
+import { withPermission } from "@/lib/api-db/with-permission";
 import { insertVersion, listVersions } from "@/lib/db/versions";
 import { versionCreateSchema } from "@/lib/validators/db/versions";
 
 export async function GET(request: Request) {
-  return withSession(async () => {
+  return withPermission("list-acquirer", async () => {
     try {
       const search = new URL(request.url).searchParams.get("search") ?? undefined;
       const rows = await listVersions(search);
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  return withSession(async () => {
+  return withPermission("create-acquirer", async () => {
     let body: unknown;
     try {
       body = await request.json();

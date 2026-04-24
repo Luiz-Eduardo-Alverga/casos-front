@@ -1,6 +1,6 @@
 import { handleDbRouteError, jsonError, jsonOk } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { withSession } from "@/lib/api-db/with-session";
+import { withPermission } from "@/lib/api-db/with-permission";
 import {
   getAcquirerStatusByAcquirerId,
   getAcquirerStatusBySortOrder,
@@ -11,7 +11,7 @@ import { insertCompatibleDevice } from "@/lib/db/acquirer-compatible-devices";
 import { acquirerStatusCreateSchema } from "@/lib/validators/db/acquirer-status";
 
 export async function GET() {
-  return withSession(async () => {
+  return withPermission("list-acquirer", async () => {
     try {
       const rows = await listAcquirerStatus();
       return jsonOk(rows);
@@ -22,7 +22,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  return withSession(async () => {
+  return withPermission("create-acquirer", async () => {
     let body: unknown;
     try {
       body = await request.json();

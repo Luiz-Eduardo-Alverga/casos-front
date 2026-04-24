@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/collapsible";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
 interface AppSidebarProps {
   isCollapsed: boolean;
@@ -126,6 +127,19 @@ export function AppSidebar({
   isMobile,
 }: AppSidebarProps) {
   const pathname = usePathname();
+  const rbacReady = permissionsLoaded();
+  const canListAcquirer = !rbacReady || hasPermission("list-acquirer");
+  const mainNavSorted = canListAcquirer
+    ? MAIN_NAV_SORTED
+    : MAIN_NAV_SORTED.filter((entry) => {
+        if (entry.type !== "link") return true;
+        return entry.href !== "/cadastros/adquirentes/status";
+      });
+  const cadastrosSubitemsSorted = canListAcquirer
+    ? CADASTROS_SUBITEMS_SORTED
+    : CADASTROS_SUBITEMS_SORTED.filter(
+        (sub) => sub.href !== "/cadastros/adquirentes",
+      );
   const underCadastros = Boolean(pathname?.startsWith("/cadastros"));
   const underConfiguracoes = Boolean(pathname?.startsWith("/configuracoes"));
   const [cadastrosOpen, setCadastrosOpen] = useState(underCadastros);
@@ -222,7 +236,7 @@ export function AppSidebar({
         </SidebarSection>
 
         <SidebarNav className={isCollapsed ? "items-center" : ""}>
-          {MAIN_NAV_SORTED.map((entry) => {
+          {mainNavSorted.map((entry) => {
             if (entry.type === "link") {
               return (
                 <span key={entry.href} className="contents">
@@ -354,7 +368,7 @@ export function AppSidebar({
                       </button>
                     </CollapsibleTrigger>
                     <CollapsibleContent className="flex flex-col gap-0.5 pl-2 pt-1 pb-1">
-                      {CADASTROS_SUBITEMS_SORTED.map((sub) => {
+                      {cadastrosSubitemsSorted.map((sub) => {
                         const subActive = sub.exact
                           ? pathname === sub.href
                           : pathname === sub.href ||

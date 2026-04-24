@@ -27,8 +27,8 @@ function DevicesCell({ row }: { row: AcquirerListExpandedItem }) {
 
 interface AdquirentesTabelaProps {
   rows: AcquirerListExpandedItem[];
-  onEdit: (row: AcquirerListExpandedItem) => void;
-  onDelete: (row: AcquirerListExpandedItem) => void;
+  onEdit?: (row: AcquirerListExpandedItem) => void;
+  onDelete?: (row: AcquirerListExpandedItem) => void;
 }
 
 export function AdquirentesTabela({
@@ -65,9 +65,11 @@ export function AdquirentesTabela({
           <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 min-w-[200px]">
             Dispositivos
           </TableHead>
-          <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 w-[72px] text-center">
-            Ações
-          </TableHead>
+          {(onEdit || onDelete) && (
+            <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5 w-[72px] text-center">
+              Ações
+            </TableHead>
+          )}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -113,30 +115,36 @@ export function AdquirentesTabela({
               <TableCell className="py-3 px-2.5">
                 <DevicesCell row={row} />
               </TableCell>
-              <TableCell className="py-3 px-2.5 text-center">
-                <div className="flex items-center justify-end gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground"
-                    aria-label="Editar adquirente"
-                    onClick={() => onEdit(row)}
-                  >
-                    <SquarePen className="h-4 w-4 text-emerald-500" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    aria-label="Excluir adquirente"
-                    onClick={() => onDelete(row)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </TableCell>
+              {(onEdit || onDelete) && (
+                <TableCell className="py-3 px-2.5 text-center">
+                  <div className="flex items-center justify-end gap-1">
+                    {onEdit && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground"
+                        aria-label="Editar adquirente"
+                        onClick={() => onEdit(row)}
+                      >
+                        <SquarePen className="h-4 w-4 text-emerald-500" />
+                      </Button>
+                    )}
+                    {onDelete && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        aria-label="Excluir adquirente"
+                        onClick={() => onDelete(row)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              )}
             </TableRow>
           );
         })}

@@ -4,7 +4,7 @@ import {
   jsonOk,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { withSession } from "@/lib/api-db/with-session";
+import { withPermission } from "@/lib/api-db/with-permission";
 import { getAcquirerStatusById } from "@/lib/db/acquirer-status";
 import {
   deleteCompatibleDevicePair,
@@ -21,7 +21,7 @@ import { uuidSchema } from "@/lib/validators/db/shared";
  * Alternativa às rotas aninhadas em `acquirer-status/[id]/compatible-devices`.
  */
 export async function GET(request: Request) {
-  return withSession(async () => {
+  return withPermission("list-acquirer", async () => {
     const statusIdRaw = new URL(request.url).searchParams.get("statusId");
     if (!statusIdRaw?.trim()) {
       return jsonError("Query obrigatória: statusId", 400);
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  return withSession(async () => {
+  return withPermission("edit-acquirer", async () => {
     let body: unknown;
     try {
       body = await request.json();
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  return withSession(async () => {
+  return withPermission("edit-acquirer", async () => {
     const sp = new URL(request.url).searchParams;
     const statusIdRaw = sp.get("statusId");
     const deviceIdRaw = sp.get("deviceId");

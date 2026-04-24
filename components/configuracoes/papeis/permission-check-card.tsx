@@ -27,24 +27,24 @@ export function PermissionCheckCard({
     <label
       htmlFor={checkboxId}
       className={cn(
-        "flex items-start gap-3 rounded-md border p-3 cursor-pointer transition-colors",
+        "flex items-start gap-3 min-h-20 rounded-lg border p-3 cursor-pointer transition-colors",
         checked
           ? "bg-papeis-perm-selected-bg border-papeis-perm-selected-border"
-          : "bg-card border-border-divider hover:bg-page-background",
+          : "bg-card border-border-divider hover:bg-page-background/40",
       )}
     >
       <Checkbox
         id={checkboxId}
         checked={checked}
         onCheckedChange={(value) => onToggle(value === true)}
-        className="mt-0.5"
+        className="mt-0.5 h-5 w-5 rounded-[4px]"
       />
       <div className="flex flex-col gap-0.5 min-w-0">
-        <span className="text-sm font-medium text-text-primary truncate">
+        <span className="text-sm font-semibold text-text-primary truncate">
           {label}
         </span>
         {description && (
-          <span className="text-xs text-text-secondary line-clamp-2">
+          <span className="text-xs leading-4 text-text-secondary line-clamp-2">
             {description}
           </span>
         )}

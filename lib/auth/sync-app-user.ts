@@ -1,6 +1,8 @@
 import type { AppUserSummary } from "@/lib/auth";
 import {
   getPermissionCodesForUserId,
+  linkUserRole,
+  listRolesForAppUserId,
   upsertAppUserFromLegacy,
   type AppUserRow,
 } from "@/lib/db/app-users";
@@ -11,6 +13,13 @@ export type SyncAppUserResult = {
   appUser: AppUserRow;
   permissions: string[];
 };
+
+const DEFAULT_ROLE_NON_SQUAD = "a668ee62-30f8-482d-ac33-ca2d591a950b";
+const DEFAULT_ROLE_SQUAD = "22917bd2-02c4-467d-a152-b7edfa757166";
+
+function includesSquad(setor: string): boolean {
+  return setor.toUpperCase().includes("SQUAD");
+}
 
 export function appUserToSummary(row: AppUserRow): AppUserSummary {
   return {
@@ -53,6 +62,16 @@ export async function syncAppUserAndPermissions(
   }
 
   const appUser = await upsertAppUserFromLegacy(parsed.data);
+
+  // Role padrão: se o usuário não tiver roles vinculadas, atribui baseado em `setor`.
+  const existingRoles = await listRolesForAppUserId(appUser.id);
+  if (existingRoles.length === 0) {
+    const roleId = includesSquad(parsed.data.setor)
+      ? DEFAULT_ROLE_SQUAD
+      : DEFAULT_ROLE_NON_SQUAD;
+    await linkUserRole(appUser.id, roleId);
+  }
+
   const permissions = await getPermissionCodesForUserId(appUser.id);
   return { appUser, permissions };
 }

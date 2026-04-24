@@ -17,6 +17,7 @@ import { listVersionsClient } from "@/services/db-api/list-cadastros";
 import { VersoesModalNovo } from "./versoes-modal-novo";
 import { VersoesTabela } from "./versoes-tabela";
 import { VersoesTabelaSkeleton } from "./versoes-tabela-skeleton";
+import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
 interface VersoesProps {
   initialSearch: string;
@@ -120,6 +121,11 @@ export function Versoes({ initialSearch }: VersoesProps) {
     }
   };
 
+  const rbacReady = permissionsLoaded();
+  const canCreate = !rbacReady || hasPermission("create-acquirer");
+  const canEdit = !rbacReady || hasPermission("edit-acquirer");
+  const canDelete = !rbacReady || hasPermission("delete-acquirer");
+
   return (
     <div className="px-6 pt-20 py-10 flex-1 flex flex-col">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3 shrink-0">
@@ -149,14 +155,16 @@ export function Versoes({ initialSearch }: VersoesProps) {
             <ArrowLeft className="h-3.5 w-3.5" />
             Voltar ao Painel
           </Button>
-          <Button
-            type="button"
-            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
-            onClick={openCreateModal}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Novo cadastro
-          </Button>
+          {canCreate && (
+            <Button
+              type="button"
+              className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
+              onClick={openCreateModal}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Novo cadastro
+            </Button>
+          )}
         </div>
       </div>
 
@@ -174,44 +182,48 @@ export function Versoes({ initialSearch }: VersoesProps) {
         ) : (
           <VersoesTabela
             rows={rows}
-            onEdit={openEditModal}
-            onDelete={(row) => setDeleteTarget(row)}
+            onEdit={canEdit ? openEditModal : undefined}
+            onDelete={canDelete ? (row) => setDeleteTarget(row) : undefined}
           />
         )}
       </CadastroListagemCard>
 
-      <VersoesModalNovo
-        open={modalOpen}
-        onOpenChange={handleModalOpenChange}
-        mode={modalMode}
-        isLoadingEdit={
-          modalMode === "edit" &&
-          Boolean(editingVersionId) &&
-          versionDetailQuery.isLoading
-        }
-        initialData={
-          modalMode === "edit" && versionDetailQuery.data
-            ? {
-                id: versionDetailQuery.data.id,
-                name: versionDetailQuery.data.name ?? "",
-              }
-            : null
-        }
-      />
+      {(canCreate || canEdit) && (
+        <VersoesModalNovo
+          open={modalOpen}
+          onOpenChange={handleModalOpenChange}
+          mode={modalMode}
+          isLoadingEdit={
+            modalMode === "edit" &&
+            Boolean(editingVersionId) &&
+            versionDetailQuery.isLoading
+          }
+          initialData={
+            modalMode === "edit" && versionDetailQuery.data
+              ? {
+                  id: versionDetailQuery.data.id,
+                  name: versionDetailQuery.data.name ?? "",
+                }
+              : null
+          }
+        />
+      )}
 
-      <ConfirmacaoModal
-        open={Boolean(deleteTarget)}
-        onOpenChange={(next) => {
-          if (!next) setDeleteTarget(null);
-        }}
-        titulo="Excluir versão?"
-        descricao={`Essa ação removerá a versão "${deleteTarget?.name?.trim() || "sem nome"}" e não poderá ser desfeita.`}
-        confirmarLabel="Excluir"
-        cancelarLabel="Cancelar"
-        variant="danger"
-        isLoading={deleteVersionMutation.isPending}
-        onConfirm={confirmDelete}
-      />
+      {canDelete && (
+        <ConfirmacaoModal
+          open={Boolean(deleteTarget)}
+          onOpenChange={(next) => {
+            if (!next) setDeleteTarget(null);
+          }}
+          titulo="Excluir versão?"
+          descricao={`Essa ação removerá a versão "${deleteTarget?.name?.trim() || "sem nome"}" e não poderá ser desfeita.`}
+          confirmarLabel="Excluir"
+          cancelarLabel="Cancelar"
+          variant="danger"
+          isLoading={deleteVersionMutation.isPending}
+          onConfirm={confirmDelete}
+        />
+      )}
     </div>
   );
 }

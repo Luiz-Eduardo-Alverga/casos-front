@@ -20,6 +20,7 @@ import { mapAdquirentesRowsToKanban } from "./kanban/status-adquirentes-map";
 import { StatusAdquirentesBoard } from "./kanban/status-adquirentes-board";
 import { StatusAdquirentesSkeleton } from "./layout/status-adquirentes-skeleton";
 import { StatusAdquirentesSheet } from "./sheet/status-adquirentes-sheet";
+import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
 interface StatusAdquirentesProps {
   initialSearch: string;
@@ -42,6 +43,9 @@ export function StatusAdquirentes({
 }: StatusAdquirentesProps) {
   const queryClient = useQueryClient();
   const updateAcquirerStatusMutation = useUpdateAcquirerStatus();
+  const rbacReady = permissionsLoaded();
+  const canCreate = !rbacReady || hasPermission("create-acquirer");
+  const canEdit = !rbacReady || hasPermission("edit-acquirer");
 
   const { rows, showTableSkeleton, isError, error } = useAdquirentesList(
     initialSearch,
@@ -180,14 +184,16 @@ export function StatusAdquirentes({
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-          <Button
-            type="button"
-            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
-            onClick={openCreateSheet}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Nova homologação
-          </Button>
+          {canCreate && (
+            <Button
+              type="button"
+              className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
+              onClick={openCreateSheet}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Nova homologação
+            </Button>
+          )}
         </div>
       </div>
 
@@ -216,19 +222,21 @@ export function StatusAdquirentes({
           <StatusAdquirentesBoard
             data={kanbanData}
             onDataChange={setKanbanData}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onCardClick={(item) => openEditSheet(item.id)}
+            onDragStart={canEdit ? handleDragStart : undefined}
+            onDragEnd={canEdit ? handleDragEnd : undefined}
+            onCardClick={canEdit ? (item) => openEditSheet(item.id) : undefined}
           />
         </div>
       )}
 
-      <StatusAdquirentesSheet
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-        mode={sheetMode}
-        statusId={editingStatusId}
-      />
+      {(canCreate || canEdit) && (
+        <StatusAdquirentesSheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          mode={sheetMode}
+          statusId={editingStatusId}
+        />
+      )}
     </div>
   );
 }

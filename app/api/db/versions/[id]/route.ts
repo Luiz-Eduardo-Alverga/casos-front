@@ -4,7 +4,7 @@ import {
   jsonOk,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { withSession } from "@/lib/api-db/with-session";
+import { withPermission } from "@/lib/api-db/with-permission";
 import {
   deleteVersion,
   getVersionById,
@@ -16,7 +16,7 @@ import { uuidSchema } from "@/lib/validators/db/shared";
 type RouteCtx = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteCtx) {
-  return withSession(async () => {
+  return withPermission("list-acquirer", async () => {
     const { id } = await context.params;
     const idParsed = uuidSchema.safeParse(id);
     if (!idParsed.success) return badRequestFromZod(idParsed.error);
@@ -31,7 +31,7 @@ export async function GET(_request: Request, context: RouteCtx) {
 }
 
 export async function PATCH(request: Request, context: RouteCtx) {
-  return withSession(async () => {
+  return withPermission("edit-acquirer", async () => {
     const { id } = await context.params;
     const idParsed = uuidSchema.safeParse(id);
     if (!idParsed.success) return badRequestFromZod(idParsed.error);
@@ -57,7 +57,7 @@ export async function PATCH(request: Request, context: RouteCtx) {
 }
 
 export async function DELETE(_request: Request, context: RouteCtx) {
-  return withSession(async () => {
+  return withPermission("delete-acquirer", async () => {
     const { id } = await context.params;
     const idParsed = uuidSchema.safeParse(id);
     if (!idParsed.success) return badRequestFromZod(idParsed.error);

@@ -3,7 +3,7 @@ import {
   jsonError,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { withSession } from "@/lib/api-db/with-session";
+import { withPermission } from "@/lib/api-db/with-permission";
 import { getAcquirerStatusById } from "@/lib/db/acquirer-status";
 import { deleteCompatibleDevicePair } from "@/lib/db/acquirer-compatible-devices";
 import { uuidSchema } from "@/lib/validators/db/shared";
@@ -13,7 +13,7 @@ type RouteCtx = {
 };
 
 export async function DELETE(_request: Request, context: RouteCtx) {
-  return withSession(async () => {
+  return withPermission("edit-acquirer", async () => {
     const { id: statusId, deviceId } = await context.params;
     const statusParsed = uuidSchema.safeParse(statusId);
     if (!statusParsed.success) return badRequestFromZod(statusParsed.error);

@@ -11,6 +11,11 @@ import { uuidSchema } from "@/lib/validators/db/shared";
 
 type RouteCtx = { params: Promise<{ id: string }> };
 
+const PROTECTED_ROLE_IDS = new Set([
+  "a668ee62-30f8-482d-ac33-ca2d591a950b",
+  "22917bd2-02c4-467d-a152-b7edfa757166",
+]);
+
 export async function GET(_request: Request, context: RouteCtx) {
   return withSession(async () => {
     const { id } = await context.params;
@@ -54,6 +59,9 @@ export async function DELETE(_request: Request, context: RouteCtx) {
     const { id } = await context.params;
     const idParsed = uuidSchema.safeParse(id);
     if (!idParsed.success) return badRequestFromZod(idParsed.error);
+    if (PROTECTED_ROLE_IDS.has(idParsed.data)) {
+      return jsonError("Este papel é protegido e não pode ser excluído", 409);
+    }
     try {
       const removed = await deleteRole(idParsed.data);
       if (!removed) return jsonError("Papel não encontrado", 404);

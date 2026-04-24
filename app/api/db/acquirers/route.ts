@@ -4,7 +4,7 @@ import {
   jsonOk,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { withSession } from "@/lib/api-db/with-session";
+import { withPermission } from "@/lib/api-db/with-permission";
 import { listAcquirersExpanded } from "@/lib/db/acquirers-expanded";
 import { insertAcquirer, listAcquirers } from "@/lib/db/acquirers";
 import {
@@ -26,7 +26,7 @@ function toInsertValues(
 const EXPAND_STATUS = "status";
 
 export async function GET(request: Request) {
-  return withSession(async () => {
+  return withPermission("list-acquirer", async () => {
     try {
       const sp = new URL(request.url).searchParams;
       const search = sp.get("search") ?? undefined;
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  return withSession(async () => {
+  return withPermission("create-acquirer", async () => {
     let body: unknown;
     try {
       body = await request.json();

@@ -5,7 +5,7 @@ import {
   jsonOk,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { withSession } from "@/lib/api-db/with-session";
+import { withPermission } from "@/lib/api-db/with-permission";
 import {
   getAppUserById,
   linkUserRole,
@@ -19,7 +19,7 @@ import { uuidSchema } from "@/lib/validators/db/shared";
 type RouteCtx = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteCtx) {
-  return withSession(async () => {
+  return withPermission("list-user", async () => {
     const { id } = await context.params;
     const idParsed = uuidSchema.safeParse(id);
     if (!idParsed.success) return badRequestFromZod(idParsed.error);
@@ -35,7 +35,7 @@ export async function GET(_request: Request, context: RouteCtx) {
 }
 
 export async function POST(request: Request, context: RouteCtx) {
-  return withSession(async () => {
+  return withPermission("assign-user-role", async () => {
     const { id } = await context.params;
     const idParsed = uuidSchema.safeParse(id);
     if (!idParsed.success) return badRequestFromZod(idParsed.error);
