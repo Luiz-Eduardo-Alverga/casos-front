@@ -1,6 +1,13 @@
 "use client";
 
-import { Sparkles, X, Save, Loader2, ArrowLeft } from "lucide-react";
+import {
+  Sparkles,
+  X,
+  Save,
+  Loader2,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { useEffect, useMemo, useState } from "react";
 
@@ -57,7 +64,8 @@ export function ReportAnaliseModal({
     return String(analiseStatusValue ?? "").trim();
   }, [analiseStatusValue]);
 
-  const isStatusStepByStep = analiseStatusId === "20" || analiseStatusId === "22";
+  const isStatusStepByStep =
+    analiseStatusId === "20" || analiseStatusId === "22";
   const isStepFlow = !analiseConcluida && isStatusStepByStep;
   const [step, setStep] = useState<1 | 2>(1);
 
@@ -188,7 +196,7 @@ export function ReportAnaliseModal({
                   disabled={isLoading || disabled}
                   className="flex-1"
                 >
-                  <Save className="h-3.5 w-3.5 mr-2" />
+                  <ArrowRight className="h-3.5 w-3.5 mr-2" />
                   Avançar
                 </Button>
               </div>

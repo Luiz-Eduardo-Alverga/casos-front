@@ -87,6 +87,20 @@
     --login-button-to: 42 79% 57%;
     --login-button-text: 225 5% 28%;
     --login-footer-text: 210 7% 57%;
+
+    /* Cores da tela Papéis e Acessos */
+    --papeis-role-active-bg: 226 100% 97%;
+    --papeis-role-active-border: 234 89% 74%;
+    --papeis-role-active-text: 234 89% 48%;
+    --papeis-role-active-indicator: 234 89% 60%;
+    --papeis-module-icon-active-bg: 234 89% 95%;
+    --papeis-module-icon-muted-bg: 220 14% 96%;
+    --papeis-perm-selected-bg: 226 100% 97%;
+    --papeis-perm-selected-border: 234 89% 74%;
+    --papeis-button-dark-bg: 215 28% 17%;
+    --papeis-button-dark-bg-hover: 215 28% 25%;
+    --papeis-badge-count-bg: 220 14% 96%;
+    --papeis-badge-count-text: 215 20% 35%;
   }
 
   .dark {
@@ -171,6 +185,20 @@
     --login-button-to: 42 79% 57%;
     --login-button-text: 225 5% 28%;
     --login-footer-text: 210 7% 57%;
+
+    /* Papéis e Acessos - dark mode */
+    --papeis-role-active-bg: 234 60% 16%;
+    --papeis-role-active-border: 234 89% 60%;
+    --papeis-role-active-text: 234 89% 80%;
+    --papeis-role-active-indicator: 234 89% 60%;
+    --papeis-module-icon-active-bg: 234 60% 22%;
+    --papeis-module-icon-muted-bg: 215 27% 22%;
+    --papeis-perm-selected-bg: 234 60% 16%;
+    --papeis-perm-selected-border: 234 89% 60%;
+    --papeis-button-dark-bg: 215 25% 27%;
+    --papeis-button-dark-bg-hover: 215 25% 35%;
+    --papeis-badge-count-bg: 215 27% 22%;
+    --papeis-badge-count-text: 210 20% 80%;
   }
 }
 

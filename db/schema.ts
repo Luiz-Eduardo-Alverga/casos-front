@@ -92,10 +92,26 @@ export const appUsers = pgTable("app_users", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
+/** Módulo/categoria para agrupar permissões na UI (matriz por papel). */
+export const permissionModules = pgTable("permission_modules", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 export const permissions = pgTable("permissions", {
   id: uuid("id").primaryKey().defaultRandom(),
+  moduleId: uuid("module_id")
+    .notNull()
+    .references(() => permissionModules.id, { onDelete: "restrict" }),
   code: text("code").notNull().unique(),
+  label: text("label").notNull(),
   description: text("description"),
+  sortOrder: integer("sort_order").notNull().default(0),
 });
 
 export const roles = pgTable("roles", {

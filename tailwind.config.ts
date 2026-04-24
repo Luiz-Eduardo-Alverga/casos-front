@@ -109,6 +109,24 @@ const config: Config = {
         "login-button-to": "hsl(var(--login-button-to))",
         "login-button-text": "hsl(var(--login-button-text))",
         "login-footer-text": "hsl(var(--login-footer-text))",
+        // Cores da tela Papéis e Acessos
+        "papeis-role-active-bg": "hsl(var(--papeis-role-active-bg))",
+        "papeis-role-active-border": "hsl(var(--papeis-role-active-border))",
+        "papeis-role-active-text": "hsl(var(--papeis-role-active-text))",
+        "papeis-role-active-indicator":
+          "hsl(var(--papeis-role-active-indicator))",
+        "papeis-module-icon-active-bg":
+          "hsl(var(--papeis-module-icon-active-bg))",
+        "papeis-module-icon-muted-bg":
+          "hsl(var(--papeis-module-icon-muted-bg))",
+        "papeis-perm-selected-bg": "hsl(var(--papeis-perm-selected-bg))",
+        "papeis-perm-selected-border":
+          "hsl(var(--papeis-perm-selected-border))",
+        "papeis-button-dark-bg": "hsl(var(--papeis-button-dark-bg))",
+        "papeis-button-dark-bg-hover":
+          "hsl(var(--papeis-button-dark-bg-hover))",
+        "papeis-badge-count-bg": "hsl(var(--papeis-badge-count-bg))",
+        "papeis-badge-count-text": "hsl(var(--papeis-badge-count-text))",
       },
       backgroundImage: {
         "login-gradient":

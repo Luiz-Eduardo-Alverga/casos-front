@@ -33,6 +33,8 @@ tags:
     description: Dispositivos compatíveis por status
   - name: Users
     description: Usuário local (app_users) e permissões RBAC
+  - name: RBAC
+    description: Módulos de permissão, catálogo de permissões, papéis e vínculos (administração)
 
 security:
   - sessionCookie: []
@@ -201,6 +203,321 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/UserSyncPayload"
+
+    PermissionModule:
+      type: object
+      required: [id, slug, name, sortOrder]
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    PermissionAdmin:
+      type: object
+      required: [id, moduleId, code, label, sortOrder]
+      properties:
+        id:
+          type: string
+          format: uuid
+        moduleId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+
+    RoleAdmin:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+
+    RoleWithPermissionsCount:
+      allOf:
+        - $ref: "#/components/schemas/RoleAdmin"
+        - type: object
+          required: [permissionsCount]
+          properties:
+            permissionsCount:
+              type: integer
+              minimum: 0
+              description: Total de vínculos em `role_permissions` para este papel.
+
+    RoleWithPermissionsCountListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleWithPermissionsCount"
+
+    AppUserAdmin:
+      type: object
+      required: [id, legacyUserId, email, nome, setor, usuarioGrupoId]
+      properties:
+        id:
+          type: string
+          format: uuid
+        legacyUserId:
+          type: integer
+        email:
+          type: string
+        nome:
+          type: string
+        setor:
+          type: string
+        usuarioGrupoId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    PermissionModuleListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/PermissionModule"
+
+    PermissionListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/PermissionAdmin"
+
+    RoleListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleAdmin"
+
+    AppUserListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AppUserAdmin"
+
+    PermissionWithModule:
+      allOf:
+        - $ref: "#/components/schemas/PermissionAdmin"
+      type: object
+      required: [module]
+      properties:
+        module:
+          $ref: "#/components/schemas/PermissionModule"
+
+    PermissionOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/PermissionAdmin"
+
+    PermissionWithModuleOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/PermissionWithModule"
+
+    RoleOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/RoleAdmin"
+
+    AppUserOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/AppUserAdmin"
+
+    AppUserWithRoles:
+      allOf:
+        - $ref: "#/components/schemas/AppUserAdmin"
+      type: object
+      required: [roles]
+      properties:
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleAdmin"
+
+    AppUserWithRolesResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/AppUserWithRoles"
+
+    RolePermissionDetail:
+      type: object
+      required: [roleId, permissionId, permission, module]
+      properties:
+        roleId:
+          type: string
+          format: uuid
+        permissionId:
+          type: string
+          format: uuid
+        permission:
+          $ref: "#/components/schemas/PermissionAdmin"
+        module:
+          $ref: "#/components/schemas/PermissionModule"
+
+    RolePermissionListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/RolePermissionDetail"
+
+    RolePermissionLink:
+      type: object
+      required: [roleId, permissionId]
+      properties:
+        roleId:
+          type: string
+          format: uuid
+        permissionId:
+          type: string
+          format: uuid
+
+    RolePermissionLinkResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/RolePermissionLink"
+
+    RolePermissionBatchLink:
+      type: object
+      required: [items, skippedPermissionIds]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/RolePermissionLink"
+        skippedPermissionIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: |
+            Permissões que não geraram insert (já vinculadas a este papel ou duplicata no corpo).
+
+    RolePermissionBatchLinkResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/RolePermissionBatchLink"
+
+    RolePermissionSyncRequest:
+      type: object
+      required: [permissionIds]
+      properties:
+        permissionIds:
+          type: array
+          maxItems: 1000
+          items:
+            type: string
+            format: uuid
+          description: |
+            Lista **final** de permissões do papel. Array vazio remove todos os vínculos.
+
+    RolePermissionSyncResult:
+      type: object
+      required: [added, removed, current]
+      properties:
+        added:
+          type: array
+          items: { type: string, format: uuid }
+          description: IDs inseridos nesta sincronização.
+        removed:
+          type: array
+          items: { type: string, format: uuid }
+          description: IDs removidos nesta sincronização.
+        current:
+          type: array
+          items: { type: string, format: uuid }
+          description: Estado final (deduplicado) das permissões do papel.
+
+    RolePermissionSyncResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/RolePermissionSyncResult"
+
+    UserRoleLink:
+      type: object
+      required: [userId, roleId]
+      properties:
+        userId:
+          type: string
+          format: uuid
+        roleId:
+          type: string
+          format: uuid
+
+    UserRoleLinkResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/UserRoleLink"
 
     Acquirer:
       type: object
@@ -735,6 +1052,670 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
+
+  /api/db/permission-modules:
+    get:
+      tags: [RBAC]
+      summary: Listar módulos de permissão
+      description: |
+        `?search=` filtra slug/nome/descrição. `?expand=permissions` retorna cada módulo com array `permissions`.
+      operationId: listPermissionModules
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: expand
+          in: query
+          schema:
+            type: string
+            enum: [permissions]
+      responses:
+        "200":
+          description: Lista de módulos (formato varia com `expand`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermissionModuleListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags: [RBAC]
+      summary: Criar módulo de permissão
+      operationId: createPermissionModule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [slug, name]
+              properties:
+                slug: { type: string }
+                name: { type: string }
+                description: { type: string, nullable: true }
+                sortOrder: { type: integer }
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PermissionModule"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/permission-modules/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [RBAC]
+      summary: Obter módulo por ID
+      operationId: getPermissionModuleById
+      parameters:
+        - name: expand
+          in: query
+          schema:
+            type: string
+            enum: [permissions]
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PermissionModule"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [RBAC]
+      summary: Atualizar módulo
+      operationId: updatePermissionModule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                slug: { type: string }
+                name: { type: string }
+                description: { type: string, nullable: true }
+                sortOrder: { type: integer }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PermissionModule"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [RBAC]
+      summary: Remover módulo
+      operationId: deletePermissionModule
+      responses:
+        "204":
+          description: Removido
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /api/db/permissions:
+    get:
+      tags: [RBAC]
+      summary: Listar permissões
+      operationId: listPermissionsAdmin
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: moduleId
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermissionListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [RBAC]
+      summary: Criar permissão
+      operationId: createPermissionAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [moduleId, code, label]
+              properties:
+                moduleId: { type: string, format: uuid }
+                code: { type: string }
+                label: { type: string }
+                description: { type: string, nullable: true }
+                sortOrder: { type: integer }
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PermissionAdmin"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/db/permissions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [RBAC]
+      summary: Obter permissão por ID
+      description: Use `expand=module` para incluir o módulo (`permission` + `module`).
+      operationId: getPermissionAdminById
+      parameters:
+        - name: expand
+          in: query
+          schema:
+            type: string
+            enum: [module]
+      responses:
+        "200":
+          description: Com `expand=module`, o formato segue `PermissionWithModuleOneResponse`.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/PermissionOneResponse"
+                  - $ref: "#/components/schemas/PermissionWithModuleOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [RBAC]
+      summary: Atualizar permissão
+      operationId: updatePermissionAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                moduleId: { type: string, format: uuid }
+                code: { type: string }
+                label: { type: string }
+                description: { type: string, nullable: true }
+                sortOrder: { type: integer }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermissionOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [RBAC]
+      summary: Remover permissão
+      operationId: deletePermissionAdmin
+      responses:
+        "204":
+          description: Removido
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /api/db/roles:
+    get:
+      tags: [RBAC]
+      summary: Listar papéis
+      description: |
+        Retorna os papéis. Se `expand=permissionsCount`, inclui `permissionsCount`
+        em cada item (útil para a tela Papéis e Acessos).
+      operationId: listRolesAdmin
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: expand
+          in: query
+          description: Use `permissionsCount` para anexar contagem de permissões por papel.
+          schema:
+            type: string
+            enum: [permissionsCount]
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/RoleListResponse"
+                  - $ref: "#/components/schemas/RoleWithPermissionsCountListResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [RBAC]
+      summary: Criar papel
+      operationId: createRoleAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                description: { type: string, nullable: true }
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RoleAdmin"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/db/roles/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [RBAC]
+      summary: Obter papel por ID
+      operationId: getRoleAdminById
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleOneResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [RBAC]
+      summary: Atualizar papel
+      operationId: updateRoleAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                name: { type: string }
+                description: { type: string, nullable: true }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [RBAC]
+      summary: Remover papel
+      description: Remove o papel e vínculos em `role_permissions` e `user_roles` (cascade).
+      operationId: deleteRoleAdmin
+      responses:
+        "204":
+          description: Removido
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/db/roles/{id}/permissions:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID do papel (`roles.id`)
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [RBAC]
+      summary: Listar permissões do papel (role_permissions)
+      description: |
+        Retorna cada vínculo com `permission` e `module` para montar a matriz na UI.
+      operationId: listRolePermissionsForRole
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RolePermissionListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags: [RBAC]
+      summary: Vincular permissão(ões) ao papel
+      description: |
+        Insere em `role_permissions` (`role_id`, `permission_id`).
+        Envie **ou** `permissionId` (um vínculo) **ou** `permissionIds` (vários, até 500).
+        Com `permissionId`, 409 se já houver vínculo. Com `permissionIds`, vínculos existentes
+        são ignorados; a resposta inclui `skippedPermissionIds` e 200 se nada novo for criado.
+      operationId: linkRolePermission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required: [permissionId]
+                  not:
+                    required: [permissionIds]
+                  properties:
+                    permissionId:
+                      type: string
+                      format: uuid
+                - type: object
+                  required: [permissionIds]
+                  not:
+                    required: [permissionId]
+                  properties:
+                    permissionIds:
+                      type: array
+                      minItems: 1
+                      maxItems: 500
+                      items:
+                        type: string
+                        format: uuid
+      responses:
+        "200":
+          description: Várias permissões; nenhum vínculo novo (todos já existiam)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RolePermissionBatchLinkResponse"
+        "201":
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/RolePermissionLinkResponse"
+                  - $ref: "#/components/schemas/RolePermissionBatchLinkResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+          description: Apenas com corpo `permissionId` — vínculo duplicado
+    put:
+      tags: [RBAC]
+      summary: Sincronizar matriz de permissões do papel
+      description: |
+        Recebe a lista **final** `permissionIds` e sincroniza em transação:
+        insere os IDs ausentes e remove os que não estão na lista.
+        Array vazio remove todos os vínculos do papel.
+        Retorna `added`, `removed` e `current`.
+      operationId: syncRolePermissions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RolePermissionSyncRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RolePermissionSyncResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+          description: Papel não encontrado ou alguma permissão não existe
+
+  /api/db/roles/{id}/permissions/{permissionId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID do papel
+        schema:
+          type: string
+          format: uuid
+      - name: permissionId
+        in: path
+        required: true
+        description: ID da permissão
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags: [RBAC]
+      summary: Remover vínculo papel-permissão
+      description: Remove linha em `role_permissions`.
+      operationId: unlinkRolePermission
+      responses:
+        "204":
+          description: Vínculo removido
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/db/app-users:
+    get:
+      tags: [RBAC]
+      summary: Listar usuários locais (app_users)
+      operationId: listAppUsersAdmin
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppUserListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/db/app-users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID do usuário local (`app_users.id`)
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [RBAC]
+      summary: Obter usuário local por ID
+      description: Com `expand=roles`, inclui array `roles` (papéis em `user_roles`).
+      operationId: getAppUserAdminById
+      parameters:
+        - name: expand
+          in: query
+          schema:
+            type: string
+            enum: [roles]
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/AppUserOneResponse"
+                  - $ref: "#/components/schemas/AppUserWithRolesResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/db/app-users/{id}/roles:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID do usuário local (`app_users.id`)
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [RBAC]
+      summary: Listar papéis do usuário (user_roles)
+      operationId: listUserRolesForAppUser
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags: [RBAC]
+      summary: Atribuir papel ao usuário
+      description: Insere em `user_roles` (`user_id`, `role_id`).
+      operationId: linkUserRole
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [roleId]
+              properties:
+                roleId:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRoleLinkResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /api/db/app-users/{id}/roles/{roleId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID do usuário local
+        schema:
+          type: string
+          format: uuid
+      - name: roleId
+        in: path
+        required: true
+        description: ID do papel
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags: [RBAC]
+      summary: Remover atribuição usuário-papel
+      description: Remove linha em `user_roles`.
+      operationId: unlinkUserRole
+      responses:
+        "204":
+          description: Atribuição removida
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   /api/db/acquirers:
     get:

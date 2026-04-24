@@ -12,6 +12,7 @@ import {
   Database,
   type LucideIcon,
   Kanban,
+  Shield,
 } from "lucide-react";
 import {
   Sidebar,
@@ -46,10 +47,11 @@ interface SidebarItem {
 /** Itens de link da barra lateral. `order` define a posição em relação aos demais e ao bloco Cadastros. */
 type SidebarLinkConfig = SidebarItem & { order: number };
 
-/** Bloco único da navegação principal: links + marcador do grupo Cadastros, tudo ordenável por `order`. */
+/** Bloco único da navegação principal: links + marcadores de grupos colapsáveis. */
 type MainNavEntry =
   | ({ type: "link" } & SidebarLinkConfig)
-  | { type: "cadastros"; order: number };
+  | { type: "cadastros"; order: number }
+  | { type: "configuracoes"; order: number };
 
 const MAIN_NAV: MainNavEntry[] = [
   { type: "link", order: 10, label: "Avisos", href: "/avisos", icon: Bell },
@@ -62,6 +64,7 @@ const MAIN_NAV: MainNavEntry[] = [
     exact: true,
   },
   { type: "cadastros", order: 50 },
+  // { type: "configuracoes", order: 60 },
   {
     type: "link",
     order: 30,
@@ -80,14 +83,14 @@ const MAIN_NAV: MainNavEntry[] = [
 
 const MAIN_NAV_SORTED = [...MAIN_NAV].sort((a, b) => a.order - b.order);
 
-interface CadastroSubitem {
+interface SidebarSubitem {
   order: number;
   label: string;
   href: string;
   exact?: boolean;
 }
 
-const CADASTROS_SUBITEMS: CadastroSubitem[] = [
+const CADASTROS_SUBITEMS: SidebarSubitem[] = [
   {
     order: 20,
     label: "Adquirentes",
@@ -106,6 +109,17 @@ const CADASTROS_SUBITEMS_SORTED = [...CADASTROS_SUBITEMS].sort(
 const CADASTROS_COLLAPSED_HREF =
   CADASTROS_SUBITEMS_SORTED[0]?.href ?? "/cadastros/adquirentes";
 
+const CONFIGURACOES_SUBITEMS: SidebarSubitem[] = [
+  { order: 10, label: "Papéis e Acessos", href: "/configuracoes/papeis" },
+];
+
+const CONFIGURACOES_SUBITEMS_SORTED = [...CONFIGURACOES_SUBITEMS].sort(
+  (a, b) => a.order - b.order,
+);
+
+const CONFIGURACOES_COLLAPSED_HREF =
+  CONFIGURACOES_SUBITEMS_SORTED[0]?.href ?? "/configuracoes/papeis";
+
 export function AppSidebar({
   isCollapsed,
   isMobileOpen,
@@ -113,14 +127,27 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const pathname = usePathname();
   const underCadastros = Boolean(pathname?.startsWith("/cadastros"));
+  const underConfiguracoes = Boolean(pathname?.startsWith("/configuracoes"));
   const [cadastrosOpen, setCadastrosOpen] = useState(underCadastros);
+  const [configuracoesOpen, setConfiguracoesOpen] =
+    useState(underConfiguracoes);
 
   useEffect(() => {
     if (underCadastros) setCadastrosOpen(true);
     else setCadastrosOpen(false);
   }, [underCadastros]);
 
+  useEffect(() => {
+    if (underConfiguracoes) setConfiguracoesOpen(true);
+    else setConfiguracoesOpen(false);
+  }, [underConfiguracoes]);
+
   const cadastrosGroupActive = CADASTROS_SUBITEMS_SORTED.some((s) =>
+    s.exact
+      ? pathname === s.href
+      : pathname === s.href || pathname?.startsWith(`${s.href}/`),
+  );
+  const configuracoesGroupActive = CONFIGURACOES_SUBITEMS_SORTED.some((s) =>
     s.exact
       ? pathname === s.href
       : pathname === s.href || pathname?.startsWith(`${s.href}/`),
@@ -146,9 +173,10 @@ export function AppSidebar({
                 <Icon className="h-3.5 w-3.5 shrink-0" />
                 <span>{item.label}</span>
               </div>
-              {item.href !== CADASTROS_COLLAPSED_HREF && (
-                <ChevronRight className="h-3 w-3 opacity-50 shrink-0" />
-              )}
+              {item.href !== CADASTROS_COLLAPSED_HREF &&
+                item.href !== CONFIGURACOES_COLLAPSED_HREF && (
+                  <ChevronRight className="h-3 w-3 opacity-50 shrink-0" />
+                )}
             </>
           )}
         </SidebarNavItem>
@@ -204,6 +232,81 @@ export function AppSidebar({
                     icon: entry.icon,
                     exact: entry.exact,
                   })}
+                </span>
+              );
+            }
+
+            if (entry.type === "configuracoes") {
+              return (
+                <span key="configuracoes" className="contents">
+                  {isCollapsed ? (
+                    <Link
+                      href={CONFIGURACOES_COLLAPSED_HREF}
+                      className="block w-full"
+                      title="Configurações"
+                    >
+                      <SidebarNavItem
+                        isActive={configuracoesGroupActive}
+                        className="w-full justify-center"
+                      >
+                        <Shield className="h-3.5 w-3.5 shrink-0" />
+                      </SidebarNavItem>
+                    </Link>
+                  ) : (
+                    <Collapsible
+                      open={configuracoesOpen}
+                      onOpenChange={setConfiguracoesOpen}
+                    >
+                      <CollapsibleTrigger asChild>
+                        <button
+                          type="button"
+                          className={cn(
+                            "flex w-full items-center justify-between gap-3 px-4 py-3 rounded text-sm font-normal transition-colors",
+                            configuracoesGroupActive
+                              ? "bg-white/5 border-l-[3px] border-[#F8D33E] text-sidebar-text"
+                              : "text-sidebar-text hover:bg-white/5",
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Shield className="h-3.5 w-3.5 shrink-0" />
+                            <span>Configurações</span>
+                          </div>
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 shrink-0 opacity-70 transition-transform",
+                              configuracoesOpen && "rotate-180",
+                            )}
+                          />
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="flex flex-col gap-0.5 pl-2 pt-1 pb-1">
+                        {CONFIGURACOES_SUBITEMS_SORTED.map((sub) => {
+                          const subActive = sub.exact
+                            ? pathname === sub.href
+                            : pathname === sub.href ||
+                              pathname?.startsWith(`${sub.href}/`);
+                          return (
+                            <Link
+                              key={sub.href}
+                              href={sub.href}
+                              className="block w-full"
+                            >
+                              <span
+                                className={cn(
+                                  "flex w-full items-center gap-3 px-4 py-2.5 pl-8 rounded text-sm transition-colors",
+                                  subActive
+                                    ? "bg-white/5 text-sidebar-text font-medium border-l-[3px] border-[#F8D33E] ml-[-3px]"
+                                    : "text-sidebar-text/90 hover:bg-white/5",
+                                )}
+                              >
+                                {sub.label}
+                              </span>
+                            </Link>
+                          );
+                        })}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  )}
                 </span>
               );
             }
