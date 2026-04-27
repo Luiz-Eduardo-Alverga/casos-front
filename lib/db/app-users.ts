@@ -64,10 +64,7 @@ export async function getPermissionCodesForUserId(
     .selectDistinct({ code: permissions.code })
     .from(userRoles)
     .innerJoin(rolePermissions, eq(userRoles.roleId, rolePermissions.roleId))
-    .innerJoin(
-      permissions,
-      eq(rolePermissions.permissionId, permissions.id),
-    )
+    .innerJoin(permissions, eq(rolePermissions.permissionId, permissions.id))
     .where(eq(userRoles.userId, appUserId));
 
   return rows.map((r) => r.code).sort();
@@ -141,9 +138,7 @@ export async function unlinkUserRole(
 ): Promise<boolean> {
   const rows = await db
     .delete(userRoles)
-    .where(
-      and(eq(userRoles.userId, userId), eq(userRoles.roleId, roleId)),
-    )
+    .where(and(eq(userRoles.userId, userId), eq(userRoles.roleId, roleId)))
     .returning({ userId: userRoles.userId });
   return rows.length > 0;
 }
@@ -155,9 +150,7 @@ export async function userRoleLinkExists(
   const r = await db
     .select({ userId: userRoles.userId })
     .from(userRoles)
-    .where(
-      and(eq(userRoles.userId, userId), eq(userRoles.roleId, roleId)),
-    )
+    .where(and(eq(userRoles.userId, userId), eq(userRoles.roleId, roleId)))
     .limit(1);
   return r.length > 0;
 }

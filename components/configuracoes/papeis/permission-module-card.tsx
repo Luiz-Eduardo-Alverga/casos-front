@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronUp } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { getModuleIcon } from "./icons";
@@ -102,29 +103,41 @@ export function PermissionModuleCard({
         </div>
       </div>
 
-      {isExpanded &&
-        (coverage.total === 0 ? (
-          <div className="p-4">
-            <p className="text-xs text-text-secondary italic">
-              Este módulo não possui permissões cadastradas.
-            </p>
-          </div>
-        ) : (
-          <div className="p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              {module.permissions.map((perm) => (
-                <PermissionCheckCard
-                  key={perm.id}
-                  id={perm.id}
-                  label={perm.label}
-                  description={perm.description}
-                  checked={selected.has(perm.id)}
-                  onToggle={(active) => onTogglePermission(perm.id, active)}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+      <AnimatePresence initial={false}>
+        {isExpanded ? (
+          <motion.div
+            key="module-content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            {coverage.total === 0 ? (
+              <div className="p-4">
+                <p className="text-xs text-text-secondary italic">
+                  Este módulo não possui permissões cadastradas.
+                </p>
+              </div>
+            ) : (
+              <div className="p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                  {module.permissions.map((perm) => (
+                    <PermissionCheckCard
+                      key={perm.id}
+                      id={perm.id}
+                      label={perm.label}
+                      description={perm.description}
+                      checked={selected.has(perm.id)}
+                      onToggle={(active) => onTogglePermission(perm.id, active)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
