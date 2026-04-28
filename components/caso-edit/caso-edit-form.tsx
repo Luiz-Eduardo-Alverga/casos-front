@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
 import { useUpdateCaso } from "@/hooks/use-update-caso";
 import { useClonarCaso } from "@/hooks/use-clonar-caso";
@@ -202,6 +203,9 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     }
   });
 
+  const rbacReady = permissionsLoaded();
+  const canEditCase = !rbacReady || hasPermission("edit-case");
+
   const handleClonar = async () => {
     try {
       const res = await clonarCaso.mutateAsync(Number(casoId));
@@ -364,7 +368,12 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                   value="inicial"
                   className="flex-1 flex flex-col mt-0 data-[state=inactive]:hidden"
                 >
-                  <div className="flex flex-col lg:flex-row gap-6 flex-1">
+                  <fieldset
+                    disabled={!canEditCase}
+                    className="contents"
+                    aria-disabled={!canEditCase}
+                  >
+                    <div className="flex flex-col lg:flex-row gap-6 flex-1">
                     <div className="flex-1 flex flex-col gap-6 min-w-0">
                       <AbaInicial casoId={numeroCaso} />
                     </div>
@@ -376,16 +385,22 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       report={item.report}
                       onSalvar={handleSalvar}
                       isSaving={updateCaso.isPending}
-                      disabled={updateCaso.isPending}
+                      disabled={updateCaso.isPending || !canEditCase}
                     />
-                  </div>
+                    </div>
+                  </fieldset>
                 </TabsContent>
 
                 <TabsContent
                   value="anotacoes"
                   className="mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden"
                 >
-                  <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
+                  <fieldset
+                    disabled={!canEditCase}
+                    className="contents"
+                    aria-disabled={!canEditCase}
+                  >
+                    <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
                     <div className="flex min-h-0 flex-1 min-w-0 flex-col">
                       <AbaAnotacoes
                         casoId={numeroCaso}
@@ -404,16 +419,22 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       report={item.report}
                       onSalvar={handleSalvar}
                       isSaving={updateCaso.isPending}
-                      disabled={updateCaso.isPending}
+                      disabled={updateCaso.isPending || !canEditCase}
                     />
-                  </div>
+                    </div>
+                  </fieldset>
                 </TabsContent>
 
                 <TabsContent
                   value="relacoes"
                   className="mt-0 flex-1 data-[state=inactive]:hidden"
                 >
-                  <div className="flex flex-col lg:flex-row gap-6 flex-1">
+                  <fieldset
+                    disabled={!canEditCase}
+                    className="contents"
+                    aria-disabled={!canEditCase}
+                  >
+                    <div className="flex flex-col lg:flex-row gap-6 flex-1">
                     <div className="flex-1 flex flex-col gap-6 min-w-0">
                       <AbaRelacoes
                         casoId={numeroCaso}
@@ -434,9 +455,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       report={item.report}
                       onSalvar={handleSalvar}
                       isSaving={updateCaso.isPending}
-                      disabled={updateCaso.isPending}
+                      disabled={updateCaso.isPending || !canEditCase}
                     />
-                  </div>
+                    </div>
+                  </fieldset>
                 </TabsContent>
 
                 <TabsContent
@@ -471,7 +493,12 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                   value="producao"
                   className="mt-0 flex-1 data-[state=inactive]:hidden"
                 >
-                  <div className="flex flex-col lg:flex-row gap-6 flex-1">
+                  <fieldset
+                    disabled={!canEditCase}
+                    className="contents"
+                    aria-disabled={!canEditCase}
+                  >
+                    <div className="flex flex-col lg:flex-row gap-6 flex-1">
                     <div className="flex-1 flex flex-col gap-6 min-w-0">
                       <AbaProducao
                         casoId={numeroCaso}
@@ -489,9 +516,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       report={item.report}
                       onSalvar={handleSalvar}
                       isSaving={updateCaso.isPending}
-                      disabled={updateCaso.isPending}
+                      disabled={updateCaso.isPending || !canEditCase}
                     />
-                  </div>
+                    </div>
+                  </fieldset>
                 </TabsContent>
               </div>
 
@@ -510,7 +538,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                 onProducaoAlterada={invalidate}
                 onRedirecionarParaAbaProducao={() => setTabValue("producao")}
                 isLoading={updateCaso.isPending}
-                disabled={updateCaso.isPending}
+                disabled={updateCaso.isPending || !canEditCase}
               />
             </FormProvider>
           </CasoFormProvider>

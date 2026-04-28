@@ -10,7 +10,11 @@ import { useDbRolesWithCount } from "@/hooks/use-db-roles-with-count";
 import { useDbRolePermissions } from "@/hooks/use-db-role-permissions";
 import { useDbPermissionModulesWithPermissions } from "@/hooks/use-db-permission-modules-with-permissions";
 import { useSyncRolePermissions } from "@/hooks/use-sync-role-permissions";
-import { useCreateRole, useUpdateRole } from "@/hooks/use-db-roles";
+import {
+  useCreateRole,
+  useDeleteRole,
+  useUpdateRole,
+} from "@/hooks/use-db-roles";
 import { EmptySelectionState } from "./empty-selection-state";
 import { PapeisEAcessosSkeleton } from "./papeis-e-acessos-skeleton";
 import { PapeisSidebar } from "./papeis-sidebar";
@@ -19,6 +23,8 @@ import { PermissionMatrix } from "./permission-matrix";
 import { PermissionMatrixSkeleton } from "./permission-matrix-skeleton";
 import { PapeisEAcessosHeaderCard } from "./papeis-e-acessos-header-card";
 import { RoleInfoCard } from "./role-info-card";
+import { PapeisDangerZoneCard } from "./papeis-danger-zone-card";
+import { ConfirmarExclusaoPapelModal } from "./confirmar-exclusao-papel-modal";
 import type {
   PermissionModuleWithPerms,
   RoleInfoFormValues,
@@ -59,6 +65,7 @@ export function PapeisEAcessos({
   const syncMutation = useSyncRolePermissions();
   const createMutation = useCreateRole();
   const updateMutation = useUpdateRole();
+  const deleteMutation = useDeleteRole();
 
   const form = useForm<RoleInfoFormValues>({
     mode: "onSubmit",
@@ -122,11 +129,14 @@ export function PapeisEAcessos({
   const isSaving =
     syncMutation.isPending ||
     createMutation.isPending ||
-    updateMutation.isPending;
+    updateMutation.isPending ||
+    deleteMutation.isPending;
 
   const [pendingAction, setPendingAction] = useState<
     { type: "select"; roleId: string } | { type: "create-new" } | null
   >(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmationText, setDeleteConfirmationText] = useState("");
 
   const performSelect = useCallback((roleId: string) => {
     setCreatingNew(false);
@@ -247,6 +257,44 @@ export function PapeisEAcessos({
     }
   };
 
+  const currentRole = useMemo(
+    () => rolesList.find((role) => role.id === selectedRoleId) ?? null,
+    [rolesList, selectedRoleId],
+  );
+
+  const handleOpenDeleteModal = () => {
+    if (creatingNew || !selectedRoleId) return;
+    setDeleteConfirmationText("");
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteRole = async () => {
+    if (!selectedRoleId) return;
+
+    try {
+      await deleteMutation.mutateAsync(selectedRoleId);
+      toast.success("Perfil excluído com sucesso.");
+      setDeleteModalOpen(false);
+      setDeleteConfirmationText("");
+      setSelectedRoleId(null);
+      setCreatingNew(false);
+      setMatrix(new Set());
+      resetForm({ name: "", description: "" });
+      lastSyncedKeyRef.current = null;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Erro ao excluir perfil";
+      toast.error(message);
+    }
+  };
+
+  useEffect(() => {
+    if (creatingNew || !selectedRoleId) {
+      setDeleteModalOpen(false);
+      setDeleteConfirmationText("");
+    }
+  }, [creatingNew, selectedRoleId]);
+
   useEffect(() => {
     if (rolesQuery.isError && rolesQuery.error) {
       toast.error(rolesQuery.error.message);
@@ -321,6 +369,12 @@ export function PapeisEAcessos({
                     onTogglePermission={handleTogglePermission}
                   />
                 )}
+                {!creatingNew && selectedRoleId ? (
+                  <PapeisDangerZoneCard
+                    onDelete={handleOpenDeleteModal}
+                    disabled={isSaving}
+                  />
+                ) : null}
               </>
             ) : (
               <EmptySelectionState />
@@ -339,6 +393,20 @@ export function PapeisEAcessos({
           cancelarLabel="Voltar"
           variant="danger"
           onConfirm={handleConfirmDiscardNav}
+        />
+
+        <ConfirmarExclusaoPapelModal
+          open={deleteModalOpen}
+          roleName={currentRole?.name ?? ""}
+          confirmationText={deleteConfirmationText}
+          onConfirmationTextChange={setDeleteConfirmationText}
+          isDeleting={deleteMutation.isPending}
+          onOpenChange={(next) => {
+            if (deleteMutation.isPending) return;
+            setDeleteModalOpen(next);
+            if (!next) setDeleteConfirmationText("");
+          }}
+          onConfirm={handleConfirmDeleteRole}
         />
       </div>
     </FormProvider>

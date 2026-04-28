@@ -65,7 +65,11 @@ components/
 
 ### Princípio
 
-**NUNCA** usar cores hardcoded (ex: `bg-[#f8f9fa]`). Sempre criar variáveis CSS customizadas e referenciá-las no Tailwind.
+**NUNCA** usar cores hardcoded (ex: `bg-[#f8f9fa]`, `text-black`, `bg-white`, `text-[#9ca3af]`).
+
+Sempre usar **tokens semânticos** já definidos no `app/globals.css` (via `tailwind.config.ts`) — por exemplo `text-foreground`, `text-muted-foreground`, `text-destructive`, `bg-card`, `border-border`, `border-border-divider`, `bg-destructive/10`.
+
+Se a cor/tom não existir como token, **adicionar a variável CSS** em `app/globals.css` e registrar no `tailwind.config.ts` (nunca “resolver no componente” com hex/hsl).
 
 ### Processo de Adição de Cores
 
@@ -93,6 +97,15 @@ colors: {
 
 ```tsx
 <div className="bg-panel-bg text-panel-text-primary">{/* conteúdo */}</div>
+```
+
+### Exemplo (perigo / destructive)
+
+```tsx
+<div className="rounded-lg border border-destructive/20 bg-destructive/10">
+  <p className="text-sm font-semibold text-destructive">Zona de Perigo</p>
+  <Button variant="destructive">Excluir</Button>
+</div>
 ```
 
 ### Convenção de Nomenclatura

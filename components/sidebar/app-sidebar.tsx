@@ -73,8 +73,8 @@ const CADASTROS_COLLAPSED_HREF =
   CADASTROS_SUBITEMS_SORTED[0]?.href ?? "/cadastros/adquirentes";
 
 const CONFIGURACOES_SUBITEMS: SidebarSubitem[] = [
-  { order: 10, label: "Perfis de acesso", href: "/configuracoes/perfis" },
-  { order: 20, label: "Usuários", href: "/configuracoes/usuarios" },
+  { order: 20, label: "Perfis de acesso", href: "/configuracoes/perfis" },
+  { order: 10, label: "Usuários", href: "/configuracoes/usuarios" },
 ];
 
 const CONFIGURACOES_SUBITEMS_SORTED = [...CONFIGURACOES_SUBITEMS].sort(
@@ -158,6 +158,7 @@ export function AppSidebar({
   const pathname = usePathname();
   const rbacReady = permissionsLoaded();
   const canListAcquirer = !rbacReady || hasPermission("list-acquirer");
+  const canListCase = rbacReady && hasPermission("list-case");
   const canAssignUserRole = rbacReady && hasPermission("assign-user-role");
   const canListUser = rbacReady && hasPermission("list-user");
   const configuracoesSubitemsSorted = CONFIGURACOES_SUBITEMS_SORTED.filter(
@@ -171,6 +172,10 @@ export function AppSidebar({
   const mainNavSorted = MAIN_NAV_SORTED.filter((entry) => {
     if (entry.type === "group" && entry.key === "configuracoes") {
       return canSeeConfiguracoes;
+    }
+
+    if (rbacReady && !canListCase && entry.type === "link") {
+      return entry.href !== "/casos";
     }
 
     if (!canListAcquirer && entry.type === "link") {
@@ -298,7 +303,7 @@ export function AppSidebar({
                   }));
             const collapsedHref =
               entry.key === "configuracoes"
-                ? configuracoesSubitemsSorted[0]?.href ?? entry.collapsedHref
+                ? (configuracoesSubitemsSorted[0]?.href ?? entry.collapsedHref)
                 : entry.collapsedHref;
 
             return (

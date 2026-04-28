@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createRoleClient,
+  deleteRoleClient,
   updateRoleClient,
 } from "@/services/db-api/rbac";
 import type {
@@ -28,6 +29,18 @@ export function useUpdateRole() {
     onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: ["db-roles"] });
       queryClient.invalidateQueries({ queryKey: ["db-role", vars.id] });
+    },
+  });
+}
+
+export function useDeleteRole() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteRoleClient(id),
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ["db-roles"] });
+      queryClient.invalidateQueries({ queryKey: ["db-role", id] });
+      queryClient.invalidateQueries({ queryKey: ["db-role-permissions", id] });
     },
   });
 }

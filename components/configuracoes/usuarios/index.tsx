@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, FilterX, Users } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -13,8 +12,8 @@ import {
   useDbAppUsersInfinite,
   useReplaceAppUserRole,
 } from "@/hooks/use-db-app-users";
+import { useDbRolesSelectList } from "@/hooks/use-db-roles-select-list";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
-import { listRolesClient } from "@/services/db-api/rbac";
 import { GerenciarPerfilModal } from "./gerenciar-perfil-modal";
 import type { PapelItem, UsuarioListItem } from "./types";
 import { UsuariosTableSkeleton } from "./usuarios-skeleton";
@@ -36,14 +35,7 @@ export function ConfiguracoesUsuarios({
   const debouncedSearch = useDebouncedValue(searchInput, DEBOUNCE_MS);
 
   const usersQuery = useDbAppUsersInfinite(debouncedSearch);
-  const rolesQuery = useQuery({
-    queryKey: ["db-roles", "select-list"] as const,
-    queryFn: () => listRolesClient(),
-    staleTime: 60_000,
-    gcTime: 5 * 60_000,
-    refetchOnWindowFocus: false,
-    retry: 1,
-  });
+  const rolesQuery = useDbRolesSelectList();
   const replaceRoleMutation = useReplaceAppUserRole();
 
   const [selectedUser, setSelectedUser] = useState<UsuarioListItem | null>(null);

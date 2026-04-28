@@ -20,6 +20,7 @@ import { CasoResumoModal } from "@/components/caso-resumo-modal";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import { useTheme } from "next-themes";
+import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
 export function Header() {
   const { toggleSidebar, isCollapsed } = useSidebar();
@@ -95,16 +96,23 @@ export function Header() {
             <Menu className="h-[18px] w-[15.75px] text-foreground" />
           </Button>
 
-          <Button
-            onClick={() => {
-              router.push("/casos/novo");
-            }}
-            type="button"
-            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-brand-yellow text-black hover:bg-brand-yellow-hover"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Adicionar Caso
-          </Button>
+          {(() => {
+            const rbacReady = permissionsLoaded();
+            const canCreateCase = !rbacReady || hasPermission("create-case");
+            if (!canCreateCase) return null;
+            return (
+              <Button
+                onClick={() => {
+                  router.push("/casos/novo");
+                }}
+                type="button"
+                className="w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-brand-yellow text-black hover:bg-brand-yellow-hover"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Adicionar Caso
+              </Button>
+            );
+          })()}
 
           <Separator
             orientation="vertical"

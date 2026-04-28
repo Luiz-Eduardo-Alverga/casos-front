@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { Casos } from "@/components/casos";
+import { RequirePermission } from "@/components/require-permission";
 
 function CasosLoading() {
   return (
@@ -20,8 +21,10 @@ function CasosLoading() {
 
 export default function CasosPage() {
   return (
-    <Suspense fallback={<CasosLoading />}>
-      <Casos />
-    </Suspense>
+    <RequirePermission permission="list-case">
+      <Suspense fallback={<CasosLoading />}>
+        <Casos />
+      </Suspense>
+    </RequirePermission>
   );
 }
