@@ -1,4 +1,4 @@
-import { and, asc, eq, or } from "drizzle-orm";
+import { and, asc, eq, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   appUsers,
@@ -12,6 +12,7 @@ import { ilikeContains, ilikeContainsAsText } from "@/lib/db/search-ilike";
 import type { LegacyUserInput } from "@/lib/validators/db/legacy-user";
 
 export type AppUserRow = typeof appUsers.$inferSelect;
+export type AppUserListRow = AppUserRow & { roleName: string | null };
 
 export type AppUserWithRoles = AppUserRow & { roles: RoleRow[] };
 
@@ -70,21 +71,107 @@ export async function getPermissionCodesForUserId(
   return rows.map((r) => r.code).sort();
 }
 
-export async function listAppUsers(search?: string): Promise<AppUserRow[]> {
+export async function listAppUsers(search?: string): Promise<AppUserListRow[]> {
   const term = search?.trim();
-  const q = db.select().from(appUsers);
-  if (term) {
-    return q
-      .where(
-        or(
-          ilikeContains(appUsers.email, term),
-          ilikeContains(appUsers.nome, term),
-          ilikeContainsAsText(appUsers.legacyUserId, term),
-        ),
-      )
-      .orderBy(asc(appUsers.nome), asc(appUsers.email));
-  }
-  return q.orderBy(asc(appUsers.nome), asc(appUsers.email));
+  const base = db
+    .select({
+      user: appUsers,
+      roleName: sql<string | null>`min(${roles.name})`.as("role_name"),
+    })
+    .from(appUsers)
+    .leftJoin(userRoles, eq(userRoles.userId, appUsers.id))
+    .leftJoin(roles, eq(userRoles.roleId, roles.id))
+    .groupBy(
+      appUsers.id,
+      appUsers.legacyUserId,
+      appUsers.email,
+      appUsers.nome,
+      appUsers.setor,
+      appUsers.usuarioGrupoId,
+      appUsers.createdAt,
+      appUsers.updatedAt,
+    );
+
+  const rows = term
+    ? await base
+        .where(
+          or(
+            ilikeContains(appUsers.email, term),
+            ilikeContains(appUsers.nome, term),
+            ilikeContainsAsText(appUsers.legacyUserId, term),
+          ),
+        )
+        .orderBy(asc(appUsers.nome), asc(appUsers.email))
+    : await base.orderBy(asc(appUsers.nome), asc(appUsers.email));
+
+  return rows.map((row) => ({
+    ...row.user,
+    roleName: row.roleName ?? null,
+  }));
+}
+
+export interface ListAppUsersPageResult {
+  items: AppUserListRow[];
+  nextCursor: number | null;
+}
+
+export async function listAppUsersPage(params: {
+  search?: string;
+  limit: number;
+  cursor?: number;
+}): Promise<ListAppUsersPageResult> {
+  const term = params.search?.trim();
+  const limit =
+    typeof params.limit === "number" && Number.isFinite(params.limit)
+      ? Math.max(1, params.limit)
+      : 20;
+  const cursor =
+    typeof params.cursor === "number" && Number.isFinite(params.cursor)
+      ? Math.max(0, params.cursor)
+      : 0;
+
+  const base = db
+    .select({
+      user: appUsers,
+      roleName: sql<string | null>`min(${roles.name})`.as("role_name"),
+    })
+    .from(appUsers)
+    .leftJoin(userRoles, eq(userRoles.userId, appUsers.id))
+    .leftJoin(roles, eq(userRoles.roleId, roles.id))
+    .groupBy(
+      appUsers.id,
+      appUsers.legacyUserId,
+      appUsers.email,
+      appUsers.nome,
+      appUsers.setor,
+      appUsers.usuarioGrupoId,
+      appUsers.createdAt,
+      appUsers.updatedAt,
+    );
+
+  const query = term
+    ? base
+        .where(
+          or(
+            ilikeContains(appUsers.email, term),
+            ilikeContains(appUsers.nome, term),
+            ilikeContainsAsText(appUsers.legacyUserId, term),
+          ),
+        )
+        .orderBy(asc(appUsers.nome), asc(appUsers.email))
+    : base.orderBy(asc(appUsers.nome), asc(appUsers.email));
+
+  const rows = await query.limit(limit).offset(cursor);
+
+  const items = rows.map((row) => ({
+    ...row.user,
+    roleName: row.roleName ?? null,
+  }));
+
+  return {
+    items,
+    nextCursor: items.length >= limit ? cursor + limit : null,
+  };
 }
 
 export async function getAppUserById(
@@ -141,6 +228,27 @@ export async function unlinkUserRole(
     .where(and(eq(userRoles.userId, userId), eq(userRoles.roleId, roleId)))
     .returning({ userId: userRoles.userId });
   return rows.length > 0;
+}
+
+/**
+ * Substitui o perfil do usuário em transação:
+ * remove vínculos atuais em `user_roles` e vincula apenas o `roleId` informado.
+ */
+export async function replaceUserRole(
+  userId: string,
+  roleId: string,
+): Promise<{ userId: string; roleId: string }> {
+  return db.transaction(async (tx) => {
+    await tx.delete(userRoles).where(eq(userRoles.userId, userId));
+
+    const rows = await tx
+      .insert(userRoles)
+      .values({ userId, roleId })
+      .returning();
+    const row = rows[0];
+    if (!row) throw new Error("replaceUserRole: sem retorno");
+    return row;
+  });
 }
 
 export async function userRoleLinkExists(

@@ -127,6 +127,26 @@ const config: Config = {
           "hsl(var(--papeis-button-dark-bg-hover))",
         "papeis-badge-count-bg": "hsl(var(--papeis-badge-count-bg))",
         "papeis-badge-count-text": "hsl(var(--papeis-badge-count-text))",
+
+        // Marca / destaque
+        "brand-yellow": "hsl(var(--brand-yellow))",
+        "brand-yellow-hover": "hsl(var(--brand-yellow-hover))",
+
+        // Tons específicos
+        "cases-ink": "hsl(var(--cases-ink))",
+        "border-strong": "hsl(var(--border-strong))",
+
+        // Página pública (Adquirentes)
+        "public-border": "hsl(var(--public-border))",
+        "public-placeholder": "hsl(var(--public-placeholder))",
+        "public-text-muted": "hsl(var(--public-text-muted))",
+        "public-hint": "hsl(var(--public-hint))",
+        "public-surface-muted": "hsl(var(--public-surface-muted))",
+        "public-focus": "hsl(var(--public-focus))",
+        "public-info-bg": "hsl(var(--public-info-bg))",
+        "public-info-text": "hsl(var(--public-info-text))",
+        "public-danger-bg": "hsl(var(--public-danger-bg))",
+        "public-danger-text": "hsl(var(--public-danger-text))",
       },
       backgroundImage: {
         "login-gradient":

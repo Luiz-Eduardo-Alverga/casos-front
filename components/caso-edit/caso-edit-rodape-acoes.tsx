@@ -65,7 +65,7 @@ export function CasoEditRodapeAcoes({
   return (
     <>
       <footer
-        className="fixed bottom-0 z-30 border-t border-border-divider bg-card shadow-[0_-1px_3px_0_rgba(0,0,0,0.05)] transition-all duration-300 px-6 py-4 flex flex-row justify-end gap-2"
+        className="fixed bottom-0 z-30 border-t border-border-divider bg-card shadow-card transition-all duration-300 px-6 py-4 flex flex-row justify-end gap-2"
         style={{
           left: isMobile ? "0" : isCollapsed ? "64px" : "256px",
           right: "0",

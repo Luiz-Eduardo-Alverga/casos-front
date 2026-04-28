@@ -97,7 +97,7 @@ const SidebarNavItem = React.forwardRef<
     className={cn(
       "flex w-full items-center justify-between gap-3 px-4 py-3 rounded text-sm font-normal transition-colors",
       isActive
-        ? "bg-white/5 border-l-[3px] border-[#F8D33E] text-sidebar-text"
+        ? "bg-white/5 border-l-[3px] border-brand-yellow text-sidebar-text"
         : "text-sidebar-text hover:bg-white/5",
       className,
     )}

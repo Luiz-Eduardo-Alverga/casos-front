@@ -30,13 +30,13 @@ export function AdquirentesPageFilters({
   return (
     <div className="mb-4 grid min-w-0 grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9aa4b2]" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-public-placeholder" />
         <Input
           value={searchInput}
           onChange={(e) => onSearchInputChange(e.target.value)}
           placeholder="Pesquise a adquirente desejada"
           aria-label="Buscar adquirente"
-          className="h-14 w-full rounded-2xl border-[#d7dde4] bg-white pl-10 pr-3 text-base  text-[#1f2937] placeholder:text-[#9aa4b2] focus-visible:ring-1 focus-visible:ring-orange-500"
+          className="h-14 w-full rounded-2xl border-public-border bg-background pl-10 pr-3 text-base text-text-primary placeholder:text-public-placeholder focus-visible:ring-1 focus-visible:ring-public-focus"
         />
       </div>
 
@@ -48,7 +48,7 @@ export function AdquirentesPageFilters({
       >
         <SelectTrigger
           aria-label="Filtrar por status"
-          className="h-14 w-full rounded-2xl border-[#d7dde4] bg-white text-sm text-[#6b7280] focus:ring-1 focus:ring-orange-500"
+          className="h-14 w-full rounded-2xl border-public-border bg-background text-sm text-public-text-muted focus:ring-1 focus:ring-public-focus"
         >
           <SelectValue placeholder="Todos os status" />
         </SelectTrigger>

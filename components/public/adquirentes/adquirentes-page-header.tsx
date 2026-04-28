@@ -6,7 +6,7 @@ export const ADQUIRENTES_PAGE_CONTENT_SHELL =
 
 export function AdquirentesPageHeader() {
   return (
-    <header className="w-full min-w-0 shrink-0 border-b border-[#d7dde4] bg-white">
+    <header className="w-full min-w-0 shrink-0 border-b border-public-border bg-background">
       <div
         className={`flex items-center justify-between ${ADQUIRENTES_PAGE_CONTENT_SHELL}`}
       >

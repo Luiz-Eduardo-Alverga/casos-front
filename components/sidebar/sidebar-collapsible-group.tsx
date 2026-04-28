@@ -77,7 +77,7 @@ export function SidebarCollapsibleGroup({
           className={cn(
             "flex w-full items-center justify-between gap-3 px-4 py-3 rounded text-sm font-normal transition-colors",
             groupActive
-              ? "bg-white/5 border-l-[3px] border-[#F8D33E] text-sidebar-text"
+              ? "bg-white/5 border-l-[3px] border-brand-yellow text-sidebar-text"
               : "text-sidebar-text hover:bg-white/5",
           )}
         >
@@ -102,7 +102,7 @@ export function SidebarCollapsibleGroup({
                 className={cn(
                   "flex w-full items-center gap-3 px-4 py-2.5 pl-8 rounded text-sm transition-colors",
                   subActive
-                    ? "bg-white/5 text-sidebar-text font-medium border-l-[3px] border-[#F8D33E] ml-[-3px]"
+                    ? "bg-white/5 text-sidebar-text font-medium border-l-[3px] border-brand-yellow ml-[-3px]"
                     : "text-sidebar-text/90 hover:bg-white/5",
                 )}
               >

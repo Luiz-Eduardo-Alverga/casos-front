@@ -342,7 +342,17 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/AppUserAdmin"
+            $ref: "#/components/schemas/AppUserListItem"
+
+    AppUserListItem:
+      allOf:
+        - $ref: "#/components/schemas/AppUserAdmin"
+        - type: object
+          properties:
+            roleName:
+              type: string
+              nullable: true
+              description: Nome do papel atualmente vinculado ao usuário (null quando sem vínculo).
 
     PermissionWithModule:
       allOf:
@@ -1587,6 +1597,7 @@ paths:
     get:
       tags: [RBAC]
       summary: Listar usuários locais (app_users)
+      description: Inclui `roleName` (papel atual do usuário), quando houver.
       operationId: listAppUsersAdmin
       parameters:
         - name: search
@@ -1675,6 +1686,38 @@ paths:
                   format: uuid
       responses:
         "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRoleLinkResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+    put:
+      tags: [RBAC]
+      summary: Substituir perfil do usuário
+      description: |
+        Atualização atômica do perfil: remove vínculos atuais em `user_roles`
+        para o usuário e cria um novo vínculo com o `roleId` informado.
+      operationId: replaceUserRole
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [roleId]
+              properties:
+                roleId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
           content:
             application/json:
               schema:

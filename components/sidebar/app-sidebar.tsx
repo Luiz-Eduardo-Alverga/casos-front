@@ -73,7 +73,8 @@ const CADASTROS_COLLAPSED_HREF =
   CADASTROS_SUBITEMS_SORTED[0]?.href ?? "/cadastros/adquirentes";
 
 const CONFIGURACOES_SUBITEMS: SidebarSubitem[] = [
-  { order: 10, label: "Papéis e Acessos", href: "/configuracoes/papeis" },
+  { order: 10, label: "Perfis de acesso", href: "/configuracoes/perfis" },
+  { order: 20, label: "Usuários", href: "/configuracoes/usuarios" },
 ];
 
 const CONFIGURACOES_SUBITEMS_SORTED = [...CONFIGURACOES_SUBITEMS].sort(
@@ -81,7 +82,7 @@ const CONFIGURACOES_SUBITEMS_SORTED = [...CONFIGURACOES_SUBITEMS].sort(
 );
 
 const CONFIGURACOES_COLLAPSED_HREF =
-  CONFIGURACOES_SUBITEMS_SORTED[0]?.href ?? "/configuracoes/papeis";
+  CONFIGURACOES_SUBITEMS_SORTED[0]?.href ?? "/configuracoes/perfis";
 
 type MainNavEntry =
   | ({ type: "link" } & SidebarLinkConfig)
@@ -132,20 +133,19 @@ const MAIN_NAV: MainNavEntry[] = [
       exact: s.exact,
     })),
   },
-  // Se quiser reativar o grupo, descomente:
-  // {
-  //   type: "group",
-  //   order: 60,
-  //   key: "configuracoes",
-  //   label: "Configurações",
-  //   icon: Shield,
-  //   collapsedHref: CONFIGURACOES_COLLAPSED_HREF,
-  //   subitems: CONFIGURACOES_SUBITEMS_SORTED.map((s) => ({
-  //     label: s.label,
-  //     href: s.href,
-  //     exact: s.exact,
-  //   })),
-  // },
+  {
+    type: "group",
+    order: 60,
+    key: "configuracoes",
+    label: "Configurações",
+    icon: Shield,
+    collapsedHref: CONFIGURACOES_COLLAPSED_HREF,
+    subitems: CONFIGURACOES_SUBITEMS_SORTED.map((s) => ({
+      label: s.label,
+      href: s.href,
+      exact: s.exact,
+    })),
+  },
 ];
 
 const MAIN_NAV_SORTED = [...MAIN_NAV].sort((a, b) => a.order - b.order);
@@ -158,12 +158,27 @@ export function AppSidebar({
   const pathname = usePathname();
   const rbacReady = permissionsLoaded();
   const canListAcquirer = !rbacReady || hasPermission("list-acquirer");
-  const mainNavSorted = canListAcquirer
-    ? MAIN_NAV_SORTED
-    : MAIN_NAV_SORTED.filter((entry) => {
-        if (entry.type !== "link") return true;
-        return entry.href !== "/cadastros/adquirentes/status";
-      });
+  const canAssignUserRole = rbacReady && hasPermission("assign-user-role");
+  const canListUser = rbacReady && hasPermission("list-user");
+  const configuracoesSubitemsSorted = CONFIGURACOES_SUBITEMS_SORTED.filter(
+    (item) => {
+      if (item.href === "/configuracoes/perfis") return canAssignUserRole;
+      if (item.href === "/configuracoes/usuarios") return canListUser;
+      return true;
+    },
+  );
+  const canSeeConfiguracoes = configuracoesSubitemsSorted.length > 0;
+  const mainNavSorted = MAIN_NAV_SORTED.filter((entry) => {
+    if (entry.type === "group" && entry.key === "configuracoes") {
+      return canSeeConfiguracoes;
+    }
+
+    if (!canListAcquirer && entry.type === "link") {
+      return entry.href !== "/cadastros/adquirentes/status";
+    }
+
+    return true;
+  });
   const cadastrosSubitemsSorted = canListAcquirer
     ? CADASTROS_SUBITEMS_SORTED
     : [];
@@ -276,7 +291,15 @@ export function AppSidebar({
                     href: s.href,
                     exact: s.exact,
                   }))
-                : entry.subitems;
+                : configuracoesSubitemsSorted.map((s) => ({
+                    label: s.label,
+                    href: s.href,
+                    exact: s.exact,
+                  }));
+            const collapsedHref =
+              entry.key === "configuracoes"
+                ? configuracoesSubitemsSorted[0]?.href ?? entry.collapsedHref
+                : entry.collapsedHref;
 
             return (
               <span key={entry.key} className="contents">
@@ -285,7 +308,7 @@ export function AppSidebar({
                   pathname={pathname}
                   open={open}
                   onOpenChange={onOpenChange}
-                  collapsedHref={entry.collapsedHref}
+                  collapsedHref={collapsedHref}
                   label={entry.label}
                   icon={entry.icon}
                   subitems={subitems}

@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function PainelKanbanProdutosModalSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border-divider bg-[#f8f9fa] p-4">
+      <div className="rounded-lg border border-border-divider bg-public-surface-muted p-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
           <div className="space-y-2">
             <Skeleton className="h-4 w-16" />

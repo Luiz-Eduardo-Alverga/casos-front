@@ -7,6 +7,8 @@ import {
   Minimize,
   ExternalLink,
   Search,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserDropDown } from "@/components/header/user-dropdown";
@@ -17,13 +19,18 @@ import { useRouter } from "next/navigation";
 import { CasoResumoModal } from "@/components/caso-resumo-modal";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
+import { useTheme } from "next-themes";
 
 export function Header() {
   const { toggleSidebar, isCollapsed } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [openCaseSearch, setOpenCaseSearch] = useState(false);
+  const [themeMounted, setThemeMounted] = useState(false);
   const router = useRouter();
+  const { resolvedTheme, setTheme } = useTheme();
+
+  useEffect(() => setThemeMounted(true), []);
   const handleToggleFullScreen = () => {
     // Verifica se já estamos em tela cheia
     if (!document.fullscreenElement) {
@@ -68,7 +75,7 @@ export function Header() {
 
   return (
     <header
-      className="fixed bg-white border-b border-border top-0 z-30 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.05)] transition-all duration-300"
+      className="fixed bg-background border-b border-border top-0 z-30 shadow-card transition-all duration-300"
       style={{
         left: isMobile ? "0" : isCollapsed ? "64px" : "256px",
         right: "0",
@@ -93,7 +100,7 @@ export function Header() {
               router.push("/casos/novo");
             }}
             type="button"
-            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-[#F8D33E] text-black hover:bg-[#F8D33E]/80"
+            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-brand-yellow text-black hover:bg-brand-yellow-hover"
           >
             <Plus className="h-3.5 w-3.5" />
             Adicionar Caso
@@ -134,6 +141,33 @@ export function Header() {
           >
             <ExternalLink className="h-[18px] w-[15.75px] text-foreground" />
           </Button>
+
+          {/* {themeMounted ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 hover:bg-muted"
+              onClick={() =>
+                setTheme(resolvedTheme === "dark" ? "light" : "dark")
+              }
+              aria-label={
+                resolvedTheme === "dark"
+                  ? "Alternar para tema claro"
+                  : "Alternar para tema escuro"
+              }
+              title={
+                resolvedTheme === "dark"
+                  ? "Alternar para tema claro"
+                  : "Alternar para tema escuro"
+              }
+            >
+              {resolvedTheme === "dark" ? (
+                <Sun className="h-[18px] w-[15.75px] text-foreground" />
+              ) : (
+                <Moon className="h-[18px] w-[15.75px] text-foreground" />
+              )}
+            </Button>
+          ) : null} */}
 
           <Button
             variant="ghost"

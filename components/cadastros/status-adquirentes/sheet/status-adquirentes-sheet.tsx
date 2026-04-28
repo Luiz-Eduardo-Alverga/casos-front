@@ -392,7 +392,7 @@ export function StatusAdquirentesSheet({
                   ? "Nova Status de Adquirente"
                   : "Editar Status de Adquirente"}
               </SheetTitle>
-              <SheetDescription className="text-sm text-[#9ca3af]">
+              <SheetDescription className="text-sm text-public-hint">
                 Configure o status, versões e dispositivos da adquirente
               </SheetDescription>
             </SheetHeader>
@@ -415,7 +415,7 @@ export function StatusAdquirentesSheet({
                   <AcquirerStatusDevicesField disabled={isSaving} />
 
                   <div className="rounded-lg border border-border-divider bg-muted/30 p-2 space-y-2">
-                    <p className="text-xs font-bold text-[#9ca3af]">
+                    <p className="text-xs font-bold text-public-hint">
                       Dispositivos vinculados ({selectedDeviceIds?.length ?? 0})
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -428,8 +428,8 @@ export function StatusAdquirentesSheet({
                             className={cn(
                               "inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs font-semibold transition-colors",
                               isPrimary
-                                ? "border-[#bdd1ff] bg-[#e4f0ff] text-black"
-                                : "border-border-divider bg-white text-black",
+                                ? "border-public-border bg-public-info-bg text-black"
+                                : "border-border-divider bg-background text-black",
                             )}
                             onClick={() =>
                               form.setValue("recommendedDeviceId", deviceId, {
@@ -451,7 +451,7 @@ export function StatusAdquirentesSheet({
                         );
                       })}
                     </div>
-                    <p className="text-[10px] font-semibold text-[#9ca3af]">
+                    <p className="text-[10px] font-semibold text-public-hint">
                       Clique na estrela para definir o dispositivo principal
                     </p>
                   </div>

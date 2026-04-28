@@ -40,7 +40,7 @@ export function ProdutosModalAddForm({
       <FormProvider {...form}>
         <form
           onSubmit={onSubmit}
-          className="rounded-lg border border-border-divider bg-[#f8f9fa] p-4"
+          className="rounded-lg border border-border-divider bg-public-surface-muted p-4"
         >
           <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
             <CasoFormProduto required={false} />

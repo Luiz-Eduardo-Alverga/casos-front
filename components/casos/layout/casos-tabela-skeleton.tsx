@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function SkeletonRow() {
   return (
-    <TableRow className="bg-white border-t border-[#e0e0e0] hover:bg-transparent cursor-default">
+    <TableRow className="bg-background border-t border-border-strong hover:bg-transparent cursor-default">
       <TableCell className="w-[60px] py-3 px-5">
         <Skeleton className="h-4 w-10" />
       </TableCell>
@@ -59,7 +59,7 @@ export function CasosTabelaSkeleton() {
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-white border-b border-white hover:bg-white">
+        <TableRow className="bg-background border-b border-background hover:bg-background">
           <TableHead className="w-[60px] font-medium text-sm text-text-primary h-auto py-4 px-5">
             Registro
           </TableHead>

@@ -101,6 +101,26 @@
     --papeis-button-dark-bg-hover: 215 28% 25%;
     --papeis-badge-count-bg: 220 14% 96%;
     --papeis-badge-count-text: 215 20% 35%;
+
+    /* Marca / destaque (usado em botões e sidebar) */
+    --brand-yellow: 48 93% 61%;
+    --brand-yellow-hover: 48 93% 55%;
+
+    /* Tons específicos usados em telas/tabelas */
+    --cases-ink: 0 0% 11%;
+    --border-strong: 0 0% 88%;
+
+    /* Página pública (Adquirentes) */
+    --public-border: 212 19% 87%;
+    --public-placeholder: 215 13% 65%;
+    --public-text-muted: 220 9% 46%;
+    --public-hint: 218 11% 65%;
+    --public-surface-muted: 210 17% 98%;
+    --public-focus: 25 95% 53%;
+    --public-info-bg: 214 100% 97%;
+    --public-info-text: 214 95% 40%;
+    --public-danger-bg: 0 86% 97%;
+    --public-danger-text: 0 72% 51%;
   }
 
   .dark {
@@ -199,6 +219,26 @@
     --papeis-button-dark-bg-hover: 215 25% 35%;
     --papeis-badge-count-bg: 215 27% 22%;
     --papeis-badge-count-text: 210 20% 80%;
+
+    /* Marca / destaque (dark mode) */
+    --brand-yellow: 48 93% 60%;
+    --brand-yellow-hover: 48 93% 52%;
+
+    /* Tons específicos usados em telas/tabelas (dark mode) */
+    --cases-ink: 210 20% 98%;
+    --border-strong: 215 27.9% 16.9%;
+
+    /* Página pública (Adquirentes) - dark mode */
+    --public-border: 215 27.9% 16.9%;
+    --public-placeholder: 217.9 10.6% 64.9%;
+    --public-text-muted: 217.9 10.6% 64.9%;
+    --public-hint: 217.9 10.6% 64.9%;
+    --public-surface-muted: 215 27.9% 16.9%;
+    --public-focus: 48 93% 60%;
+    --public-info-bg: 215 27.9% 16.9%;
+    --public-info-text: 214 100% 75%;
+    --public-danger-bg: 215 27.9% 16.9%;
+    --public-danger-text: 0 84% 75%;
   }
 }
 

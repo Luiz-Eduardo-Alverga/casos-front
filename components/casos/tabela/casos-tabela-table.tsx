@@ -41,7 +41,7 @@ export function CasosTabelaTable({
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-white border-b border-white hover:bg-white">
+        <TableRow className="bg-background border-b border-background hover:bg-background">
           <TableHead className="w-[60px] font-medium text-sm text-text-primary h-auto py-4 px-5">
             Registro
           </TableHead>
@@ -67,11 +67,11 @@ export function CasosTabelaTable({
         {itens.map((row) => (
           <TableRow
             key={row.id}
-            className="bg-white border-t border-[#e0e0e0] hover:bg-muted/50 cursor-pointer transition-colors"
+            className="bg-background border-t border-border-strong hover:bg-muted/50 cursor-pointer transition-colors"
             onClick={() => router.push(`/casos/${row.id}`)}
           >
             <TableCell className="w-[60px] py-3 px-5">
-              <span className="text-base font-light text-[#1d1d1d] whitespace-nowrap">
+              <span className="text-base font-light text-cases-ink whitespace-nowrap">
                 #{row.numero}
               </span>
             </TableCell>
@@ -84,11 +84,11 @@ export function CasosTabelaTable({
 
             <TableCell className="w-[200px] py-3 px-5">
               <div className="flex flex-col gap-1">
-                <span className="text-sm font-light text-[#1d1d1d]">
+                <span className="text-sm font-light text-cases-ink">
                   {row.produto}
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-light text-[#1d1d1d]">
+                  <span className="text-xs font-light text-cases-ink">
                     {row.versao}
                   </span>
                   {String(row.tipo_abertura ?? "")
@@ -101,7 +101,7 @@ export function CasosTabelaTable({
             </TableCell>
 
             <TableCell className="flex-1 py-3 px-5">
-              <span className="text-sm font-light text-[#1d1d1d]">
+              <span className="text-sm font-light text-cases-ink">
                 {row.descricao || "—"}
               </span>
             </TableCell>

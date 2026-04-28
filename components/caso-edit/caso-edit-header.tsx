@@ -29,7 +29,7 @@ const TAB_TRIGGER_CLASS = cn(
 const BADGE_CLASS = cn(
   "inline-flex min-w-[1.25rem] h-5 items-center justify-center rounded-full px-1.5 text-xs font-medium tabular-nums",
   "bg-primary text-white",
-  "group-data-[state=active]:bg-[#F8D33E] group-data-[state=active]:text-primary-foreground",
+  "group-data-[state=active]:bg-brand-yellow group-data-[state=active]:text-primary-foreground",
 );
 
 interface TabItem {

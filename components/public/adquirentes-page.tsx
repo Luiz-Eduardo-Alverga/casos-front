@@ -60,7 +60,7 @@ export function AdquirentesPage({
               {errorMessage(error)}
             </div>
           ) : rows.length === 0 ? (
-            <div className="rounded-lg border border-[#d7dde4] bg-white p-8 text-center text-[#6b7280]">
+            <div className="rounded-lg border border-public-border bg-background p-8 text-center text-public-text-muted">
               Nenhuma adquirente encontrada para os filtros selecionados.
             </div>
           ) : (

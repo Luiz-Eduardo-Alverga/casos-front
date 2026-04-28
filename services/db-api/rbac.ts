@@ -1,5 +1,10 @@
 import { fetchWithAuth } from "@/lib/fetch";
-import type { AppUserRow, AppUserWithRoles } from "@/lib/db/app-users";
+import type {
+  AppUserListRow,
+  AppUserRow,
+  AppUserWithRoles,
+  ListAppUsersPageResult,
+} from "@/lib/db/app-users";
 import type {
   PermissionModuleRow,
   PermissionModuleWithPermissions,
@@ -283,9 +288,25 @@ export async function unlinkRolePermissionClient(
   return parseSuccessWithoutData(res);
 }
 
-export async function listAppUsersClient(search?: string): Promise<AppUserRow[]> {
+export async function listAppUsersClient(
+  search?: string,
+): Promise<AppUserListRow[]> {
   const res = await fetchWithAuth(withSearch("/api/db/app-users", search));
-  return parseSuccessWithData<AppUserRow[]>(res);
+  return parseSuccessWithData<AppUserListRow[]>(res);
+}
+
+export async function listAppUsersInfiniteClient(params: {
+  search?: string;
+  cursor?: number;
+  limit?: number;
+}): Promise<ListAppUsersPageResult> {
+  const url = new URL("/api/db/app-users", window.location.origin);
+  if (params.search?.trim()) url.searchParams.set("search", params.search.trim());
+  if (params.cursor != null) url.searchParams.set("cursor", String(params.cursor));
+  if (params.limit != null) url.searchParams.set("limit", String(params.limit));
+
+  const res = await fetchWithAuth(url.toString(), { method: "GET" });
+  return parseSuccessWithData<ListAppUsersPageResult>(res);
 }
 
 export async function getAppUserByIdClient(
@@ -323,4 +344,16 @@ export async function unlinkAppUserRoleClient(
     { method: "DELETE" },
   );
   return parseSuccessWithoutData(res);
+}
+
+export async function replaceAppUserRoleClient(
+  userId: string,
+  roleId: string,
+): Promise<{ userId: string; roleId: string }> {
+  const res = await fetchWithAuth(`/api/db/app-users/${userId}/roles`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ roleId }),
+  });
+  return parseSuccessWithData(res);
 }

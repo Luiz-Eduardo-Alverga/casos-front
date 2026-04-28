@@ -93,7 +93,7 @@ export function ConfirmacaoModal({
               "flex-1",
               variant === "danger"
                 ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                : "bg-[#2d2d2d] text-white hover:bg-[#3d3d3d]",
+                : "bg-papeis-button-dark-bg text-white hover:bg-papeis-button-dark-bg-hover",
             )}
             onClick={handleConfirm}
             disabled={isLoading}

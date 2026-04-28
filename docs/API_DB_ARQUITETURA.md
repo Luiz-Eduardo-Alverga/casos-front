@@ -120,10 +120,11 @@ Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` 
 | POST | `/api/db/roles/[id]/permissions` | Vincula `{ permissionId }` ou `{ permissionIds: uuid[] }` (lote) |
 | PUT | `/api/db/roles/[id]/permissions` | Sincroniza matriz: recebe `{ permissionIds: uuid[] }` e retorna `{ added, removed, current }` |
 | DELETE | `/api/db/roles/[id]/permissions/[permissionId]` | Remove vínculo |
-| GET | `/api/db/app-users` | Lista `app_users`; `?search=` |
+| GET | `/api/db/app-users` | Lista `app_users`; `?search=`; inclui `roleName` (papel atual) |
 | GET | `/api/db/app-users/[id]` | Detalhe; `?expand=roles` |
 | GET | `/api/db/app-users/[id]/roles` | Lista papéis do usuário |
 | POST | `/api/db/app-users/[id]/roles` | Atribui `{ roleId }` |
+| PUT | `/api/db/app-users/[id]/roles` | Substitui perfil: remove vínculos atuais e atribui `{ roleId }` |
 | DELETE | `/api/db/app-users/[id]/roles/[roleId]` | Remove atribuição |
 | GET | `/api/db/acquirers` | Lista adquirentes |
 | POST | `/api/db/acquirers` | Cria adquirente |
