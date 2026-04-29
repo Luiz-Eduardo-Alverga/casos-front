@@ -36,6 +36,8 @@ function isColumnId(id: string): id is PainelKanbanColumnId {
   return (PAINEL_KANBAN_COLUMN_IDS as readonly string[]).includes(id);
 }
 
+const PAINEL_KANBAN_FILTROS_KEY = "PAINEL_KANBAN_FILTROS";
+
 export function PainelKanban() {
   const user = getUser();
   const idColaborador = user?.id ? String(user.id) : "";
@@ -58,13 +60,85 @@ export function PainelKanban() {
 
   const usuarioDevId = devAtribuido?.trim() || idColaborador;
 
+  const isRestoringFiltrosRef = useRef(true);
+  const [filtrosRestaurados, setFiltrosRestaurados] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem(PAINEL_KANBAN_FILTROS_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as Partial<PainelKanbanFiltrosForm>;
+
+      const savedDev = saved.devAtribuido?.trim();
+      setValue("devAtribuido", savedDev ? savedDev : idColaborador);
+
+      if (saved.produto?.trim()) setValue("produto", saved.produto);
+      if (saved.versao?.trim()) setValue("versao", saved.versao);
+    } catch {
+      // Ignora valores inválidos no localStorage.
+    } finally {
+      isRestoringFiltrosRef.current = false;
+      setFiltrosRestaurados(true);
+    }
+  }, [idColaborador, setValue]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const sub = methods.watch((values) => {
+      if (isRestoringFiltrosRef.current) return;
+
+      const payload: PainelKanbanFiltrosForm = {
+        produto: values.produto ?? "",
+        versao: values.versao ?? "",
+        devAtribuido: values.devAtribuido?.trim()
+          ? values.devAtribuido
+          : idColaborador,
+      };
+
+      try {
+        localStorage.setItem(PAINEL_KANBAN_FILTROS_KEY, JSON.stringify(payload));
+      } catch {
+        // Sem ação: storage pode estar indisponível/cheio.
+      }
+    });
+
+    return () => sub.unsubscribe();
+  }, [idColaborador, methods]);
+
   const { data: agendaDevData, isLoading: isAgendaLoading } = useAgendaDev({
     id_colaborador: usuarioDevId,
   });
 
   const agendaInitRef = useRef(false);
+  const lastUsuarioDevIdRef = useRef<string>("");
   useEffect(() => {
+    if (!usuarioDevId) return;
+    if (lastUsuarioDevIdRef.current && lastUsuarioDevIdRef.current !== usuarioDevId) {
+      agendaInitRef.current = false;
+    }
+    lastUsuarioDevIdRef.current = usuarioDevId;
+  }, [usuarioDevId]);
+
+  useEffect(() => {
+    if (!filtrosRestaurados) return;
     if (!agendaDevData?.length || agendaInitRef.current) return;
+
+    const currentProduto = methods.getValues("produto")?.trim();
+    const currentVersao = methods.getValues("versao")?.trim();
+    const hasValidCurrentSelection = Boolean(
+      currentProduto &&
+        currentVersao &&
+        agendaDevData.some(
+          (a) =>
+            String(a.id_produto) === currentProduto && a.versao === currentVersao,
+        ),
+    );
+    if (hasValidCurrentSelection) {
+      agendaInitRef.current = true;
+      return;
+    }
+
     agendaInitRef.current = true;
     const storedOrdem =
       typeof window !== "undefined"
@@ -77,7 +151,7 @@ export function PainelKanban() {
       setValue("produto", String(match.id_produto));
       setValue("versao", match.versao ?? "");
     }
-  }, [agendaDevData, setValue]);
+  }, [agendaDevData, filtrosRestaurados, methods, setValue]);
 
   useEffect(() => {
     if (!agendaDevData?.length || !produto?.trim() || !versao?.trim()) return;

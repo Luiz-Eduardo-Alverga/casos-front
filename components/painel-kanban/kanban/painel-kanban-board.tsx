@@ -4,6 +4,7 @@ import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import { PainelContagemStatusBadge } from "@/components/painel/painel-contagem-status-badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { CasosProdutoSkeletonList } from "@/components/painel/casos-produto-skeleton";
 import {
   KanbanProvider,
   KanbanBoard,
@@ -103,7 +104,16 @@ export function PainelKanbanBoard({
                 </div>
               </KanbanHeader>
 
-              {itemsInColumn === 0 ? (
+              {load?.isLoading ? (
+                <ScrollArea className="min-h-[200px] flex-1 overflow-hidden">
+                  <SortableContext items={[]}>
+                    <div className="flex flex-col gap-4 p-4">
+                      <CasosProdutoSkeletonList count={3} />
+                    </div>
+                  </SortableContext>
+                  <ScrollBar orientation="vertical" />
+                </ScrollArea>
+              ) : itemsInColumn === 0 ? (
                 <ScrollArea className="min-h-[200px] flex-1 overflow-hidden">
                   <SortableContext items={[]}>
                     <div className="flex flex-col gap-2 p-2">
