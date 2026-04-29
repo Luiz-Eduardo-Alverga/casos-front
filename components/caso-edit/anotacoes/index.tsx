@@ -8,6 +8,8 @@ import { FileText } from "lucide-react";
 import { AnotacoesEditor } from "./anotacoes-editor";
 import { AnotacoesList } from "./anotacoes-list";
 import type { AbaAnotacoesProps } from "./types";
+import { useReportAnalysis } from "@/hooks/use-report-analysis";
+import toast from "react-hot-toast";
 
 /**
  * Aba Anotações do caso.
@@ -16,6 +18,7 @@ import type { AbaAnotacoesProps } from "./types";
  */
 export function AbaAnotacoes({
   casoId,
+  report,
   anotacoes,
   onCreate,
   onUpdate,
@@ -23,6 +26,7 @@ export function AbaAnotacoes({
   isCreating = false,
 }: AbaAnotacoesProps) {
   const [novaAnotacao, setNovaAnotacao] = useState("");
+  const improveReport = useReportAnalysis();
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editandoTexto, setEditandoTexto] = useState("");
   const [excluirModal, setExcluirModal] = useState<{
@@ -36,6 +40,28 @@ export function AbaAnotacoes({
     if (!texto) return;
     await onCreate({ registro: casoId, anotacoes: texto });
     setNovaAnotacao("");
+  };
+
+  const handleMelhorarComIA = async () => {
+    const description = novaAnotacao.trim();
+    if (!description) return;
+
+    try {
+      const result = await improveReport.mutateAsync({
+        report,
+        description,
+      });
+
+      const improved = result?.data?.analysis ?? "";
+      if (improved.trim()) {
+        setNovaAnotacao(improved);
+      }
+      toast.success("Descrição melhorada com sucesso");
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "Erro ao melhorar a descrição com IA.",
+      );
+    }
   };
 
   const handleIniciarEdicao = (item: (typeof anotacoes)[number]) => {
@@ -81,6 +107,8 @@ export function AbaAnotacoes({
             onChange={setNovaAnotacao}
             onSave={handleAdicionar}
             disabled={isCreating}
+            onImproveWithIA={handleMelhorarComIA}
+            isImproving={improveReport.isPending}
           />
 
           <AnotacoesList
@@ -114,4 +142,3 @@ export function AbaAnotacoes({
     </>
   );
 }
-
