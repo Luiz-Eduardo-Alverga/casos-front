@@ -52,7 +52,7 @@ export function ComboboxField({
   const error = errors[name];
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 ">
       <div className="flex justify-between">
         <Label className="text-sm font-medium text-text-label">
           {label} {required && <span className="text-text-error">*</span>}
@@ -81,7 +81,8 @@ export function ComboboxField({
             onLoadMore={onLoadMore}
             anchorClassName={cn("group", "[&_button]:border-border-input")}
             className={cn(
-              field.value && "rounded-l-lg rounded-r-none border-r-0",
+              field.value &&
+                "rounded-l-lg rounded-r-none border-r-0 dark:border-input",
               !field.value && "rounded-lg",
             )}
             suffix={
@@ -92,7 +93,7 @@ export function ComboboxField({
                   variant="outline"
                   size="icon"
                   className={cn(
-                    "h-9 w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input",
+                    "h-9 w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input dark:border-input",
                     "group-hover:bg-accent group-hover:text-accent-foreground",
                     "group-focus-within:ring-1 group-focus-within:ring-ring",
                   )}

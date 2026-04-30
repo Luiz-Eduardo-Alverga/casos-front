@@ -72,7 +72,10 @@ function dateToYmd(date: Date | undefined): string | undefined {
   return `${y}-${m}-${d}`;
 }
 
-export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps) {
+export function CasosFiltros({
+  filtrosIniciais,
+  urlQueryKey,
+}: CasosFiltrosProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: categorias = [] } = useCategorias();
@@ -137,7 +140,7 @@ export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps
       categoriaIdFromUrl || filtrosIniciais.tipo_categoria || "",
       { shouldDirty: false, shouldTouch: false, shouldValidate: false },
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- `methods.reset`/`setValue` estáveis; não incluir `methods` para não resetar a cada render
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `methods.reset`/`setValue` estáveis; não incluir `methods` para não resetar a cada render
   }, [urlQueryKey, categoriaIdFromUrl, filtrosIniciais]);
 
   const produto = methods.watch("produto");
@@ -160,7 +163,9 @@ export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps
       params.set("modulo", values.modulo.trim());
     }
     if (values.categoria?.trim()) {
-      const categoria = categorias.find((c) => c.id === values.categoria.trim());
+      const categoria = categorias.find(
+        (c) => c.id === values.categoria.trim(),
+      );
       const valorTipoCategoria =
         categoria?.tipo_categoria ?? values.categoria.trim();
       params.set("tipo_categoria", valorTipoCategoria);
@@ -213,7 +218,7 @@ export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps
   return (
     <CasoFormProvider value={providerValue}>
       <FormProvider {...methods}>
-        <Card className="bg-card shadow-card rounded-lg shrink-0 mb-6">
+        <Card className="bg-card  shadow-card rounded-lg shrink-0 mb-6">
           <CardHeader className="flex flex-row justify-between px-5 py-2 border-b border-border-divider">
             <div className="flex items-center gap-2">
               <Filter className="h-3.5 w-3.5 text-text-primary" />
@@ -292,4 +297,3 @@ export function CasosFiltros({ filtrosIniciais, urlQueryKey }: CasosFiltrosProps
     </CasoFormProvider>
   );
 }
-

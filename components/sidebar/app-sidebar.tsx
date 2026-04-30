@@ -236,6 +236,7 @@ export function AppSidebar({
       isCollapsed={isCollapsed}
       isMobileOpen={isMobileOpen}
       isMobile={isMobile}
+      className="dark:bg-background"
     >
       <SidebarHeader className="justify-center py-10">
         {isCollapsed ? (
@@ -303,7 +304,7 @@ export function AppSidebar({
                   }));
             const collapsedHref =
               entry.key === "configuracoes"
-                ? (configuracoesSubitemsSorted[0]?.href ?? entry.collapsedHref)
+                ? configuracoesSubitemsSorted[0]?.href ?? entry.collapsedHref
                 : entry.collapsedHref;
 
             return (
