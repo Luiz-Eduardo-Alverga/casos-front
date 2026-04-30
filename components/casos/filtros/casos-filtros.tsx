@@ -28,6 +28,7 @@ interface CasosFiltersForm {
   categoria: string;
   tipo_abertura: "" | "CASO" | "REPORT";
   descricao_resumo: string;
+  projeto_id: string;
   status_ids: string[];
   usuario_abertura_id: string;
   devAtribuido: string;
@@ -45,6 +46,7 @@ interface CasosFiltrosProps {
     tipo_abertura?: string;
     descricao_resumo: string;
     status_ids: string[];
+    projeto_id?: string;
     usuario_abertura_id: string;
     usuario_dev_id?: string;
     usuario_qa_id?: string;
@@ -98,6 +100,7 @@ export function CasosFiltros({
       categoria: "",
       tipo_abertura: "",
       descricao_resumo: "",
+      projeto_id: "",
       status_ids: [],
       usuario_abertura_id: "",
       devAtribuido: "",
@@ -118,6 +121,7 @@ export function CasosFiltros({
         versao: filtrosIniciais.versao,
         modulo: filtrosIniciais.modulo,
         descricao_resumo: filtrosIniciais.descricao_resumo,
+        projeto_id: filtrosIniciais.projeto_id ?? "",
         categoria: categoriaIdFromUrl || filtrosIniciais.tipo_categoria,
         tipo_abertura:
           filtrosIniciais.tipo_abertura === "CASO" ||
@@ -176,6 +180,9 @@ export function CasosFiltros({
     if (values.descricao_resumo?.trim()) {
       params.set("descricao_resumo", values.descricao_resumo.trim());
     }
+    if (values.projeto_id?.trim()) {
+      params.set("projeto_id", values.projeto_id.trim());
+    }
     if (values.usuario_abertura_id?.trim()) {
       params.set("usuario_abertura_id", values.usuario_abertura_id.trim());
     }
@@ -201,6 +208,7 @@ export function CasosFiltros({
     params.delete("data_producao_inicio");
     params.delete("data_producao_fim");
     params.delete("tipo_abertura");
+    params.delete("projeto_id");
     const qs = params.toString();
     router.push(qs ? `/casos?${qs}` : "/casos");
   }, [router, searchParams]);

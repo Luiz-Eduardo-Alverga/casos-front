@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { Casos } from "@/components/casos";
+import { Casos } from "@/components/casos/index";
 import { RequirePermission } from "@/components/require-permission";
 
 function CasosLoading() {

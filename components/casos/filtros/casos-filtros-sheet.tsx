@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sheet";
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
 import { CasoFormQaAtribuido } from "@/components/fields/caso-form-qa-atribuido";
+import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
 
 interface CasosFiltrosSheetProps {
   open: boolean;
@@ -62,6 +63,11 @@ export const CasosFiltrosSheet = ({
 
           <div className="flex-1 overflow-auto p-6 pt-4 space-y-4">
             <div className="grid grid-cols-1 gap-4">
+              <CasoFormProjeto
+                requireProduto={false}
+                name="projeto_id"
+                required={false}
+              />
               <CasoFormDevAtribuido required={false} requireProduto={false} />
               <CasoFormQaAtribuido required={false} requireProduto={false} />
             </div>
@@ -140,4 +146,3 @@ export const CasosFiltrosSheet = ({
     </Sheet>
   );
 };
-
