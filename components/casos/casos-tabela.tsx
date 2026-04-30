@@ -7,9 +7,7 @@ import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-
 import { getUser } from "@/lib/auth";
 import { Box, ChevronUp } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
-import {
-  CasosTabelaSkeleton,
-} from "@/components/casos/layout/casos-tabela-skeleton";
+import { CasosTabelaSkeleton } from "@/components/casos/layout/casos-tabela-skeleton";
 import { Button } from "@/components/ui/button";
 import {
   CasosTabelaTable,
@@ -35,6 +33,7 @@ interface CasosTabelaProps {
 
 function mapItemToRow(item: ProjetoMemoriaItem): CasosTabelaRow {
   const prioridade = item.caso.caracteristicas.prioridade;
+
   return {
     id: String(item.caso.id),
     importancia: Number(prioridade) || 0,
@@ -45,6 +44,8 @@ function mapItemToRow(item: ProjetoMemoriaItem): CasosTabelaRow {
     status: item.caso.status?.status_tipo ?? "",
     categoria: item.caso.caracteristicas.tipo_categoria ?? "",
     tipo_abertura: item.report?.tipo_abertura ?? "CASO",
+    estimado_minutos: item.caso.tempos.estimado_minutos ?? 0,
+    realizado_minutos: item.caso.tempos.realizado_minutos ?? 0,
   };
 }
 

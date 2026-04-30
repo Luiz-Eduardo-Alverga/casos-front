@@ -14,14 +14,7 @@ import { getUser } from "@/lib/auth";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-
-function formatMinutesToHHMM(minutes: number): string {
-  if (!Number.isFinite(minutes) || minutes < 0) return "00:00";
-  const h = Math.floor(minutes / 60);
-  const m = Math.floor(minutes % 60);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-}
+import { cn, formatMinutesToHHMM } from "@/lib/utils";
 
 function mapItemToCaso(item: ProjetoMemoriaItem) {
   const prioridade = item.caso.caracteristicas.prioridade;

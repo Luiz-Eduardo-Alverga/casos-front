@@ -1,5 +1,6 @@
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import type { PainelKanbanColumnId } from "@/components/painel-kanban/kanban/painel-kanban-columns";
+import { formatMinutesToHHMM } from "@/lib/utils";
 
 export interface PainelKanbanItem extends Record<string, unknown> {
   id: string;
@@ -14,13 +15,6 @@ export interface PainelKanbanItem extends Record<string, unknown> {
   statusTempo: string;
   tipoCategoria: string;
   statusId: string;
-}
-
-function formatMinutesToHHMM(minutes: number): string {
-  if (!Number.isFinite(minutes) || minutes < 0) return "00:00";
-  const h = Math.floor(minutes / 60);
-  const m = Math.floor(minutes % 60);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
 export function mapProjetoMemoriaItemToKanban(
