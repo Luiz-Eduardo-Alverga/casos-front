@@ -10,9 +10,9 @@ import { RelacoesForm } from "./relacoes-form";
 import { RelacoesTable } from "./relacoes-table";
 import { isTipoRelacaoCaso } from "./utils";
 import type { AbaRelacoesProps, RelacaoFormValues } from "./types";
+import { useCasoEdit } from "../caso-edit-context";
 
 export function AbaRelacoes({
-  casoId,
   relacoes,
   onAdd,
   onUpdate,
@@ -20,6 +20,7 @@ export function AbaRelacoes({
   isAdding = false,
   isUpdating = false,
 }: AbaRelacoesProps) {
+  const { numeroCaso } = useCasoEdit();
   const methods = useForm<RelacaoFormValues>({
     defaultValues: {
       tipo_relacao: "3",
@@ -104,7 +105,7 @@ export function AbaRelacoes({
           <CasoEditCardHeader
             title="Relacionamentos do caso"
             icon={GitBranch}
-            badge={casoId}
+            badge={numeroCaso}
           />
 
           <CardContent className="p-6 pt-3 space-y-4 lg:flex-1">
@@ -123,7 +124,7 @@ export function AbaRelacoes({
                 if (!isTipoRelacaoCaso(tipoRelacao)) return;
                 if (!descricaoResumo) return;
                 await onAdd({
-                  registro: casoId,
+                  registro: numeroCaso,
                   tipo_relacao: tipoRelacao,
                   caso_relacionado: casoRelacionado,
                   descricao_resumo: descricaoResumo,

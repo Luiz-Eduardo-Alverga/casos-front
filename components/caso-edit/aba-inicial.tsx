@@ -9,23 +9,22 @@ import {
 } from "@/components/caso-form";
 import { FileText } from "lucide-react";
 import { CasoEditCardClassificacao } from "./caso-edit-card-classificacao";
-
-export interface AbaInicialProps {
-  casoId: number;
-}
+import { useCasoEdit } from "./caso-edit-context";
 
 /**
  * Conteúdo da aba Inicial: Informações + Classificação e Origem (coluna esquerda).
  * A coluna direita (Status, Dados do Produto, Atribuição) é exibida pelo CasoEditView em todas as abas.
  */
-export function AbaInicial({ casoId }: AbaInicialProps) {
+export function AbaInicial() {
+  const { numeroCaso } = useCasoEdit();
+
   return (
     <div className="flex flex-col gap-6 h-full">
       <Card className="bg-card shadow-card rounded-lg h-full">
         <CasoEditCardHeader
           title="Informações"
           icon={FileText}
-          badge={casoId}
+          badge={numeroCaso}
           shrink={false}
         />
         <CardContent className="p-6 pt-3 space-y-4 ">
@@ -35,7 +34,7 @@ export function AbaInicial({ casoId }: AbaInicialProps) {
         </CardContent>
       </Card>
 
-      <CasoEditCardClassificacao casoId={casoId} />
+      <CasoEditCardClassificacao />
     </div>
   );
 }

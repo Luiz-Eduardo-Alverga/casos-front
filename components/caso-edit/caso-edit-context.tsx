@@ -1,0 +1,40 @@
+"use client";
+
+import { createContext, useContext, type ReactNode } from "react";
+
+export interface CasoEditContextValue {
+  /** ID do caso na rota / query `projeto-memoria`. */
+  memoriaQueryId: string;
+  /** ID numérico do caso exibido nos badges (#n). */
+  numeroCaso: number;
+  canEditCase: boolean;
+  invalidate: () => void;
+  isSaving: boolean;
+  /** ID do status retornado pela API (não o valor do formulário). */
+  statusIdApi: number;
+  /** Submissão principal do formulário de edição do caso. */
+  onSalvar: () => void;
+}
+
+const CasoEditContext = createContext<CasoEditContextValue | undefined>(
+  undefined,
+);
+
+interface CasoEditProviderProps {
+  children: ReactNode;
+  value: CasoEditContextValue;
+}
+
+export function CasoEditProvider({ children, value }: CasoEditProviderProps) {
+  return (
+    <CasoEditContext.Provider value={value}>{children}</CasoEditContext.Provider>
+  );
+}
+
+export function useCasoEdit(): CasoEditContextValue {
+  const ctx = useContext(CasoEditContext);
+  if (ctx === undefined) {
+    throw new Error("useCasoEdit deve ser usado dentro de CasoEditProvider.");
+  }
+  return ctx;
+}

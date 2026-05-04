@@ -8,30 +8,29 @@ import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { useCasoProducaoActions } from "@/components/caso-resumo-modal/use-caso-producao-actions";
 import { CasoProducaoActionButton } from "@/components/caso-resumo-modal/caso-producao-action-button";
+import { useCasoEdit } from "./caso-edit-context";
 
 export interface CasoEditRodapeAcoesProps {
-  casoId: number | string;
   tempoStatus?: string;
   statusTempo?: string;
-  onSalvar: () => void;
   onCancelar: () => void;
-  onProducaoAlterada?: () => void;
   onRedirecionarParaAbaProducao?: () => void;
-  isLoading?: boolean;
-  disabled?: boolean;
 }
 
 export function CasoEditRodapeAcoes({
-  casoId,
   tempoStatus,
   statusTempo,
-  onSalvar,
   onCancelar,
-  onProducaoAlterada,
   onRedirecionarParaAbaProducao,
-  isLoading = false,
-  disabled = false,
 }: CasoEditRodapeAcoesProps) {
+  const {
+    numeroCaso: casoId,
+    isSaving: isLoading,
+    canEditCase,
+    invalidate: onProducaoAlterada,
+    onSalvar,
+  } = useCasoEdit();
+  const disabled = isLoading || !canEditCase;
   const { isCollapsed } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
   const {

@@ -10,6 +10,7 @@ import { AnotacoesList } from "./anotacoes-list";
 import type { AbaAnotacoesProps } from "./types";
 import { useReportAnalysis } from "@/hooks/use-report-analysis";
 import toast from "react-hot-toast";
+import { useCasoEdit } from "../caso-edit-context";
 
 /**
  * Aba Anotações do caso.
@@ -17,7 +18,6 @@ import toast from "react-hot-toast";
  * Segue PADRAO_COMPONENTES e PADRAO_ESPACAMENTOS.
  */
 export function AbaAnotacoes({
-  casoId,
   report,
   anotacoes,
   onCreate,
@@ -25,6 +25,7 @@ export function AbaAnotacoes({
   onDelete,
   isCreating = false,
 }: AbaAnotacoesProps) {
+  const { numeroCaso } = useCasoEdit();
   const [novaAnotacao, setNovaAnotacao] = useState("");
   const improveReport = useReportAnalysis();
   const [editandoId, setEditandoId] = useState<number | null>(null);
@@ -38,7 +39,7 @@ export function AbaAnotacoes({
   const handleAdicionar = async () => {
     const texto = novaAnotacao.trim();
     if (!texto) return;
-    await onCreate({ registro: casoId, anotacoes: texto });
+    await onCreate({ registro: numeroCaso, anotacoes: texto });
     setNovaAnotacao("");
   };
 
@@ -98,7 +99,7 @@ export function AbaAnotacoes({
         <CasoEditCardHeader
           title="Anotações do caso"
           icon={FileText}
-          badge={casoId}
+          badge={numeroCaso}
         />
 
         <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 ">

@@ -10,40 +10,34 @@ import {
   CasoFormModulo,
   CasoFormDevAtribuido,
   CasoFormQaAtribuido,
+  useCasoForm,
 } from "@/components/caso-form";
 import { Package, Sparkles, Users } from "lucide-react";
 import { CasoResumoStatusActions } from "@/components/caso-resumo-modal/caso-resumo-status-actions";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
-import type { ProjetoMemoriaReport } from "@/interfaces/projeto-memoria";
 import { ReportAnaliseModal } from "./report-analise-modal";
+import { useCasoEdit } from "./caso-edit-context";
 
-export interface CasoEditColunaDireitaProps {
-  /** ID do status retornado pela API (não o valor atual do formulário). */
-  statusIdApi: number;
-  /** ID do caso na rota / query `projeto-memoria`. */
-  memoriaQueryId: string;
-  /** Invalidar dados após atualizar status. */
-  onStatusUpdated: () => void;
-
-  openingType?: "REPORT" | "CASO";
-  report: ProjetoMemoriaReport;
-  onSalvar: () => void;
-  isSaving?: boolean;
-  disabled?: boolean;
-}
-
-export function CasoEditColunaDireita({
-  statusIdApi,
-  memoriaQueryId,
-  onStatusUpdated,
-  openingType = "CASO",
-  report,
-  onSalvar,
-  isSaving = false,
-  disabled = false,
-}: CasoEditColunaDireitaProps) {
+export function CasoEditColunaDireita() {
+  const {
+    memoriaQueryId,
+    invalidate,
+    isSaving,
+    canEditCase,
+    statusIdApi,
+    onSalvar,
+  } = useCasoEdit();
+  const { editCaseItem } = useCasoForm();
+  const report = editCaseItem?.report;
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+  if (!report) {
+    return null;
+  }
+
+  const openingType = report.tipo_abertura ?? "CASO";
+  const disabled = isSaving || !canEditCase;
 
   return (
     <>
@@ -53,7 +47,7 @@ export function CasoEditColunaDireita({
             <CasoResumoStatusActions
               statusIdApi={statusIdApi}
               memoriaQueryId={memoriaQueryId}
-              onStatusUpdated={onStatusUpdated}
+              onStatusUpdated={invalidate}
             />
 
             {openingType === "REPORT" && (

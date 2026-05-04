@@ -1,7 +1,6 @@
 import type { ClienteCasoItem } from "@/interfaces/projeto-memoria";
 
 export interface AbaClientesProps {
-  casoId: number;
   clientes: ClienteCasoItem[];
   onAdd: (payload: {
     registro: number;

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,9 +8,9 @@ import { Label } from "@/components/ui/label";
 import { CasoEditClienteCombobox } from "../fields/caso-edit-cliente-combobox";
 import { UserPlus } from "lucide-react";
 import type { ClientesFormValues } from "./types";
+import { useCasoEdit } from "../caso-edit-context";
 
 export interface ClientesFormProps {
-  casoId: number;
   methods: UseFormReturn<ClientesFormValues>;
   isAdding: boolean;
   clienteId: string;
@@ -22,19 +23,29 @@ export interface ClientesFormProps {
 }
 
 export function ClientesForm({
-  casoId,
   methods,
   isAdding,
   clienteId,
   clienteSelecionado,
   onAdd,
 }: ClientesFormProps) {
+  const { numeroCaso } = useCasoEdit();
+  const { setValue } = methods;
+
+  const handleClienteComboboxChange = useCallback(
+    (registro: string | undefined) => {
+      setValue("clienteSelecionado", registro);
+      setValue("clienteId", registro ?? "");
+    },
+    [setValue],
+  );
+
   const handleAdicionar = async () => {
     const values = methods.getValues();
     const cId = Number(values.clienteId);
     if (!Number.isFinite(cId) || cId <= 0) return;
     await onAdd({
-      registro: casoId,
+      registro: numeroCaso,
       cliente: cId,
       incidente: 0,
     });
@@ -46,10 +57,7 @@ export function ClientesForm({
     <div className="flex flex-wrap items-end gap-4 p-4 rounded-lg border border-border-divider bg-muted/30">
       <div className="space-y-2 min-w-[220px] flex-1">
         <CasoEditClienteCombobox
-          onClienteChange={(registro) => {
-            methods.setValue("clienteSelecionado", registro);
-            methods.setValue("clienteId", registro ?? "");
-          }}
+          onClienteChange={handleClienteComboboxChange}
         />
       </div>
 
@@ -64,10 +72,10 @@ export function ClientesForm({
           id="cliente-id"
           type="number"
           min={1}
-          {...methods.register("clienteId")}
           placeholder="Ex: 68703"
           className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
           disabled={isAdding || Boolean(clienteSelecionado)}
+          {...methods.register("clienteId")}
         />
       </div>
 
@@ -83,4 +91,3 @@ export function ClientesForm({
     </div>
   );
 }
-

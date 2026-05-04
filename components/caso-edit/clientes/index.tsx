@@ -9,14 +9,15 @@ import { Users } from "lucide-react";
 import { ClientesForm } from "./clientes-form";
 import { ClientesTable } from "./clientes-table";
 import type { AbaClientesProps, ClientesFormValues } from "./types";
+import { useCasoEdit } from "../caso-edit-context";
 
 export function AbaClientes({
-  casoId,
   clientes,
   onAdd,
   onDelete,
   isAdding = false,
 }: AbaClientesProps) {
+  const { numeroCaso } = useCasoEdit();
   const methods = useForm<ClientesFormValues>({
     defaultValues: {
       clienteId: "",
@@ -56,11 +57,10 @@ export function AbaClientes({
         <CasoEditCardHeader
           title="Clientes vinculados"
           icon={Users}
-          badge={casoId}
+          badge={numeroCaso}
         />
         <CardContent className="p-6 pt-3 space-y-4 lg:flex-1 ">
           <ClientesForm
-            casoId={casoId}
             methods={methods}
             isAdding={isAdding}
             clienteId={clienteId}
@@ -93,4 +93,3 @@ export function AbaClientes({
     </FormProvider>
   );
 }
-

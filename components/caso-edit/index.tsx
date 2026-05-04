@@ -4,6 +4,8 @@ import { useProjetoMemoriaById } from "@/hooks/use-projeto-memoria-by-id";
 import { CasoEditForm } from "./caso-edit-form";
 import { CasoEditSkeleton } from "./caso-edit-skeleton";
 
+export { CasoEditProvider, useCasoEdit } from "./caso-edit-context";
+
 export interface CasoEditViewProps {
   casoId: string;
 }

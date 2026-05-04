@@ -10,6 +10,7 @@ import { useAtualizarProducao } from "@/hooks/use-atualizar-producao";
 import { useExcluirProducao } from "@/hooks/use-excluir-producao";
 import { Package } from "lucide-react";
 import type { AbaProducaoProps } from "./types";
+import { useCasoEdit } from "../caso-edit-context";
 import {
   hasProducaoAberta,
   isProducaoTipoTeste,
@@ -24,12 +25,11 @@ import { ProducaoDetalhes } from "./producao-detalhes";
 const PRODUCAO_TEMPO_ATUALIZACAO_MS = 1000;
 
 export function AbaProducao({
-  casoId,
   item,
   onSaveProducao,
-  onProducaoAlterada,
-  isSaving = false,
 }: AbaProducaoProps) {
+  const { numeroCaso, invalidate: onProducaoAlterada, isSaving } =
+    useCasoEdit();
   const caso = item?.caso;
   const tempos = caso?.tempos;
   const naoPlanejadoFlag = caso?.flags?.nao_planejado ?? false;
@@ -189,7 +189,7 @@ export function AbaProducao({
   return (
     <>
       <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
-        <CasoEditCardHeader title="Produção" icon={Package} badge={casoId} />
+        <CasoEditCardHeader title="Produção" icon={Package} badge={numeroCaso} />
         <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 ">
           <ProducaoEstimativa
             showForm={showForm}

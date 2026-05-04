@@ -10,16 +10,10 @@ import {
 } from "@/components/caso-form";
 import { Bug } from "lucide-react";
 
-export interface CasoEditCardClassificacaoProps {
-  casoId: number;
-}
-
 /**
  * Card Classificação e Origem – visível em todas as abas exceto Anotações.
  */
-export function CasoEditCardClassificacao({
-  casoId,
-}: CasoEditCardClassificacaoProps) {
+export function CasoEditCardClassificacao() {
   return (
     <Card className="bg-card shadow-card rounded-lg">
       <CasoEditCardHeader

@@ -14,13 +14,9 @@ import {
 } from "@/components/ui/tooltip";
 
 export interface CasoEditHeaderProps {
-  casoId: string;
-  numeroCaso: number;
   countAnotacoes: number;
   countRelacoes: number;
   countClientes: number;
-  tabValue: string;
-  onTabChange: (value: string) => void;
   onClonar: () => void;
   onExcluir: () => void;
   isClonando?: boolean;

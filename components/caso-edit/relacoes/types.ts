@@ -2,7 +2,6 @@ import type { CasoRelacoes } from "@/interfaces/projeto-memoria";
 import type { TipoRelacaoCaso } from "@/services/projeto-casos-relacoes/create";
 
 export interface AbaRelacoesProps {
-  casoId: number;
   relacoes: CasoRelacoes[];
   onAdd: (payload: {
     registro: number;

@@ -7,10 +7,7 @@ export interface AbaProducaoSavePayload {
 }
 
 export interface AbaProducaoProps {
-  casoId: number;
   item: ProjetoMemoriaItem;
   onSaveProducao: (payload: AbaProducaoSavePayload) => Promise<void>;
-  onProducaoAlterada?: () => void;
-  isSaving?: boolean;
 }
 

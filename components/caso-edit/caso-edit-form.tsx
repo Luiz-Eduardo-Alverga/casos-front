@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +33,7 @@ import { AbaAnotacoes } from "./anotacoes";
 import { AbaRelacoes } from "./relacoes";
 import { AbaClientes } from "./clientes";
 import { AbaProducao } from "./producao";
+import { CasoEditProvider } from "./caso-edit-context";
 
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
@@ -145,9 +146,9 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   const updateCasoRelacao = useUpdateCasoRelacao();
   const deleteCasoRelacao = useDeleteCasoRelacao();
 
-  const invalidate = () => {
+  const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["projeto-memoria", casoId] });
-  };
+  }, [queryClient, casoId]);
 
   const handleSalvar = methods.handleSubmit(async (formData: EditFormData) => {
     try {
@@ -332,28 +333,45 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       form: methods,
       importanceOptions,
       produto: produtoWatch,
-      isDisabled: updateCaso.isPending,
+      isDisabled: updateCaso.isPending || !canEditCase,
       lazyLoadComboboxOptions: true as const,
       editCaseItem: item,
     }),
-    [methods, produtoWatch, updateCaso.isPending, item],
+    [methods, produtoWatch, updateCaso.isPending, canEditCase, item],
+  );
+
+  const casoEditValue = useMemo(
+    () => ({
+      memoriaQueryId: casoId,
+      numeroCaso,
+      canEditCase,
+      invalidate,
+      isSaving: updateCaso.isPending,
+      statusIdApi,
+      onSalvar: handleSalvar,
+    }),
+    [
+      casoId,
+      numeroCaso,
+      canEditCase,
+      invalidate,
+      updateCaso.isPending,
+      statusIdApi,
+      handleSalvar,
+    ],
   );
 
   return (
-    <>
+    <CasoEditProvider value={casoEditValue}>
       <Tabs
         value={tabValue}
         onValueChange={setTabValue}
         className="flex flex-col flex-1 lg:min-h-0 lg:overflow-hidden"
       >
         <CasoEditHeader
-          casoId={casoId}
-          numeroCaso={caso?.id ?? Number(casoId)}
           countAnotacoes={countAnotacoes}
           countRelacoes={countRelacoes}
           countClientes={countClientes}
-          tabValue={tabValue}
-          onTabChange={setTabValue}
           onClonar={handleClonar}
           onExcluir={() => setExcluirCasoModal(true)}
           isClonando={clonarCaso.isPending}
@@ -364,168 +382,119 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
           <CasoFormProvider value={providerValue}>
             <FormProvider {...methods}>
               <div className="flex-1 pb-12">
-                <TabsContent
-                  value="inicial"
-                  className="flex-1 flex flex-col mt-0 data-[state=inactive]:hidden"
-                >
-                  <fieldset
-                    disabled={!canEditCase}
-                    className="contents"
-                    aria-disabled={!canEditCase}
-                  >
-                    <div className="flex flex-col lg:flex-row gap-6 flex-1">
-                    <div className="flex-1 flex flex-col gap-6 min-w-0">
-                      <AbaInicial casoId={numeroCaso} />
-                    </div>
-                    <CasoEditColunaDireita
-                      openingType={item.report.tipo_abertura}
-                      statusIdApi={statusIdApi}
-                      memoriaQueryId={casoId}
-                      onStatusUpdated={invalidate}
-                      report={item.report}
-                      onSalvar={handleSalvar}
-                      isSaving={updateCaso.isPending}
-                      disabled={updateCaso.isPending || !canEditCase}
-                    />
-                    </div>
-                  </fieldset>
-                </TabsContent>
+                <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
+                  <div className="flex min-h-0 flex-1 min-w-0 flex-col gap-6">
+                    <TabsContent
+                      value="inicial"
+                      className="flex-1 flex flex-col mt-0 min-h-0 data-[state=inactive]:hidden"
+                    >
+                      <fieldset
+                        disabled={!canEditCase}
+                        className="contents"
+                        aria-disabled={!canEditCase}
+                      >
+                        <div className="flex-1 flex flex-col gap-6 min-w-0">
+                          <AbaInicial />
+                        </div>
+                      </fieldset>
+                    </TabsContent>
 
-                <TabsContent
-                  value="anotacoes"
-                  className="mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden"
-                >
-                  <fieldset
-                    disabled={!canEditCase}
-                    className="contents"
-                    aria-disabled={!canEditCase}
-                  >
-                    <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
-                    <div className="flex min-h-0 flex-1 min-w-0 flex-col">
-                      <AbaAnotacoes
-                        casoId={numeroCaso}
-                        report={item.caso.textos.descricao_completa ?? ""}
-                        anotacoes={anotacoes ?? []}
-                        onCreate={handleCreateAnotacao}
-                        onUpdate={handleUpdateAnotacao}
-                        onDelete={handleDeleteAnotacao}
-                        isCreating={createAnotacao.isPending}
-                      />
-                    </div>
-                    <CasoEditColunaDireita
-                      openingType={item.report.tipo_abertura}
-                      statusIdApi={statusIdApi}
-                      memoriaQueryId={casoId}
-                      onStatusUpdated={invalidate}
-                      report={item.report}
-                      onSalvar={handleSalvar}
-                      isSaving={updateCaso.isPending}
-                      disabled={updateCaso.isPending || !canEditCase}
-                    />
-                    </div>
-                  </fieldset>
-                </TabsContent>
+                    <TabsContent
+                      value="anotacoes"
+                      className="mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden"
+                    >
+                      <fieldset
+                        disabled={!canEditCase}
+                        className="contents"
+                        aria-disabled={!canEditCase}
+                      >
+                        <div className="flex min-h-0 flex-1 min-w-0 flex-col">
+                          <AbaAnotacoes
+                            report={item.caso.textos.descricao_completa ?? ""}
+                            anotacoes={anotacoes ?? []}
+                            onCreate={handleCreateAnotacao}
+                            onUpdate={handleUpdateAnotacao}
+                            onDelete={handleDeleteAnotacao}
+                            isCreating={createAnotacao.isPending}
+                          />
+                        </div>
+                      </fieldset>
+                    </TabsContent>
 
-                <TabsContent
-                  value="relacoes"
-                  className="mt-0 flex-1 data-[state=inactive]:hidden"
-                >
-                  <fieldset
-                    disabled={!canEditCase}
-                    className="contents"
-                    aria-disabled={!canEditCase}
-                  >
-                    <div className="flex flex-col lg:flex-row gap-6 flex-1">
-                    <div className="flex-1 flex flex-col gap-6 min-w-0">
-                      <AbaRelacoes
-                        casoId={numeroCaso}
-                        relacoes={relacoes ?? []}
-                        onAdd={handleAddRelacao}
-                        onUpdate={handleUpdateRelacao}
-                        onDelete={handleDeleteRelacao}
-                        isAdding={createCasoRelacao.isPending}
-                        isUpdating={updateCasoRelacao.isPending}
-                      />
-                      <CasoEditCardClassificacao casoId={numeroCaso} />
-                    </div>
-                    <CasoEditColunaDireita
-                      openingType={item.report.tipo_abertura}
-                      statusIdApi={statusIdApi}
-                      memoriaQueryId={casoId}
-                      onStatusUpdated={invalidate}
-                      report={item.report}
-                      onSalvar={handleSalvar}
-                      isSaving={updateCaso.isPending}
-                      disabled={updateCaso.isPending || !canEditCase}
-                    />
-                    </div>
-                  </fieldset>
-                </TabsContent>
+                    <TabsContent
+                      value="relacoes"
+                      className="mt-0 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
+                    >
+                      <fieldset
+                        disabled={!canEditCase}
+                        className="contents"
+                        aria-disabled={!canEditCase}
+                      >
+                        <div className="flex-1 flex flex-col gap-6 min-w-0">
+                          <AbaRelacoes
+                            relacoes={relacoes ?? []}
+                            onAdd={handleAddRelacao}
+                            onUpdate={handleUpdateRelacao}
+                            onDelete={handleDeleteRelacao}
+                            isAdding={createCasoRelacao.isPending}
+                            isUpdating={updateCasoRelacao.isPending}
+                          />
+                          <CasoEditCardClassificacao />
+                        </div>
+                      </fieldset>
+                    </TabsContent>
 
-                <TabsContent
-                  value="clientes"
-                  className="mt-0 flex-1 data-[state=inactive]:hidden"
-                >
-                  <div className="flex flex-col lg:flex-row gap-6 flex-1">
-                    <div className="flex-1 flex flex-col gap-6 min-w-0">
-                      <AbaClientes
-                        casoId={numeroCaso}
-                        clientes={clientes ?? []}
-                        onAdd={handleAddCliente}
-                        onDelete={handleDeleteCliente}
-                        isAdding={createClienteCaso.isPending}
-                      />
-                      <CasoEditCardClassificacao casoId={numeroCaso} />
-                    </div>
-                    <CasoEditColunaDireita
-                      openingType={item.report.tipo_abertura}
-                      statusIdApi={statusIdApi}
-                      memoriaQueryId={casoId}
-                      onStatusUpdated={invalidate}
-                      report={item.report}
-                      onSalvar={handleSalvar}
-                      isSaving={updateCaso.isPending}
-                      disabled={updateCaso.isPending}
-                    />
+                    <TabsContent
+                      value="clientes"
+                      className="mt-0 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
+                    >
+                      <fieldset
+                        disabled={!canEditCase}
+                        className="contents"
+                        aria-disabled={!canEditCase}
+                      >
+                        <div className="flex-1 flex flex-col gap-6 min-w-0">
+                          <AbaClientes
+                            clientes={clientes ?? []}
+                            onAdd={handleAddCliente}
+                            onDelete={handleDeleteCliente}
+                            isAdding={createClienteCaso.isPending}
+                          />
+                          <CasoEditCardClassificacao />
+                        </div>
+                      </fieldset>
+                    </TabsContent>
+
+                    <TabsContent
+                      value="producao"
+                      className="mt-0 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
+                    >
+                      <fieldset
+                        disabled={!canEditCase}
+                        className="contents"
+                        aria-disabled={!canEditCase}
+                      >
+                        <div className="flex-1 flex flex-col gap-6 min-w-0">
+                          <AbaProducao
+                            item={item}
+                            onSaveProducao={handleSaveProducao}
+                          />
+                        </div>
+                      </fieldset>
+                    </TabsContent>
                   </div>
-                </TabsContent>
 
-                <TabsContent
-                  value="producao"
-                  className="mt-0 flex-1 data-[state=inactive]:hidden"
-                >
                   <fieldset
                     disabled={!canEditCase}
                     className="contents"
                     aria-disabled={!canEditCase}
                   >
-                    <div className="flex flex-col lg:flex-row gap-6 flex-1">
-                    <div className="flex-1 flex flex-col gap-6 min-w-0">
-                      <AbaProducao
-                        casoId={numeroCaso}
-                        item={item}
-                        onSaveProducao={handleSaveProducao}
-                        onProducaoAlterada={invalidate}
-                        isSaving={updateCaso.isPending}
-                      />
-                    </div>
-                    <CasoEditColunaDireita
-                      openingType={item.report.tipo_abertura}
-                      statusIdApi={statusIdApi}
-                      memoriaQueryId={casoId}
-                      onStatusUpdated={invalidate}
-                      report={item.report}
-                      onSalvar={handleSalvar}
-                      isSaving={updateCaso.isPending}
-                      disabled={updateCaso.isPending || !canEditCase}
-                    />
-                    </div>
+                    <CasoEditColunaDireita />
                   </fieldset>
-                </TabsContent>
+                </div>
               </div>
 
               <CasoEditRodapeAcoes
-                casoId={numeroCaso}
                 tempoStatus={
                   item?.caso?.tempos?.tempo_status ??
                   item?.caso?.status?.tempo_status
@@ -534,12 +503,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                   item?.caso?.tempos?.status_tempo ??
                   item?.caso?.status?.status_tempo
                 }
-                onSalvar={handleSalvar}
                 onCancelar={() => router.back()}
-                onProducaoAlterada={invalidate}
                 onRedirecionarParaAbaProducao={() => setTabValue("producao")}
-                isLoading={updateCaso.isPending}
-                disabled={updateCaso.isPending || !canEditCase}
               />
             </FormProvider>
           </CasoFormProvider>
@@ -557,6 +522,6 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         variant="danger"
         isLoading={deleteCaso.isPending}
       />
-    </>
+    </CasoEditProvider>
   );
 }
