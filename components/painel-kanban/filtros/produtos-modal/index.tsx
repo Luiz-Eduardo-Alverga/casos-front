@@ -230,8 +230,8 @@ export function PainelKanbanProdutosModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[min(96vw,820px)] max-w-[820px] p-0 gap-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-5 pb-4 border-b border-border-divider space-y-1.5">
+      <DialogContent className="flex w-[calc(100vw-1rem)] max-w-[820px] flex-col gap-0 overflow-hidden p-0 sm:w-[min(96vw,820px)] max-h-[calc(100vh-1rem)] sm:max-h-[90vh]">
+        <DialogHeader className="shrink-0 border-b border-border-divider space-y-1.5 px-4 pb-4 pt-5 sm:px-6">
           <DialogTitle className="text-xl font-semibold text-text-primary leading-tight">
             Produtos do Desenvolvedor
           </DialogTitle>
@@ -240,7 +240,7 @@ export function PainelKanbanProdutosModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-6 py-4 space-y-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6">
           {produtosOrdemQuery.isLoading ? (
             <PainelKanbanProdutosModalSkeleton />
           ) : (
@@ -258,7 +258,9 @@ export function PainelKanbanProdutosModal({
                 sensors={sensors}
                 onDragEnd={handleDragEnd}
                 hasNextPage={Boolean(produtosOrdemQuery.hasNextPage)}
-                isFetchingNextPage={Boolean(produtosOrdemQuery.isFetchingNextPage)}
+                isFetchingNextPage={Boolean(
+                  produtosOrdemQuery.isFetchingNextPage,
+                )}
                 fetchNextPage={() => void produtosOrdemQuery.fetchNextPage()}
                 editingItemId={editingItemId}
                 editVersao={editVersao}

@@ -17,6 +17,8 @@ export interface CreateCasoRequest {
   InformacoesAdicionais?: string;
   status: string;
   Id_Usuario_AberturaCaso: string;
+  /** 0 ou 1 — alinhado ao payload da aba Produção / update de caso. */
+  NaoPlanejado?: number;
 }
 
 export interface CreateCasoResponse {

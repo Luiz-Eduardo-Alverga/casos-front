@@ -83,7 +83,7 @@ export function ProdutosModalList({
   return (
     <ScrollArea
       ref={scrollRootRef}
-      className="h-[360px] w-full overflow-hidden rounded-md pr-2"
+      className="h-[360px] w-full overflow-hidden rounded-md"
     >
       <DndContext
         sensors={sensors}
@@ -94,7 +94,7 @@ export function ProdutosModalList({
           items={items.map((item) => toSortableId(item))}
           strategy={verticalListSortingStrategy}
         >
-          <div className="space-y-3 pb-1 pr-2">
+          <div className="space-y-3 pb-1">
             {items.length === 0 ? (
               <div className="rounded-lg border border-border-divider bg-white p-4 text-sm text-text-secondary">
                 Nenhum produto configurado para este desenvolvedor.

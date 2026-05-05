@@ -62,11 +62,11 @@ export function SortableRow({
         transition,
       }}
       className={cn(
-        "flex items-center justify-between rounded-lg border border-border-divider bg-white p-4",
+        "flex flex-col items-start gap-3 rounded-lg border border-border-divider bg-white p-4 sm:flex-row sm:items-center sm:justify-between",
         isDragging && "opacity-60",
       )}
     >
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex w-full min-w-0 items-center gap-3 sm:w-auto">
         <button
           type="button"
           className="text-text-secondary hover:text-text-primary"
@@ -85,13 +85,13 @@ export function SortableRow({
       </div>
 
       {isEditing ? (
-        <div className="flex items-center gap-3">
+        <div className="flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto">
           <Select
             value={editVersao}
             onValueChange={onChangeEditVersao}
             disabled={isSavingEdicao}
           >
-            <SelectTrigger className="h-10 w-[150px] rounded-lg border-border-divider bg-white">
+            <SelectTrigger className="h-10 w-full sm:w-[150px] rounded-lg border-border-divider bg-white">
               <SelectValue placeholder="Selecione a versão..." />
             </SelectTrigger>
             <SelectContent>
@@ -124,7 +124,7 @@ export function SortableRow({
           </Button>
         </div>
       ) : (
-        <div className="flex items-center gap-3">
+        <div className="flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto">
           <span className="inline-flex items-center gap-1 rounded bg-purple-100 px-2 py-1 text-xs font-bold text-purple-700">
             <Tag className="h-3.5 w-3.5" />
             {item.versao}

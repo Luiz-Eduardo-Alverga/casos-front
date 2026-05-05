@@ -23,8 +23,9 @@ import {
   TIPO_RELACAO_CASO_LABEL,
   type TipoRelacaoCaso,
 } from "@/services/projeto-casos-relacoes/create";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Search, Trash2 } from "lucide-react";
 import { TIPO_RELACAO_VALUES, isTipoRelacaoCaso } from "./utils";
+import { useRouter } from "next/navigation";
 
 export interface RelacoesTableProps {
   relacoes: CasoRelacoes[];
@@ -58,6 +59,7 @@ export function RelacoesTable({
   onAskDelete,
 }: RelacoesTableProps) {
   const lista = Array.isArray(relacoes) ? relacoes : [];
+  const router = useRouter();
 
   if (lista.length === 0) {
     return (
@@ -86,7 +88,7 @@ export function RelacoesTable({
           <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
             Descrição
           </TableHead>
-          <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5 w-[100px]">
+          <TableHead className="font-medium text-sm text-text-primary h-auto text-center py-3 px-2.5 w-[100px]">
             Ações
           </TableHead>
         </TableRow>
@@ -111,121 +113,135 @@ export function RelacoesTable({
               key={item.sequencia}
               className="bg-white border-t border-border-divider hover:bg-white"
             >
-            <TableCell className="py-3 px-2.5">
-              <span className="text-sm text-text-secondary">
-                {item.data_relacao ?? "—"}
-              </span>
-            </TableCell>
-            <TableCell className="py-3 px-2.5">
-              {isEditingRow ? (
-                <Select
-                  value={editTipoRelacao}
-                  onValueChange={onChangeTipoRelacao}
-                  disabled={isSaving}
-                >
-                  <SelectTrigger className="h-9 rounded-lg border-border-input min-w-[190px]">
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIPO_RELACAO_VALUES.map((tipo) => (
-                      <SelectItem key={tipo.value} value={tipo.value}>
-                        {tipo.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <span className="text-sm text-text-primary font-semibold">
-                  {item.tipo_relacao_nome ??
-                    TIPO_RELACAO_CASO_LABEL[
-                      item.tipo_relacao as TipoRelacaoCaso
-                    ] ??
-                    "—"}
-                </span>
-              )}
-            </TableCell>
-            <TableCell className="py-3 px-2.5">
-              {isEditingRow ? (
-                <Input
-                  type="number"
-                  min={1}
-                  value={editCasoRelacionado}
-                  onChange={(e) => onChangeCasoRelacionado(e.target.value)}
-                  placeholder="Caso numero..."
-                  className="h-9 rounded-lg border-border-input px-[17px]"
-                  disabled={isSaving}
-                />
-              ) : (
-                <span className="text-sm text-text-primary">
-                  #{item.caso_relacionado}
-                </span>
-              )}
-            </TableCell>
-            <TableCell className="py-3 px-2.5">
-              {isEditingRow ? (
-                <Input
-                  value={editDescricaoResumo}
-                  onChange={(e) => onChangeDescricaoResumo(e.target.value)}
-                  placeholder="Descreva a relação..."
-                  className="h-9 rounded-lg border-border-input px-[17px]"
-                  disabled={isSaving}
-                />
-              ) : (
+              <TableCell className="py-3 px-2.5">
                 <span className="text-sm text-text-secondary">
-                  {item.descricao_resumo ?? "—"}
+                  {item.data_relacao ?? "—"}
                 </span>
-              )}
-            </TableCell>
-            <TableCell className="py-3 px-2.5">
-              {isEditingRow ? (
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={onCancelEdit}
-                    className="rounded-lg"
+              </TableCell>
+              <TableCell className="py-3 px-2.5">
+                {isEditingRow ? (
+                  <Select
+                    value={editTipoRelacao}
+                    onValueChange={onChangeTipoRelacao}
                     disabled={isSaving}
                   >
-                    Cancelar
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={onSaveEdit}
-                    disabled={!canSaveInline || isSaving}
-                    className="rounded-lg"
-                  >
-                    {isSaving ? "Salvando..." : "Salvar"}
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="size-9 rounded-lg"
-                    onClick={() => onStartEdit(item)}
+                    <SelectTrigger className="h-9 rounded-lg border-border-input min-w-[190px]">
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIPO_RELACAO_VALUES.map((tipo) => (
+                        <SelectItem key={tipo.value} value={tipo.value}>
+                          {tipo.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <span className="text-sm text-text-primary font-semibold">
+                    {item.tipo_relacao_nome ??
+                      TIPO_RELACAO_CASO_LABEL[
+                        item.tipo_relacao as TipoRelacaoCaso
+                      ] ??
+                      "—"}
+                  </span>
+                )}
+              </TableCell>
+              <TableCell className="py-3 px-2.5">
+                {isEditingRow ? (
+                  <Input
+                    type="number"
+                    min={1}
+                    value={editCasoRelacionado}
+                    onChange={(e) => onChangeCasoRelacionado(e.target.value)}
+                    placeholder="Caso numero..."
+                    className="h-9 rounded-lg border-border-input px-[17px]"
                     disabled={isSaving}
-                    aria-label="Editar relação"
-                  >
-                    <Pencil className="size-4 text-foreground" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="size-9 rounded-lg text-destructive hover:text-destructive"
-                    onClick={() => onAskDelete(item.sequencia)}
+                  />
+                ) : (
+                  <span className="text-sm text-text-primary">
+                    #{item.caso_relacionado}
+                  </span>
+                )}
+              </TableCell>
+              <TableCell className="py-3 px-2.5">
+                {isEditingRow ? (
+                  <Input
+                    value={editDescricaoResumo}
+                    onChange={(e) => onChangeDescricaoResumo(e.target.value)}
+                    placeholder="Descreva a relação..."
+                    className="h-9 rounded-lg border-border-input px-[17px]"
                     disabled={isSaving}
-                    aria-label="Excluir relação"
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              )}
-            </TableCell>
+                  />
+                ) : (
+                  <span className="text-sm text-text-secondary">
+                    {item.descricao_resumo ?? "—"}
+                  </span>
+                )}
+              </TableCell>
+              <TableCell className="py-3 px-2.5">
+                {isEditingRow ? (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={onCancelEdit}
+                      className="rounded-lg"
+                      disabled={isSaving}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={onSaveEdit}
+                      disabled={!canSaveInline || isSaving}
+                      className="rounded-lg"
+                    >
+                      {isSaving ? "Salvando..." : "Salvar"}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-9 rounded-lg"
+                      onClick={() =>
+                        router.push(`/casos/${item.caso_relacionado}`)
+                      }
+                      disabled={isSaving}
+                      aria-label="Editar relação"
+                    >
+                      <Search className="size-4 text-foreground" />
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-9 rounded-lg"
+                      onClick={() => onStartEdit(item)}
+                      disabled={isSaving}
+                      aria-label="Editar relação"
+                    >
+                      <Pencil className="size-4 text-foreground" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-9 rounded-lg text-destructive hover:text-destructive"
+                      onClick={() => onAskDelete(item.sequencia)}
+                      disabled={isSaving}
+                      aria-label="Excluir relação"
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                )}
+              </TableCell>
             </TableRow>
           );
         })}
@@ -233,4 +249,3 @@ export function RelacoesTable({
     </Table>
   );
 }
-

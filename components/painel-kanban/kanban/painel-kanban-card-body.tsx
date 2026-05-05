@@ -29,7 +29,7 @@ export function PainelKanbanCardBody({
             <span className="text-xs font-semibold text-text-primary">
               #{item.numero}
             </span>
-            <p className="text-[10px] font-semibold text-text-secondary leading-5 w-full">
+            <p className="text-[10px] font-semibold text-text-secondary leading-5 w-full break-words whitespace-normal">
               {item.descricao || item.name}
             </p>
           </div>

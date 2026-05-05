@@ -75,7 +75,7 @@ export function PainelKanbanFiltros({
 
                 <Button
                   type="button"
-                  className="h-9"
+                  className=" h-9 col-span-2 lg:col-span-1"
                   onClick={onEditarQuadroClick}
                 >
                   <Pencil className="h-3.5 w-3.5 " />

@@ -31,7 +31,7 @@ export function CasoFormDescricaoCompleta() {
       <Textarea
         id="description"
         placeholder="Descreva detalhadamente o caso, incluindo contexto, passos para reproduzir e comportamento esperado..."
-        className="min-h-[158px]  rounded-lg border-border-input px-[17px] py-[13px]"
+        className="min-h-[244px]  rounded-lg border-border-input px-[17px] py-[13px]"
         {...register("DescricaoCompleta")}
         disabled={isDisabled}
       />

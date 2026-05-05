@@ -1,9 +1,11 @@
 "use client";
 
 import type { UseFormReturn } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -14,6 +16,7 @@ import {
 import { PlusCircle } from "lucide-react";
 import { TIPO_RELACAO_VALUES } from "./utils";
 import type { RelacaoFormValues } from "./types";
+import { useProjetoMemoriaById } from "@/hooks/use-projeto-memoria-by-id";
 
 export interface RelacoesFormProps {
   methods: UseFormReturn<RelacaoFormValues>;
@@ -31,6 +34,45 @@ export function RelacoesForm({
   onSubmit,
 }: RelacoesFormProps) {
   const isDisabled = disabled || isSaving;
+
+  const casoRelacionadoValue = methods.watch("caso_relacionado");
+  const [debouncedCasoRelacionado, setDebouncedCasoRelacionado] = useState<
+    string
+  >("");
+
+  useEffect(() => {
+    const normalized = String(casoRelacionadoValue ?? "").trim();
+    const timer = window.setTimeout(() => {
+      setDebouncedCasoRelacionado(normalized);
+    }, 400);
+
+    return () => window.clearTimeout(timer);
+  }, [casoRelacionadoValue]);
+
+  const shouldFetch = useMemo(() => {
+    if (isDisabled) return false;
+    const value = debouncedCasoRelacionado.trim();
+    if (value === "") return false;
+    return /^\d+$/.test(value);
+  }, [debouncedCasoRelacionado, isDisabled]);
+
+  const projetoMemoriaQuery = useProjetoMemoriaById(debouncedCasoRelacionado, {
+    enabled: shouldFetch,
+  });
+
+  useEffect(() => {
+    const descricao =
+      projetoMemoriaQuery.data?.data?.caso?.textos?.descricao_resumo ?? null;
+
+    if (!projetoMemoriaQuery.isSuccess) return;
+
+    methods.setValue("descricao_resumo", descricao ?? "", {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  }, [methods, projetoMemoriaQuery.data, projetoMemoriaQuery.isSuccess]);
+
   return (
     <div className="flex flex-wrap items-end gap-4 p-4 rounded-lg border border-border-divider bg-muted/30">
       <div className="space-y-2 min-w-[220px]">
@@ -64,8 +106,8 @@ export function RelacoesForm({
         </Label>
         <Input
           id="caso-relacionado"
-          type="number"
-          min={1}
+          maxLength={5}
+          inputMode="numeric"
           {...methods.register("caso_relacionado")}
           placeholder="Caso numero..."
           className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
@@ -80,13 +122,17 @@ export function RelacoesForm({
         >
           Descricao resumida
         </Label>
-        <Input
-          id="descricao-resumo-relacao"
-          {...methods.register("descricao_resumo")}
-          placeholder="Descreva a relação..."
-          className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
-          disabled={isDisabled}
-        />
+        {projetoMemoriaQuery.isFetching ? (
+          <Skeleton className="h-[42px] w-full rounded-lg" />
+        ) : (
+          <Input
+            id="descricao-resumo-relacao"
+            {...methods.register("descricao_resumo")}
+            placeholder="Descreva a relação..."
+            className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
+            disabled={isDisabled}
+          />
+        )}
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
@@ -102,4 +148,3 @@ export function RelacoesForm({
     </div>
   );
 }
-

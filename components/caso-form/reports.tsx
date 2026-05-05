@@ -50,6 +50,7 @@ import {
   getIgnoreAutoFill,
   setIgnoreAutoFill,
 } from "@/lib/casos-abertura-rapida-storage";
+import { NaoPlanejadoField } from "@/components/caso-edit/producao/nao-planejado-field";
 
 const assistantSFormSchema = z.object({
   description: z.string(),
@@ -111,6 +112,7 @@ export function Reports() {
   const [isAssistantModalOpen, setIsAssistantModalOpen] = useState(false);
   const [quickMode, setQuickMode] = useState(false);
   const [showQuickModeConfirm, setShowQuickModeConfirm] = useState(false);
+  const [naoPlanejado, setNaoPlanejado] = useState(false);
 
   const { register, handleSubmit, reset } = useForm<AssistantFormData>({
     resolver: zodResolver(assistantSFormSchema),
@@ -296,6 +298,7 @@ export function Reports() {
         InformacoesAdicionais: data.InformacoesAdicionais || "",
         status: "1",
         Id_Usuario_AberturaCaso: String(user?.id || ""),
+        NaoPlanejado: naoPlanejado ? 1 : 0,
       };
 
       const response = await createCasoAsync(casoData);
@@ -362,6 +365,7 @@ export function Reports() {
                   onClick={() => {
                     exitQuickMode();
                     methods.reset();
+                    setNaoPlanejado(false);
                   }}
                 >
                   <RefreshCcw className="h-3.5 w-3.5" />
@@ -383,7 +387,7 @@ export function Reports() {
             {/* Layout em duas colunas */}
             <div className="flex flex-col lg:flex-row gap-6">
               {/* Coluna esquerda - maior */}
-              <div className="flex-1 flex flex-col gap-6">
+              <div className="flex-1 flex flex-col gap-0">
                 {/* Card Informações */}
                 <Card className="bg-card shadow-card rounded-lg">
                   <CardHeader className="p-5 pb-2 border-b border-border-divider">
@@ -471,6 +475,13 @@ export function Reports() {
                     <CasoFormQaAtribuido />
                   </CardContent>
                 </Card>
+
+                <NaoPlanejadoField
+                  checked={naoPlanejado}
+                  onCheckedChange={setNaoPlanejado}
+                  id="reports-nao-planejado"
+                  disabled={isCreatingCaso || methods.formState.isSubmitting}
+                />
 
                 {/* Botão Criar Caso */}
                 <div className="border border-border-accent rounded-lg p-5 bg-gradient-to-br from-bg-accent-start to-bg-accent-end">

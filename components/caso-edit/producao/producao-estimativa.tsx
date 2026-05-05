@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TamanhoCombobox } from "../fields/tamanho-combobox";
 import { buildTempoEstimadoParaApi, maskHHMM } from "./utils";
 import type { AbaProducaoSavePayload } from "./types";
+import { NaoPlanejadoField } from "./nao-planejado-field";
 
 export interface ProducaoEstimativaProps {
   showForm: boolean;
@@ -74,28 +74,11 @@ export function ProducaoEstimativa({
 
       {showForm && (
         <>
-          <div className="rounded-lg bg-sky-50 dark:bg-sky-950/30 p-4 space-y-3">
-            <div className="flex items-center gap-3">
-              <Checkbox
-                id="nao-planejado"
-                checked={naoPlanejado}
-                onCheckedChange={(v) => setNaoPlanejado(Boolean(v))}
-                className="mt-0.5"
-              />
-              <div className="space-y-1">
-                <Label
-                  htmlFor="nao-planejado"
-                  className="text-sm font-medium text-text-primary cursor-pointer"
-                >
-                  Não planejado
-                </Label>
-                <p className="text-xs text-text-secondary">
-                  Marque se este caso não foi planejado (dispensa controle de
-                  tempo).
-                </p>
-              </div>
-            </div>
-          </div>
+          <NaoPlanejadoField
+            checked={naoPlanejado}
+            onCheckedChange={setNaoPlanejado}
+            disabled={isSaving}
+          />
 
           {!naoPlanejado && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

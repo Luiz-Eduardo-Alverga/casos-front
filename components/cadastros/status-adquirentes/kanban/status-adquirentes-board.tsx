@@ -46,7 +46,16 @@ export function StatusAdquirentesBoard({
       onDataChange={onDataChange}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className="grid min-h-0 w-full flex-1 auto-cols-fr grid-flow-col gap-4 overflow-x-auto pb-2"
+      className={cn(
+        "grid min-h-0 w-full flex-1 grid-flow-col gap-4 pb-2",
+        "overflow-x-auto overscroll-x-contain",
+        // Mobile: 1 coluna por vez (scroll horizontal)
+        "auto-cols-[calc(100%-0rem)] snap-x snap-mandatory",
+        // Breakpoints: 2/3/4 colunas visíveis
+        "sm:auto-cols-[calc((100%-1rem)/2)]",
+        "lg:auto-cols-[calc((100%-2rem)/3)]",
+        "xl:auto-cols-[calc((100%-3rem)/4)]",
+      )}
     >
       {(column) => {
         const itemsInColumn = data.filter(
@@ -56,7 +65,7 @@ export function StatusAdquirentesBoard({
         return (
           <div
             key={column.id}
-            className="flex min-h-0 min-w-[260px] flex-1 flex-col"
+            className="flex min-h-0 w-full min-w-0 flex-col snap-start"
           >
             <KanbanBoard
               id={column.id}

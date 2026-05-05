@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import type { Mensagem } from "@/services/mensagens/get-mensagens";
 import { getPeriodoRange } from "@/lib/periodo-avisos";
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const LIMITE_DROPDOWN = 10;
 
@@ -40,6 +40,40 @@ export function AvisosDropdown() {
   const [open, setOpen] = useState(false);
 
   const periodoMesAtual = useMemo(() => getPeriodoRange("este_mes"), []);
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const dentroHorarioConsulta = useMemo(() => {
+    const hora = now.getHours();
+    return hora >= 6 && hora <= 23;
+  }, [now]);
+
+  const { data: dataNaoLidos } = useMensagens(
+    {
+      lido: false,
+      data_msg_inicio: periodoMesAtual.data_msg_inicio,
+      data_msg_fim: periodoMesAtual.data_msg_fim,
+    },
+    {
+      enabled: dentroHorarioConsulta,
+      refetchInterval: dentroHorarioConsulta ? 300_000 : false,
+      refetchIntervalInBackground: true,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  const totalNaoLidosRaw =
+    dataNaoLidos?.total ?? dataNaoLidos?.data?.length ?? 0;
+  const totalNaoLidos =
+    typeof totalNaoLidosRaw === "number" && totalNaoLidosRaw > 0
+      ? totalNaoLidosRaw
+      : 0;
+  const totalNaoLidosLabel = totalNaoLidos > 99 ? "99+" : String(totalNaoLidos);
 
   const { data, isLoading } = useMensagens(
     {
@@ -69,9 +103,28 @@ export function AvisosDropdown() {
           variant="ghost"
           size="icon"
           className="h-9 w-9 hover:bg-muted relative "
-          aria-label="Abrir avisos"
+          aria-label={
+            totalNaoLidos > 0
+              ? `Abrir avisos (${totalNaoLidosLabel} não lidos)`
+              : "Abrir avisos"
+          }
         >
           <Bell className="h-[18px] w-[15.75px] text-foreground sr-only lg:not-sr-only" />
+          {totalNaoLidos > 0 && (
+            <span
+              className={cn(
+                "absolute -top-0 -right-0",
+                "min-w-4 h-4 px-1 rounded-full",
+                "bg-destructive text-destructive-foreground",
+                "text-[11px] leading-5 font-semibold",
+                "flex items-center justify-center",
+                "pointer-events-none select-none",
+              )}
+              aria-hidden
+            >
+              {totalNaoLidosLabel}
+            </span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent

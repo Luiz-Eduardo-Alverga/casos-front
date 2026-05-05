@@ -24,7 +24,8 @@ export interface CasoEditHeaderProps {
 }
 
 const TAB_TRIGGER_CLASS = cn(
-  "group rounded-full px-3 py-1.5 text-sm font-medium flex-1 gap-1.5",
+  "group shrink-0 rounded-full px-3 py-1.5 text-sm font-medium gap-1.5",
+  "lg:flex-1 lg:min-w-0 lg:basis-0",
   "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
   "data-[state=inactive]:bg-transparent data-[state=inactive]:hover:bg-muted data-[state=inactive]:hover:text-foreground",
 );
@@ -68,7 +69,15 @@ export function CasoEditHeader({
       <div className="flex flex-col lg:flex-row gap-6 shrink-0 ">
         {/* Coluna esquerda: mesmo espaço do conteúdo à esquerda do formulário */}
         <div className="flex-1 flex flex-col gap-6 min-w-0">
-          <TabsList className="w-full flex sm:w-auto h-full items-center rounded-full bg-white py-1 text-muted-foreground gap-0">
+          <TabsList
+            className={cn(
+              "w-full max-w-full min-w-0 flex flex-nowrap justify-start items-center gap-0",
+              "h-auto min-h-9 overflow-x-auto overflow-y-hidden overscroll-x-contain",
+              // Scroll funciona, mas barra não aparece (Chrome/Safari/Edge/Firefox/IE)
+              "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+              "rounded-full bg-white py-1 text-muted-foreground",
+            )}
+          >
             {tabs.map((tab) => (
               <TabsTrigger
                 key={tab.value}

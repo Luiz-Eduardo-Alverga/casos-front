@@ -97,7 +97,10 @@ export function PainelKanban() {
       };
 
       try {
-        localStorage.setItem(PAINEL_KANBAN_FILTROS_KEY, JSON.stringify(payload));
+        localStorage.setItem(
+          PAINEL_KANBAN_FILTROS_KEY,
+          JSON.stringify(payload),
+        );
       } catch {
         // Sem ação: storage pode estar indisponível/cheio.
       }
@@ -114,7 +117,10 @@ export function PainelKanban() {
   const lastUsuarioDevIdRef = useRef<string>("");
   useEffect(() => {
     if (!usuarioDevId) return;
-    if (lastUsuarioDevIdRef.current && lastUsuarioDevIdRef.current !== usuarioDevId) {
+    if (
+      lastUsuarioDevIdRef.current &&
+      lastUsuarioDevIdRef.current !== usuarioDevId
+    ) {
       agendaInitRef.current = false;
     }
     lastUsuarioDevIdRef.current = usuarioDevId;
@@ -128,11 +134,11 @@ export function PainelKanban() {
     const currentVersao = methods.getValues("versao")?.trim();
     const hasValidCurrentSelection = Boolean(
       currentProduto &&
-        currentVersao &&
-        agendaDevData.some(
-          (a) =>
-            String(a.id_produto) === currentProduto && a.versao === currentVersao,
-        ),
+      currentVersao &&
+      agendaDevData.some(
+        (a) =>
+          String(a.id_produto) === currentProduto && a.versao === currentVersao,
+      ),
     );
     if (hasValidCurrentSelection) {
       agendaInitRef.current = true;
