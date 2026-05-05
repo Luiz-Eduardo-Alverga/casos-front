@@ -340,6 +340,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     [methods, produtoWatch, updateCaso.isPending, canEditCase, item],
   );
 
+  console.log(item);
+
   const casoEditValue = useMemo(
     () => ({
       memoriaQueryId: casoId,

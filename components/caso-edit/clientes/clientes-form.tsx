@@ -73,7 +73,7 @@ export function ClientesForm({
           type="number"
           min={1}
           placeholder="Ex: 68703"
-          className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
+          className="h-9 rounded-lg border-border-input px-[17px] py-3"
           disabled={isAdding || Boolean(clienteSelecionado)}
           {...methods.register("clienteId")}
         />
@@ -83,7 +83,7 @@ export function ClientesForm({
         type="button"
         onClick={handleAdicionar}
         disabled={!clienteId.trim() || isAdding}
-        className="shrink-0"
+        className="shrink-0 h-9"
       >
         <UserPlus className="h-3.5 w-3.5 mr-2" />
         Adicionar

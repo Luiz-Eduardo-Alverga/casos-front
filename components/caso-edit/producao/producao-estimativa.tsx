@@ -43,7 +43,9 @@ export function ProducaoEstimativa({
   const handleSalvar = async () => {
     const payload: AbaProducaoSavePayload = {
       NaoPlanejado: naoPlanejado ? 1 : 0,
-      TempoEstimado: naoPlanejado ? null : buildTempoEstimadoParaApi(tempoEstimado),
+      TempoEstimado: naoPlanejado
+        ? null
+        : buildTempoEstimadoParaApi(tempoEstimado),
       tamanho: naoPlanejado ? null : tamanhoId ? Number(tamanhoId) : null,
     };
     await onSaveProducao(payload);
@@ -52,7 +54,7 @@ export function ProducaoEstimativa({
 
   return (
     <div className="shrink-0 p-5 rounded-lg border border-border-divider bg-muted/30 space-y-4">
-      <div className="flex justify-between items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div>
           <h3 className="text-sm font-semibold text-text-primary">
             Lançar estimativa
@@ -85,16 +87,20 @@ export function ProducaoEstimativa({
               <TamanhoCombobox
                 value={tamanhoId}
                 onValueChange={(v) => setTamanhoId(v ?? "")}
-                onTamanhoSelect={(_id, tempoHHMM) => setTempoEstimado(tempoHHMM)}
+                onTamanhoSelect={(_id, tempoHHMM) =>
+                  setTempoEstimado(tempoHHMM)
+                }
                 disabled={isSaving}
               />
               <div className="space-y-2">
-                <Label
-                  htmlFor="tempo-estimado"
-                  className="text-sm font-medium text-text-label"
-                >
-                  Tempo estimado
-                </Label>
+                <div className="flex justify-between">
+                  <Label
+                    htmlFor="tempo-estimado"
+                    className="text-sm font-medium text-text-label"
+                  >
+                    Tempo estimado
+                  </Label>
+                </div>
                 <Input
                   id="tempo-estimado"
                   type="text"
@@ -103,7 +109,7 @@ export function ProducaoEstimativa({
                   onChange={(e) => setTempoEstimado(maskHHMM(e.target.value))}
                   disabled={isSaving}
                   maxLength={5}
-                  className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
+                  className="h-9 rounded-lg border-border-input px-[17px] py-3"
                 />
               </div>
             </div>
@@ -130,4 +136,3 @@ export function ProducaoEstimativa({
     </div>
   );
 }
-

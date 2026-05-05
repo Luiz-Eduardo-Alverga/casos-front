@@ -28,7 +28,7 @@ export function AnotacoesEditor({
   return (
     <div className="shrink-0 flex flex-col items-end gap-3 border-b border-border-divider pb-4 space-y-2">
       <div className="w-full space-y-2">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-start sm:items-center justify-between gap-2 flex-col sm:flex-row ">
           <Label
             htmlFor="nova-anotacao"
             className="text-sm font-medium text-text-label"
@@ -41,7 +41,7 @@ export function AnotacoesEditor({
             size="sm"
             onClick={onImproveWithIA}
             disabled={improveDisabled}
-            className=" bg-gradient-to-r from-gradient-start to-gradient-end text-white hover:opacity-90 px-4 flex-1 sm:flex-initial"
+            className=" bg-gradient-to-r from-gradient-start to-gradient-end text-white hover:opacity-90 px-4 w-full sm:w-auto"
           >
             {isImproving ? (
               <>
@@ -70,7 +70,7 @@ export function AnotacoesEditor({
         type="button"
         onClick={onSave}
         disabled={!value.trim() || disabled}
-        className="min-w-[86px]"
+        className="w-full sm:w-auto"
       >
         Salvar
       </Button>

@@ -9,10 +9,18 @@ import { useFormContext, Controller } from "react-hook-form";
 import { cn } from "@/lib/utils";
 
 interface ComboboxFieldProps {
-  name: string;
+  /**
+   * Nome do campo no react-hook-form.
+   * Se `value`/`onValueChange` forem informados, `name` é opcional (modo controlado).
+   */
+  name?: string;
   label: string;
   icon: LucideIcon;
   options: ComboboxOption[];
+  /** Modo controlado (sem react-hook-form). */
+  value?: string;
+  /** Modo controlado (sem react-hook-form). */
+  onValueChange?: (value: string) => void;
   placeholder?: string;
   emptyText?: string;
   onSearchChange?: (search: string) => void;
@@ -34,6 +42,8 @@ export function ComboboxField({
   label,
   icon: Icon,
   options,
+  value,
+  onValueChange,
   placeholder = "Selecione...",
   emptyText,
   onSearchChange,
@@ -45,11 +55,10 @@ export function ComboboxField({
   isLoadingMore,
   onLoadMore,
 }: ComboboxFieldProps) {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext();
-  const error = errors[name];
+  const isControlled = typeof onValueChange === "function";
+  const rhf = !isControlled ? useFormContext() : null;
+  const error =
+    !isControlled && name ? (rhf?.formState?.errors as any)?.[name] : undefined;
 
   return (
     <div className="space-y-2 ">
@@ -62,52 +71,94 @@ export function ComboboxField({
           <p className="text-sm text-destructive">{error.message as string}</p>
         )}
       </div>
-      <Controller
-        name={name}
-        control={control}
-        render={({ field }) => (
-          <Combobox
-            options={options}
-            value={field.value ?? ""}
-            onValueChange={(v) => field.onChange(v ?? "")}
-            placeholder={placeholder}
-            emptyText={emptyText}
-            onSearchChange={onSearchChange}
-            searchDebounceMs={searchDebounceMs}
-            disabled={disabled}
-            onOpenChange={onOpenChange}
-            hasMore={hasMore}
-            isLoadingMore={isLoadingMore}
-            onLoadMore={onLoadMore}
-            anchorClassName={cn("group", "[&_button]:border-border-input")}
-            className={cn(
-              field.value &&
-                "rounded-l-lg rounded-r-none border-r-0 dark:border-input",
-              !field.value && "rounded-lg",
-            )}
-            suffix={
-              field.value ? (
-                <Button
-                  tabIndex={-1}
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className={cn(
-                    "h-9 w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input dark:border-input",
-                    "group-hover:bg-accent group-hover:text-accent-foreground",
-                    "group-focus-within:ring-1 group-focus-within:ring-ring",
-                  )}
-                  onClick={() => field.onChange("")}
-                  disabled={disabled}
-                  aria-label="Remover seleção"
-                >
-                  <X className="h-4 w-4 opacity-50" />
-                </Button>
-              ) : null
-            }
-          />
-        )}
-      />
+      {isControlled ? (
+        <Combobox
+          options={options}
+          value={value ?? ""}
+          onValueChange={(v) => onValueChange(v ?? "")}
+          placeholder={placeholder}
+          emptyText={emptyText}
+          onSearchChange={onSearchChange}
+          searchDebounceMs={searchDebounceMs}
+          disabled={disabled}
+          onOpenChange={onOpenChange}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={onLoadMore}
+          anchorClassName={cn("group", "[&_button]:border-border-input")}
+          className={cn(
+            value && "rounded-l-lg rounded-r-none border-r-0 dark:border-input",
+            !value && "rounded-lg",
+          )}
+          suffix={
+            value ? (
+              <Button
+                tabIndex={-1}
+                type="button"
+                variant="outline"
+                size="icon"
+                className={cn(
+                  "h-9 w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input dark:border-input",
+                  "group-hover:bg-accent group-hover:text-accent-foreground",
+                  "group-focus-within:ring-1 group-focus-within:ring-ring",
+                )}
+                onClick={() => onValueChange("")}
+                disabled={disabled}
+                aria-label="Remover seleção"
+              >
+                <X className="h-4 w-4 opacity-50" />
+              </Button>
+            ) : null
+          }
+        />
+      ) : name ? (
+        <Controller
+          name={name}
+          control={rhf!.control}
+          render={({ field }) => (
+            <Combobox
+              options={options}
+              value={field.value ?? ""}
+              onValueChange={(v) => field.onChange(v ?? "")}
+              placeholder={placeholder}
+              emptyText={emptyText}
+              onSearchChange={onSearchChange}
+              searchDebounceMs={searchDebounceMs}
+              disabled={disabled}
+              onOpenChange={onOpenChange}
+              hasMore={hasMore}
+              isLoadingMore={isLoadingMore}
+              onLoadMore={onLoadMore}
+              anchorClassName={cn("group", "[&_button]:border-border-input")}
+              className={cn(
+                field.value &&
+                  "rounded-l-lg rounded-r-none border-r-0 dark:border-input",
+                !field.value && "rounded-lg",
+              )}
+              suffix={
+                field.value ? (
+                  <Button
+                    tabIndex={-1}
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className={cn(
+                      "h-9 w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input dark:border-input",
+                      "group-hover:bg-accent group-hover:text-accent-foreground",
+                      "group-focus-within:ring-1 group-focus-within:ring-ring",
+                    )}
+                    onClick={() => field.onChange("")}
+                    disabled={disabled}
+                    aria-label="Remover seleção"
+                  >
+                    <X className="h-4 w-4 opacity-50" />
+                  </Button>
+                ) : null
+              }
+            />
+          )}
+        />
+      ) : null}
     </div>
   );
 }

@@ -68,7 +68,7 @@ export function UserDropDown() {
           </span>
 
           {/* Chevron Down */}
-          <ChevronDown className="sr-only lg:not-sr-only h-1 w-1 text-text-label" />
+          <ChevronDown className="sr-only sm:not-sr-only sm:h-4 sm:w-4 text-text-label" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent asChild className="p-0" align="end" forceMount>

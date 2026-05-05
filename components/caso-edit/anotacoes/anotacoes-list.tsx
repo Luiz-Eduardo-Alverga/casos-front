@@ -7,6 +7,7 @@ import type { AnotacaoCasoItem } from "@/interfaces/projeto-memoria";
 import { cn } from "@/lib/utils";
 import { Pencil, Trash2, User } from "lucide-react";
 import { formatarCriadoEm } from "./utils";
+import { useEffect, useRef } from "react";
 
 export interface AnotacoesListProps {
   anotacoes: AnotacaoCasoItem[];
@@ -30,9 +31,23 @@ export function AnotacoesList({
   onAskDelete,
 }: AnotacoesListProps) {
   const lista = Array.isArray(anotacoes) ? anotacoes : [];
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   /** Altura mínima do bloco de texto da anotação; expande com o conteúdo */
   const ALTURA_MIN_ANOTACAO = "min-h-[144px]";
+
+  const ajustarAlturaTextarea = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
+
+  useEffect(() => {
+    if (editandoId == null) return;
+    const raf = requestAnimationFrame(() => ajustarAlturaTextarea());
+    return () => cancelAnimationFrame(raf);
+  }, [editandoId, editandoTexto]);
 
   if (lista.length === 0) {
     return (
@@ -48,7 +63,7 @@ export function AnotacoesList({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain pt-4">
+    <div className="flex min-h-0 flex-1 flex-col  gap-2  pt-4">
       {lista.map((item) => (
         <div key={item.sequencia} className="flex w-full flex-col gap-2">
           <div className="flex w-full items-start justify-between gap-3">
@@ -119,19 +134,22 @@ export function AnotacoesList({
 
           {editandoId === item.sequencia ? (
             <Textarea
+              ref={textareaRef}
               value={editandoTexto}
-              onChange={(e) => onEditandoTextoChange(e.target.value)}
+              onChange={(e) => {
+                onEditandoTextoChange(e.target.value);
+                requestAnimationFrame(() => ajustarAlturaTextarea());
+              }}
               className={cn(
-                " resize-none rounded-lg  text-xs font-semibold ",
-                ALTURA_MIN_ANOTACAO
+                "rounded-lg resize-none overflow-hidden",
+                ALTURA_MIN_ANOTACAO,
               )}
-              autoFocus
             />
           ) : (
             <div
               className={cn(
                 "w-full rounded-lg bg-muted/30 p-2.5 border-l-4 border-primary  text-xs font-semibold leading-5 text-foreground whitespace-pre-wrap",
-                ALTURA_MIN_ANOTACAO
+                ALTURA_MIN_ANOTACAO,
               )}
             >
               {item.anotacoes}
@@ -142,4 +160,3 @@ export function AnotacoesList({
     </div>
   );
 }
-

@@ -1,13 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
-import { Label } from "@/components/ui/label";
-import { Combobox } from "@/components/ui/combobox";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Ruler } from "lucide-react";
 import { useTamanhos } from "@/hooks/use-tamanhos";
-import { cn } from "@/lib/utils";
 import type { TamanhoItem } from "@/services/auxiliar/tamanhos";
+import { useCasoForm } from "@/components/caso-form/provider";
+import { ComboboxField } from "@/components/reports-form/combobox-field";
 
 /**
  * Formata o tempo retornado pela API (ex.: "1899-12-30 00:15:00.000") para exibição em horas/minutos.
@@ -58,69 +56,55 @@ export function TamanhoCombobox({
   disabled = false,
   placeholder = "Selecione o tamanho...",
   label = "Tamanho",
-  id = "tamanho",
 }: TamanhoComboboxProps) {
-  const { data: tamanhosData, isLoading } = useTamanhos();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const tamanhos = tamanhosData ?? [];
+  const { isDisabled, lazyLoadComboboxOptions } = useCasoForm();
+  const [optionsRequested, setOptionsRequested] = useState(
+    !lazyLoadComboboxOptions,
+  );
+
+  const { data: tamanhosData, isLoading } = useTamanhos({
+    enabled: optionsRequested,
+  });
+  const tamanhos = useMemo(() => tamanhosData ?? [], [tamanhosData]);
 
   const options = useMemo(
     () =>
       tamanhos.map((t: TamanhoItem) => {
         const tempoFormatado = formatTempoTamanho(t.tempo);
-        const labelText = `${t.tamanho} | ${tempoFormatado} | ${t.descricao ?? ""}`.trim();
+        const labelText =
+          `${t.tamanho} | ${tempoFormatado} | ${t.descricao ?? ""}`.trim();
         return { value: t.id, label: labelText };
       }),
-    [tamanhos]
+    [tamanhos],
   );
 
-  const handleValueChange = (newValue: string | undefined) => {
-    onValueChange(newValue);
-    if (onTamanhoSelect && newValue) {
-      const selected = tamanhos.find((t: TamanhoItem) => t.id === newValue);
-      if (selected) {
-        onTamanhoSelect(newValue, tempoApiToHHMM(selected.tempo));
-      }
-    }
-  };
+  const isFieldDisabled = disabled || isDisabled;
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={id} className="text-sm font-medium text-text-label">
-        {label}
-      </Label>
-      <Combobox
+      <ComboboxField
+        label={label}
+        icon={Ruler}
         options={options}
-        value={value || undefined}
-        onValueChange={handleValueChange}
+        value={value ?? ""}
+        onValueChange={(next) => {
+          const nextValue = (next ?? "").trim();
+          onValueChange(nextValue ? nextValue : undefined);
+          if (onTamanhoSelect && nextValue) {
+            const selected = tamanhos.find((t: TamanhoItem) => t.id === nextValue);
+            if (selected) {
+              onTamanhoSelect(nextValue, tempoApiToHHMM(selected.tempo));
+            }
+          }
+        }}
         placeholder={isLoading ? "Carregando..." : placeholder}
-        emptyText="Nenhum tamanho encontrado."
-        disabled={disabled || isLoading}
-        anchorClassName={cn("group", "[&_button]:border-border-input")}
-        className={cn(
-          "h-[42px] px-[17px] py-3 text-left",
-          value && "rounded-l-lg rounded-r-none border-r-0",
-          !value && "rounded-lg",
-        )}
-        suffix={
-          value ? (
-            <Button
-              tabIndex={-1}
-              type="button"
-              variant="outline"
-              size="icon"
-              className={cn(
-                "h-[42px] w-[42px] shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input",
-                "group-hover:bg-accent group-hover:text-accent-foreground",
-                "group-focus-within:ring-1 group-focus-within:ring-ring",
-              )}
-              onClick={() => onValueChange(undefined)}
-              disabled={disabled}
-              aria-label="Remover seleção"
-            >
-              <X className="h-4 w-4 opacity-50" />
-            </Button>
-          ) : null
+        emptyText={isLoading ? "Carregando..." : "Nenhum tamanho encontrado."}
+        searchDebounceMs={450}
+        disabled={isFieldDisabled || isLoading}
+        onOpenChange={
+          lazyLoadComboboxOptions
+            ? (open) => open && setOptionsRequested(true)
+            : undefined
         }
       />
     </div>

@@ -36,9 +36,8 @@ export function RelacoesForm({
   const isDisabled = disabled || isSaving;
 
   const casoRelacionadoValue = methods.watch("caso_relacionado");
-  const [debouncedCasoRelacionado, setDebouncedCasoRelacionado] = useState<
-    string
-  >("");
+  const [debouncedCasoRelacionado, setDebouncedCasoRelacionado] =
+    useState<string>("");
 
   useEffect(() => {
     const normalized = String(casoRelacionadoValue ?? "").trim();
@@ -84,7 +83,7 @@ export function RelacoesForm({
           onValueChange={(value) => methods.setValue("tipo_relacao", value)}
           disabled={isDisabled}
         >
-          <SelectTrigger className="h-[42px] rounded-lg border-border-input min-w-[190px]">
+          <SelectTrigger className="h-9 rounded-lg border-border-input min-w-[190px]">
             <SelectValue placeholder="Selecione..." />
           </SelectTrigger>
           <SelectContent>
@@ -110,7 +109,7 @@ export function RelacoesForm({
           inputMode="numeric"
           {...methods.register("caso_relacionado")}
           placeholder="Caso numero..."
-          className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
+          className="h-9 rounded-lg border-border-input px-[17px] py-3"
           disabled={isDisabled}
         />
       </div>
@@ -123,13 +122,13 @@ export function RelacoesForm({
           Descricao resumida
         </Label>
         {projetoMemoriaQuery.isFetching ? (
-          <Skeleton className="h-[42px] w-full rounded-lg" />
+          <Skeleton className="h-9 w-full rounded-lg" />
         ) : (
           <Input
             id="descricao-resumo-relacao"
             {...methods.register("descricao_resumo")}
             placeholder="Descreva a relação..."
-            className="h-[42px] rounded-lg border-border-input px-[17px] py-3"
+            className="h-9 rounded-lg border-border-input px-[17px] py-3"
             disabled={isDisabled}
           />
         )}
@@ -138,6 +137,7 @@ export function RelacoesForm({
       <div className="flex items-center gap-2 shrink-0">
         <Button
           type="button"
+          className="h-9"
           onClick={onSubmit}
           disabled={!canSubmit || isDisabled}
         >

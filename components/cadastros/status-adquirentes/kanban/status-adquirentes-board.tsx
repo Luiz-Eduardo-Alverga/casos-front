@@ -54,7 +54,7 @@ export function StatusAdquirentesBoard({
         // Breakpoints: 2/3/4 colunas visíveis
         "sm:auto-cols-[calc((100%-1rem)/2)]",
         "lg:auto-cols-[calc((100%-2rem)/3)]",
-        "xl:auto-cols-[calc((100%-3rem)/4)]",
+        "xl:auto-cols-[calc((100%-4rem)/5)]",
       )}
     >
       {(column) => {
