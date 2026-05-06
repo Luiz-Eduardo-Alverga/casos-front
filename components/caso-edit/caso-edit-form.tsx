@@ -507,6 +507,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                 }
                 onCancelar={() => router.back()}
                 onRedirecionarParaAbaProducao={() => setTabValue("producao")}
+                dataAbertura={item?.caso?.datas?.abertura ?? ""}
+                usuarioAbertura={item?.caso?.usuarios?.abertura?.nome ?? ""}
               />
             </FormProvider>
           </CasoFormProvider>
