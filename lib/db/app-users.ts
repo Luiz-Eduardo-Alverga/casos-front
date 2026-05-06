@@ -185,6 +185,17 @@ export async function getAppUserById(
   return rows[0];
 }
 
+export async function getAppUserByLegacyUserId(
+  legacyUserId: number,
+): Promise<AppUserRow | undefined> {
+  const rows = await db
+    .select()
+    .from(appUsers)
+    .where(eq(appUsers.legacyUserId, legacyUserId))
+    .limit(1);
+  return rows[0];
+}
+
 export async function listRolesForAppUserId(
   userId: string,
 ): Promise<RoleRow[]> {

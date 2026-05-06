@@ -35,6 +35,8 @@ tags:
     description: Usuário local (app_users) e permissões RBAC
   - name: RBAC
     description: Módulos de permissão, catálogo de permissões, papéis e vínculos (administração)
+  - name: CaseAttachments
+    description: Anexos de caso (metadados em Postgres; arquivos no Supabase Storage)
 
 security:
   - sessionCookie: []
@@ -145,6 +147,144 @@ components:
             message:
               type: string
               example: Não autorizado
+
+    CaseAttachmentPresignRequest:
+      type: object
+      required: [filename, mimeType, sizeBytes]
+      properties:
+        filename:
+          type: string
+          description: Nome original com extensão permitida.
+        mimeType:
+          type: string
+          enum:
+            - image/png
+            - image/jpeg
+            - image/webp
+            - image/gif
+            - application/pdf
+            - video/mp4
+            - video/webm
+            - video/quicktime
+        sizeBytes:
+          type: integer
+          minimum: 1
+          description: Tamanho em bytes (deve coincidir com o arquivo enviado ao storage).
+
+    CaseAttachmentPresignResponseData:
+      type: object
+      required: [bucket, path, uploadUrl, token]
+      properties:
+        bucket:
+          type: string
+          example: casos-anexos
+        path:
+          type: string
+          description: Caminho do objeto no bucket (ex. `casos/123/uuid.png`).
+        uploadUrl:
+          type: string
+          format: uri
+          description: URL para `PUT` multipart/raw do arquivo (navegador → Supabase).
+        token:
+          type: string
+          description: Token retornado pelo Supabase; enviar como `Authorization: Bearer` no PUT, se necessário.
+
+    CaseAttachmentPresignResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/CaseAttachmentPresignResponseData"
+
+    CaseAttachmentFinalizeRequest:
+      type: object
+      required: [path, filenameOriginal, mimeType, sizeBytes]
+      properties:
+        path:
+          type: string
+        filenameOriginal:
+          type: string
+          maxLength: 255
+        mimeType:
+          type: string
+          enum:
+            - image/png
+            - image/jpeg
+            - image/webp
+            - image/gif
+            - application/pdf
+            - video/mp4
+            - video/webm
+            - video/quicktime
+        sizeBytes:
+          type: integer
+          minimum: 1
+
+    CaseAttachmentRow:
+      type: object
+      required:
+        - id
+        - casoRegistro
+        - bucket
+        - path
+        - filenameOriginal
+        - mimeType
+        - sizeBytes
+        - kind
+      properties:
+        id:
+          type: string
+          format: uuid
+        casoRegistro:
+          type: integer
+        bucket:
+          type: string
+        path:
+          type: string
+        filenameOriginal:
+          type: string
+        mimeType:
+          type: string
+        sizeBytes:
+          type: integer
+        kind:
+          type: string
+          enum: [image, pdf, video, other]
+        createdBy:
+          type: string
+          format: uuid
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    CaseAttachmentWithDownload:
+      allOf:
+        - $ref: "#/components/schemas/CaseAttachmentRow"
+        - type: object
+          required: [downloadUrl]
+          properties:
+            downloadUrl:
+              type: string
+              format: uri
+              description: URL assinada temporária para download/visualização.
+
+    CaseAttachmentListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CaseAttachmentWithDownload"
+
+    CaseAttachmentOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/CaseAttachmentWithDownload"
 
     PingData:
       type: object
@@ -993,6 +1133,15 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorEnvelope"
+    Forbidden:
+      description: Sessão válida mas sem permissão RBAC (`withPermission`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+          example:
+            error:
+              message: Sem permissão para executar esta ação
     NotFound:
       description: Recurso não encontrado.
       content:
@@ -1013,6 +1162,12 @@ components:
             $ref: "#/components/schemas/ErrorEnvelope"
     ServiceUnavailable:
       description: Falha ao conectar ou consultar o banco (apenas ping).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    BadGateway:
+      description: Falha ou resposta inválida ao consultar a API externa (ex. identificação do usuário).
       content:
         application/json:
           schema:
@@ -2430,5 +2585,134 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/casos/{registro}/anexos/presign-upload:
+    parameters:
+      - name: registro
+        in: path
+        required: true
+        description: Número do caso (`registro` retornado pela API externa ao criar o caso).
+        schema:
+          type: integer
+          minimum: 1
+    post:
+      tags: [CaseAttachments]
+      summary: URL assinada para upload de anexo
+      description: |
+        Permissão `create-case-attachment`. Valida tipo/tamanho e limite de 10 anexos por caso.
+        O cliente deve fazer `PUT` em `data.uploadUrl` com o corpo binário e, em seguida, chamar `POST /api/db/casos/{registro}/anexos` para gravar metadados.
+      operationId: presignCaseAttachmentUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseAttachmentPresignRequest"
+      responses:
+        "200":
+          description: URL de upload gerada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseAttachmentPresignResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/casos/{registro}/anexos:
+    parameters:
+      - name: registro
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      tags: [CaseAttachments]
+      summary: Listar anexos do caso
+      description: Permissão `list-case-attachment`. Cada item inclui `downloadUrl` assinada (curta duração).
+      operationId: listCaseAttachments
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseAttachmentListResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags: [CaseAttachments]
+      summary: Finalizar anexo após upload no Storage
+      description: |
+        Permissão `create-case-attachment`. Confere existência do objeto no bucket, valida tamanho/MIME e insere linha em `case_attachments`.
+      operationId: finalizeCaseAttachment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseAttachmentFinalizeRequest"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseAttachmentOneResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/db/anexos/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    delete:
+      tags: [CaseAttachments]
+      summary: Remover anexo
+      description: Permissão `delete-case-attachment`. Remove o objeto do Storage (best-effort) e a linha em `case_attachments`.
+      operationId: deleteCaseAttachment
+      responses:
+        "204":
+          description: Removido; sem corpo.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
         "500":
           $ref: "#/components/responses/InternalError"

@@ -77,6 +77,13 @@ A Soft Flow deve expor **`GET /auth/me`** com o mesmo formato de objeto `user` d
 
 Variável de ambiente necessária no servidor: **`DATABASE_URL`** (connection string do Postgres do Supabase).
 
+Para **anexos de caso** (upload direto do navegador para o Supabase Storage + metadados em `case_attachments`), configure também:
+
+- **`NEXT_PUBLIC_SUPABASE_URL`** — URL do projeto Supabase.
+- **`SUPABASE_SERVICE_ROLE_KEY`** — chave **service_role** (apenas servidor; nunca no client). Usada nas rotas `/api/db/casos/.../anexos` para assinar URLs e validar objetos.
+
+No dashboard do Supabase: criar bucket **privado** chamado **`casos-anexos`**. Se o `PUT` a partir de `localhost` falhar por CORS, em **Storage → Configuration** inclua a origem do app (ex.: `http://localhost:3000`).
+
 ## Documentação OpenAPI / Swagger
 
 - **Especificação:** [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) em [`public/openapi.yaml`](../public/openapi.yaml) (servida em **`/openapi.yaml`**).
@@ -92,6 +99,7 @@ O histórico foi consolidado em **uma** migração inicial — apenas `public` (
 | `npm run db:migrate` | Gera novo SQL a partir de `db/schema.ts` (`drizzle-kit generate`). |
 | `npm run db:apply` | Aplica migrações pendentes (`drizzle-kit migrate`), lendo `DATABASE_URL` de `.env.local` ou `.env`. |
 | [`db/scripts/reset-supabase-dev.sql`](../db/scripts/reset-supabase-dev.sql) | Em dev: apaga tabelas da app, tipo `status_type` e schema `drizzle`. Rode no SQL Editor do Supabase se quiser recriar do zero; em seguida `npm run db:apply`. |
+| [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql) | Opcional: insere módulo `case-attachments` e permissões `list/create/delete-case-attachment` no RBAC. Depois vincule aos papéis na UI. |
 
 Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` deve listar pelo menos `0000_initial_supabase_public` após o primeiro `db:apply` bem-sucedido.
 
@@ -126,6 +134,10 @@ Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` 
 | POST | `/api/db/app-users/[id]/roles` | Atribui `{ roleId }` |
 | PUT | `/api/db/app-users/[id]/roles` | Substitui perfil: remove vínculos atuais e atribui `{ roleId }` |
 | DELETE | `/api/db/app-users/[id]/roles/[roleId]` | Remove atribuição |
+| POST | `/api/db/casos/[registro]/anexos/presign-upload` | Gera URL assinada de upload (`create-case-attachment`) |
+| GET | `/api/db/casos/[registro]/anexos` | Lista anexos com URL de download assinada (`list-case-attachment`) |
+| POST | `/api/db/casos/[registro]/anexos` | Finaliza anexo após `PUT` no Storage (`create-case-attachment`) |
+| DELETE | `/api/db/anexos/[id]` | Remove anexo do Storage e do Postgres (`delete-case-attachment`) |
 | GET | `/api/db/acquirers` | Lista adquirentes |
 | POST | `/api/db/acquirers` | Cria adquirente |
 | GET | `/api/db/acquirers/[id]` | Detalhe |
@@ -158,6 +170,7 @@ Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` 
 | Status | Uso |
 |--------|-----|
 | 401 | Sem cookie de sessão / não autenticado |
+| 403 | Autenticado, mas sem permissão RBAC (`withPermission`) |
 | 400 | JSON inválido ou falha de validação Zod |
 | 404 | Recurso não encontrado |
 | 409 | Violação de FK ou unique (Postgres) |
@@ -177,7 +190,7 @@ Corpos de erro seguem `{ "error": { "message": "..." } }` (exceto `204`).
 1. Ajustar banco (SQL / migração) e **`db/schema.ts`**.
 2. Criar ou estender **`lib/db/<nome>.ts`** com funções puras Drizzle.
 3. Criar **`lib/validators/db/<nome>.ts`** (create/update conforme necessário).
-4. Adicionar **`app/api/db/.../route.ts`** usando `withSession`, Zod e `handleDbRouteError`.
+4. Adicionar **`app/api/db/.../route.ts`** usando `withSession` ou **`withPermission`** (rotas sensíveis), Zod e `handleDbRouteError`.
 5. Atualizar a tabela **Rotas implementadas** neste arquivo.
 6. No front, seguir [PADRAO_REQUISICOES.md](./PADRAO_REQUISICOES.md): service com `fetchWithAuth` apontando para a nova URL.
 

@@ -41,6 +41,7 @@ const PAINEL_KANBAN_FILTROS_KEY = "PAINEL_KANBAN_FILTROS";
 export function PainelKanban() {
   const user = getUser();
   const idColaborador = user?.id ? String(user.id) : "";
+  const nomeColaborador = user?.nome ? String(user.nome) : "";
   const router = useRouter();
   const queryClient = useQueryClient();
   const updateCaso = useUpdateCaso();
@@ -50,6 +51,7 @@ export function PainelKanban() {
       produto: "",
       versao: "",
       devAtribuido: idColaborador,
+      devAtribuidoLabel: nomeColaborador,
     },
   });
 
@@ -71,6 +73,11 @@ export function PainelKanban() {
 
       const savedDev = saved.devAtribuido?.trim();
       setValue("devAtribuido", savedDev ? savedDev : idColaborador);
+      if (saved.devAtribuidoLabel?.trim()) {
+        setValue("devAtribuidoLabel", saved.devAtribuidoLabel);
+      } else {
+        setValue("devAtribuidoLabel", nomeColaborador);
+      }
 
       if (saved.produto?.trim()) setValue("produto", saved.produto);
       if (saved.versao?.trim()) setValue("versao", saved.versao);
@@ -80,7 +87,7 @@ export function PainelKanban() {
       isRestoringFiltrosRef.current = false;
       setFiltrosRestaurados(true);
     }
-  }, [idColaborador, setValue]);
+  }, [idColaborador, nomeColaborador, setValue]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -94,6 +101,9 @@ export function PainelKanban() {
         devAtribuido: values.devAtribuido?.trim()
           ? values.devAtribuido
           : idColaborador,
+        devAtribuidoLabel: (values.devAtribuidoLabel ?? "").trim()
+          ? values.devAtribuidoLabel
+          : nomeColaborador,
       };
 
       try {
@@ -107,7 +117,7 @@ export function PainelKanban() {
     });
 
     return () => sub.unsubscribe();
-  }, [idColaborador, methods]);
+  }, [idColaborador, nomeColaborador, methods]);
 
   const { data: agendaDevData, isLoading: isAgendaLoading } = useAgendaDev({
     id_colaborador: usuarioDevId,

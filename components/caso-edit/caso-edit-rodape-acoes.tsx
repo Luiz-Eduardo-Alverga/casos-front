@@ -133,7 +133,7 @@ export function CasoEditRodapeAcoes({
             : `calc(100% - ${isCollapsed ? "64px" : "256px"})`,
         }}
       >
-        <div className="flex flex-row flex-wrap gap-2 min-w-0">
+        <div className="flex flex-row flex-wrap gap-2 min-w-0 sr-only sm:not-sr-only">
           <span className="text-sm text-text-secondary font-semibold">
             {textoAbertura}
           </span>

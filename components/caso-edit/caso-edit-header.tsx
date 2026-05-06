@@ -17,6 +17,10 @@ export interface CasoEditHeaderProps {
   countAnotacoes: number;
   countRelacoes: number;
   countClientes: number;
+  /** Quantidade de anexos (metadados locais); badge só se maior que 0. */
+  countAnexos: number;
+  /** Se false, a aba "Anexos" não é exibida (RBAC `list-case-attachment`). */
+  showAnexosTab: boolean;
   onClonar: () => void;
   onExcluir: () => void;
   isClonando?: boolean;
@@ -46,6 +50,8 @@ export function CasoEditHeader({
   countAnotacoes,
   countRelacoes,
   countClientes,
+  countAnexos,
+  showAnexosTab,
   onClonar,
   onExcluir,
   isClonando = false,
@@ -58,6 +64,9 @@ export function CasoEditHeader({
 
   const tabs: TabItem[] = [
     { value: "inicial", label: "Inicial" },
+    ...(showAnexosTab
+      ? [{ value: "anexos", label: "Anexos", count: countAnexos }]
+      : []),
     { value: "anotacoes", label: "Anotações", count: countAnotacoes },
     { value: "relacoes", label: "Relações", count: countRelacoes },
     { value: "clientes", label: "Clientes", count: countClientes },

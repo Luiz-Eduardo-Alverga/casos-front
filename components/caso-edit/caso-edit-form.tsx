@@ -34,6 +34,8 @@ import { AbaRelacoes } from "./relacoes";
 import { AbaClientes } from "./clientes";
 import { AbaProducao } from "./producao";
 import { CasoEditProvider } from "./caso-edit-context";
+import { AbaAnexos } from "./anexos";
+import { useCaseAttachments } from "@/hooks/use-case-attachments";
 
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
@@ -121,6 +123,15 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
 
   const caso = item.caso;
   const numeroCaso = caso?.id ?? Number(casoId);
+  const rbacReady = permissionsLoaded();
+  const showAnexosTab =
+    !rbacReady || hasPermission("list-case-attachment");
+  const anexosQuery = useCaseAttachments({
+    casoRegistro: Number.isFinite(numeroCaso) ? numeroCaso : null,
+    enabled: showAnexosTab && Number.isFinite(numeroCaso),
+  });
+  const countAnexos = anexosQuery.data?.length ?? 0;
+
   const statusIdApi = (() => {
     const n = Number(caso?.status?.status_id);
     return Number.isFinite(n) ? n : 0;
@@ -204,7 +215,6 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     }
   });
 
-  const rbacReady = permissionsLoaded();
   const canEditCase = !rbacReady || hasPermission("edit-case");
 
   const handleClonar = async () => {
@@ -340,8 +350,6 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     [methods, produtoWatch, updateCaso.isPending, canEditCase, item],
   );
 
-  console.log(item);
-
   const casoEditValue = useMemo(
     () => ({
       memoriaQueryId: casoId,
@@ -374,6 +382,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
           countAnotacoes={countAnotacoes}
           countRelacoes={countRelacoes}
           countClientes={countClientes}
+          countAnexos={countAnexos}
+          showAnexosTab={showAnexosTab}
           onClonar={handleClonar}
           onExcluir={() => setExcluirCasoModal(true)}
           isClonando={clonarCaso.isPending}
@@ -400,6 +410,17 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         </div>
                       </fieldset>
                     </TabsContent>
+
+                    {showAnexosTab && (
+                      <TabsContent
+                        value="anexos"
+                        className="mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden"
+                      >
+                        <div className="flex-1 flex flex-col gap-6 min-w-0">
+                          <AbaAnexos casoRegistro={numeroCaso} />
+                        </div>
+                      </TabsContent>
+                    )}
 
                     <TabsContent
                       value="anotacoes"

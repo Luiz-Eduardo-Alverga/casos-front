@@ -29,6 +29,13 @@
       "when": 1776987559972,
       "tag": "0003_faithful_lorna_dane",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778087799692,
+      "tag": "0004_sour_hellion",
+      "breakpoints": true
     }
   ]
 }

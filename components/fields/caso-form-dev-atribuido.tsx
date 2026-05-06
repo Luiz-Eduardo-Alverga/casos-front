@@ -12,6 +12,8 @@ import type { Usuario } from "@/services/auxiliar/usuarios";
 export interface CasoFormDevAtribuidoProps {
   /** Nome do campo no react-hook-form (ex.: `usuario_dev_id` nos filtros). */
   name?: string;
+  /** Nome do campo (opcional) para persistir o label do usuário selecionado. */
+  labelName?: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -21,14 +23,16 @@ export interface CasoFormDevAtribuidoProps {
 
 export function CasoFormDevAtribuido({
   name = "devAtribuido",
+  labelName = "devAtribuidoLabel",
   label = "Dev Atribuído",
   placeholder = "Selecione o dev atribuído...",
   required = true,
   requireProduto = true,
 }: CasoFormDevAtribuidoProps = {}) {
   const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
-  const { watch } = useFormContext();
+  const { watch, setValue, getValues } = useFormContext();
   const devAtribuido = watch(name);
+  const devAtribuidoLabel = watch(labelName);
   const produtoValue = watch("produto");
   const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
   const [devSelecionado, setDevSelecionado] = useState<Usuario | null>(null);
@@ -44,6 +48,16 @@ export function CasoFormDevAtribuido({
   const devOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
     const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
+
+    // Seed: quando o valor vem persistido (ex.: localStorage) mas as opções são lazy-loaded,
+    // injeta a opção com o label salvo para o Combobox conseguir renderizar o texto no F5.
+    if (devAtribuido?.toString().trim() && devAtribuidoLabel?.toString().trim()) {
+      const seedValue = String(devAtribuido);
+      if (!valuesAdded.has(seedValue)) {
+        options.unshift({ value: seedValue, label: String(devAtribuidoLabel) });
+        valuesAdded.add(seedValue);
+      }
+    }
 
     // Adiciona usuário logado (dev padrão / "ver como" com valor inicial)
     if (user) {
@@ -88,6 +102,7 @@ export function CasoFormDevAtribuido({
   }, [
     usuarios,
     devAtribuido,
+    devAtribuidoLabel,
     devSelecionado,
     user,
     lazyLoadComboboxOptions,
@@ -107,6 +122,51 @@ export function CasoFormDevAtribuido({
       setDevSelecionado(null);
     }
   }, [devAtribuido, usuarios]);
+
+  // Mantém o label sincronizado no form (para persistência/restauração).
+  useEffect(() => {
+    const currentId = devAtribuido?.toString().trim();
+    if (!currentId) {
+      const currentLabel = String(getValues(labelName as any) ?? "");
+      if (currentLabel !== "") {
+        setValue(labelName as any, "", {
+          shouldDirty: false,
+          shouldTouch: false,
+          shouldValidate: false,
+        });
+      }
+      return;
+    }
+
+    const setLabelIfChanged = (nextLabel: string) => {
+      const currentLabel = String(getValues(labelName as any) ?? "");
+      if (currentLabel !== nextLabel) {
+        setValue(labelName as any, nextLabel, {
+          shouldDirty: false,
+          shouldTouch: false,
+          shouldValidate: false,
+        });
+      }
+    };
+
+    // 1) Se é o usuário logado.
+    if (user && String(user.id) === String(currentId)) {
+      setLabelIfChanged(String(user.nome ?? ""));
+      return;
+    }
+
+    // 2) Se já achou via API.
+    if (devSelecionado && String(devSelecionado.id) === String(currentId)) {
+      setLabelIfChanged(String(devSelecionado.nome_suporte ?? ""));
+      return;
+    }
+
+    // 3) Se veio do editCaseItem (tela de edição).
+    const editDev = editCaseItem?.caso?.usuarios?.desenvolvimento;
+    if (editDev && String(editDev.id) === String(currentId)) {
+      setLabelIfChanged(String(editDev.nome ?? ""));
+    }
+  }, [devAtribuido, devSelecionado, editCaseItem, getValues, labelName, setValue, user]);
   
   return (
     <div className="space-y-2">

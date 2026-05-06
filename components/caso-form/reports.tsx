@@ -51,6 +51,8 @@ import {
   setIgnoreAutoFill,
 } from "@/lib/casos-abertura-rapida-storage";
 import { NaoPlanejadoField } from "@/components/caso-edit/producao/nao-planejado-field";
+import { CasoFormAnexos } from "@/components/caso-form/caso-form-anexos";
+import { useUploadCaseAttachmentsBatch } from "@/hooks/use-case-attachments";
 
 const assistantSFormSchema = z.object({
   description: z.string(),
@@ -113,6 +115,8 @@ export function Reports() {
   const [quickMode, setQuickMode] = useState(false);
   const [showQuickModeConfirm, setShowQuickModeConfirm] = useState(false);
   const [naoPlanejado, setNaoPlanejado] = useState(false);
+  const [attachmentFiles, setAttachmentFiles] = useState<File[]>([]);
+  const [isAnexosModalOpen, setIsAnexosModalOpen] = useState(false);
 
   const { register, handleSubmit, reset } = useForm<AssistantFormData>({
     resolver: zodResolver(assistantSFormSchema),
@@ -195,6 +199,7 @@ export function Reports() {
     useAssistant();
   const { mutateAsync: createCasoAsync, isPending: isCreatingCaso } =
     useCreateCaso();
+  const uploadAttachmentsBatch = useUploadCaseAttachmentsBatch();
 
   async function onAssistantSubmit(
     data: AssistantFormData & {
@@ -303,10 +308,32 @@ export function Reports() {
 
       const response = await createCasoAsync(casoData);
       if (response?.data?.registro) {
-        setNumeroCaso(response.data.registro);
+        const registro = response.data.registro;
+        setNumeroCaso(registro);
+
+        if (attachmentFiles.length > 0) {
+          try {
+            await uploadAttachmentsBatch.mutateAsync({
+              casoRegistro: registro,
+              files: attachmentFiles,
+            });
+            toast.success(
+              `${attachmentFiles.length} anexo(s) enviado(s) com sucesso.`,
+            );
+            setAttachmentFiles([]);
+          } catch (uploadErr) {
+            console.error(uploadErr);
+            toast.error(
+              uploadErr instanceof Error
+                ? uploadErr.message
+                : "Caso criado, mas falhou o envio dos anexos. Tente novamente.",
+            );
+          }
+        }
+
         if (quickMode) {
           toast.success(
-            `Caso ${response.data.registro} aberto. Preencha o próximo resumo e descrição.`,
+            `Caso ${registro} aberto. Preencha o próximo resumo e descrição.`,
             { duration: 3500 },
           );
           clearTextOnlyFields(methods.setValue);
@@ -319,6 +346,9 @@ export function Reports() {
       }
     } catch (error) {
       console.error("Erro ao criar caso:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao criar caso.",
+      );
     }
   }
 
@@ -326,7 +356,10 @@ export function Reports() {
     form: methods,
     importanceOptions,
     produto,
-    isDisabled: methods.formState.isSubmitting || isCreatingCaso,
+    isDisabled:
+      methods.formState.isSubmitting ||
+      isCreatingCaso ||
+      uploadAttachmentsBatch.isPending,
   };
 
   return (
@@ -366,6 +399,8 @@ export function Reports() {
                     exitQuickMode();
                     methods.reset();
                     setNaoPlanejado(false);
+                    setAttachmentFiles([]);
+                    setIsAnexosModalOpen(false);
                   }}
                 >
                   <RefreshCcw className="h-3.5 w-3.5" />
@@ -414,7 +449,11 @@ export function Reports() {
                   </CardHeader>
                   <CardContent className="p-6 pt-3 space-y-4">
                     <CasoFormDescricaoResumo />
-                    <CasoFormDescricaoCompleta />
+                    <CasoFormDescricaoCompleta
+                      showAnexosTrigger
+                      anexosCount={attachmentFiles.length}
+                      onOpenAnexos={() => setIsAnexosModalOpen(true)}
+                    />
                     <CasoFormInformacoesAdicionais />
                   </CardContent>
                 </Card>
@@ -488,12 +527,18 @@ export function Reports() {
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={isCreatingCaso || methods.formState.isSubmitting}
+                    disabled={
+                      isCreatingCaso ||
+                      methods.formState.isSubmitting ||
+                      uploadAttachmentsBatch.isPending
+                    }
                   >
                     <Check className="h-3.5 w-3.5" />
-                    {isCreatingCaso || methods.formState.isSubmitting
-                      ? "Criando Caso..."
-                      : "Criar Caso"}
+                    {uploadAttachmentsBatch.isPending
+                      ? "Enviando anexos..."
+                      : isCreatingCaso || methods.formState.isSubmitting
+                        ? "Criando Caso..."
+                        : "Criar Caso"}
                   </Button>
                 </div>
               </div>
@@ -515,6 +560,18 @@ export function Reports() {
               confirmarLabel="Sim, ativar"
               onConfirm={acceptQuickMode}
               onCancel={refuseQuickMode}
+            />
+
+            <CasoFormAnexos
+              open={isAnexosModalOpen}
+              onOpenChange={setIsAnexosModalOpen}
+              files={attachmentFiles}
+              onFilesChange={setAttachmentFiles}
+              disabled={
+                isCreatingCaso ||
+                methods.formState.isSubmitting ||
+                uploadAttachmentsBatch.isPending
+              }
             />
           </form>
         </FormProvider>

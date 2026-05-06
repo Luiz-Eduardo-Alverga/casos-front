@@ -190,4 +190,9 @@ Exemplo já implementado:
 - `assign-user-role`: alterar perfil do usuário
 - `list-acquirer`: acessar cadastros de adquirentes
 - `create-acquirer` / `edit-acquirer` / `delete-acquirer`: ações em adquirentes
+- `list-case-attachment`: listar e obter URL de download de anexos de caso
+- `create-case-attachment`: gerar URL de upload e registrar anexo após envio ao Storage
+- `delete-case-attachment`: remover anexo (Storage + metadados)
+
+Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql).
 

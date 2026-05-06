@@ -1,6 +1,8 @@
 import {
+  bigint,
   boolean,
   date,
+  index,
   integer,
   pgEnum,
   pgTable,
@@ -153,5 +155,27 @@ export const userRoles = pgTable(
       columns: [t.userId, t.roleId],
       name: "user_roles_pkey",
     }),
+  ],
+);
+
+/** Metadados de anexos de caso (arquivos no Supabase Storage; `caso_registro` = ID na API externa). */
+export const caseAttachments = pgTable(
+  "case_attachments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    casoRegistro: integer("caso_registro").notNull(),
+    bucket: text("bucket").notNull().default("casos-anexos"),
+    path: text("path").notNull().unique(),
+    filenameOriginal: text("filename_original").notNull(),
+    mimeType: text("mime_type").notNull(),
+    sizeBytes: bigint("size_bytes", { mode: "number" }).notNull(),
+    kind: text("kind").notNull(),
+    createdBy: uuid("created_by").references(() => appUsers.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (t) => [
+    index("case_attachments_caso_registro_idx").on(t.casoRegistro),
   ],
 );
