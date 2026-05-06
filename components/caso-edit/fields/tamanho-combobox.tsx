@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Ruler } from "lucide-react";
 import { useTamanhos } from "@/hooks/use-tamanhos";
 import type { TamanhoItem } from "@/services/auxiliar/tamanhos";
-import { useCasoForm } from "@/components/caso-form/provider";
+import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 
 /**

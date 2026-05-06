@@ -3,15 +3,13 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { CasoEditCardHeader } from "./caso-edit-card-header";
-import {
-  CasoFormProduto,
-  CasoFormVersao,
-  CasoFormProjeto,
-  CasoFormModulo,
-  CasoFormDevAtribuido,
-  CasoFormQaAtribuido,
-  useCasoForm,
-} from "@/components/caso-form";
+import { CasoFormProduto } from "@/components/fields/caso-form-produto";
+import { CasoFormVersao } from "@/components/fields/caso-form-versao";
+import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
+import { CasoFormModulo } from "@/components/fields/caso-form-modulo";
+import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
+import { CasoFormQaAtribuido } from "@/components/fields/caso-form-qa-atribuido";
+import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { Package, Sparkles, Users } from "lucide-react";
 import { CasoResumoStatusActions } from "@/components/caso-resumo-modal/caso-resumo-status-actions";
 import { Button } from "../ui/button";

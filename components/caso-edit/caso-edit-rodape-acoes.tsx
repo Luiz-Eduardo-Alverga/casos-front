@@ -11,7 +11,7 @@ import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { useCasoProducaoActions } from "@/components/caso-resumo-modal/use-caso-producao-actions";
 import { CasoProducaoActionButton } from "@/components/caso-resumo-modal/caso-producao-action-button";
 import { useCasoEdit } from "./caso-edit-context";
-import { useCasoForm } from "../caso-form";
+import { useCasoForm } from "@/components/fields/caso-form-provider";
 
 function parseDataAbertura(value: string): Date | null {
   const trimmed = value.trim();

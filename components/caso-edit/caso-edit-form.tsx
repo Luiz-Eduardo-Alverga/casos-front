@@ -21,7 +21,7 @@ import { useCreateCasoRelacao } from "@/hooks/use-create-caso-relacao";
 import { useUpdateCasoRelacao } from "@/hooks/use-update-caso-relacao";
 import { useDeleteCasoRelacao } from "@/hooks/use-delete-caso-relacao";
 
-import { CasoFormProvider } from "@/components/caso-form";
+import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { CasoEditHeader } from "./caso-edit-header";

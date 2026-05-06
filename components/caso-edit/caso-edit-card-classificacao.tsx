@@ -2,12 +2,10 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { CasoEditCardHeader } from "./caso-edit-card-header";
-import {
-  CasoFormImportancia,
-  CasoFormOrigem,
-  CasoFormCategoria,
-  CasoFormRelator,
-} from "@/components/caso-form";
+import { CasoFormImportancia } from "@/components/fields/caso-form-importancia";
+import { CasoFormOrigem } from "@/components/fields/caso-form-origem";
+import { CasoFormCategoria } from "@/components/fields/caso-form-categoria";
+import { CasoFormRelator } from "@/components/fields/caso-form-relator";
 import { Bug } from "lucide-react";
 
 /**

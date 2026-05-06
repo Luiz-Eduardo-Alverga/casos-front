@@ -2,11 +2,9 @@
 
 import { FormProvider, type UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import {
-  CasoFormProduto,
-  CasoFormProvider,
-  CasoFormVersao,
-} from "@/components/caso-form";
+import { CasoFormProduto } from "@/components/fields/caso-form-produto";
+import { CasoFormProvider } from "@/components/fields/caso-form-provider";
+import { CasoFormVersao } from "@/components/fields/caso-form-versao";
 import { importanceOptions } from "@/mocks/teste";
 
 export interface ProdutosModalAddFormValues {

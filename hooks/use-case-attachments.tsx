@@ -55,11 +55,11 @@ export function useUploadCaseAttachmentsBatch() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: { casoRegistro: number; files: File[] }) => {
-      const results = [];
-      for (const file of input.files) {
-        results.push(await uploadCaseAttachmentFull(input.casoRegistro, file));
-      }
-      return results;
+      return Promise.all(
+        input.files.map((file) =>
+          uploadCaseAttachmentFull(input.casoRegistro, file),
+        ),
+      );
     },
     onSuccess: (_data, variables) => {
       void qc.invalidateQueries({

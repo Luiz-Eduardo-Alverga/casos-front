@@ -1,6 +1,6 @@
 "use client";
 
-import { Reports } from "@/components/caso-form/reports";
+import { Reports } from "@/components/caso-form";
 import { RequirePermission } from "@/components/require-permission";
 
 export default function CasosPage() {

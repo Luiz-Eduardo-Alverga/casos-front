@@ -1,29 +1,22 @@
 "use client";
 
-import { createContext, useContext, ReactNode } from "react";
-import { UseFormReturn } from "react-hook-form";
-import { ComboboxOption } from "@/components/ui/combobox";
+import { createContext, useContext, type ReactNode } from "react";
+import type { UseFormReturn } from "react-hook-form";
+import type { ComboboxOption } from "@/components/ui/combobox";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 
-interface CasoFormContextValue {
-  // Form methods
+export interface CasoFormContextValue {
   form: UseFormReturn<any>;
-  
-  // Options estáticas (mock)
   importanceOptions: ComboboxOption[];
-  
-  // State para dependências entre campos
   produto?: string;
   isDisabled: boolean;
-
-  /** Na tela de edição: não buscar opções das Combobox até o usuário abrir o dropdown. */
   lazyLoadComboboxOptions?: boolean;
-
-  /** Dados do caso da API (tela de edição) para exibir labels iniciais nas Combobox antes do fetch. */
   editCaseItem?: ProjetoMemoriaItem | null;
 }
 
-const CasoFormContext = createContext<CasoFormContextValue | undefined>(undefined);
+const CasoFormContext = createContext<CasoFormContextValue | undefined>(
+  undefined,
+);
 
 export function useCasoForm() {
   const context = useContext(CasoFormContext);

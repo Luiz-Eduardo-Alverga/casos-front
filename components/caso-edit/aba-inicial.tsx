@@ -2,11 +2,9 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { CasoEditCardHeader } from "./caso-edit-card-header";
-import {
-  CasoFormDescricaoResumo,
-  CasoFormDescricaoCompleta,
-  CasoFormInformacoesAdicionais,
-} from "@/components/caso-form";
+import { CasoFormDescricaoResumo } from "@/components/fields/caso-form-descricao-resumo";
+import { CasoFormDescricaoCompleta } from "@/components/fields/caso-form-descricao-completa";
+import { CasoFormInformacoesAdicionais } from "@/components/fields/caso-form-informacoes-adicionais";
 import { FileText } from "lucide-react";
 import { CasoEditCardClassificacao } from "./caso-edit-card-classificacao";
 import { useCasoEdit } from "./caso-edit-context";

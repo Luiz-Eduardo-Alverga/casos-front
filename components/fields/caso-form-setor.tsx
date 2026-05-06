@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Building2 } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "@/components/caso-form/provider";
+import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useSetores } from "@/hooks/use-setores";
 

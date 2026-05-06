@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { User } from "lucide-react";
 
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "@/components/caso-form/provider";
+import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useUsuarios } from "@/hooks/use-usuarios";
 
 interface CasoFormUsuarioAberturaProps {

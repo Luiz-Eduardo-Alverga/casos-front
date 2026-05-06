@@ -4,7 +4,7 @@ import { Check, RotateCcw } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import toast from "react-hot-toast";
 
-import { CasoFormStatus } from "@/components/caso-form";
+import { CasoFormStatus } from "@/components/fields/caso-form-status";
 import { Button } from "@/components/ui/button";
 import { useUpdateCaso } from "@/hooks/use-update-caso";
 import { mapStatusAvancar } from "@/components/caso-resumo-modal/utils";

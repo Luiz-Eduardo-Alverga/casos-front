@@ -3,7 +3,7 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useCasoForm } from "@/components/caso-form/provider";
+import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { Paperclip } from "lucide-react";
 
@@ -27,7 +27,7 @@ export function CasoFormDescricaoCompleta({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-3">
+        <div className="flex w-full items-center justify-between gap-3">
           <Label
             htmlFor="description"
             className="text-sm font-medium text-text-label"

@@ -5,7 +5,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CasoFormProvider } from "@/components/caso-form/provider";
+import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormSetor } from "@/components/fields/caso-form-setor";
 import { CasoFormProduto } from "@/components/fields/caso-form-produto";
 import { useSetores } from "@/hooks/use-setores";

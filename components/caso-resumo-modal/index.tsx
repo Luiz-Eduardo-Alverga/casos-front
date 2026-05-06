@@ -9,7 +9,7 @@ import z from "zod";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
-import { CasoFormProvider } from "@/components/caso-form";
+import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import { useProjetoMemoriaById } from "@/hooks/use-projeto-memoria-by-id";

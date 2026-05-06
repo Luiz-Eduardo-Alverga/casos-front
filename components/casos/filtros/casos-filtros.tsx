@@ -7,14 +7,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  CasoFormProvider,
-  CasoFormProduto,
-  CasoFormVersao,
-  CasoFormModulo,
-  CasoFormCategoria,
-  CasoFormUsuarioAbertura,
-} from "@/components/caso-form";
+import { CasoFormProvider } from "@/components/fields/caso-form-provider";
+import { CasoFormProduto } from "@/components/fields/caso-form-produto";
+import { CasoFormVersao } from "@/components/fields/caso-form-versao";
+import { CasoFormModulo } from "@/components/fields/caso-form-modulo";
+import { CasoFormCategoria } from "@/components/fields/caso-form-categoria";
+import { CasoFormUsuarioAbertura } from "@/components/fields/caso-form-usuario-abertura";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { importanceOptions } from "@/mocks/teste";
 import { useCategorias } from "@/hooks/use-categorias";
