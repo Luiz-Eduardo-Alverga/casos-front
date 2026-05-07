@@ -53,6 +53,13 @@ export interface ComboboxProps {
   suffix?: ReactNode;
   /** Classes no container flex que envolve gatilho + suffix. */
   anchorClassName?: string;
+  /**
+   * Prefixo exibido apenas no texto do gatilho quando há valor selecionado.
+   * Não altera os labels da lista de opções.
+   *
+   * Ex.: `Ver como: `
+   */
+  valueLabelPrefix?: string;
 }
 
 export function Combobox({
@@ -72,6 +79,7 @@ export function Combobox({
   onLoadMore,
   suffix,
   anchorClassName,
+  valueLabelPrefix = "",
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -140,7 +148,9 @@ export function Combobox({
       )}
     >
       <span className="truncate">
-        {selectedOption ? selectedOption.label : placeholder}
+        {selectedOption
+          ? `${valueLabelPrefix}${selectedOption.label}`
+          : placeholder}
       </span>
 
       <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />

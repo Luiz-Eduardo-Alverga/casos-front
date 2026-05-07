@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { LayoutGrid } from "lucide-react";
+import { LayoutGrid, Pencil } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { PainelPageHeader } from "@/components/painel/painel-page-header";
 import { PainelKanbanFiltros } from "@/components/painel-kanban/filtros/painel-kanban-filtros";
 import { PainelKanbanProdutosModal } from "@/components/painel-kanban/filtros/painel-kanban-produtos-modal";
@@ -19,6 +20,9 @@ import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
 import { parseAgendaDevCount } from "@/services/auxiliar/get-agenda-dev";
 import { useUpdateCaso } from "@/hooks/use-update-caso";
 import { getUser, PAINEL_PRODUTO_ORDEM_KEY } from "@/lib/auth";
+import { CasoFormProvider } from "@/components/fields/caso-form-provider";
+import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
+import { importanceOptions } from "@/mocks/teste";
 import {
   columnIdToApiStatus,
   PAINEL_KANBAN_COLUMN_IDS,
@@ -59,8 +63,22 @@ export function PainelKanban() {
   const produto = watch("produto");
   const versao = watch("versao");
   const devAtribuido = watch("devAtribuido");
+  const devAtribuidoLabel = watch("devAtribuidoLabel");
+  const providerValue = useMemo(
+    () => ({
+      form: methods,
+      importanceOptions,
+      produto,
+      isDisabled: false,
+      lazyLoadComboboxOptions: true,
+    }),
+    [methods, produto],
+  );
 
   const usuarioDevId = devAtribuido?.trim() || idColaborador;
+  const verComoPlaceholder = devAtribuidoLabel?.trim()
+    ? `Ver como: ${devAtribuidoLabel.trim()}`
+    : "Ver como: selecione...";
 
   const isRestoringFiltrosRef = useRef(true);
   const [filtrosRestaurados, setFiltrosRestaurados] = useState(false);
@@ -119,8 +137,11 @@ export function PainelKanban() {
     return () => sub.unsubscribe();
   }, [idColaborador, nomeColaborador, methods]);
 
+  // Evita 2 chamadas no F5 (primeiro logado, depois restaurado do localStorage):
+  // só busca a agenda após concluir a restauração dos filtros.
+  const agendaUserId = filtrosRestaurados ? usuarioDevId : "";
   const { data: agendaDevData, isLoading: isAgendaLoading } = useAgendaDev({
-    id_colaborador: usuarioDevId,
+    id_colaborador: agendaUserId,
   });
 
   const agendaInitRef = useRef(false);
@@ -180,9 +201,19 @@ export function PainelKanban() {
     }
   }, [agendaDevData, produto, versao]);
 
-  const queryEnabled = Boolean(
-    produto?.trim() && versao?.trim() && usuarioDevId,
+  // Evita buscar casos com combinação transitória (dev novo + produto/versão antigos).
+  // Só habilita quando a seleção atual existe na agenda do dev atual.
+  const hasValidAgendaSelection = Boolean(
+    agendaDevData?.length &&
+    produto?.trim() &&
+    versao?.trim() &&
+    agendaDevData.some(
+      (a) =>
+        String(a.id_produto) === produto.trim() && a.versao === versao.trim(),
+    ),
   );
+
+  const queryEnabled = Boolean(usuarioDevId && hasValidAgendaSelection);
 
   const agendaRowForFilters = useMemo(() => {
     if (!agendaDevData?.length || !produto?.trim() || !versao?.trim()) {
@@ -366,7 +397,7 @@ export function PainelKanban() {
 
   if (!idColaborador) {
     return (
-      <div className="px-6 pt-20 py-10 flex-1 flex flex-col">
+      <div className="px-6 pt-20 py-10 flex-1 flex flex-col overflow-x-hidden">
         <PainelPageHeader
           onVerCasos={() => router.push("/casos")}
           onAtualizar={handleAtualizar}
@@ -385,54 +416,78 @@ export function PainelKanban() {
   }
 
   return (
-    <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
-      <PainelPageHeader
-        onVerCasos={() => router.push("/casos")}
-        onAtualizar={handleAtualizar}
-      />
-
-      <PainelKanbanFiltros
-        methods={methods}
-        agendaItems={agendaDevData ?? []}
-        onEditarQuadroClick={() => setIsProdutosModalOpen(true)}
-      />
-
-      <PainelKanbanProdutosModal
-        open={isProdutosModalOpen}
-        onOpenChange={setIsProdutosModalOpen}
-        idColaborador={usuarioDevId}
-      />
-
-      {!queryEnabled ? (
-        <Card className="bg-card shadow-card rounded-lg flex flex-col lg:min-h-0 lg:flex-1">
-          <CardHeader className="p-5 pb-2 border-b border-border-divider shrink-0">
-            <div className="flex items-center gap-2">
-              <LayoutGrid className="h-3.5 w-3.5 text-text-primary" />
-              <CardTitle className="text-sm font-semibold text-text-primary">
-                Quadro Kanban
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 pt-3 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
-            <EmptyState
-              icon={LayoutGrid}
-              title="Selecione produto e versão"
-              description="Escolha o produto, o responsável e a versão nos filtros acima para carregar os casos no quadro."
-            />
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <PainelKanbanBoard
-            data={kanbanData}
-            onDataChange={setKanbanData}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            columnBadgeCounts={columnBadgeCounts}
-            columnLoad={columnLoad}
+    <CasoFormProvider value={providerValue}>
+      <FormProvider {...methods}>
+        <div className="px-6 pt-20 py-10 flex-1 flex flex-col overflow-x-hidden lg:min-h-0 lg:overflow-hidden">
+          <PainelPageHeader
+            onVerCasos={() => router.push("/casos")}
+            onAtualizar={handleAtualizar}
+            actionSlot={
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+                <CasoFormDevAtribuido
+                  required={false}
+                  requireProduto={false}
+                  label="Ver como"
+                  placeholder={verComoPlaceholder}
+                  valueLabelPrefix="Ver como: "
+                  hideLabel
+                  wrapperClassName="w-full sm:w-[220px] h-full"
+                  controlHeightClassName="h-[42px]"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={updateCaso.isPending}
+                  onClick={() => setIsProdutosModalOpen(true)}
+                  className="w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Editar visão geral
+                </Button>
+              </div>
+            }
           />
+
+          <PainelKanbanFiltros agendaItems={agendaDevData ?? []} />
+
+          <PainelKanbanProdutosModal
+            open={isProdutosModalOpen}
+            onOpenChange={setIsProdutosModalOpen}
+            idColaborador={usuarioDevId}
+          />
+
+          {!queryEnabled ? (
+            <Card className="bg-card shadow-card rounded-lg flex flex-col lg:min-h-0 lg:flex-1">
+              <CardHeader className="p-5 pb-2 border-b border-border-divider shrink-0">
+                <div className="flex items-center gap-2">
+                  <LayoutGrid className="h-3.5 w-3.5 text-text-primary" />
+                  <CardTitle className="text-sm font-semibold text-text-primary">
+                    Quadro Kanban
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 pt-3 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
+                <EmptyState
+                  icon={LayoutGrid}
+                  title="Selecione produto e versão"
+                  description="Escolha o produto, o responsável e a versão nos filtros acima para carregar os casos no quadro."
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <PainelKanbanBoard
+                data={kanbanData}
+                onDataChange={setKanbanData}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                columnBadgeCounts={columnBadgeCounts}
+                columnLoad={columnLoad}
+              />
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </FormProvider>
+    </CasoFormProvider>
   );
 }

@@ -19,6 +19,14 @@ export interface CasoFormDevAtribuidoProps {
   required?: boolean;
   /** Se false, o campo permanece habilitado sem produto selecionado (filtros). */
   requireProduto?: boolean;
+  /** Esconde o label externo do campo (uso em headers compactos). */
+  hideLabel?: boolean;
+  /** Classe opcional para o container do campo. */
+  wrapperClassName?: string;
+  /** Classe de altura aplicada ao combobox e ao botão de limpar. */
+  controlHeightClassName?: string;
+  /** Prefixo exibido apenas no gatilho quando há valor selecionado. */
+  valueLabelPrefix?: string;
 }
 
 export function CasoFormDevAtribuido({
@@ -28,6 +36,10 @@ export function CasoFormDevAtribuido({
   placeholder = "Selecione o dev atribuído...",
   required = true,
   requireProduto = true,
+  hideLabel = false,
+  wrapperClassName,
+  controlHeightClassName,
+  valueLabelPrefix,
 }: CasoFormDevAtribuidoProps = {}) {
   const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch, setValue, getValues } = useFormContext();
@@ -54,7 +66,10 @@ export function CasoFormDevAtribuido({
     if (devAtribuido?.toString().trim() && devAtribuidoLabel?.toString().trim()) {
       const seedValue = String(devAtribuido);
       if (!valuesAdded.has(seedValue)) {
-        options.unshift({ value: seedValue, label: String(devAtribuidoLabel) });
+        options.unshift({
+          value: seedValue,
+          label: String(devAtribuidoLabel),
+        });
         valuesAdded.add(seedValue);
       }
     }
@@ -88,14 +103,20 @@ export function CasoFormDevAtribuido({
     if (devAtribuido && devSelecionado) {
       const devValue = String(devSelecionado.id);
       if (!valuesAdded.has(devValue)) {
-        options.unshift({ value: devValue, label: devSelecionado.nome_suporte });
+        options.unshift({
+          value: devValue,
+          label: devSelecionado.nome_suporte,
+        });
         valuesAdded.add(devValue);
       }
     }
 
     if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.desenvolvimento && devAtribuido && !valuesAdded.has(String(devAtribuido))) {
       const u = editCaseItem.caso.usuarios.desenvolvimento;
-      options.unshift({ value: String(u.id), label: u.nome ?? String(u.id) });
+      options.unshift({
+        value: String(u.id),
+        label: String(u.nome ?? String(u.id)),
+      });
     }
 
     return options;
@@ -182,6 +203,10 @@ export function CasoFormDevAtribuido({
         disabled={isDisabled || (requireProduto && !produtoAtual)}
         required={required}
         onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
+        hideLabel={hideLabel}
+        wrapperClassName={wrapperClassName}
+        controlHeightClassName={controlHeightClassName}
+        valueLabelPrefix={valueLabelPrefix}
       />
     </div>
   );

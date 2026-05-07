@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { List, RefreshCcw } from "lucide-react";
 
@@ -8,12 +9,14 @@ export interface PainelPageHeaderProps {
   isLoading?: boolean;
   onVerCasos?: () => void;
   onAtualizar?: () => void;
+  actionSlot?: ReactNode;
 }
 
 export function PainelPageHeader({
   isLoading = false,
   onVerCasos,
   onAtualizar,
+  actionSlot,
 }: PainelPageHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3 shrink-0">
@@ -26,7 +29,8 @@ export function PainelPageHeader({
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+      <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto ">
+        {actionSlot}
         <Button
           variant="outline"
           disabled={isLoading}
