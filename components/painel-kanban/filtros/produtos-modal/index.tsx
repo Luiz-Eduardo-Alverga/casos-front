@@ -31,6 +31,8 @@ import { parseVersaoFieldValue, toSortableId } from "./utils";
 import { ProdutosModalAddForm } from "./produtos-modal-add-form";
 import { ProdutosModalList } from "./produtos-modal-list";
 import { PainelKanbanProdutosModalSkeleton } from "./produtos-modal-skeleton";
+import { useAgendaDev } from "@/hooks/use-agenda-dev";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function PainelKanbanProdutosModal({
   open,
@@ -40,6 +42,10 @@ export function PainelKanbanProdutosModal({
   const form = useForm<{ produto: string; versao: string }>({
     defaultValues: { produto: "", versao: "" },
   });
+  const queryClient = useQueryClient();
+  const invalidate = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["agenda-dev", idColaborador] });
+  }, [queryClient, idColaborador]);
 
   const createMutation = useCreateProdutosOrdem();
   const updateMutation = useUpdateProdutosOrdem();
@@ -103,6 +109,7 @@ export function PainelKanbanProdutosModal({
       toast.success("Produto adicionado ao quadro.");
       form.reset({ produto: "", versao: "" });
       await produtosOrdemQuery.refetch();
+      await invalidate();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Erro ao adicionar produto.",
@@ -168,6 +175,7 @@ export function PainelKanbanProdutosModal({
         toast.success("Produto removido do quadro.");
         if (editingItemId === String(item.id)) handleCancelEdit();
         await produtosOrdemQuery.refetch();
+        await invalidate();
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Erro ao remover produto.",
@@ -180,6 +188,7 @@ export function PainelKanbanProdutosModal({
       handleCancelEdit,
       idColaborador,
       produtosOrdemQuery,
+      invalidate,
     ],
   );
 
@@ -218,6 +227,7 @@ export function PainelKanbanProdutosModal({
           start_at: 0,
         });
         toast.success("Ordem atualizada com sucesso.");
+        await invalidate();
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Erro ao atualizar ordem.",
@@ -225,12 +235,12 @@ export function PainelKanbanProdutosModal({
         await produtosOrdemQuery.refetch();
       }
     },
-    [bulkUpdateMutation, idColaborador, items, produtosOrdemQuery],
+    [bulkUpdateMutation, idColaborador, items, produtosOrdemQuery, invalidate],
   );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex w-[calc(100vw-1rem)] max-w-[820px] flex-col gap-0 overflow-hidden p-0 sm:w-[min(96vw,820px)] max-h-[calc(100vh-1rem)] sm:max-h-[90vh]">
+      <DialogContent className="flex w-[calc(100vw-1rem)] max-w-[820px] flex-col gap-0 overflow-hidden p-0 sm:w-[min(96vw,820px)] max-h-[calc(100vh)] sm:max-h-[90vh]">
         <DialogHeader className="shrink-0 border-b border-border-divider space-y-1.5 px-4 pb-4 pt-5 sm:px-6">
           <DialogTitle className="text-xl font-semibold text-text-primary leading-tight">
             Produtos do Desenvolvedor

@@ -4,6 +4,21 @@ export interface Produto {
   id: number;
   nome_projeto: string;
   setor: string;
+  data_projeto: string;
+  po: string;
+  scrum_master: string;
+  comercial_necessidades_id: number | null;
+  responsavel_suporte: string;
+  responsavel_parametrizacao: string;
+  desativado: string;
+  mostrar_consulta: string;
+  mostrar_teste: string;
+  vinculado_a: string;
+  faq_exibir: string;
+  informacoes_tecnicas: string | null;
+  calcular_burn_down: string;
+  responsavel_bugs_suporte_id: string | null;
+  responsavel_melhorias_suporte_id: string | null;
 }
 
 export async function getProdutos(params?: { search?: string }): Promise<Produto[]> {

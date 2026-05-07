@@ -5,6 +5,7 @@ export interface Usuario {
   nome_suporte: string;
   setor: string;
   usuario_discord: string;
+  supervisor_id: string;
 }
 
 export async function getUsuarios(params?: {
