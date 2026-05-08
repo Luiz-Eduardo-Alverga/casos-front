@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CircleDot } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
@@ -27,8 +27,16 @@ export function CasoFormStatus({
   const { watch } = useFormContext();
   const statusValue = watch(name);
   const [optionsRequested, setOptionsRequested] = useState(
-    !lazyLoadComboboxOptions,
+    !lazyLoadComboboxOptions || Boolean(String(statusValue ?? "").trim()),
   );
+
+  useEffect(() => {
+    if (!lazyLoadComboboxOptions) return;
+    if (optionsRequested) return;
+
+    const hasValue = Boolean(String(statusValue ?? "").trim());
+    if (hasValue) setOptionsRequested(true);
+  }, [lazyLoadComboboxOptions, optionsRequested, statusValue]);
 
   const { data: statusList, isLoading: isStatusLoading } = useStatus({
     enabled: optionsRequested,
@@ -42,6 +50,7 @@ export function CasoFormStatus({
         label: item.tipo ?? item.tipo ?? String(item.Registro),
       }));
     if (
+      tipoStatus === "CASO" &&
       lazyLoadComboboxOptions &&
       editCaseItem?.caso?.status &&
       statusValue &&
@@ -54,7 +63,13 @@ export function CasoFormStatus({
       });
     }
     return list;
-  }, [statusList, tipoStatus, lazyLoadComboboxOptions, editCaseItem, statusValue]);
+  }, [
+    statusList,
+    tipoStatus,
+    lazyLoadComboboxOptions,
+    editCaseItem,
+    statusValue,
+  ]);
 
   return (
     <div className="space-y-2">

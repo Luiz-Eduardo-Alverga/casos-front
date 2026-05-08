@@ -13,12 +13,12 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Package } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useProdutosOrdem } from "@/hooks/use-produtos-ordem";
 import { useCreateProdutosOrdem } from "@/hooks/use-create-produtos-ordem";
 import { useUpdateProdutosOrdem } from "@/hooks/use-update-produtos-ordem";
@@ -31,7 +31,6 @@ import { parseVersaoFieldValue, toSortableId } from "./utils";
 import { ProdutosModalAddForm } from "./produtos-modal-add-form";
 import { ProdutosModalList } from "./produtos-modal-list";
 import { PainelKanbanProdutosModalSkeleton } from "./produtos-modal-skeleton";
-import { useAgendaDev } from "@/hooks/use-agenda-dev";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function PainelKanbanProdutosModal({
@@ -239,18 +238,21 @@ export function PainelKanbanProdutosModal({
   );
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex w-[calc(100vw-1rem)] max-w-[820px] flex-col gap-0 overflow-hidden p-0 sm:w-[min(96vw,820px)] max-h-[calc(100vh)] sm:max-h-[90vh]">
-        <DialogHeader className="shrink-0 border-b border-border-divider space-y-1.5 px-4 pb-4 pt-5 sm:px-6">
-          <DialogTitle className="text-xl font-semibold text-text-primary leading-tight">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        className="flex h-full flex-col w-full sm:max-w-[588px] p-0 gap-0 border-border-divider [&>button]:hidden"
+      >
+        <SheetHeader className="shrink-0 border-b border-border-divider space-y-1.5 px-4 pb-4 pt-5 sm:px-6">
+          <SheetTitle className="text-xl font-semibold text-text-primary leading-tight">
             Produtos do Desenvolvedor
-          </DialogTitle>
-          <DialogDescription className="text-base text-text-secondary">
+          </SheetTitle>
+          <SheetDescription className="text-base text-text-secondary">
             Adicione os produtos e ordene da forma desejada
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 px-4 py-4 sm:px-6">
           {produtosOrdemQuery.isLoading ? (
             <PainelKanbanProdutosModalSkeleton />
           ) : (
@@ -263,38 +265,39 @@ export function PainelKanbanProdutosModal({
 
               <div className="border-t border-border-divider" />
 
-              <ProdutosModalList
-                items={items}
-                sensors={sensors}
-                onDragEnd={handleDragEnd}
-                hasNextPage={Boolean(produtosOrdemQuery.hasNextPage)}
-                isFetchingNextPage={Boolean(
-                  produtosOrdemQuery.isFetchingNextPage,
-                )}
-                fetchNextPage={() => void produtosOrdemQuery.fetchNextPage()}
-                editingItemId={editingItemId}
-                editVersao={editVersao}
-                versoesEdicao={versoesEdicao}
-                isSavingEdicao={updateMutation.isPending}
-                isDeleting={deleteMutation.isPending}
-                onStartEdit={handleStartEdit}
-                onCancelEdit={handleCancelEdit}
-                onChangeEditVersao={setEditVersao}
-                onConfirmEdit={handleConfirmEdit}
-                onDelete={handleDelete}
-              />
-
-              <div className="border-t border-border-divider pt-4">
-                <p className="flex items-center gap-1 text-sm font-medium text-text-primary">
-                  <Package className="h-4 w-4" />
-                  Quantidade:{" "}
-                  <span className="font-extrabold">{items.length}</span>
-                </p>
+              <div className="min-h-0 flex-1">
+                <ProdutosModalList
+                  items={items}
+                  sensors={sensors}
+                  onDragEnd={handleDragEnd}
+                  hasNextPage={Boolean(produtosOrdemQuery.hasNextPage)}
+                  isFetchingNextPage={Boolean(
+                    produtosOrdemQuery.isFetchingNextPage,
+                  )}
+                  fetchNextPage={() => void produtosOrdemQuery.fetchNextPage()}
+                  editingItemId={editingItemId}
+                  editVersao={editVersao}
+                  versoesEdicao={versoesEdicao}
+                  isSavingEdicao={updateMutation.isPending}
+                  isDeleting={deleteMutation.isPending}
+                  onStartEdit={handleStartEdit}
+                  onCancelEdit={handleCancelEdit}
+                  onChangeEditVersao={setEditVersao}
+                  onConfirmEdit={handleConfirmEdit}
+                  onDelete={handleDelete}
+                />
               </div>
             </>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* <div className="shrink-0 border-t border-border-divider px-4 py-4 sm:px-6">
+          <p className="flex items-center gap-1 text-sm font-medium text-text-primary">
+            <Package className="h-4 w-4" />
+            Quantidade: <span className="font-extrabold">{items.length}</span>
+          </p>
+        </div> */}
+      </SheetContent>
+    </Sheet>
   );
 }

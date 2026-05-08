@@ -16,6 +16,7 @@ import { CasoFormModulo } from "@/components/fields/caso-form-modulo";
 import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
 import { CasoFormStatus } from "@/components/fields/caso-form-status";
 import { CasoFormVersao } from "@/components/fields/caso-form-versao";
+import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,41 @@ const ReportReadonlyField = ({ label, value }: ReportReadonlyFieldProps) => {
   );
 };
 
+function parseApiDateTime(value: string | null | undefined): Date | null {
+  if (!value?.trim()) return null;
+  const raw = value.trim();
+  const match = raw.match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?$/,
+  );
+  if (!match) return null;
+
+  const [, year, month, day, hour, minute, second] = match;
+  const h = hour ? Number(hour) : 0;
+  const m = minute ? Number(minute) : 0;
+  const s = second ? Number(second) : 0;
+  if (!year || !month || !day) return null;
+
+  // Interpreta como data/hora local do cliente (string sem timezone).
+  return new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number.isFinite(h) ? h : 0,
+    Number.isFinite(m) ? m : 0,
+    Number.isFinite(s) ? s : 0,
+  );
+}
+
+function formatDateTimeForDisplay(d: Date): string {
+  const pad2 = (n: number) => String(n).padStart(2, "0");
+  const day = pad2(d.getDate());
+  const month = pad2(d.getMonth() + 1);
+  const year = String(d.getFullYear());
+  const hour = pad2(d.getHours());
+  const minute = pad2(d.getMinutes());
+  return `${day}/${month}/${year} ${hour}:${minute}`;
+}
+
 export function ReportAnaliseModal({
   open,
   onOpenChange,
@@ -54,7 +90,21 @@ export function ReportAnaliseModal({
   disabled = false,
 }: ReportAnaliseModalProps) {
   const analiseConcluida = report.analise_concluida !== false;
-  const dataLimite = formatReportDate(report.data_limite);
+  const sla = report.sla;
+  const { editCaseItem } = useCasoForm();
+  const dataAbertura = editCaseItem?.caso?.datas?.abertura;
+
+  const dataLimite = useMemo(() => {
+    const slaHours = Number(String(sla ?? "").replace(",", ".").trim());
+    const aberturaDate = parseApiDateTime(dataAbertura);
+    if (!Number.isFinite(slaHours) || !aberturaDate) {
+      return formatReportDate(report.data_limite);
+    }
+
+    const ms = slaHours * 60 * 60 * 1000;
+    const limite = new Date(aberturaDate.getTime() + ms);
+    return formatDateTimeForDisplay(limite);
+  }, [dataAbertura, report.data_limite, sla]);
   const responsavelFeedback = report.responsavel_feedback_nome?.trim() || "—";
   const dataConclusao = formatReportDate(report.analise_data_conclusao);
   const { control } = useFormContext();

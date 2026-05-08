@@ -40,9 +40,11 @@ export function ProdutosModalAddForm({
           onSubmit={onSubmit}
           className="rounded-lg border border-border-divider bg-public-surface-muted p-4"
         >
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
-            <CasoFormProduto required={false} />
-            <CasoFormVersao required={false} todas={false} />
+          <div className="flex flex-col gap-4 ">
+            <div className="gap-2 grid grid-cols-1 md:grid-cols-[1fr_1fr]">
+              <CasoFormProduto required={false} />
+              <CasoFormVersao required={false} todas={false} />
+            </div>
             <Button
               type="submit"
               className="h-9 min-w-[154px]"

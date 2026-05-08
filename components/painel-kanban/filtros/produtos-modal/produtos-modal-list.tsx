@@ -2,7 +2,10 @@
 
 import type { DragEndEvent } from "@dnd-kit/core";
 import { closestCenter, DndContext } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ProdutoOrdem } from "@/services/projeto-dev/get-produtos-ordem";
 import { SortableRow } from "./sortable-row";
@@ -83,7 +86,7 @@ export function ProdutosModalList({
   return (
     <ScrollArea
       ref={scrollRootRef}
-      className="h-[360px] w-full overflow-hidden rounded-md"
+      className="h-full w-full overflow-hidden rounded-md"
     >
       <DndContext
         sensors={sensors}
@@ -155,4 +158,3 @@ export function ProdutosModalList({
     </ScrollArea>
   );
 }
-
