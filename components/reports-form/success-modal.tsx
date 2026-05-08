@@ -15,6 +15,10 @@ interface SuccessModalProps {
   numeroCaso: number | null;
   /** Chamado ao clicar em &quot;Novo caso&quot; (antes de fechar), ex.: persistir LocalStorage. */
   onNovoCasoClick?: () => void;
+  /** Rótulo da entidade no texto principal (ex.: Report). Padrão: Caso */
+  entitySingular?: string;
+  /** Texto do botão para abrir outro registro. Padrão: Novo caso */
+  novoRegistroButtonLabel?: string;
 }
 
 export function SuccessModal({
@@ -22,6 +26,8 @@ export function SuccessModal({
   onClose,
   numeroCaso,
   onNovoCasoClick,
+  entitySingular = "Caso",
+  novoRegistroButtonLabel = "Novo caso",
 }: SuccessModalProps) {
   const { reset } = useFormContext()
   const [copied, setCopied] = useState(false);
@@ -75,7 +81,7 @@ export function SuccessModal({
     try {
       await navigator.clipboard.writeText(String(numeroCaso));
       setCopied(true);
-      toast.success("Número do caso copiado!");
+      toast.success(`Número do ${entitySingular.toLowerCase()} copiado!`);
       
       // Resetar o estado de copiado após 2 segundos
       setTimeout(() => {
@@ -83,7 +89,7 @@ export function SuccessModal({
       }, 2000);
     } catch (error) {
       console.error("Erro ao copiar:", error);
-      toast.error("Erro ao copiar número do caso");
+      toast.error(`Erro ao copiar número do ${entitySingular.toLowerCase()}`);
     }
   };
 
@@ -121,7 +127,9 @@ export function SuccessModal({
               <div>
                 <h1 className="text-2xl font-bold">Tudo certo!</h1>
                 <h2 className="text-lg mt-2">
-                  Caso <span className="font-bold text-primary">{numeroCaso}</span> aberto com sucesso!
+                  {entitySingular}{" "}
+                  <span className="font-bold text-primary">{numeroCaso}</span>{" "}
+                  aberto com sucesso!
                 </h2>
               </div>
               
@@ -152,7 +160,7 @@ export function SuccessModal({
                 >
                   <>
                     <Plus className="h-4 w-4 " />
-                    Novo caso
+                    {novoRegistroButtonLabel}
                   </>
                 </Button>
               </div>

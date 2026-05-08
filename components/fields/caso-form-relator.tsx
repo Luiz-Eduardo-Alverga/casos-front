@@ -9,10 +9,22 @@ import { useRelatores } from "@/hooks/use-usuarios";
 import { getUser } from "@/lib/auth";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
-export function CasoFormRelator() {
+export interface CasoFormRelatorProps {
+  name?: string;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+}
+
+export function CasoFormRelator({
+  name = "relator",
+  label = "Relator",
+  placeholder = "Selecione o relator...",
+  required = true,
+}: CasoFormRelatorProps = {}) {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
-  const relator = watch("relator");
+  const relator = watch(name);
   const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
   const [relatorSelecionado, setRelatorSelecionado] = useState<Usuario | null>(null);
 
@@ -82,16 +94,16 @@ export function CasoFormRelator() {
   return (
     <div className="space-y-2">
       <ComboboxField
-        name="relator"
-        label="Relator"
+        name={name}
+        label={label}
         icon={User}
         options={relatoresOptions}
-        placeholder="Selecione o relator..."
+        placeholder={placeholder}
         emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
         disabled={isDisabled}
-        required
+        required={required}
         onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>

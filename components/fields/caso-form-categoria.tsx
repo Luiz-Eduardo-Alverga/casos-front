@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Tag } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
@@ -8,13 +8,21 @@ import { useFormContext } from "react-hook-form";
 import { useCategorias } from "@/hooks/use-categorias";
 
 interface CasoFormCategoriaProps {
+  name?: string;
+  labelName?: string;
   required?: boolean;
+  excludeTipoCategorias?: string[];
 }
 
-export function CasoFormCategoria({ required = true }: CasoFormCategoriaProps) {
+export function CasoFormCategoria({
+  name = "categoria",
+  labelName = "categoriaTipoLabel",
+  required = true,
+  excludeTipoCategorias = [],
+}: CasoFormCategoriaProps) {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
-  const { watch } = useFormContext();
-  const categoriaValue = watch("categoria");
+  const { getValues, setValue, watch } = useFormContext();
+  const categoriaValue = watch(name);
   const [optionsRequested, setOptionsRequested] = useState(
     !lazyLoadComboboxOptions,
   );
@@ -23,11 +31,22 @@ export function CasoFormCategoria({ required = true }: CasoFormCategoriaProps) {
     enabled: optionsRequested,
   });
 
+  const excludeSet = useMemo(
+    () => new Set(excludeTipoCategorias.map((item) => item.toUpperCase())),
+    [excludeTipoCategorias],
+  );
+
   const categoriasOptions = useMemo(() => {
-    const list = (categorias ?? []).map((categoria) => ({
-      value: categoria.id,
-      label: categoria.tipo_categoria,
-    }));
+    const list = (categorias ?? [])
+      .filter(
+        (categoria) =>
+          !excludeSet.has(String(categoria.tipo_categoria || "").toUpperCase()),
+      )
+      .map((categoria) => ({
+        value: String(categoria.id),
+        label: categoria.tipo_categoria,
+      }));
+
     if (
       lazyLoadComboboxOptions &&
       editCaseItem?.caso?.caracteristicas &&
@@ -41,12 +60,44 @@ export function CasoFormCategoria({ required = true }: CasoFormCategoriaProps) {
       });
     }
     return list;
-  }, [categorias, lazyLoadComboboxOptions, editCaseItem, categoriaValue]);
+  }, [
+    categorias,
+    lazyLoadComboboxOptions,
+    editCaseItem,
+    categoriaValue,
+    excludeSet,
+  ]);
+
+  useEffect(() => {
+    const selectedValue = String(categoriaValue ?? "").trim();
+    if (!selectedValue) {
+      const currentLabel = String(getValues(labelName as any) ?? "");
+      if (currentLabel !== "") {
+        setValue(labelName as any, "", {
+          shouldDirty: false,
+          shouldTouch: false,
+          shouldValidate: false,
+        });
+      }
+      return;
+    }
+
+    const option = categoriasOptions.find((item) => item.value === selectedValue);
+    const nextLabel = option?.label ?? "";
+    const currentLabel = String(getValues(labelName as any) ?? "");
+    if (currentLabel !== nextLabel) {
+      setValue(labelName as any, nextLabel, {
+        shouldDirty: false,
+        shouldTouch: false,
+        shouldValidate: false,
+      });
+    }
+  }, [categoriaValue, categoriasOptions, getValues, labelName, setValue]);
 
   return (
     <div className="space-y-2">
       <ComboboxField
-        name="categoria"
+        name={name}
         label="Categoria"
         icon={Tag}
         options={categoriasOptions}

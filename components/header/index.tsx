@@ -129,7 +129,18 @@ export function Header() {
                 <Plus className="h-3.5 w-3.5" />
                 Adicionar Caso
               </Button>
-            ) : null}
+            ) : (
+              <Button
+                onClick={() => {
+                  router.push("/reports/novo");
+                }}
+                type="button"
+                className="hidden lg:inline-flex w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-brand-yellow text-black hover:bg-brand-yellow-hover"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Adicionar Report
+              </Button>
+            )}
 
             <Separator
               orientation="vertical"
@@ -219,7 +230,7 @@ export function Header() {
         />
       </header>
 
-      {/* FAB: Adicionar Caso (somente mobile) */}
+      {/* FAB: Adicionar Caso/Report (somente mobile) */}
       {canCreateCase ? (
         <Button
           type="button"
@@ -233,7 +244,20 @@ export function Header() {
         >
           <Plus className="h-5 w-5" />
         </Button>
-      ) : null}
+      ) : (
+        <Button
+          type="button"
+          aria-label="Adicionar report"
+          className={cn(
+            "fixed bottom-4 right-4 z-40 h-12 w-12 rounded-full p-0",
+            "bg-brand-yellow text-black shadow-lg hover:bg-brand-yellow-hover",
+            "lg:hidden",
+          )}
+          onClick={() => router.push("/reports/novo")}
+        >
+          <Plus className="h-5 w-5" />
+        </Button>
+      )}
     </>
   );
 }
