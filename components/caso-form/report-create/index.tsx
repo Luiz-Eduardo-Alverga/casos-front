@@ -17,10 +17,7 @@ import { useCreateCaso } from "@/hooks/use-create-caso";
 import { useRelatores } from "@/hooks/use-usuarios";
 import { ReportCreateLeftColumn } from "./report-create-left-column";
 import { ReportCreateRightColumn } from "./report-create-right-column";
-import {
-  reportCreateFormSchema,
-  type ReportCreateFormData,
-} from "./schema";
+import { reportCreateFormSchema, type ReportCreateFormData } from "./schema";
 import { buildReportCreatePayload } from "./utils";
 import {
   assistantFormSchema,
@@ -45,7 +42,7 @@ export function ReportCreateForm() {
       produto: "",
       categoria: "",
       categoriaTipoLabel: "",
-      importancia: "3",
+      importancia: "",
       reportOcorrenciaInicial: "",
       DescricaoResumo: "",
       DescricaoCompleta: "",
@@ -56,7 +53,8 @@ export function ReportCreateForm() {
 
   const { mutateAsync: assistantMutateAsync, isPending: isAssistantPending } =
     useAssistant();
-  const { mutateAsync: createCasoAsync, isPending: isCreating } = useCreateCaso();
+  const { mutateAsync: createCasoAsync, isPending: isCreating } =
+    useCreateCaso();
   const { data: relatores } = useRelatores({ enabled: true });
 
   const isSubmitting = methods.formState.isSubmitting;
@@ -77,7 +75,8 @@ export function ReportCreateForm() {
   }
 
   useEffect(() => {
-    if (!user?.id || !Array.isArray(relatores) || relatores.length === 0) return;
+    if (!user?.id || !Array.isArray(relatores) || relatores.length === 0)
+      return;
 
     const responsavelAtual = String(
       methods.getValues("reportResponsavelSuporteId") ?? "",
@@ -131,7 +130,10 @@ export function ReportCreateForm() {
       }
 
       if (response.data.users?.[0]?.id) {
-        methods.setValue("reportAnaliseUsuarioId", String(response.data.users[0].id));
+        methods.setValue(
+          "reportAnaliseUsuarioId",
+          String(response.data.users[0].id),
+        );
       }
 
       reset();

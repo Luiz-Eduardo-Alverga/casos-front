@@ -37,6 +37,7 @@ export function PainelKanbanProdutosModal({
   open,
   onOpenChange,
   idColaborador,
+  nomeColaborador = "",
 }: PainelKanbanProdutosModalProps) {
   const form = useForm<{ produto: string; versao: string }>({
     defaultValues: { produto: "", versao: "" },
@@ -245,7 +246,8 @@ export function PainelKanbanProdutosModal({
       >
         <SheetHeader className="shrink-0 border-b border-border-divider space-y-1.5 px-4 pb-4 pt-5 sm:px-6">
           <SheetTitle className="text-xl font-semibold text-text-primary leading-tight">
-            Produtos do Desenvolvedor
+            Produtos do colaborador -{" "}
+            <span className="font-bold">{nomeColaborador}</span>
           </SheetTitle>
           <SheetDescription className="text-base text-text-secondary">
             Adicione os produtos e ordene da forma desejada

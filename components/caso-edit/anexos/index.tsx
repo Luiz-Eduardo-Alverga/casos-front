@@ -100,9 +100,6 @@ export function AbaAnexos({ casoRegistro }: AbaAnexosProps) {
         )}
 
         <div>
-          <h3 className="text-sm font-semibold text-text-primary mb-2">
-            Arquivos anexados
-          </h3>
           <AnexosList
             items={items}
             isLoading={isLoading}

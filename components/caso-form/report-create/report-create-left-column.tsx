@@ -20,7 +20,10 @@ export function ReportCreateLeftColumn() {
   const { getValues, register, setValue, watch, formState } =
     useFormContext<ReportCreateFormData>();
   const produtoSelecionado = watch("produto");
+  const categoriaSelecionada = watch("categoria");
   const categoriaTipoLabel = watch("categoriaTipoLabel");
+  const isCategoriaMelhoria =
+    String(categoriaTipoLabel ?? "").trim().toUpperCase() === "MELHORIA";
 
   const { data: produtos } = useProdutos({
     enabled: Boolean(produtoSelecionado),
@@ -69,12 +72,16 @@ export function ReportCreateLeftColumn() {
         </CardHeader>
         <CardContent className="space-y-4 p-6 pt-3">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <CasoFormProduto />
+            <CasoFormProduto onlyWithPoQaConfigured />
             <CasoFormCategoria
               excludeTipoCategorias={["REQUISITO"]}
               labelName="categoriaTipoLabel"
             />
-            <CasoFormImportancia tipo="REPORT" />
+            <CasoFormImportancia
+              tipo="REPORT"
+              disabled={!produtoSelecionado || !categoriaSelecionada}
+              excludeLabels={isCategoriaMelhoria ? ["Crítico", "Alto"] : []}
+            />
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-text-label">

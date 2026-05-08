@@ -454,6 +454,7 @@ export function PainelKanban() {
             open={isProdutosModalOpen}
             onOpenChange={setIsProdutosModalOpen}
             idColaborador={usuarioDevId}
+            nomeColaborador={nomeColaborador}
           />
 
           {!queryEnabled ? (

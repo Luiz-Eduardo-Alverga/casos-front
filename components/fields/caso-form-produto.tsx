@@ -10,9 +10,13 @@ import type { Produto } from "@/services/auxiliar/produtos";
 
 interface CasoFormProdutoProps {
   required?: boolean;
+  onlyWithPoQaConfigured?: boolean;
 }
 
-export function CasoFormProduto({ required = true }: CasoFormProdutoProps) {
+export function CasoFormProduto({
+  required = true,
+  onlyWithPoQaConfigured = false,
+}: CasoFormProdutoProps) {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch, setValue } = useFormContext();
   const produtoValue = watch("produto");
@@ -29,7 +33,8 @@ export function CasoFormProduto({ required = true }: CasoFormProdutoProps) {
     const options: Array<{ value: string; label: string }> = [];
 
     if (produtos && Array.isArray(produtos)) {
-      produtos.forEach((p) => {
+      const list = onlyWithPoQaConfigured ? produtos.filter(hasPoQaConfigured) : produtos;
+      list.forEach((p) => {
         options.push({
           value: String(p.id),
           label: p.nome_projeto,
@@ -51,7 +56,14 @@ export function CasoFormProduto({ required = true }: CasoFormProdutoProps) {
     }
 
     return options;
-  }, [produtos, produtoValue, produtoSelecionado, lazyLoadComboboxOptions, editCaseItem]);
+  }, [
+    produtos,
+    produtoValue,
+    produtoSelecionado,
+    lazyLoadComboboxOptions,
+    editCaseItem,
+    onlyWithPoQaConfigured,
+  ]);
 
   // Quando o produto é selecionado, buscar e salvar os dados completos
   useEffect(() => {
@@ -90,5 +102,17 @@ export function CasoFormProduto({ required = true }: CasoFormProdutoProps) {
         onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
+  );
+}
+
+function isConfiguredId(value: string | null) {
+  const normalized = String(value ?? "").trim();
+  return normalized !== "" && normalized !== "0";
+}
+
+function hasPoQaConfigured(produto: Produto) {
+  return (
+    isConfiguredId(produto.responsavel_bugs_suporte_id) &&
+    isConfiguredId(produto.responsavel_melhorias_suporte_id)
   );
 }
