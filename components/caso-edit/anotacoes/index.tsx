@@ -39,7 +39,10 @@ export function AbaAnotacoes({
   const handleAdicionar = async () => {
     const texto = novaAnotacao.trim();
     if (!texto) return;
-    await onCreate({ registro: numeroCaso, anotacoes: texto });
+    await onCreate({
+      registro: numeroCaso,
+      anotacoes: texto.replace(/\r?\n/g, "\r\n"),
+    });
     setNovaAnotacao("");
   };
 
