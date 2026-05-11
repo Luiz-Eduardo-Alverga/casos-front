@@ -454,7 +454,7 @@ export function PainelKanban() {
             onAtualizar={handleAtualizar}
             actionSlot={
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-                {/* <CasoFormDevAtribuido
+                <CasoFormDevAtribuido
                   required={false}
                   requireProduto={false}
                   label="Ver como"
@@ -464,7 +464,7 @@ export function PainelKanban() {
                   setorName="devAtribuidoSetor"
                   wrapperClassName="w-full sm:w-[220px] h-full"
                   controlHeightClassName="h-[42px]"
-                /> */}
+                />
                 <Button
                   type="button"
                   variant="outline"
