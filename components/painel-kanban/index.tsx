@@ -241,9 +241,7 @@ export function PainelKanban() {
     ),
   );
 
-  const queryEnabled = Boolean(
-    usuarioDevId && hasValidAgendaSelection && !projetoLoading,
-  );
+  const queryEnabled = Boolean(usuarioDevId && hasValidAgendaSelection);
 
   const agendaRowForFilters = useMemo(() => {
     if (!agendaDevData?.length || !produto?.trim() || !versao?.trim()) {
