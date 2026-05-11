@@ -67,6 +67,7 @@ export const CasosFiltrosSheet = ({
                 requireProduto={false}
                 name="projeto_id"
                 required={false}
+                autoSelectProjeto="never"
               />
               <CasoFormDevAtribuido required={false} requireProduto={false} />
               <CasoFormQaAtribuido required={false} requireProduto={false} />

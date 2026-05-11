@@ -65,7 +65,7 @@ export function PainelKanbanBoard({
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         className={cn(
-          "grid min-h-0 w-full flex-1 grid-flow-col gap-4 pb-2",
+          "grid min-h-0 w-full flex-1 grid-flow-col gap-4",
           "overflow-x-auto overscroll-x-contain",
           // Mobile: 1 coluna por vez (scroll horizontal)
           "auto-cols-[calc(100%-0rem)] snap-x snap-mandatory",
@@ -135,7 +135,7 @@ export function PainelKanbanBoard({
                 ) : (
                   <KanbanCards
                     id={column.id}
-                    className="max-h-[min(60vh,520px)] min-h-0 flex-1 p-4"
+                    className="max-h-[min(60vh,520px)] min-h-0 flex-1 p-3 "
                     listFooter={
                       load?.hasNextPage && itemsInColumn > 0 ? (
                         <KanbanColumnLoadSentinel

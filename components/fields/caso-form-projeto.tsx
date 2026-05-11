@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { FolderKanban } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
@@ -17,44 +17,141 @@ interface CasoFormProjetoProps {
    * Quando false, o campo pode buscar/listar projetos mesmo sem produto.
    */
   requireProduto?: boolean;
+  /**
+   * Força o setor usado na busca de projetos (ignora produto).
+   * Útil em telas que filtram projetos pelo setor do usuário selecionado.
+   */
+  setorProjeto?: string;
+  /**
+   * Se definido, lê o setor do react-hook-form (ex.: `devAtribuidoSetor`) para buscar projetos.
+   * Só é usado quando `setorProjeto` não foi passado.
+   */
+  setorProjetoFieldName?: string;
+  /**
+   * Quando true, só busca projetos se houver `setorProjeto` resolvido.
+   * Padrão: mesmo valor de `requireProduto` (comportamento antigo).
+   */
+  requireSetorProjeto?: boolean;
+  /**
+   * Usuário usado na busca de projetos. Quando não informado, o service mantém
+   * o comportamento padrão de usar o usuário logado salvo no localStorage.
+   */
+  usuarioId?: string | number;
   /** Nome do campo no react-hook-form. Padrão: `projeto` (tela de caso). */
   name?: "projeto" | "projeto_id";
   /** Se true, marca como obrigatório no UI (padrão: true). */
   required?: boolean;
+  /** Esconde o label externo do campo (uso em headers compactos). */
+  hideLabel?: boolean;
+  /** Classe opcional para o container do campo. */
+  wrapperClassName?: string;
+  /** Classe de altura aplicada ao combobox e ao botão de limpar. */
+  controlHeightClassName?: string;
+  /** Prefixo exibido apenas no gatilho quando há valor selecionado. */
+  valueLabelPrefix?: string;
+  /**
+   * Controla se o campo deve auto-selecionar um projeto padrão ao carregar.
+   * - `whenProduto` (padrão): só auto-seleciona quando houver produto/setor (tela de abertura de caso)
+   * - `always`: auto-seleciona assim que houver opções (kanban)
+   * - `never`: nunca auto-seleciona (sheet de filtros)
+   */
+  autoSelectProjeto?: "never" | "whenProduto" | "always";
+  /**
+   * Nome do campo (opcional) para expor um boolean de loading no react-hook-form.
+   * Útil quando a tela precisa exibir skeleton até o projeto carregar/auto-definir.
+   */
+  loadingFieldName?: string;
 }
 
 export function CasoFormProjeto({
   requireProduto = true,
+  setorProjeto,
+  setorProjetoFieldName,
+  requireSetorProjeto,
+  usuarioId,
   name = "projeto",
   required = true,
+  hideLabel = false,
+  wrapperClassName,
+  controlHeightClassName,
+  valueLabelPrefix,
+  autoSelectProjeto = "whenProduto",
+  loadingFieldName,
 }: CasoFormProjetoProps) {
   const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } =
     useCasoForm();
   const { watch, setValue, getValues } = useFormContext();
   const produtoValue = watch("produto");
   const projetoValue = watch(name);
+  const setorFromForm = setorProjetoFieldName
+    ? String(watch(setorProjetoFieldName) ?? "")
+    : "";
   const [optionsRequested, setOptionsRequested] = useState(
     !lazyLoadComboboxOptions,
   );
+
+  // Em telas como o Kanban, queremos buscar opções automaticamente ao carregar.
+  useEffect(() => {
+    if (autoSelectProjeto !== "always") return;
+    if (optionsRequested) return;
+    setOptionsRequested(true);
+  }, [autoSelectProjeto, optionsRequested]);
 
   const produtoAtual = produtoValue || produto;
   const setorFromEdit = editCaseItem?.projeto?.setores?.setor_projeto;
 
   const { data: produtos } = useProdutos({
-    enabled: optionsRequested,
+    enabled: optionsRequested && requireProduto,
   });
   const produtoSelecionado = useMemo(() => {
     if (!produtoAtual || !produtos || !Array.isArray(produtos)) return null;
     return produtos.find((p) => String(p.id) === produtoAtual) || null;
   }, [produtoAtual, produtos]);
 
-  const setorProjeto = produtoSelecionado?.setor ?? setorFromEdit;
+  const setorProjetoFromProduto = produtoSelecionado?.setor ?? setorFromEdit;
+  const setorProjetoResolved =
+    (setorProjeto?.trim() ? setorProjeto.trim() : undefined) ??
+    (setorFromForm.trim() ? setorFromForm.trim() : undefined) ??
+    (requireProduto ? setorProjetoFromProduto : undefined);
+  const requireSetorProjetoResolved = requireSetorProjeto ?? requireProduto;
+  const usuarioIdNumber = useMemo(() => {
+    if (usuarioId == null || String(usuarioId).trim() === "") return undefined;
+    const n = Number(String(usuarioId).trim());
+    return Number.isFinite(n) ? n : undefined;
+  }, [usuarioId]);
 
   const { data: projetos, isLoading: isProjetosLoading } = useProjetos({
-    setor_projeto: requireProduto ? setorProjeto : undefined,
-    requireSetorProjeto: requireProduto,
-    enabled: optionsRequested && (requireProduto ? !!setorProjeto : true),
+    usuario_id: usuarioIdNumber,
+    setor_projeto: setorProjetoResolved,
+    requireSetorProjeto: requireSetorProjetoResolved,
+    enabled:
+      optionsRequested &&
+      (!requireSetorProjetoResolved || Boolean(setorProjetoResolved)),
   });
+
+  // Expõe um loading para o form quando solicitado (ex.: Kanban Skeleton).
+  useEffect(() => {
+    if (!loadingFieldName) return;
+    const next = Boolean(
+      (autoSelectProjeto === "always" && !optionsRequested) ||
+        isProjetosLoading,
+    );
+    const current = Boolean(getValues(loadingFieldName as any));
+    if (current !== next) {
+      setValue(loadingFieldName as any, next, {
+        shouldDirty: false,
+        shouldTouch: false,
+        shouldValidate: false,
+      });
+    }
+  }, [
+    autoSelectProjeto,
+    getValues,
+    isProjetosLoading,
+    loadingFieldName,
+    optionsRequested,
+    setValue,
+  ]);
 
   const projetosOptions = useMemo(() => {
     const list: Array<{ value: string; label: string }> = [];
@@ -104,58 +201,118 @@ export function CasoFormProjeto({
     return options;
   }, [projetos, lazyLoadComboboxOptions, editCaseItem, projetoValue]);
 
-  // Encontrar projeto do mês atual e definir como padrão (apenas quando produto está selecionado)
+  const parseLocalDate = (value: string | null | undefined): Date | null => {
+    if (!value?.trim()) return null;
+    const s = value.trim();
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return null;
+    const [, y, mo, d] = m;
+    return new Date(Number(y), Number(mo) - 1, Number(d), 0, 0, 0, 0);
+  };
+
+  /** Após o usuário limpar o projeto, não volta a auto-selecionar até mudar o contexto (setor/produto). */
+  const skipAutoSelectRef = useRef(false);
+  const prevProjetoForSkipRef = useRef<string | undefined>(undefined);
+  const prevAutoSelectResetKeyRef = useRef<string | null>(null);
+
+  const autoSelectResetKey = useMemo(() => {
+    if (autoSelectProjeto === "never") return "";
+    if (autoSelectProjeto === "always") {
+      return `${String(usuarioIdNumber ?? "")}|${String(setorProjetoResolved ?? "")}`;
+    }
+    return `${String(usuarioIdNumber ?? "")}|${String(produtoAtual ?? "")}|${String(setorProjetoResolved ?? "")}`;
+  }, [autoSelectProjeto, setorProjetoResolved, produtoAtual, usuarioIdNumber]);
+
+  useEffect(() => {
+    if (autoSelectProjeto === "never") return;
+    const key = autoSelectResetKey;
+    if (prevAutoSelectResetKeyRef.current === null) {
+      prevAutoSelectResetKeyRef.current = key;
+      return;
+    }
+    if (prevAutoSelectResetKeyRef.current !== key) {
+      prevAutoSelectResetKeyRef.current = key;
+      skipAutoSelectRef.current = false;
+    }
+  }, [autoSelectProjeto, autoSelectResetKey]);
+
+  useEffect(() => {
+    if (autoSelectProjeto === "never") return;
+    const cur = String(projetoValue ?? "");
+    const prev = prevProjetoForSkipRef.current;
+    if (prev !== undefined) {
+      if (prev.trim() && !cur.trim()) {
+        skipAutoSelectRef.current = true;
+      }
+      if (!prev.trim() && cur.trim()) {
+        skipAutoSelectRef.current = false;
+      }
+    }
+    prevProjetoForSkipRef.current = cur;
+  }, [projetoValue, autoSelectProjeto]);
+
+  // Auto-seleciona um projeto padrão (configurável por tela)
   useEffect(() => {
     if (
-      requireProduto &&
-      name === "projeto" &&
-      produtoAtual &&
-      produtoSelecionado &&
+      autoSelectProjeto !== "never" &&
       projetos &&
       Array.isArray(projetos) &&
       projetosOptions.length > 0
     ) {
-      const projetoAtualValue = getValues("projeto");
+      if (
+        autoSelectProjeto === "whenProduto" &&
+        (!produtoAtual || !produtoSelecionado)
+      ) {
+        return;
+      }
+
+      if (skipAutoSelectRef.current) {
+        return;
+      }
+
+      const projetoAtualValue = String(getValues(name) ?? "");
       // Só definir se ainda não houver projeto selecionado
       if (!projetoAtualValue || projetoAtualValue === "") {
         const hoje = new Date();
-        const primeiroDiaMesAtual = new Date(
+        const hojeLocal = new Date(
           hoje.getFullYear(),
           hoje.getMonth(),
-          1,
-        );
-        const ultimoDiaMesAtual = new Date(
-          hoje.getFullYear(),
-          hoje.getMonth() + 1,
+          hoje.getDate(),
+          0,
+          0,
+          0,
           0,
         );
 
-        // Encontrar projeto que está no mês atual
-        const projetoMesAtual = projetos.find((p: Projeto) => {
-          if (!p.data_inicial || !p.data_final) return false;
-          const dataInicial = new Date(p.data_inicial);
-          const dataFinal = new Date(p.data_final);
-          // Projeto está no mês atual se data_inicial <= último dia do mês atual E data_final >= primeiro dia do mês atual
-          return (
-            dataInicial <= ultimoDiaMesAtual && dataFinal >= primeiroDiaMesAtual
-          );
-        });
+        const projetosAtivosHoje = projetos
+          .map((p: Projeto) => {
+            const di = parseLocalDate(p.data_inicial);
+            const df = parseLocalDate(p.data_final);
+            if (!di || !df) return null;
+            if (di > hojeLocal || df < hojeLocal) return null;
+            return { p, di };
+          })
+          .filter(Boolean) as Array<{ p: Projeto; di: Date }>;
 
-        if (projetoMesAtual) {
-          setValue("projeto", String(projetoMesAtual.id));
+        // Se houver mais de um ativo, usa o de data_inicial mais recente.
+        projetosAtivosHoje.sort((a, b) => b.di.getTime() - a.di.getTime());
+        const projetoAtivo = projetosAtivosHoje[0]?.p;
+
+        if (projetoAtivo) {
+          setValue(name, String(projetoAtivo.id));
         } else {
-          // Se não encontrar projeto do mês atual, pegar o primeiro projeto válido (mais próximo)
+          // Fallback: pega a primeira opção disponível.
           const primeiroProjeto = projetosOptions[0];
           if (primeiroProjeto) {
-            setValue("projeto", primeiroProjeto.value);
+            setValue(name, primeiroProjeto.value);
           }
         }
       }
     }
   }, [
+    autoSelectProjeto,
     produtoAtual,
     produtoSelecionado,
-    requireProduto,
     name,
     projetos,
     projetosOptions,
@@ -187,7 +344,8 @@ export function CasoFormProjeto({
         disabled={
           isDisabled ||
           (requireProduto &&
-            (!produtoAtual || (!produtoSelecionado && !setorFromEdit)))
+            (!produtoAtual || (!produtoSelecionado && !setorFromEdit))) ||
+          (requireSetorProjetoResolved && !setorProjetoResolved)
         }
         required={required}
         onOpenChange={
@@ -195,6 +353,10 @@ export function CasoFormProjeto({
             ? (open) => open && setOptionsRequested(true)
             : undefined
         }
+        hideLabel={hideLabel}
+        wrapperClassName={wrapperClassName}
+        controlHeightClassName={controlHeightClassName}
+        valueLabelPrefix={valueLabelPrefix}
       />
     </div>
   );

@@ -16,6 +16,8 @@ import {
   type AgendaDevItem,
 } from "@/services/auxiliar/get-agenda-dev";
 import type { PainelKanbanFiltrosForm } from "@/interfaces/kanban/painel-kanban-filtros-form";
+import { EmptyState } from "@/components/painel/empty-state";
+import { FileText } from "lucide-react";
 
 interface PainelKanbanAgendaCardsFieldProps {
   agendaItems: AgendaDevItem[];
@@ -75,9 +77,14 @@ export function PainelKanbanAgendaCardsField({
 
   if (cards.length === 0) {
     return (
-      <div className="rounded-lg border border-border-divider bg-white p-4 text-sm text-text-secondary">
-        Nenhum produto priorizado encontrado para o colaborador selecionado.
-      </div>
+      // <div className="rounded-lg border border-border-divider bg-white p-4 text-sm text-text-secondary">
+      //   Nenhum produto priorizado encontrado para o colaborador selecionado.
+      // </div>
+      <EmptyState
+        title="Nenhum produto priorizado encontrado"
+        description="Selecione um outro colaborador e projeto para ver os produtos priorizados."
+        icon={FileText}
+      />
     );
   }
 

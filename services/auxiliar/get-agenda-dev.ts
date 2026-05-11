@@ -26,15 +26,20 @@ export interface AgendaDevItem {
 
 export async function getAgendaDev(params: {
   id_colaborador: string;
+  Cronograma_id?: string;
 }): Promise<AgendaDevItem[]> {
   const url = new URL("/api/auxiliar/agenda-dev", window.location.origin);
   url.searchParams.set("id_colaborador", params.id_colaborador);
-
+  if (params.Cronograma_id) {
+    url.searchParams.set("Cronograma_id", params.Cronograma_id);
+  }
   const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error?.message || error?.error || "Erro ao buscar agenda dev");
+    throw new Error(
+      error?.message || error?.error || "Erro ao buscar agenda dev",
+    );
   }
 
   return await response.json();
