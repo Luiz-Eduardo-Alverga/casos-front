@@ -43,10 +43,8 @@ export function ProducaoEstimativa({
   const handleSalvar = async () => {
     const payload: AbaProducaoSavePayload = {
       NaoPlanejado: naoPlanejado ? 1 : 0,
-      TempoEstimado: naoPlanejado
-        ? null
-        : buildTempoEstimadoParaApi(tempoEstimado),
-      tamanho: naoPlanejado ? null : tamanhoId ? Number(tamanhoId) : null,
+      TempoEstimado: buildTempoEstimadoParaApi(tempoEstimado),
+      tamanho: tamanhoId ? Number(tamanhoId) : null,
     };
     await onSaveProducao(payload);
     setShowForm(false);
@@ -82,38 +80,34 @@ export function ProducaoEstimativa({
             disabled={isSaving}
           />
 
-          {!naoPlanejado && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <TamanhoCombobox
-                value={tamanhoId}
-                onValueChange={(v) => setTamanhoId(v ?? "")}
-                onTamanhoSelect={(_id, tempoHHMM) =>
-                  setTempoEstimado(tempoHHMM)
-                }
-                disabled={isSaving}
-              />
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label
-                    htmlFor="tempo-estimado"
-                    className="text-sm font-medium text-text-label"
-                  >
-                    Tempo estimado
-                  </Label>
-                </div>
-                <Input
-                  id="tempo-estimado"
-                  type="text"
-                  placeholder="HH:MM (ex: 01:30)"
-                  value={tempoEstimado}
-                  onChange={(e) => setTempoEstimado(maskHHMM(e.target.value))}
-                  disabled={isSaving}
-                  maxLength={5}
-                  className="h-9 rounded-lg border-border-input px-[17px] py-3"
-                />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <TamanhoCombobox
+              value={tamanhoId}
+              onValueChange={(v) => setTamanhoId(v ?? "")}
+              onTamanhoSelect={(_id, tempoHHMM) => setTempoEstimado(tempoHHMM)}
+              disabled={isSaving}
+            />
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label
+                  htmlFor="tempo-estimado"
+                  className="text-sm font-medium text-text-label"
+                >
+                  Tempo estimado
+                </Label>
               </div>
+              <Input
+                id="tempo-estimado"
+                type="text"
+                placeholder="HH:MM (ex: 01:30)"
+                value={tempoEstimado}
+                onChange={(e) => setTempoEstimado(maskHHMM(e.target.value))}
+                disabled={isSaving}
+                maxLength={5}
+                className="h-9 rounded-lg border-border-input px-[17px] py-3"
+              />
             </div>
-          )}
+          </div>
 
           <div className="flex justify-end gap-2">
             <Button

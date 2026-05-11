@@ -5,7 +5,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CasoEditCardHeader } from "../caso-edit-card-header";
 import { EmptyState } from "@/components/painel/empty-state";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
-import { DateTimePicker, apiStringToDate, dateTimeToApiString } from "@/components/ui/date-picker";
+import {
+  DateTimePicker,
+  apiStringToDate,
+  dateTimeToApiString,
+} from "@/components/ui/date-picker";
 import { useAtualizarProducao } from "@/hooks/use-atualizar-producao";
 import { useExcluirProducao } from "@/hooks/use-excluir-producao";
 import { Package } from "lucide-react";
@@ -24,12 +28,12 @@ import { ProducaoDetalhes } from "./producao-detalhes";
 /** Intervalo para atualizar duração e métricas de produções em aberto (ms). */
 const PRODUCAO_TEMPO_ATUALIZACAO_MS = 1000;
 
-export function AbaProducao({
-  item,
-  onSaveProducao,
-}: AbaProducaoProps) {
-  const { numeroCaso, invalidate: onProducaoAlterada, isSaving } =
-    useCasoEdit();
+export function AbaProducao({ item, onSaveProducao }: AbaProducaoProps) {
+  const {
+    numeroCaso,
+    invalidate: onProducaoAlterada,
+    isSaving,
+  } = useCasoEdit();
   const caso = item?.caso;
   const tempos = caso?.tempos;
   const naoPlanejadoFlag = caso?.flags?.nao_planejado ?? false;
@@ -91,9 +95,7 @@ export function AbaProducao({
     ? minutosAgregadosDaLista.testando
     : testandoMinBase;
 
-  const [showForm, setShowForm] = useState(
-    estimadoMin === 0 && !naoPlanejadoFlag,
-  );
+  const [showForm, setShowForm] = useState(estimadoMin === 0);
   const [naoPlanejado, setNaoPlanejado] = useState(naoPlanejadoFlag);
   const [tamanhoId, setTamanhoId] = useState<string>("");
   const [tempoEstimado, setTempoEstimado] = useState("");
@@ -130,18 +132,26 @@ export function AbaProducao({
     setNaoPlanejado(naoPlanejadoFlag);
     setTamanhoId(
       caso?.caracteristicas?.tamanho_pontos != null
-        ? String(caso.caracteristicas.tamanho_pontos)
+        ? String(caso.caracteristicas.tamanho_id)
         : "",
     );
     const min = tempos?.estimado_minutos ?? 0;
     if (min > 0) {
       const h = Math.floor(min / 60);
       const m = min % 60;
-      setTempoEstimado(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+      setTempoEstimado(
+        `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`,
+      );
     } else {
       setTempoEstimado("");
     }
-  }, [showForm, naoPlanejadoFlag, caso?.caracteristicas?.tamanho_pontos, tempos?.estimado_minutos]);
+  }, [
+    showForm,
+    naoPlanejadoFlag,
+    caso?.caracteristicas?.tamanho_id,
+    caso?.caracteristicas?.tamanho_pontos,
+    tempos?.estimado_minutos,
+  ]);
 
   const handleIniciarEdicao = (row: (typeof producaoList)[number]) => {
     setEditandoSequencia(row.sequencia);
@@ -189,7 +199,11 @@ export function AbaProducao({
   return (
     <>
       <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
-        <CasoEditCardHeader title="Produção" icon={Package} badge={numeroCaso} />
+        <CasoEditCardHeader
+          title="Produção"
+          icon={Package}
+          badge={numeroCaso}
+        />
         <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 ">
           <ProducaoEstimativa
             showForm={showForm}
@@ -269,4 +283,3 @@ export function AbaProducao({
     </>
   );
 }
-
