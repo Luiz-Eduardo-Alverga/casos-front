@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 import {
   Table,
   TableHeader,
@@ -10,12 +8,13 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { StatusBadge } from "@/components/badges/status-badge";
 import { ImportanciaBadge } from "@/components/badges/importancia-badge";
 import { CategoriaBadge } from "@/components/casos/tabela/categoria-badge";
 import { CasosTabelaSkeletonRows } from "@/components/casos/layout/casos-tabela-skeleton";
 import Link from "next/link";
-import { ExternalLink, Pencil, SquarePen } from "lucide-react";
+import { ExternalLink, SquarePen } from "lucide-react";
 import { formatMinutesToHHMM } from "@/lib/utils";
 
 export interface CasosTabelaRow {
@@ -35,18 +34,33 @@ export interface CasosTabelaRow {
 interface CasosTabelaTableProps {
   itens: CasosTabelaRow[];
   isFetchingNextPage: boolean;
+  selectedIds: string[];
+  onToggleItem: (id: string, checked: boolean) => void;
+  onToggleAll: (checked: boolean) => void;
 }
 
 export function CasosTabelaTable({
   itens,
   isFetchingNextPage,
+  selectedIds,
+  onToggleItem,
+  onToggleAll,
 }: CasosTabelaTableProps) {
-  const router = useRouter();
+  const selectedIdsSet = new Set(selectedIds);
+  const allChecked = itens.length > 0 && itens.every((row) => selectedIdsSet.has(row.id));
+  const someChecked = itens.some((row) => selectedIdsSet.has(row.id));
 
   return (
     <Table>
       <TableHeader>
         <TableRow className="bg-background border-b border-background hover:bg-background">
+          <TableHead className="w-[48px] text-center font-medium text-sm text-text-primary h-auto py-4 px-2">
+            <Checkbox
+              checked={allChecked ? true : someChecked ? "indeterminate" : false}
+              onCheckedChange={(checked) => onToggleAll(Boolean(checked))}
+              aria-label="Selecionar todos os casos"
+            />
+          </TableHead>
           <TableHead className="w-[60px] font-medium text-sm text-text-primary h-auto py-4 px-5">
             Registro
           </TableHead>
@@ -80,6 +94,15 @@ export function CasosTabelaTable({
             key={row.id}
             className="bg-background border-t border-border-strong hover:bg-muted/50 transition-colors"
           >
+            <TableCell className="w-[48px] py-3 px-2 text-center">
+              <Checkbox
+                checked={selectedIdsSet.has(row.id)}
+                onCheckedChange={(checked) =>
+                  onToggleItem(row.id, Boolean(checked))
+                }
+                aria-label={`Selecionar caso ${row.numero}`}
+              />
+            </TableCell>
             <TableCell className="w-[60px] py-3 px-5">
               <span className="text-base font-light text-cases-ink whitespace-nowrap">
                 #{row.numero}

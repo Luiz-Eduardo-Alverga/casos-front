@@ -5,7 +5,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
 import { getUser } from "@/lib/auth";
-import { Box, ChevronUp } from "lucide-react";
+import { ArrowLeftRight, Box, ChevronUp } from "lucide-react";
+import toast from "react-hot-toast";
 import { EmptyState } from "@/components/painel/empty-state";
 import { CasosTabelaSkeleton } from "@/components/casos/layout/casos-tabela-skeleton";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,10 @@ import {
   CasosTabelaTable,
   type CasosTabelaRow,
 } from "@/components/casos/tabela/casos-tabela-table";
+import { useBulkUpdateCasos } from "@/hooks/use-bulk-update-casos";
+import { CasosTransferenciaModal } from "@/components/casos/transferencia/casos-transferencia-modal";
+import { buildBulkTransferPayload } from "@/components/casos/transferencia/utils";
+import type { CasosTransferenciaFormValues } from "@/components/casos/transferencia/types";
 
 interface CasosTabelaProps {
   filtros: {
@@ -52,6 +57,7 @@ function mapItemToRow(item: ProjetoMemoriaItem): CasosTabelaRow {
 
 export function CasosTabela({ filtros }: CasosTabelaProps) {
   const user = getUser();
+  const bulkUpdateCasos = useBulkUpdateCasos();
   // Processar versão (remover sequência se houver)
   const versaoProduto = useMemo(() => {
     if (!filtros.versao) return undefined;
@@ -147,9 +153,57 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
     () => data?.pages.flatMap((p) => p.data.map(mapItemToRow)) ?? [],
     [data],
   );
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (itens.length === 0) {
+      setSelectedIds([]);
+      return;
+    }
+    const idsAtuais = new Set(itens.map((item) => item.id));
+    setSelectedIds((prev) => prev.filter((id) => idsAtuais.has(id)));
+  }, [itens]);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  const handleToggleItem = (id: string, checked: boolean) => {
+    setSelectedIds((prev) => {
+      if (checked) {
+        if (prev.includes(id)) return prev;
+        return [...prev, id];
+      }
+      return prev.filter((selectedId) => selectedId !== id);
+    });
+  };
+
+  const handleToggleAll = (checked: boolean) => {
+    if (!checked) {
+      setSelectedIds([]);
+      return;
+    }
+    setSelectedIds(itens.map((item) => item.id));
+  };
+
+  const handleTransferirCasos = async (values: CasosTransferenciaFormValues) => {
+    const idsSelecionados = selectedIds;
+    if (idsSelecionados.length === 0) {
+      toast.error("Selecione ao menos um caso para transferir.");
+      return;
+    }
+
+    const payload = buildBulkTransferPayload(idsSelecionados, values);
+    if (!payload) {
+      toast.error("Preencha ao menos um campo para transferir.");
+      return;
+    }
+
+    await bulkUpdateCasos.mutateAsync(payload);
+    toast.success("Casos transferidos com sucesso.");
+    setSelectedIds([]);
+    setIsTransferenciaModalOpen(false);
+  };
 
   useEffect(() => {
     const onScroll = () => {
@@ -180,13 +234,27 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
 
   return (
     <Card className="bg-card shadow-card rounded-lg flex flex-col">
-      <CardHeader className="p-5 pb-2 border-b border-border-divider shrink-0">
+      <CardHeader className="p-4 pb-2 border-b border-border-divider shrink-0">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Box className="h-3.5 w-3.5 text-text-primary" />
             <CardTitle className="text-sm font-semibold text-text-primary">
               Listagem de Casos
             </CardTitle>
+          </div>
+
+          <div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsTransferenciaModalOpen(true)}
+              disabled={selectedIds.length === 0}
+            >
+              <ArrowLeftRight className="h-3.5 w-3.5 text-text-primary" />
+              {selectedIds.length > 0
+                ? `Transferir casos (${selectedIds.length})`
+                : "Transferir casos"}
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -216,6 +284,9 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
             <CasosTabelaTable
               itens={itens}
               isFetchingNextPage={isFetchingNextPage}
+              selectedIds={selectedIds}
+              onToggleItem={handleToggleItem}
+              onToggleAll={handleToggleAll}
             />
             {hasNextPage && itens.length > 0 && (
               <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />
@@ -234,6 +305,15 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
           <ChevronUp className="h-5 w-5" />
         </Button>
       )}
+
+      <CasosTransferenciaModal
+        open={isTransferenciaModalOpen}
+        onOpenChange={setIsTransferenciaModalOpen}
+        totalSelecionados={selectedIds.length}
+        produtoIdPadrao={filtros.produto}
+        isSubmitting={bulkUpdateCasos.isPending}
+        onSubmit={handleTransferirCasos}
+      />
     </Card>
   );
 }

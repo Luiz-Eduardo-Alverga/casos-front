@@ -113,7 +113,7 @@ export function CasoResumoStatusActions({
           <RotateCcw className="h-4 w-4" />
         </Button>
       )}
-      {exibirAvancar && (
+      {/* {exibirAvancar && (
         <Button
           type="button"
           variant="outline"
@@ -124,7 +124,7 @@ export function CasoResumoStatusActions({
         >
           <Check className="h-4 w-4" />
         </Button>
-      )}
+      )} */}
     </div>
   );
 }

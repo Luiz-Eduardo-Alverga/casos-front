@@ -22,6 +22,18 @@ import {
   parseDataHoraProducaoApi,
 } from "./utils";
 
+const getTipoProducaoBadgeClassName = (tipo: string) => {
+  switch (tipo) {
+    case "TESTANDO":
+      return "bg-green-100 text-green-700";
+    case "RETORNO":
+      return "bg-yellow-100 text-yellow-700";
+    case "DESENVOLVENDO":
+    default:
+      return "bg-sky-100 text-sky-700";
+  }
+};
+
 export interface ProducaoDetalhesProps {
   producaoList: ProducaoDetalheItem[];
   agoraAtual: Date;
@@ -173,7 +185,7 @@ export function ProducaoDetalhes({
               ) : row.tipo ? (
                 <Badge
                   variant="secondary"
-                  className="rounded-full bg-sky-100 text-sky-700 border-transparent"
+                  className={`rounded-full ${getTipoProducaoBadgeClassName(row.tipo)} border-transparent hover:${getTipoProducaoBadgeClassName(row.tipo)}`}
                 >
                   {row.tipo}
                 </Badge>
@@ -218,6 +230,7 @@ export function ProducaoDetalhes({
                     className="size-9 rounded-lg"
                     onClick={() => onIniciarEdicao(row)}
                     aria-label="Editar produção"
+                    disabled={row.datas?.fechamento === null}
                   >
                     <Pencil className="size-4 text-foreground" />
                   </Button>
@@ -228,6 +241,7 @@ export function ProducaoDetalhes({
                     className="size-9 rounded-lg text-destructive hover:text-destructive"
                     onClick={() => onAskDelete(row.sequencia)}
                     aria-label="Excluir produção"
+                    disabled={row.datas?.fechamento === null}
                   >
                     <Trash2 className="size-4" />
                   </Button>
@@ -240,4 +254,3 @@ export function ProducaoDetalhes({
     </Table>
   );
 }
-

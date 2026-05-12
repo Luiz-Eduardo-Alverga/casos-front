@@ -157,7 +157,7 @@ export function PainelKanban() {
   const cronogramaIdAgenda = projeto?.trim() || undefined;
   const { data: agendaDevData, isLoading: isAgendaLoading } = useAgendaDev({
     id_colaborador: agendaUserId,
-    // Cronograma_id: cronogramaIdAgenda,
+    Cronograma_id: cronogramaIdAgenda,
   });
 
   const agendaInitRef = useRef(false);
@@ -397,10 +397,13 @@ export function PainelKanban() {
 
   const colaboradorModalLabel =
     devAtribuidoLabel?.trim() || nomeColaborador || "Não informado";
-  const projetoModalId = String(agendaRowForFilters?.Cronograma_id ?? "").trim();
+  const projetoModalId = String(
+    agendaRowForFilters?.Cronograma_id ?? "",
+  ).trim();
   const projetoModalLabel = projetoModalId || "Não informado";
   const produtoModalId = produto?.trim() || "";
-  const produtoModalLabel = agendaRowForFilters?.produto?.trim() || "Não informado";
+  const produtoModalLabel =
+    agendaRowForFilters?.produto?.trim() || "Não informado";
 
   const columnLoad = useMemo(
     () => ({

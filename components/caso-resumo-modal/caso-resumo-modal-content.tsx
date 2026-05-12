@@ -170,7 +170,6 @@ export function CasoResumoModalContent({
                 statusIdApi={statusIdApi}
                 memoriaQueryId={memoriaQueryId}
                 onStatusUpdated={onStatusUpdated}
-                statusDisabled={true}
               />
             </div>
           )}

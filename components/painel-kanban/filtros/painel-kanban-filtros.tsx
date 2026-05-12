@@ -30,7 +30,7 @@ export function PainelKanbanFiltros({
               Visão geral de Produtos Priorizados
             </CardTitle>
           </div>
-          {/* <CasoFormProjeto
+          <CasoFormProjeto
             requireProduto={false}
             usuarioId={usuarioId}
             setorProjetoFieldName="devAtribuidoSetor"
@@ -42,7 +42,7 @@ export function PainelKanbanFiltros({
             valueLabelPrefix="Projeto: "
             wrapperClassName="w-full sm:w-[260px] h-full"
             controlHeightClassName="h-[32px]"
-          /> */}
+          />
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-3 sm:p-6 sm:pt-3 min-w-0">
