@@ -43,4 +43,14 @@ export interface HorasAnaliticasCasesListProps {
   isLoading: boolean;
 }
 
+export type HorasAnaliticasEmptyStateVariant =
+  | "sem_filtros"
+  | "sem_resultados";
+
+export interface HorasAnaliticasEmptyStateProps {
+  variant: HorasAnaliticasEmptyStateVariant;
+  onApplyFilters: () => void;
+  isApplyFiltersDisabled?: boolean;
+}
+
 export type HorasAnaliticasApiItem = ProducaoHorasAnaliticasItem;

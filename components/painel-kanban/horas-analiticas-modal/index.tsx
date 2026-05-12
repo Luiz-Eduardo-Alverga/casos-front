@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Clock3, RefreshCcw, Save } from "lucide-react";
+import { Clock3, RefreshCcw } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormProduto } from "@/components/fields/caso-form-produto";
-import { CasoFormVersao } from "@/components/fields/caso-form-versao";
 import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
 import { importanceOptions } from "@/mocks/teste";
@@ -27,6 +26,7 @@ import { getTodayYmd, parseHorasAnaliticasData } from "./utils";
 import { HorasAnaliticasSummaryCards } from "./horas-analiticas-summary-cards";
 import { HorasAnaliticasCasesList } from "./horas-analiticas-cases-list";
 import { HorasAnaliticasCommitBox } from "./horas-analiticas-commit-box";
+import { HorasAnaliticasEmptyState } from "./horas-analiticas-empty-state";
 
 interface HorasAnaliticasFiltersForm {
   produto: string;
@@ -58,7 +58,6 @@ export function HorasAnaliticasModal({
 }: HorasAnaliticasModalProps) {
   const methods = useForm<HorasAnaliticasFiltersForm>({
     defaultValues: {
-      produto: produtoId,
       versao: "",
       projeto: projetoId,
       devAtribuido: usuarioId,
@@ -80,9 +79,9 @@ export function HorasAnaliticasModal({
   const [filtrosAplicados, setFiltrosAplicados] =
     useState<ProducaoHorasAnaliticasParams | null>(null);
 
-  useEffect(() => {
-    methods.setValue("produto", produtoId || "");
-  }, [methods, produtoId]);
+  // useEffect(() => {
+  //   methods.setValue("produto", produtoId || "");
+  // }, [methods, produtoId]);
 
   useEffect(() => {
     methods.setValue("projeto", projetoId || "");
@@ -125,6 +124,13 @@ export function HorasAnaliticasModal({
     () => parseHorasAnaliticasData(query.data?.data ?? []),
     [query.data?.data],
   );
+  const isLoadingResults = query.isLoading || query.isFetching;
+  const semBuscaAplicada = !filtrosAplicados;
+  const semResultados =
+    Boolean(filtrosAplicados) &&
+    !isLoadingResults &&
+    parsedData.casos.length === 0;
+  const mostrarConteudo = !semBuscaAplicada && !semResultados;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -208,12 +214,30 @@ export function HorasAnaliticasModal({
 
           <HorasAnaliticasSummaryCards resumo={parsedData.resumo} />
 
-          <HorasAnaliticasCasesList
-            casos={parsedData.casos}
-            isLoading={query.isLoading || query.isFetching}
-          />
+          {semBuscaAplicada ? (
+            <HorasAnaliticasEmptyState
+              variant="sem_filtros"
+              onApplyFilters={handleAtualizar}
+              isApplyFiltersDisabled={!canFetch || query.isFetching}
+            />
+          ) : semResultados ? (
+            <HorasAnaliticasEmptyState
+              variant="sem_resultados"
+              onApplyFilters={handleAtualizar}
+              isApplyFiltersDisabled={!canFetch || query.isFetching}
+            />
+          ) : null}
 
-          <HorasAnaliticasCommitBox />
+          {mostrarConteudo ? (
+            <>
+              <HorasAnaliticasCasesList
+                casos={parsedData.casos}
+                isLoading={isLoadingResults}
+              />
+
+              <HorasAnaliticasCommitBox />
+            </>
+          ) : null}
 
           {query.error ? (
             <p className="text-sm text-red-600" role="alert">
