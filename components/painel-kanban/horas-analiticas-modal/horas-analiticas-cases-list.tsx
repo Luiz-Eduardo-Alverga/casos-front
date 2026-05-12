@@ -1,0 +1,101 @@
+"use client";
+
+import { Clock3, Hourglass, Package, SquarePen } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import type { HorasAnaliticasCasesListProps } from "./types";
+import { formatMinutesCompact } from "./utils";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+function getTipoBadgeClass(tipo: string): string {
+  if (tipo.trim().toUpperCase() === "CASOS") {
+    return "bg-blue-100 text-blue-700 hover:bg-blue-100";
+  }
+  return "bg-emerald-100 text-emerald-700 hover:bg-emerald-100";
+}
+
+export function HorasAnaliticasCasesList({
+  casos,
+  isLoading,
+}: HorasAnaliticasCasesListProps) {
+  const router = useRouter();
+  return (
+    <section className="overflow-hidden rounded-lg border border-border-divider bg-white shadow-sm">
+      <header className="flex items-center justify-between border-b border-border-divider bg-slate-50 px-4 py-3">
+        <h3 className="text-sm font-semibold text-text-primary">
+          Casos Trabalhados Hoje
+        </h3>
+        <p className="text-xs text-text-secondary">
+          {casos.length} {casos.length === 1 ? "registro" : "registros"}
+        </p>
+      </header>
+
+      <div className="max-h-[280px] overflow-y-auto">
+        {isLoading ? (
+          <div className="space-y-3 p-4">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <div
+                key={index}
+                className="h-[76px] animate-pulse rounded-lg border border-border-divider bg-slate-50"
+              />
+            ))}
+          </div>
+        ) : casos.length === 0 ? (
+          <div className="p-4 text-sm text-text-secondary">
+            Nenhum caso encontrado para os filtros selecionados.
+          </div>
+        ) : (
+          casos.map((caso, index) => (
+            <article
+              key={caso.id + index.toString()}
+              className="border-b border-border-divider px-4 py-3 last:border-b-0"
+            >
+              <div className="mb-1 flex items-start justify-between gap-3">
+                <div>
+                  <div className="mb-1 flex items-center gap-2">
+                    <p className="text-sm font-bold text-text-primary">
+                      #{caso.registro}
+                    </p>
+                    <Badge
+                      className={`h-5 rounded px-2 text-[10px] uppercase ${getTipoBadgeClass(caso.tipo)}`}
+                    >
+                      {caso.tipo}
+                    </Badge>
+                  </div>
+                  <p className="text-sm font-medium leading-tight text-text-primary">
+                    {caso.descricaoResumo}
+                  </p>
+                </div>
+
+                <Link
+                  target="_blank"
+                  href={`/casos/${caso.registro}`}
+                  type="button"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-label={`Editar caso ${caso.registro}`}
+                >
+                  <SquarePen className="h-4 w-4" aria-hidden />
+                </Link>
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                <span className="inline-flex items-center gap-1 text-text-secondary">
+                  <Clock3 className="h-3.5 w-3.5" aria-hidden />
+                  {caso.horaAbertura} - {caso.horaFechamento}
+                </span>
+                <span className="inline-flex items-center gap-1 font-semibold text-text-primary">
+                  <Hourglass className="h-3.5 w-3.5" aria-hidden />
+                  {formatMinutesCompact(caso.minutosRealizados)}
+                </span>
+                <span className="inline-flex items-center gap-1 text-text-secondary">
+                  <Package className="h-3.5 w-3.5" aria-hidden />
+                  {caso.produtoVersao}
+                </span>
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+    </section>
+  );
+}

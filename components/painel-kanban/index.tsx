@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { PainelPageHeader } from "@/components/painel/painel-page-header";
 import { PainelKanbanFiltros } from "@/components/painel-kanban/filtros/painel-kanban-filtros";
 import { PainelKanbanProdutosModal } from "@/components/painel-kanban/filtros/painel-kanban-produtos-modal";
+import { HorasAnaliticasModal } from "@/components/painel-kanban/horas-analiticas-modal";
 import type { PainelKanbanFiltrosForm } from "@/interfaces/kanban/painel-kanban-filtros-form";
 import { PainelKanbanBoard } from "@/components/painel-kanban/kanban/painel-kanban-board";
 import { PainelKanbanSkeleton } from "@/components/painel-kanban/layout/painel-kanban-skeleton";
@@ -306,6 +307,7 @@ export function PainelKanban() {
 
   const [kanbanData, setKanbanData] = useState<PainelKanbanItem[]>([]);
   const [isProdutosModalOpen, setIsProdutosModalOpen] = useState(false);
+  const [isHorasAnaliticasOpen, setIsHorasAnaliticasOpen] = useState(false);
   useEffect(() => {
     setKanbanData(mergedFromApi);
   }, [mergedFromApi]);
@@ -365,6 +367,13 @@ export function PainelKanban() {
     queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
   }, [queryClient]);
 
+  const colaboradorModalLabel =
+    devAtribuidoLabel?.trim() || nomeColaborador || "Não informado";
+  const projetoModalId = String(agendaRowForFilters?.Cronograma_id ?? "").trim();
+  const projetoModalLabel = projetoModalId || "Não informado";
+  const produtoModalId = produto?.trim() || "";
+  const produtoModalLabel = agendaRowForFilters?.produto?.trim() || "Não informado";
+
   const columnLoad = useMemo(
     () => ({
       abertos: {
@@ -422,6 +431,7 @@ export function PainelKanban() {
           <PainelPageHeader
             onVerCasos={() => router.push("/casos")}
             onAtualizar={handleAtualizar}
+            onHorasAnaliticas={() => setIsHorasAnaliticasOpen(true)}
             actionSlot={
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
                 <CasoFormDevAtribuido
@@ -454,6 +464,17 @@ export function PainelKanban() {
             open={isProdutosModalOpen}
             onOpenChange={setIsProdutosModalOpen}
             idColaborador={usuarioDevId}
+          />
+
+          <HorasAnaliticasModal
+            open={isHorasAnaliticasOpen}
+            onOpenChange={setIsHorasAnaliticasOpen}
+            produtoId={produtoModalId}
+            produtoLabel={produtoModalLabel}
+            colaboradorLabel={colaboradorModalLabel}
+            projetoId={projetoModalId}
+            projetoLabel={projetoModalLabel}
+            usuarioId={usuarioDevId}
           />
 
           {!queryEnabled ? (

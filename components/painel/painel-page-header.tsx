@@ -8,6 +8,7 @@ export interface PainelPageHeaderProps {
   /** Quando true, desabilita os botões de ação (ex.: skeleton de carregamento). */
   isLoading?: boolean;
   onVerCasos?: () => void;
+  onHorasAnaliticas?: () => void;
   onAtualizar?: () => void;
   actionSlot?: ReactNode;
 }
@@ -15,6 +16,7 @@ export interface PainelPageHeaderProps {
 export function PainelPageHeader({
   isLoading = false,
   onVerCasos,
+  onHorasAnaliticas,
   onAtualizar,
   actionSlot,
 }: PainelPageHeaderProps) {
@@ -34,12 +36,12 @@ export function PainelPageHeader({
         <Button
           variant="outline"
           disabled={isLoading}
-          onClick={isLoading ? undefined : onVerCasos}
+          onClick={isLoading ? undefined : onHorasAnaliticas}
           type="button"
           className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
         >
           <List className="h-3.5 w-3.5" />
-          Ver Casos
+          Horas Analiticas
         </Button>
         <Button
           variant="outline"
