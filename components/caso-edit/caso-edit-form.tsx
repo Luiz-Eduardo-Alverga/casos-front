@@ -124,8 +124,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   const caso = item.caso;
   const numeroCaso = caso?.id ?? Number(casoId);
   const rbacReady = permissionsLoaded();
-  const showAnexosTab =
-    !rbacReady || hasPermission("list-case-attachment");
+  const showAnexosTab = !rbacReady || hasPermission("list-case-attachment");
   const anexosQuery = useCaseAttachments({
     casoRegistro: Number.isFinite(numeroCaso) ? numeroCaso : null,
     enabled: showAnexosTab && Number.isFinite(numeroCaso),
@@ -426,22 +425,22 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       value="anotacoes"
                       className="mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden"
                     >
-                      <fieldset
+                      {/* <fieldset
                         disabled={!canEditCase}
                         className="contents"
                         aria-disabled={!canEditCase}
-                      >
-                        <div className="flex min-h-0 flex-1 min-w-0 flex-col">
-                          <AbaAnotacoes
-                            report={item.caso.textos.descricao_completa ?? ""}
-                            anotacoes={anotacoes ?? []}
-                            onCreate={handleCreateAnotacao}
-                            onUpdate={handleUpdateAnotacao}
-                            onDelete={handleDeleteAnotacao}
-                            isCreating={createAnotacao.isPending}
-                          />
-                        </div>
-                      </fieldset>
+                      > */}
+                      <div className="flex min-h-0 flex-1 min-w-0 flex-col">
+                        <AbaAnotacoes
+                          report={item.caso.textos.descricao_completa ?? ""}
+                          anotacoes={anotacoes ?? []}
+                          onCreate={handleCreateAnotacao}
+                          onUpdate={handleUpdateAnotacao}
+                          onDelete={handleDeleteAnotacao}
+                          isCreating={createAnotacao.isPending}
+                        />
+                      </div>
+                      {/* </fieldset> */}
                     </TabsContent>
 
                     <TabsContent
@@ -471,21 +470,21 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       value="clientes"
                       className="mt-0 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
                     >
-                      <fieldset
+                      {/* <fieldset
                         disabled={!canEditCase}
                         className="contents"
                         aria-disabled={!canEditCase}
-                      >
-                        <div className="flex-1 flex flex-col gap-6 min-w-0">
-                          <AbaClientes
-                            clientes={clientes ?? []}
-                            onAdd={handleAddCliente}
-                            onDelete={handleDeleteCliente}
-                            isAdding={createClienteCaso.isPending}
-                          />
-                          <CasoEditCardClassificacao />
-                        </div>
-                      </fieldset>
+                      > */}
+                      <div className="flex-1 flex flex-col gap-6 min-w-0">
+                        <AbaClientes
+                          clientes={clientes ?? []}
+                          onAdd={handleAddCliente}
+                          onDelete={handleDeleteCliente}
+                          isAdding={createClienteCaso.isPending}
+                        />
+                        <CasoEditCardClassificacao />
+                      </div>
+                      {/* </fieldset> */}
                     </TabsContent>
 
                     <TabsContent

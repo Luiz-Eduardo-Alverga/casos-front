@@ -27,7 +27,7 @@ export function PainelPageHeader({
           Painel do Desenvolvedor
         </h1>
         <p className="text-sm text-text-secondary">
-          Gerencie os produtos priorizados e visualize seus casos
+          Selecione um produto abaixo para filtrar os dados do Kanban
         </p>
       </div>
 

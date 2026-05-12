@@ -19,6 +19,7 @@ import {
   formatDuracaoMinutos,
   minutosDuracaoEdicao,
   minutosDuracaoProducaoApi,
+  parseDataHoraProducaoApi,
 } from "./utils";
 
 export interface ProducaoDetalhesProps {
@@ -64,6 +65,21 @@ export function ProducaoDetalhes({
     );
   }
 
+  const producaoListOrdenada = [...producaoList].sort((a, b) => {
+    const da =
+      parseDataHoraProducaoApi(a.datas?.abertura) ??
+      parseDataHoraProducaoApi(a.datas?.fechamento);
+    const db =
+      parseDataHoraProducaoApi(b.datas?.abertura) ??
+      parseDataHoraProducaoApi(b.datas?.fechamento);
+
+    if (!da && !db) return 0;
+    if (!da) return 1;
+    if (!db) return -1;
+
+    return db.getTime() - da.getTime();
+  });
+
   return (
     <Table>
       <TableHeader>
@@ -92,7 +108,7 @@ export function ProducaoDetalhes({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {producaoList.map((row) => (
+        {producaoListOrdenada.map((row) => (
           <TableRow
             key={row.sequencia}
             className="bg-white border-t border-border-divider hover:bg-white"

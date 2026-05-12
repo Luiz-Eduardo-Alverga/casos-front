@@ -14,6 +14,8 @@ export interface CasoFormDevAtribuidoProps {
   name?: string;
   /** Nome do campo (opcional) para persistir o label do usuário selecionado. */
   labelName?: string;
+  /** Nome do campo (opcional) para persistir o setor do usuário selecionado. */
+  setorName?: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -32,6 +34,7 @@ export interface CasoFormDevAtribuidoProps {
 export function CasoFormDevAtribuido({
   name = "devAtribuido",
   labelName = "devAtribuidoLabel",
+  setorName,
   label = "Dev Atribuído",
   placeholder = "Selecione o dev atribuído...",
   required = true,
@@ -143,6 +146,56 @@ export function CasoFormDevAtribuido({
       setDevSelecionado(null);
     }
   }, [devAtribuido, usuarios]);
+
+  // Mantém o setor do usuário sincronizado no form (quando solicitado).
+  useEffect(() => {
+    if (!setorName) return;
+
+    const currentId = devAtribuido?.toString().trim();
+    if (!currentId) {
+      const currentSetor = String(getValues(setorName as any) ?? "");
+      if (currentSetor !== "") {
+        setValue(setorName as any, "", {
+          shouldDirty: false,
+          shouldTouch: false,
+          shouldValidate: false,
+        });
+      }
+      return;
+    }
+
+    const setSetorIfChanged = (nextSetor: string) => {
+      const currentSetor = String(getValues(setorName as any) ?? "");
+      if (currentSetor !== nextSetor) {
+        setValue(setorName as any, nextSetor, {
+          shouldDirty: false,
+          shouldTouch: false,
+          shouldValidate: false,
+        });
+      }
+    };
+
+    // Preferência: dados completos encontrados via API.
+    if (devSelecionado && String(devSelecionado.id) === String(currentId)) {
+      setSetorIfChanged(String(devSelecionado.setor ?? ""));
+      return;
+    }
+
+    // Se o usuário veio do editCaseItem (tela de edição).
+    const editDev = editCaseItem?.caso?.usuarios?.desenvolvimento;
+    if (editDev && String(editDev.id) === String(currentId)) {
+      // Nem sempre o editCaseItem tem setor; não força valor nesse caso.
+      return;
+    }
+
+    // Se não achou ainda, tenta inferir via lista carregada.
+    if (usuarios && Array.isArray(usuarios)) {
+      const devEncontrado = usuarios.find((u) => String(u.id) === String(currentId));
+      if (devEncontrado) {
+        setSetorIfChanged(String(devEncontrado.setor ?? ""));
+      }
+    }
+  }, [devAtribuido, devSelecionado, editCaseItem, getValues, setValue, setorName, usuarios]);
 
   // Mantém o label sincronizado no form (para persistência/restauração).
   useEffect(() => {

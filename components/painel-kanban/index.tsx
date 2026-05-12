@@ -36,6 +36,7 @@ import {
   type PainelKanbanItem,
 } from "@/components/painel-kanban/kanban/painel-kanban-map";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { CasoFormProjeto } from "../fields";
 
 function isColumnId(id: string): id is PainelKanbanColumnId {
   return (PAINEL_KANBAN_COLUMN_IDS as readonly string[]).includes(id);
@@ -57,6 +58,9 @@ export function PainelKanban() {
       versao: "",
       devAtribuido: idColaborador,
       devAtribuidoLabel: nomeColaborador,
+      devAtribuidoSetor: "",
+      projeto: "",
+      projetoLoading: true,
     },
   });
 
@@ -65,6 +69,8 @@ export function PainelKanban() {
   const versao = watch("versao");
   const devAtribuido = watch("devAtribuido");
   const devAtribuidoLabel = watch("devAtribuidoLabel");
+  const projeto = watch("projeto");
+  const projetoLoading = Boolean(watch("projetoLoading"));
   const providerValue = useMemo(
     () => ({
       form: methods,
@@ -98,8 +104,13 @@ export function PainelKanban() {
         setValue("devAtribuidoLabel", nomeColaborador);
       }
 
+      if (saved.devAtribuidoSetor?.trim()) {
+        setValue("devAtribuidoSetor", saved.devAtribuidoSetor);
+      }
+
       if (saved.produto?.trim()) setValue("produto", saved.produto);
       if (saved.versao?.trim()) setValue("versao", saved.versao);
+      if (saved.projeto?.trim()) setValue("projeto", saved.projeto);
     } catch {
       // Ignora valores inválidos no localStorage.
     } finally {
@@ -123,6 +134,8 @@ export function PainelKanban() {
         devAtribuidoLabel: (values.devAtribuidoLabel ?? "").trim()
           ? values.devAtribuidoLabel
           : nomeColaborador,
+        devAtribuidoSetor: (values.devAtribuidoSetor ?? "").trim(),
+        projeto: (values.projeto ?? "").trim(),
       };
 
       try {
@@ -141,12 +154,15 @@ export function PainelKanban() {
   // Evita 2 chamadas no F5 (primeiro logado, depois restaurado do localStorage):
   // só busca a agenda após concluir a restauração dos filtros.
   const agendaUserId = filtrosRestaurados ? usuarioDevId : "";
+  const cronogramaIdAgenda = projeto?.trim() || undefined;
   const { data: agendaDevData, isLoading: isAgendaLoading } = useAgendaDev({
     id_colaborador: agendaUserId,
+    // Cronograma_id: cronogramaIdAgenda,
   });
 
   const agendaInitRef = useRef(false);
   const lastUsuarioDevIdRef = useRef<string>("");
+  const lastCronogramaIdAgendaRef = useRef<string | null>(null);
   useEffect(() => {
     if (!usuarioDevId) return;
     if (
@@ -157,6 +173,18 @@ export function PainelKanban() {
     }
     lastUsuarioDevIdRef.current = usuarioDevId;
   }, [usuarioDevId]);
+
+  useEffect(() => {
+    const next = projeto?.trim() ?? "";
+    if (lastCronogramaIdAgendaRef.current === null) {
+      lastCronogramaIdAgendaRef.current = next;
+      return;
+    }
+    if (lastCronogramaIdAgendaRef.current !== next) {
+      lastCronogramaIdAgendaRef.current = next;
+      agendaInitRef.current = false;
+    }
+  }, [projeto]);
 
   useEffect(() => {
     if (!filtrosRestaurados) return;
@@ -427,7 +455,7 @@ export function PainelKanban() {
   return (
     <CasoFormProvider value={providerValue}>
       <FormProvider {...methods}>
-        <div className="px-6 pt-20 py-10 flex-1 flex flex-col overflow-x-hidden lg:min-h-0 lg:overflow-hidden">
+        <div className="px-6 pt-20 py-5 flex-1 flex flex-col overflow-x-hidden lg:min-h-0 lg:overflow-hidden">
           <PainelPageHeader
             onVerCasos={() => router.push("/casos")}
             onAtualizar={handleAtualizar}
@@ -441,6 +469,7 @@ export function PainelKanban() {
                   placeholder={verComoPlaceholder}
                   valueLabelPrefix="Ver como: "
                   hideLabel
+                  setorName="devAtribuidoSetor"
                   wrapperClassName="w-full sm:w-[220px] h-full"
                   controlHeightClassName="h-[42px]"
                 />
@@ -458,12 +487,16 @@ export function PainelKanban() {
             }
           />
 
-          <PainelKanbanFiltros agendaItems={agendaDevData ?? []} />
+          <PainelKanbanFiltros
+            agendaItems={agendaDevData ?? []}
+            usuarioId={usuarioDevId}
+          />
 
           <PainelKanbanProdutosModal
             open={isProdutosModalOpen}
             onOpenChange={setIsProdutosModalOpen}
             idColaborador={usuarioDevId}
+            nomeColaborador={nomeColaborador}
           />
 
           <HorasAnaliticasModal
@@ -496,7 +529,7 @@ export function PainelKanban() {
               </CardContent>
             </Card>
           ) : (
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden gap-2">
               <PainelKanbanBoard
                 data={kanbanData}
                 onDataChange={setKanbanData}

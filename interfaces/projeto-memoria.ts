@@ -51,6 +51,7 @@ export interface CasoStatus {
 }
 
 export interface CasoCaracteristicas {
+  tamanho_id: number | null;
   tamanho_pontos: number | null;
   prioridade: string;
   tipo_categoria: string;

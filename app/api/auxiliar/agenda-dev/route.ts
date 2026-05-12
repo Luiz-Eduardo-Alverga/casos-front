@@ -5,6 +5,7 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const id_colaborador = url.searchParams.get("id_colaborador");
+    const Cronograma_id = url.searchParams.get("Cronograma_id");
 
     if (!id_colaborador) {
       return Response.json(
@@ -21,6 +22,7 @@ export async function GET(request: Request) {
     const response = await api.get("/auxiliar/agenda-dev", {
       params: {
         id_colaborador,
+        ...(Cronograma_id ? { Cronograma_id } : {}),
       },
       headers: authHeaders,
     });

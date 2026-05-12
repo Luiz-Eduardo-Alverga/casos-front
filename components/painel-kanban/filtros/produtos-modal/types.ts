@@ -9,6 +9,7 @@ export interface PainelKanbanProdutosModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   idColaborador: string;
+  nomeColaborador: string;
 }
 
 export interface ProdutosModalListState {
@@ -17,4 +18,3 @@ export interface ProdutosModalListState {
   editVersao: string;
   editingProdutoId: string;
 }
-

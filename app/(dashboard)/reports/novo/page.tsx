@@ -5,7 +5,7 @@ import { RequirePermission } from "@/components/require-permission";
 
 export default function ReportNovoPage() {
   return (
-    <RequirePermission permission="create-case">
+    <RequirePermission permission="create-report">
       <ReportCreateForm />
     </RequirePermission>
   );

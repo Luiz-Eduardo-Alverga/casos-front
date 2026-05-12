@@ -60,7 +60,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
       <div
         className={`flex flex-col flex-1 min-h-screen transition-all duration-300 w-full ${
-          hasInternalScroll ? "lg:h-screen overflow-hidden" : ""
+          hasInternalScroll ? "lg:h-screen overflow-hidden " : ""
         }`}
         style={{
           marginLeft: isMobile ? "0" : isCollapsed ? "64px" : "256px",
@@ -68,7 +68,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
       >
         <Header />
         <div
-          className={`flex-1 flex flex-col bg-page-background ${
+          className={`flex-1 flex flex-col bg-page-background  ${
             hasInternalScroll ? "lg:min-h-0 lg:overflow-hidden" : ""
           }`}
         >

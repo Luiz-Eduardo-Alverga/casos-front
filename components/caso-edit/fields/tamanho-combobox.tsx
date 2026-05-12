@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Ruler } from "lucide-react";
 import { useTamanhos } from "@/hooks/use-tamanhos";
 import type { TamanhoItem } from "@/services/auxiliar/tamanhos";
@@ -57,9 +57,11 @@ export function TamanhoCombobox({
   placeholder = "Selecione o tamanho...",
   label = "Tamanho",
 }: TamanhoComboboxProps) {
-  const { isDisabled, lazyLoadComboboxOptions } = useCasoForm();
+  const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
+  const tamanhoIdEdicao = editCaseItem?.caso?.caracteristicas?.tamanho_id;
+
   const [optionsRequested, setOptionsRequested] = useState(
-    !lazyLoadComboboxOptions,
+    !lazyLoadComboboxOptions || Boolean(value) || tamanhoIdEdicao != null,
   );
 
   const { data: tamanhosData, isLoading } = useTamanhos({
@@ -80,6 +82,13 @@ export function TamanhoCombobox({
 
   const isFieldDisabled = disabled || isDisabled;
 
+  useEffect(() => {
+    if (!lazyLoadComboboxOptions) return;
+    if (value || tamanhoIdEdicao != null) {
+      setOptionsRequested(true);
+    }
+  }, [lazyLoadComboboxOptions, value, tamanhoIdEdicao]);
+
   return (
     <div className="space-y-2">
       <ComboboxField
@@ -91,7 +100,9 @@ export function TamanhoCombobox({
           const nextValue = (next ?? "").trim();
           onValueChange(nextValue ? nextValue : undefined);
           if (onTamanhoSelect && nextValue) {
-            const selected = tamanhos.find((t: TamanhoItem) => t.id === nextValue);
+            const selected = tamanhos.find(
+              (t: TamanhoItem) => t.id === nextValue,
+            );
             if (selected) {
               onTamanhoSelect(nextValue, tempoApiToHHMM(selected.tempo));
             }

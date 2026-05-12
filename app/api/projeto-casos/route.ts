@@ -3,7 +3,7 @@ import { getAuthorizationHeader } from "@/lib/auth-server";
 import { withPermission } from "@/lib/api-db/with-permission";
 
 export async function POST(request: Request) {
-  return withPermission("create-case", async () => {
+  return withPermission(["create-report", "create-case"], async () => {
     try {
       const authHeaders = await getAuthorizationHeader();
       if (!authHeaders.Authorization) {
