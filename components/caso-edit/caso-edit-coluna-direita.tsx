@@ -16,6 +16,7 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { ReportAnaliseModal } from "./report-analise-modal";
 import { useCasoEdit } from "./caso-edit-context";
+import { mapCasoStatusToReportStatus } from "./report-analise-modal/utils";
 
 export function CasoEditColunaDireita() {
   const {
@@ -35,6 +36,7 @@ export function CasoEditColunaDireita() {
   }
 
   const openingType = report.tipo_abertura ?? "CASO";
+  const isReport = openingType === "REPORT";
   const disabled = isSaving || !canEditCase;
 
   return (
@@ -46,9 +48,12 @@ export function CasoEditColunaDireita() {
               statusIdApi={statusIdApi}
               memoriaQueryId={memoriaQueryId}
               onStatusUpdated={invalidate}
+              getReportStatusFromCasoStatus={
+                isReport ? mapCasoStatusToReportStatus : undefined
+              }
             />
 
-            {openingType === "REPORT" && (
+            {isReport && (
               <>
                 <Separator />
 
@@ -88,7 +93,7 @@ export function CasoEditColunaDireita() {
         </Card>
       </div>
 
-      {openingType === "REPORT" ? (
+      {isReport ? (
         <ReportAnaliseModal
           open={isReportModalOpen}
           onOpenChange={setIsReportModalOpen}

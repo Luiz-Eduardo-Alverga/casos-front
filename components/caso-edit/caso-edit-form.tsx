@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -42,6 +42,8 @@ import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import type { UpdateCasoRequest } from "@/services/projeto-casos/update";
 import {
   buildAnaliseConclusaoByStatus,
+  mapCasoStatusToReportStatus,
+  mapReportStatusToCasoStatus,
   normalizeAnaliseStatusForForm,
 } from "./report-analise-modal/utils";
 
@@ -123,6 +125,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
 
   const caso = item.caso;
   const numeroCaso = caso?.id ?? Number(casoId);
+  const isReport = item.caso.caracteristicas.tipo_abertura === "REPORT";
   const rbacReady = permissionsLoaded();
   const showAnexosTab = !rbacReady || hasPermission("list-case-attachment");
   const anexosQuery = useCaseAttachments({
@@ -141,6 +144,15 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     resolver: zodResolver(editFormSchema),
     defaultValues: defaultValues ?? fallbackDefaults,
   });
+  const statusValue = useWatch({ control: methods.control, name: "status" });
+  const analiseStatusValue = useWatch({
+    control: methods.control,
+    name: "analiseStatus",
+  });
+  const previousStatusValueRef = useRef(String(defaultValues.status ?? ""));
+  const previousAnaliseStatusValueRef = useRef(
+    String(defaultValues.analiseStatus ?? ""),
+  );
 
   const produtoWatch = methods.watch("produto");
 
@@ -160,6 +172,57 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     queryClient.invalidateQueries({ queryKey: ["projeto-memoria", casoId] });
   }, [queryClient, casoId]);
 
+  useEffect(() => {
+    const statusAtual = String(statusValue ?? "").trim();
+    const analiseStatusAtual = String(analiseStatusValue ?? "").trim();
+
+    if (!isReport) {
+      previousStatusValueRef.current = statusAtual;
+      previousAnaliseStatusValueRef.current = analiseStatusAtual;
+      return;
+    }
+
+    const statusAlterado = statusAtual !== previousStatusValueRef.current;
+    const analiseStatusAlterado =
+      analiseStatusAtual !== previousAnaliseStatusValueRef.current;
+
+    if (analiseStatusAlterado && !statusAlterado) {
+      const statusCasoEquivalente =
+        mapReportStatusToCasoStatus(analiseStatusAtual);
+      if (
+        statusCasoEquivalente !== undefined &&
+        statusAtual !== String(statusCasoEquivalente)
+      ) {
+        methods.setValue("status", String(statusCasoEquivalente), {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+        previousStatusValueRef.current = String(statusCasoEquivalente);
+        previousAnaliseStatusValueRef.current = analiseStatusAtual;
+        return;
+      }
+    }
+
+    if (statusAlterado && !analiseStatusAlterado) {
+      const statusReportEquivalente = mapCasoStatusToReportStatus(statusAtual);
+      if (
+        statusReportEquivalente !== undefined &&
+        analiseStatusAtual !== statusReportEquivalente
+      ) {
+        methods.setValue("analiseStatus", statusReportEquivalente, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+        previousStatusValueRef.current = statusAtual;
+        previousAnaliseStatusValueRef.current = statusReportEquivalente;
+        return;
+      }
+    }
+
+    previousStatusValueRef.current = statusAtual;
+    previousAnaliseStatusValueRef.current = analiseStatusAtual;
+  }, [analiseStatusValue, isReport, methods, statusValue]);
+
   const handleSalvar = methods.handleSubmit(async (formData: EditFormData) => {
     try {
       const versaoProduto =
@@ -168,12 +231,34 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         item.report?.analise_status,
       );
       const statusReportSelecionado = (formData.analiseStatus ?? "").trim();
-      const forceStatusEDevPorAnalise = statusReportSelecionado === "21";
-      const statusReportAlterado =
+      let statusCasoFinal =
+        Number(formData.status) || Number(caso?.status?.status_id ?? 1);
+      let statusReportFinal = statusReportSelecionado;
+      const statusReportSelecionadoAlterado =
         statusReportSelecionado !== "" &&
         statusReportSelecionado !== statusReportAtual;
+
+      if (isReport) {
+        const statusCasoPorReport = statusReportSelecionadoAlterado
+          ? mapReportStatusToCasoStatus(statusReportSelecionado)
+          : undefined;
+
+        if (statusCasoPorReport !== undefined) {
+          statusCasoFinal = statusCasoPorReport;
+        } else {
+          const statusReportPorCaso =
+            mapCasoStatusToReportStatus(statusCasoFinal);
+          if (statusReportPorCaso !== undefined) {
+            statusReportFinal = statusReportPorCaso;
+          }
+        }
+      }
+
+      const forceStatusEDevPorAnalise = statusReportFinal === "21";
+      const statusReportAlterado =
+        statusReportFinal !== "" && statusReportFinal !== statusReportAtual;
       const analiseDataConclusao = statusReportAlterado
-        ? buildAnaliseConclusaoByStatus(statusReportSelecionado)
+        ? buildAnaliseConclusaoByStatus(statusReportFinal)
         : undefined;
 
       const payload: UpdateCasoRequest = {
@@ -193,13 +278,11 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         VersaoProduto: versaoProduto,
         Cronograma_id: Number(formData.projeto),
         Id_Origem: Number(formData.origem),
-        status: forceStatusEDevPorAnalise
-          ? 8
-          : Number(formData.status) || Number(caso?.status?.status_id ?? 1),
+        status: forceStatusEDevPorAnalise ? 8 : statusCasoFinal,
         atribuido_qa: Number(formData.qaAtribuido),
         report_analise_aprovado: statusReportAlterado,
         report_analise_status: statusReportAlterado
-          ? statusReportSelecionado
+          ? statusReportFinal
           : undefined,
         report_analise_data_conclusao: analiseDataConclusao,
         report_data_limite: forceStatusEDevPorAnalise

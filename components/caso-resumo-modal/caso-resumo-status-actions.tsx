@@ -8,12 +8,15 @@ import { CasoFormStatus } from "@/components/fields/caso-form-status";
 import { Button } from "@/components/ui/button";
 import { useUpdateCaso } from "@/hooks/use-update-caso";
 import { mapStatusAvancar } from "@/components/caso-resumo-modal/utils";
+import type { UpdateCasoRequest } from "@/services/projeto-casos/update";
+import { buildAnaliseConclusaoByStatus } from "@/components/caso-edit/report-analise-modal/utils";
 
 interface CasoResumoStatusActionsProps {
   statusIdApi: number;
   memoriaQueryId: string;
   onStatusUpdated: () => void;
   statusDisabled?: boolean;
+  getReportStatusFromCasoStatus?: (status: number) => string | undefined;
 }
 
 export function CasoResumoStatusActions({
@@ -21,14 +24,43 @@ export function CasoResumoStatusActions({
   memoriaQueryId,
   onStatusUpdated,
   statusDisabled = false,
+  getReportStatusFromCasoStatus,
 }: CasoResumoStatusActionsProps) {
-  const { setValue } = useFormContext<{ status: string }>();
+  const { setValue } = useFormContext<{
+    status: string;
+    analiseStatus?: string;
+  }>();
   const updateCaso = useUpdateCaso();
 
   const proximoStatus = mapStatusAvancar(statusIdApi);
   const podeAvancar = proximoStatus != null;
   const exibirReverter = statusIdApi === 3;
   const exibirAvancar = statusIdApi !== 9;
+
+  const buildStatusPayload = (status: number): UpdateCasoRequest => {
+    const reportStatus = getReportStatusFromCasoStatus?.(status);
+    if (!reportStatus) {
+      return { status };
+    }
+
+    const analiseDataConclusao = buildAnaliseConclusaoByStatus(reportStatus);
+
+    return {
+      status,
+      report_analise_aprovado: true,
+      report_analise_status: reportStatus,
+      report_analise_data_conclusao: analiseDataConclusao,
+      report_data_limite: reportStatus === "21" ? null : analiseDataConclusao,
+    };
+  };
+
+  const updateFormStatusValues = (status: number) => {
+    setValue("status", String(status));
+    const reportStatus = getReportStatusFromCasoStatus?.(status);
+    if (reportStatus) {
+      setValue("analiseStatus", reportStatus);
+    }
+  };
 
   const handleAvancarStatus = async () => {
     if (proximoStatus == null) {
@@ -38,9 +70,9 @@ export function CasoResumoStatusActions({
     try {
       await updateCaso.mutateAsync({
         id: memoriaQueryId,
-        data: { status: proximoStatus },
+        data: buildStatusPayload(proximoStatus),
       });
-      setValue("status", String(proximoStatus));
+      updateFormStatusValues(proximoStatus);
       toast.success("Status atualizado com sucesso.");
       onStatusUpdated();
     } catch (e) {
@@ -52,9 +84,9 @@ export function CasoResumoStatusActions({
     try {
       await updateCaso.mutateAsync({
         id: memoriaQueryId,
-        data: { status: 4 },
+        data: buildStatusPayload(4),
       });
-      setValue("status", "4");
+      updateFormStatusValues(4);
       toast.success("Status atualizado com sucesso.");
       onStatusUpdated();
     } catch (e) {

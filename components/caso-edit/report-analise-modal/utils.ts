@@ -57,6 +57,24 @@ export function normalizeAnaliseStatusForForm(
   return v;
 }
 
+export function mapCasoStatusToReportStatus(
+  status: number | string | null | undefined,
+): string | undefined {
+  const statusId = Number(status);
+  if (statusId === 10) return "23";
+  if (statusId === 8) return "21";
+  return undefined;
+}
+
+export function mapReportStatusToCasoStatus(
+  status: number | string | null | undefined,
+): number | undefined {
+  const statusId = Number(status);
+  if (statusId === 23) return 10;
+  if (statusId === 21) return 8;
+  return undefined;
+}
+
 /**
  * Regras de persistência da conclusão da análise conforme status selecionado.
  * - 20, 22, 23 => conclui agora
