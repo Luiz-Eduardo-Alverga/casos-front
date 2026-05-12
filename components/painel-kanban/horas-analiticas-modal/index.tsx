@@ -28,6 +28,9 @@ import { HorasAnaliticasCasesList } from "./horas-analiticas-cases-list";
 import { HorasAnaliticasCommitBox } from "./horas-analiticas-commit-box";
 import { HorasAnaliticasEmptyState } from "./horas-analiticas-empty-state";
 import { HorasAnaliticasContentSkeleton } from "./horas-analiticas-content-skeleton";
+import { Label } from "@/components/ui/label";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { CasoFormRelator } from "@/components/fields";
 
 interface HorasAnaliticasFiltersForm {
   produto: string;
@@ -145,7 +148,7 @@ export function HorasAnaliticasModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex w-[calc(100vw-1rem)] max-w-[900px] flex-col gap-0 overflow-hidden border-border-divider bg-slate-50 p-0 shadow-2xl sm:w-[min(96vw,900px)]">
+      <DialogContent className="flex w-[calc(100vw-1rem)] max-w-[900px] flex-col gap-0 overflow-hidden border-border-divider bg-white p-0 shadow-2xl sm:w-[min(96vw,900px)]">
         <DialogHeader className="border-b border-border-divider px-5 pb-5 pt-5 text-left sm:px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 shadow-sm">
@@ -175,13 +178,7 @@ export function HorasAnaliticasModal({
             <FormProvider {...methods}>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
                 <div className="space-y-1.5 md:col-span-1">
-                  <label
-                    htmlFor="horas-analiticas-data"
-                    className="text-xs font-medium text-slate-600"
-                  >
-                    Data
-                  </label>
-                  <DatePicker
+                  <DatePickerInput
                     id="horas-analiticas-data"
                     value={dataProducao}
                     onChange={setDataProducao}
@@ -201,6 +198,11 @@ export function HorasAnaliticasModal({
                     required={false}
                     requireProduto={false}
                   />
+                  {/* <CasoFormRelator
+                    name="relator"
+                    label="Relator"
+                    required={false}
+                  /> */}
                 </div>
 
                 <div className="md:col-span-1">

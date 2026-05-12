@@ -67,11 +67,11 @@ export function HorasAnaliticasCasesList({
               </div>
 
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-                <span className="inline-flex items-center gap-1 text-text-secondary">
+                <span className="inline-flex items-center gap-1 text-text-primary font-semibold">
                   <Clock3 className="h-3.5 w-3.5" aria-hidden />
                   {caso.horaAbertura} - {caso.horaFechamento}
                 </span>
-                <span className="inline-flex items-center gap-1 font-semibold text-text-primary">
+                <span className="inline-flex items-center gap-1 font-semibold text-text-secondary">
                   <Hourglass className="h-3.5 w-3.5" aria-hidden />
                   {formatMinutesCompact(caso.minutosRealizados)}
                 </span>

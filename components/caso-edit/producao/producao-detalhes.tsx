@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { DateTimePicker } from "@/components/ui/date-picker";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import type { ProducaoDetalheItem } from "@/interfaces/projeto-memoria";
 import { Pencil, Trash2 } from "lucide-react";
 import {
@@ -115,12 +115,14 @@ export function ProducaoDetalhes({
           >
             <TableCell className="py-3 px-2.5 text-sm text-text-primary">
               {editandoSequencia === row.sequencia ? (
-                <DateTimePicker
+                <DatePickerInput
                   value={editandoAbertura}
                   onChange={onEditandoAberturaChange}
-                  placeholder="Abertura"
+                  placeholder="dd/mm/aaaa"
                   disabled={isSalvandoEdicao}
-                  className="min-w-[180px]"
+                  className="min-w-[260px]"
+                  hideLabel
+                  showTime
                 />
               ) : (
                 formatDataHoraProducao(row.datas?.abertura)
@@ -128,12 +130,14 @@ export function ProducaoDetalhes({
             </TableCell>
             <TableCell className="py-3 px-2.5 text-sm text-text-primary">
               {editandoSequencia === row.sequencia ? (
-                <DateTimePicker
+                <DatePickerInput
                   value={editandoFechamento}
                   onChange={onEditandoFechamentoChange}
-                  placeholder="Fechamento"
+                  placeholder="dd/mm/aaaa"
                   disabled={isSalvandoEdicao}
-                  className="min-w-[180px]"
+                  className="min-w-[260px]"
+                  hideLabel
+                  showTime
                 />
               ) : (
                 formatDataHoraProducao(row.datas?.fechamento)
