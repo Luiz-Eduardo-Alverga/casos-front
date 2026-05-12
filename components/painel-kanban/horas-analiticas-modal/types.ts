@@ -40,7 +40,13 @@ export interface HorasAnaliticasSummaryCardsProps {
 
 export interface HorasAnaliticasCasesListProps {
   casos: HorasAnaliticasCaseItem[];
-  isLoading: boolean;
+}
+
+export interface HorasAnaliticasCommitBoxProps {
+  value: string;
+  onChange: (value: string) => void;
+  onGenerate: () => void;
+  isGenerateDisabled?: boolean;
 }
 
 export type HorasAnaliticasEmptyStateVariant =

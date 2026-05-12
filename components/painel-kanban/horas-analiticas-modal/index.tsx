@@ -27,6 +27,7 @@ import { HorasAnaliticasSummaryCards } from "./horas-analiticas-summary-cards";
 import { HorasAnaliticasCasesList } from "./horas-analiticas-cases-list";
 import { HorasAnaliticasCommitBox } from "./horas-analiticas-commit-box";
 import { HorasAnaliticasEmptyState } from "./horas-analiticas-empty-state";
+import { HorasAnaliticasContentSkeleton } from "./horas-analiticas-content-skeleton";
 
 interface HorasAnaliticasFiltersForm {
   produto: string;
@@ -78,6 +79,7 @@ export function HorasAnaliticasModal({
   const colaboradorSelecionado = methods.watch("devAtribuido")?.trim() ?? "";
   const [filtrosAplicados, setFiltrosAplicados] =
     useState<ProducaoHorasAnaliticasParams | null>(null);
+  const [commitDescription, setCommitDescription] = useState("");
 
   // useEffect(() => {
   //   methods.setValue("produto", produtoId || "");
@@ -124,6 +126,15 @@ export function HorasAnaliticasModal({
     () => parseHorasAnaliticasData(query.data?.data ?? []),
     [query.data?.data],
   );
+
+  const handleGenerateCommitDescription = () => {
+    const generatedDescription = parsedData.casos
+      .map((caso) => `#${caso.registro} - ${caso.descricaoResumo};`)
+      .join("\n");
+
+    setCommitDescription(generatedDescription);
+  };
+
   const isLoadingResults = query.isLoading || query.isFetching;
   const semBuscaAplicada = !filtrosAplicados;
   const semResultados =
@@ -212,8 +223,6 @@ export function HorasAnaliticasModal({
             </FormProvider>
           </CasoFormProvider>
 
-          <HorasAnaliticasSummaryCards resumo={parsedData.resumo} />
-
           {semBuscaAplicada ? (
             <HorasAnaliticasEmptyState
               variant="sem_filtros"
@@ -229,14 +238,22 @@ export function HorasAnaliticasModal({
           ) : null}
 
           {mostrarConteudo ? (
-            <>
-              <HorasAnaliticasCasesList
-                casos={parsedData.casos}
-                isLoading={isLoadingResults}
-              />
+            isLoadingResults ? (
+              <HorasAnaliticasContentSkeleton />
+            ) : (
+              <>
+                <HorasAnaliticasSummaryCards resumo={parsedData.resumo} />
 
-              <HorasAnaliticasCommitBox />
-            </>
+                <HorasAnaliticasCasesList casos={parsedData.casos} />
+
+                <HorasAnaliticasCommitBox
+                  value={commitDescription}
+                  onChange={setCommitDescription}
+                  onGenerate={handleGenerateCommitDescription}
+                  isGenerateDisabled={parsedData.casos.length === 0}
+                />
+              </>
+            )
           ) : null}
 
           {query.error ? (

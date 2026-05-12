@@ -4,7 +4,6 @@ import { Clock3, Hourglass, Package, SquarePen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { HorasAnaliticasCasesListProps } from "./types";
 import { formatMinutesCompact } from "./utils";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 function getTipoBadgeClass(tipo: string): string {
@@ -16,9 +15,7 @@ function getTipoBadgeClass(tipo: string): string {
 
 export function HorasAnaliticasCasesList({
   casos,
-  isLoading,
 }: HorasAnaliticasCasesListProps) {
-  const router = useRouter();
   return (
     <section className="overflow-hidden rounded-lg border border-border-divider bg-white shadow-sm">
       <header className="flex items-center justify-between border-b border-border-divider bg-slate-50 px-4 py-3">
@@ -31,16 +28,7 @@ export function HorasAnaliticasCasesList({
       </header>
 
       <div className="max-h-[280px] overflow-y-auto">
-        {isLoading ? (
-          <div className="space-y-3 p-4">
-            {Array.from({ length: 2 }).map((_, index) => (
-              <div
-                key={index}
-                className="h-[76px] animate-pulse rounded-lg border border-border-divider bg-slate-50"
-              />
-            ))}
-          </div>
-        ) : casos.length === 0 ? (
+        {casos.length === 0 ? (
           <div className="p-4 text-sm text-text-secondary">
             Nenhum caso encontrado para os filtros selecionados.
           </div>
