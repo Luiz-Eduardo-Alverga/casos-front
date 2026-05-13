@@ -33,8 +33,6 @@ export function PainelKanbanFiltros({
           <CasoFormProjeto
             requireProduto={false}
             usuarioId={usuarioId}
-            setorProjetoFieldName="devAtribuidoSetor"
-            requireSetorProjeto
             autoSelectProjeto="always"
             loadingFieldName="projetoLoading"
             required={false}
