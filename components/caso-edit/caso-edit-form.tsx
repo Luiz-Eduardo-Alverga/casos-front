@@ -36,6 +36,7 @@ import { AbaProducao } from "./producao";
 import { CasoEditProvider } from "./caso-edit-context";
 import { AbaAnexos } from "./anexos";
 import { useCaseAttachments } from "@/hooks/use-case-attachments";
+import { useCasoHistorico } from "@/hooks/use-caso-historico";
 
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
@@ -46,6 +47,7 @@ import {
   mapReportStatusToCasoStatus,
   normalizeAnaliseStatusForForm,
 } from "./report-analise-modal/utils";
+import { AbaHistorico } from "./historico/index";
 
 const editFormSchema = z.object({
   produto: z.string().min(1, "Produto é obrigatório"),
@@ -133,6 +135,11 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     enabled: showAnexosTab && Number.isFinite(numeroCaso),
   });
   const countAnexos = anexosQuery.data?.length ?? 0;
+  const historicoQuery = useCasoHistorico({
+    registro: Number.isFinite(numeroCaso) ? numeroCaso : undefined,
+    enabled: tabValue === "historico" && Number.isFinite(numeroCaso),
+  });
+  const countHistorico = historicoQuery.data?.total;
 
   const statusIdApi = (() => {
     const n = Number(caso?.status?.status_id);
@@ -467,6 +474,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
           countAnotacoes={countAnotacoes}
           countRelacoes={countRelacoes}
           countClientes={countClientes}
+          countHistorico={countHistorico}
           countAnexos={countAnexos}
           showAnexosTab={showAnexosTab}
           onClonar={handleClonar}
@@ -589,6 +597,21 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                           />
                         </div>
                       </fieldset>
+                    </TabsContent>
+
+                    <TabsContent
+                      value="historico"
+                      className="mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden"
+                    >
+                      <div className="flex min-h-0 flex-1 min-w-0 flex-col">
+                        <AbaHistorico
+                          numeroCaso={numeroCaso}
+                          isLoading={historicoQuery.isLoading}
+                          isFetching={historicoQuery.isFetching}
+                          error={historicoQuery.error}
+                          historico={historicoQuery.data?.data ?? []}
+                        />
+                      </div>
                     </TabsContent>
                   </div>
 
