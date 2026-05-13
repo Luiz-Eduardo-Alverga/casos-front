@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { BriefcaseBusiness } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
@@ -24,6 +24,7 @@ export function CasoFormProduto({
   const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(
     null,
   );
+  const prevProdutoValueRef = useRef<string | undefined>(undefined);
 
   const { data: produtos, isLoading: isProdutosLoading } = useProdutos({
     enabled: optionsRequested,
@@ -65,8 +66,12 @@ export function CasoFormProduto({
     onlyWithPoQaConfigured,
   ]);
 
-  // Quando o produto é selecionado, buscar e salvar os dados completos
+  // Quando o produto é selecionado, buscar e salvar os dados completos.
+  // Só limpa versão/projeto/módulo quando o usuário remove o produto (não no mount inicial vazio antes do reset da URL).
   useEffect(() => {
+    const prev = prevProdutoValueRef.current;
+    prevProdutoValueRef.current = produtoValue || undefined;
+
     if (produtoValue && produtos && Array.isArray(produtos)) {
       const produtoEncontrado = produtos.find(
         (p) => String(p.id) === produtoValue,
@@ -74,12 +79,17 @@ export function CasoFormProduto({
       if (produtoEncontrado) {
         setProdutoSelecionado(produtoEncontrado);
       }
-    } else if (!produtoValue) {
+      return;
+    }
+
+    if (!produtoValue) {
       setProdutoSelecionado(null);
-      // Limpar campos dependentes quando produto é removido
-      setValue("versao", "");
-      setValue("projeto", "");
-      setValue("modulo", "");
+      const tinhaProduto = Boolean(prev && String(prev).trim() !== "");
+      if (tinhaProduto) {
+        setValue("versao", "");
+        setValue("projeto", "");
+        setValue("modulo", "");
+      }
     }
   }, [produtoValue, produtos, setValue]);
 

@@ -58,7 +58,7 @@ export function CategoriaBadge({
   const colorClass = getCategoriaBadgeClassName(categoria, config);
   return (
     <Badge
-      className={`${colorClass} border-transparent rounded-full h-7 px-2.5 flex items-center justify-center whitespace-nowrap ${className}`.trim()}
+      className={`${colorClass} border-transparent rounded-full h-5 px-2.5 flex items-center justify-center whitespace-nowrap ${className}`.trim()}
     >
       <span className="text-xs font-semibold whitespace-nowrap">
         {formatCategoriaLabel(categoria)}
@@ -66,4 +66,3 @@ export function CategoriaBadge({
     </Badge>
   );
 }
-

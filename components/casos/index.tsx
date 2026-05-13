@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, FilterX } from "lucide-react";
 import { CasosFiltros } from "./filtros/casos-filtros";
+import { MAX_STATUS_IDS_FILTRO_CASOS } from "./filtros/constants";
 import { CasosTabela } from "./casos-tabela";
 
 export function Casos() {
@@ -32,7 +33,7 @@ export function Casos() {
       .getAll("status_id")
       .map((s) => s.trim())
       .filter(Boolean)
-      .slice(0, 3);
+      .slice(0, MAX_STATUS_IDS_FILTRO_CASOS);
     const legacyStatus = params.get("status")?.trim();
     if (status_ids.length === 0 && legacyStatus) {
       status_ids = [legacyStatus];

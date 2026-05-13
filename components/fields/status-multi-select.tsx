@@ -5,6 +5,7 @@ import { CircleDot } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { useStatus } from "@/hooks/use-status";
 import toast from "react-hot-toast";
+import { MAX_STATUS_IDS_FILTRO_CASOS } from "@/components/casos/filtros/constants";
 import {
   Combobox,
   ComboboxChip,
@@ -18,7 +19,7 @@ import {
   useComboboxAnchor,
 } from "@/components/ui/v2/combobox2";
 
-const MAX_STATUS = 5;
+const MAX_STATUS = MAX_STATUS_IDS_FILTRO_CASOS;
 
 export interface StatusMultiSelectProps {
   /** IDs de status (Registro) */

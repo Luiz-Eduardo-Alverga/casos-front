@@ -245,7 +245,9 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
 
         if (statusCasoPorReport !== undefined) {
           statusCasoFinal = statusCasoPorReport;
-        } else {
+        } else if (!statusReportSelecionadoAlterado) {
+          // Sincroniza report a partir do status do caso apenas quando o usuário
+          // não escolheu um status de report novo sem mapeamento (ex.: 20, 22).
           const statusReportPorCaso =
             mapCasoStatusToReportStatus(statusCasoFinal);
           if (statusReportPorCaso !== undefined) {
@@ -257,6 +259,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       const forceStatusEDevPorAnalise = statusReportFinal === "21";
       const statusReportAlterado =
         statusReportFinal !== "" && statusReportFinal !== statusReportAtual;
+
       const analiseDataConclusao = statusReportAlterado
         ? buildAnaliseConclusaoByStatus(statusReportFinal)
         : undefined;

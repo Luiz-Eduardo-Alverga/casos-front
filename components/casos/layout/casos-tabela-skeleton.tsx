@@ -13,35 +13,35 @@ import { Skeleton } from "@/components/ui/skeleton";
 function SkeletonRow() {
   return (
     <TableRow className="bg-background border-t border-border-strong hover:bg-transparent cursor-default">
-      <TableCell className="w-[60px] py-3 px-5">
-        <Skeleton className="h-4 w-10" />
+      <TableCell className="w-[48px] py-3 px-2 text-center">
+        <Skeleton className="mx-auto h-4 w-4 rounded-sm" />
       </TableCell>
-      <TableCell className="w-[100px] py-3 px-5">
-        <div className="flex justify-center">
-          <Skeleton className="h-7 w-16 rounded-full" />
+      <TableCell className="min-w-[150px] max-w-[200px] py-3 px-5 align-top">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-5 w-16" />
+            <Skeleton className="h-7 w-9 rounded-full" />
+          </div>
+          <Skeleton className="h-7 w-20 rounded-full" />
         </div>
       </TableCell>
-      <TableCell className="w-[200px] py-3 px-5">
-        <div className="flex flex-col gap-1">
-          <Skeleton className="h-3.5 w-24" />
-          <Skeleton className="h-3 w-16" />
+      <TableCell className="min-w-0 flex-1 py-3 px-5 align-top">
+        <div className="flex flex-col gap-1.5">
+          <Skeleton className="h-4 w-full max-w-md" />
+          <Skeleton className="h-3 w-48" />
         </div>
       </TableCell>
-      <TableCell className="flex-1 py-3 px-5">
-        <Skeleton className="h-3.5 w-full max-w-[280px]" />
-      </TableCell>
-      <TableCell className="w-[140px] py-3 px-5">
-        <div className="flex justify-center">
-          <Skeleton className="h-3.5 w-28" />
+      <TableCell className="w-[100px] py-3 px-5 text-center align-top">
+        <div className="flex flex-col items-center gap-1">
+          <Skeleton className="h-3 w-14" />
+          <Skeleton className="h-3 w-14" />
         </div>
       </TableCell>
-      <TableCell className="w-[100px] py-3 px-5">
-        <div className="flex justify-center">
-          <Skeleton className="h-7 w-9 rounded-full" />
-        </div>
+      <TableCell className="w-[120px] py-3 px-5 align-top">
+        <Skeleton className="h-4 w-20" />
       </TableCell>
-      <TableCell className="w-[150px] py-3 px-5">
-        <Skeleton className="h-6 w-20 rounded-full" />
+      <TableCell className="w-[150px] py-3 px-5 align-top">
+        <Skeleton className="h-6 w-24 rounded-full" />
       </TableCell>
       <TableCell className="w-[100px] py-3 px-5">
         <div className="flex items-center justify-end gap-2">
@@ -71,23 +71,18 @@ export function CasosTabelaSkeleton() {
     <Table>
       <TableHeader>
         <TableRow className="bg-background border-b border-background hover:bg-background">
-          <TableHead className="w-[60px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Registro
+          <TableHead className="w-[48px] text-center font-medium text-sm text-text-primary h-auto py-4 px-2" />
+          <TableHead className="min-w-[150px] max-w-[200px] font-medium text-sm text-text-primary h-auto py-4 px-5">
+            ID / Categoria
+          </TableHead>
+          <TableHead className="min-w-0 flex-1 font-medium text-sm text-text-primary h-auto py-4 px-5">
+            Detalhes do caso
           </TableHead>
           <TableHead className="w-[100px] text-center font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Categoria
-          </TableHead>
-          <TableHead className="w-[200px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Produto
-          </TableHead>
-          <TableHead className="flex-1 font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Resumo
-          </TableHead>
-          <TableHead className="w-[140px] text-center font-medium text-sm text-text-primary h-auto py-4 px-5">
             Estimativas
           </TableHead>
-          <TableHead className="w-[100px] text-center font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Importância
+          <TableHead className="w-[120px] font-medium text-sm text-text-primary h-auto py-4 px-5">
+            Desenvolvedor
           </TableHead>
           <TableHead className="w-[150px] font-medium text-sm text-text-primary h-auto py-4 px-5">
             Status
@@ -103,4 +98,3 @@ export function CasosTabelaSkeleton() {
     </Table>
   );
 }
-

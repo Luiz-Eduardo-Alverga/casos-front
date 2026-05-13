@@ -18,6 +18,7 @@ import { importanceOptions } from "@/mocks/teste";
 import { useCategorias } from "@/hooks/use-categorias";
 import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { CasosFiltrosSheet } from "@/components/casos/filtros/casos-filtros-sheet";
+import { MAX_STATUS_IDS_FILTRO_CASOS } from "@/components/casos/filtros/constants";
 
 interface CasosFiltersForm {
   produto: string;
@@ -70,6 +71,27 @@ function dateToYmd(date: Date | undefined): string | undefined {
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
+}
+
+/** Campos exibidos apenas no sheet "Mais filtros" (espelha o que `handleFiltrar` envia para a URL). */
+function countFiltrosSheetAtivos(p: {
+  projeto_id: string;
+  devAtribuido: string;
+  qaAtribuido: string;
+  tipo_abertura: "" | "CASO" | "REPORT";
+  data_producao_inicio: Date | undefined;
+  data_producao_fim: Date | undefined;
+}): number {
+  let n = 0;
+  if (p.projeto_id?.trim()) n += 1;
+  if (p.devAtribuido?.trim()) n += 1;
+  if (p.qaAtribuido?.trim()) n += 1;
+  if (p.tipo_abertura === "CASO" || p.tipo_abertura === "REPORT") {
+    n += 1;
+  }
+  if (dateToYmd(p.data_producao_inicio)) n += 1;
+  if (dateToYmd(p.data_producao_fim)) n += 1;
+  return n;
 }
 
 export function CasosFiltros({
@@ -126,7 +148,10 @@ export function CasosFiltros({
           filtrosIniciais.tipo_abertura === "REPORT"
             ? filtrosIniciais.tipo_abertura
             : "",
-        status_ids: [...(filtrosIniciais.status_ids ?? [])].slice(0, 5),
+        status_ids: [...(filtrosIniciais.status_ids ?? [])].slice(
+          0,
+          MAX_STATUS_IDS_FILTRO_CASOS,
+        ),
         usuario_abertura_id: filtrosIniciais.usuario_abertura_id ?? "",
         devAtribuido: filtrosIniciais.usuario_dev_id ?? "",
         qaAtribuido: filtrosIniciais.usuario_qa_id ?? "",
@@ -147,6 +172,45 @@ export function CasosFiltros({
 
   const produto = methods.watch("produto");
 
+  const [
+    projetoIdWatch,
+    devAtribuidoWatch,
+    qaAtribuidoWatch,
+    tipoAberturaWatch,
+    dataProdInicioWatch,
+    dataProdFimWatch,
+  ] = methods.watch([
+    "projeto_id",
+    "devAtribuido",
+    "qaAtribuido",
+    "tipo_abertura",
+    "data_producao_inicio",
+    "data_producao_fim",
+  ]);
+
+  const totalFiltrosSheet = useMemo(
+    () =>
+      countFiltrosSheetAtivos({
+        projeto_id: projetoIdWatch ?? "",
+        devAtribuido: devAtribuidoWatch ?? "",
+        qaAtribuido: qaAtribuidoWatch ?? "",
+        tipo_abertura:
+          tipoAberturaWatch === "CASO" || tipoAberturaWatch === "REPORT"
+            ? tipoAberturaWatch
+            : "",
+        data_producao_inicio: dataProdInicioWatch,
+        data_producao_fim: dataProdFimWatch,
+      }),
+    [
+      projetoIdWatch,
+      devAtribuidoWatch,
+      qaAtribuidoWatch,
+      tipoAberturaWatch,
+      dataProdInicioWatch,
+      dataProdFimWatch,
+    ],
+  );
+
   const handleFiltrar = useCallback(() => {
     const values = methods.getValues();
     const params = new URLSearchParams();
@@ -157,7 +221,10 @@ export function CasosFiltros({
     if (values.versao?.trim()) {
       params.set("versao", values.versao.trim());
     }
-    for (const id of values.status_ids ?? []) {
+    for (const id of (values.status_ids ?? []).slice(
+      0,
+      MAX_STATUS_IDS_FILTRO_CASOS,
+    )) {
       const s = String(id).trim();
       if (s) params.append("status_id", s);
     }
@@ -239,8 +306,10 @@ export function CasosFiltros({
                 onOpenChange={setSheetOpen}
                 trigger={
                   <Button size="sm" variant="outline" type="button">
-                    <SlidersHorizontal className="h-3.5 w-3.5" />
-                    Mais filtros
+                    <SlidersHorizontal className="h-3.5 w-3.5 text-text-primary" />
+                    {totalFiltrosSheet > 0
+                      ? `Mais filtros (${totalFiltrosSheet})`
+                      : "Mais filtros"}
                   </Button>
                 }
                 methods={methods}

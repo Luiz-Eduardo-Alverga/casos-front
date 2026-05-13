@@ -52,6 +52,7 @@ function mapItemToRow(item: ProjetoMemoriaItem): CasosTabelaRow {
     tipo_abertura: item.report?.tipo_abertura ?? "CASO",
     estimado_minutos: item.caso.tempos.estimado_minutos ?? 0,
     realizado_minutos: item.caso.tempos.realizado_minutos ?? 0,
+    desenvolvedor: item.caso.usuarios?.desenvolvimento?.nome?.trim() ?? "",
   };
 }
 

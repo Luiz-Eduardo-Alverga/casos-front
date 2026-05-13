@@ -72,7 +72,7 @@ export function CasosTransferenciaModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[90vh] max-w-[760px] min-w-0 overflow-hidden p-0">
+      <DialogContent className="max-h-[90vh] max-w-[660px] min-w-0 overflow-hidden p-0">
         <DialogTitle className="sr-only">Transferir casos</DialogTitle>
 
         <FormProvider {...form}>
@@ -134,7 +134,7 @@ export function CasosTransferenciaModal({
 
                 <CasoFormProjeto required={false} requireProduto={false} />
 
-                <div className="rounded-lg border border-border-divider bg-muted/40 p-3">
+                {/* <div className="rounded-lg border border-border-divider bg-muted/40 p-3">
                   <div className="flex items-center justify-between gap-4">
                     <div className="space-y-0.5">
                       <Label
@@ -160,7 +160,7 @@ export function CasosTransferenciaModal({
                       )}
                     />
                   </div>
-                </div>
+                </div> */}
               </div>
 
               <div className="border-t border-border-divider px-6 py-4">
@@ -170,12 +170,13 @@ export function CasosTransferenciaModal({
                     variant="outline"
                     onClick={() => handleClose(false)}
                     disabled={isSubmitting}
+                    className="flex-1"
                   >
                     Cancelar
                   </Button>
                   <Button
                     type="button"
-                    className="bg-foreground text-background hover:bg-foreground/90"
+                    className="bg-foreground text-background hover:bg-foreground/90 flex-1"
                     disabled={isSubmitting}
                     onClick={handleConfirm}
                   >

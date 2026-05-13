@@ -30,10 +30,16 @@ export function CasoFormVersao({
   });
 
   const versoesOptions = useMemo(() => {
-    const list = (versoes ?? []).map((v, idx) => ({
-      value: `${v.sequencia ?? ""}-${v.versao ?? ""}-${idx}`,
-      label: v.versao,
-    }));
+    const list = (versoes ?? []).map((v) => {
+      const seq = String(v.sequencia ?? "").trim();
+      const ver = String(v.versao ?? "").trim();
+      const value =
+        seq && ver ? `${seq}-${ver}` : ver || seq || String(v.id ?? "").trim();
+      return {
+        value,
+        label: ver || seq || value,
+      };
+    });
     // Em modo lazy, opção apenas com dados da API (sem depender do estado do form)
     const versaoApi = editCaseItem?.produto?.versao;
     if (lazyLoadComboboxOptions && versaoApi != null && String(versaoApi).trim() !== "" && !list.some((o) => o.value === String(versaoApi))) {
