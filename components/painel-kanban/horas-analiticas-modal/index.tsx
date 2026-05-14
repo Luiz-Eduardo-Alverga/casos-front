@@ -28,9 +28,7 @@ import { HorasAnaliticasCasesList } from "./horas-analiticas-cases-list";
 import { HorasAnaliticasCommitBox } from "./horas-analiticas-commit-box";
 import { HorasAnaliticasEmptyState } from "./horas-analiticas-empty-state";
 import { HorasAnaliticasContentSkeleton } from "./horas-analiticas-content-skeleton";
-import { Label } from "@/components/ui/label";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
-import { CasoFormRelator } from "@/components/fields";
 
 interface HorasAnaliticasFiltersForm {
   produto: string;
@@ -56,7 +54,6 @@ function dateToYmdString(date: Date | undefined): string | undefined {
 export function HorasAnaliticasModal({
   open,
   onOpenChange,
-  produtoId,
   projetoId,
   usuarioId,
 }: HorasAnaliticasModalProps) {
@@ -68,6 +65,8 @@ export function HorasAnaliticasModal({
       devAtribuidoLabel: "",
     },
   });
+
+  console.log("projetoId", projetoId);
 
   const [dataProducao, setDataProducao] = useState<Date | undefined>(
     getTodayDate(),

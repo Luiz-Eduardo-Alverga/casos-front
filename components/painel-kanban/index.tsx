@@ -395,6 +395,8 @@ export function PainelKanban() {
     queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
   }, [queryClient]);
 
+  console.log("agendaRowForFilters", agendaRowForFilters);
+
   const colaboradorModalLabel =
     devAtribuidoLabel?.trim() || nomeColaborador || "Não informado";
   const projetoModalId = String(
@@ -508,7 +510,7 @@ export function PainelKanban() {
             produtoId={produtoModalId}
             produtoLabel={produtoModalLabel}
             colaboradorLabel={colaboradorModalLabel}
-            projetoId={projetoModalId}
+            projetoId={cronogramaIdAgenda ?? ""}
             projetoLabel={projetoModalLabel}
             usuarioId={usuarioDevId}
           />
