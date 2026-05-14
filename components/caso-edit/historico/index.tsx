@@ -1,17 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CasoEditCardHeader } from "../caso-edit-card-header";
-import {
-  CalendarDays,
-  ChevronDown,
-  ChevronUp,
-  FileText,
-  Pencil,
-  User,
-} from "lucide-react";
+import { CalendarDays, ChevronUp, FileText, Pencil, User } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { CasoHistoricoItem } from "@/services/projeto-casos/get-historico";
 import { HistoricoTimelineSkeleton } from "./historico-skeleton";
 import { mapearHistoricoParaTimeline } from "./utils";
@@ -74,9 +69,13 @@ export function AbaHistorico({
               {eventos.map((evento, indexEvento) => {
                 const totalCampos = evento.campos.length;
                 const expandido = Boolean(expandidoPorSeq[evento.seq]);
-                const camposVisiveis = expandido
-                  ? evento.campos
-                  : evento.campos.slice(0, LIMITE_CAMPOS_VISIVEIS);
+                const camposSempreVisiveis = evento.campos.slice(
+                  0,
+                  LIMITE_CAMPOS_VISIVEIS,
+                );
+                const camposExtras = evento.campos.slice(
+                  LIMITE_CAMPOS_VISIVEIS,
+                );
                 const restantes = Math.max(
                   totalCampos - LIMITE_CAMPOS_VISIVEIS,
                   0,
@@ -124,7 +123,7 @@ export function AbaHistorico({
                           </p>
                         </div>
                       ) : null}
-                      {camposVisiveis.map((campo, idx) => (
+                      {camposSempreVisiveis.map((campo, idx) => (
                         <article
                           key={`${evento.seq}-${campo.campo}-${idx}`}
                           className="rounded-lg bg-muted/30 px-4 py-2"
@@ -151,6 +150,49 @@ export function AbaHistorico({
                           </div>
                         </article>
                       ))}
+                      <AnimatePresence initial={false}>
+                        {expandido && restantes > 0 ? (
+                          <motion.div
+                            key={`historico-extras-${evento.seq}`}
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{
+                              duration: 0.2,
+                              ease: "easeInOut",
+                            }}
+                            className="overflow-hidden space-y-2"
+                          >
+                            {camposExtras.map((campo, idx) => (
+                              <article
+                                key={`${evento.seq}-extra-${campo.campo}-${idx}`}
+                                className="rounded-lg bg-muted/30 px-4 py-2"
+                              >
+                                <div className="flex items-start gap-3">
+                                  <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-semibold text-foreground">
+                                      {campo.campo}
+                                    </p>
+                                    <p
+                                      className={`text-xs whitespace-pre-wrap break-words ${
+                                        campo.tipo === "novo_valor"
+                                          ? "text-emerald-600"
+                                          : "text-muted-foreground"
+                                      }`}
+                                    >
+                                      {campo.tipo === "novo_valor"
+                                        ? "Novo Valor: "
+                                        : "Valor anterior: "}
+                                      {campo.valor || "—"}
+                                    </p>
+                                  </div>
+                                </div>
+                              </article>
+                            ))}
+                          </motion.div>
+                        ) : null}
+                      </AnimatePresence>
                     </div>
 
                     {restantes > 0 && (
@@ -165,17 +207,15 @@ export function AbaHistorico({
                           }))
                         }
                       >
-                        {expandido ? (
-                          <>
-                            <ChevronUp className="mr-1 h-4 w-4" />
-                            Ver menos
-                          </>
-                        ) : (
-                          <>
-                            <ChevronDown className="mr-1 h-4 w-4" />
-                            Ver mais {restantes} campos
-                          </>
-                        )}
+                        <ChevronUp
+                          className={cn(
+                            "mr-1 h-4 w-4 shrink-0 transition-transform",
+                            !expandido && "-rotate-180",
+                          )}
+                        />
+                        {expandido
+                          ? "Ver menos"
+                          : `Ver mais ${restantes} campos`}
                       </Button>
                     )}
                   </section>

@@ -99,7 +99,8 @@ export function ComboboxField({
             anchorClassName={cn("group", "[&_button]:border-border-input")}
             className={cn(
               controlHeightClassName,
-              value && "rounded-l-lg rounded-r-none border-r-0 dark:border-input",
+              value &&
+                "rounded-l-lg rounded-r-none border-r-0 dark:border-input",
               !value && "rounded-lg",
             )}
             suffix={
@@ -110,7 +111,7 @@ export function ComboboxField({
                   variant="outline"
                   size="icon"
                   className={cn(
-                    "w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input dark:border-input",
+                    "w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input dark:border-input focus:ring-0",
                     controlHeightClassName,
                     "group-hover:bg-accent group-hover:text-accent-foreground",
                     "group-focus-within:ring-1 group-focus-within:ring-ring",
@@ -166,7 +167,10 @@ function RHFComboboxField({
   onLoadMore,
   controlHeightClassName = "h-9",
   valueLabelPrefix,
-}: Omit<ComboboxFieldProps, "icon" | "value" | "onValueChange" | "wrapperClassName"> & {
+}: Omit<
+  ComboboxFieldProps,
+  "icon" | "value" | "onValueChange" | "wrapperClassName"
+> & {
   name: string;
 }) {
   const rhf = useFormContext();
@@ -179,7 +183,11 @@ function RHFComboboxField({
           <Label className="text-sm font-medium text-text-label">
             {label} {required && <span className="text-text-error">*</span>}
           </Label>
-          {error && <p className="text-sm text-destructive">{error.message as string}</p>}
+          {error && (
+            <p className="text-sm text-destructive">
+              {error.message as string}
+            </p>
+          )}
         </div>
       )}
       {hideLabel && error && (

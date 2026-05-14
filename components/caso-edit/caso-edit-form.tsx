@@ -246,7 +246,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       const forceStatusEDevPorAnalise = statusReportFinal === "21";
       const statusReportAlterado =
         statusReportFinal !== "" && statusReportFinal !== statusReportAtual;
-      const statusReportAprovado = statusReportFinal !== "21";
+      const statusReportAprovado =
+        statusReportFinal !== "21" && statusReportFinal !== "0";
+
+      console.log("statusReportFinal", statusReportFinal);
 
       const analiseDataConclusao = statusReportAlterado
         ? buildAnaliseConclusaoByStatus(statusReportFinal)
@@ -271,7 +274,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         Id_Origem: Number(formData.origem),
         status: forceStatusEDevPorAnalise ? 8 : statusCasoFinal,
         atribuido_qa: Number(formData.qaAtribuido),
-        report_analise_aprovado: statusReportAprovado,
+        report_analise_aprovado: isReport ? statusReportAprovado : undefined,
         report_analise_status: statusReportAlterado
           ? statusReportFinal
           : undefined,

@@ -32,7 +32,6 @@ export function buildReportCreatePayload({
     report_analise_status: 0,
     report_data_escalonamento: new Date().toISOString(),
     tipo_abertura: "REPORT",
-    report_analise_usuario_id: Number(data.reportAnaliseUsuarioId),
     report_responsavel_suporte_id: Number(data.reportResponsavelSuporteId),
     report_prioridade: Number(data.importancia),
     report_ocorrencia_id: data.reportOcorrenciaInicial?.trim()

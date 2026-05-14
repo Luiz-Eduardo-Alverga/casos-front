@@ -17,6 +17,7 @@ import Link from "next/link";
 import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
 import { Box, ExternalLink, SquarePen } from "lucide-react";
 import { formatMinutesToHHMM } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 export interface CasosTabelaRow {
   id: string;
@@ -146,9 +147,9 @@ export function CasosTabelaTable({
                       <span className="text-text-secondary" aria-hidden>
                         •
                       </span>
-                      <span className="text-xs font-semibold text-text-primary">
+                      <Badge className="bg-secondary font-semibold text-text-primary hover:bg-secondary/80">
                         REPORT
-                      </span>
+                      </Badge>
                     </>
                   )}
                 </div>
