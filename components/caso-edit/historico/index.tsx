@@ -13,6 +13,7 @@ import {
   User,
 } from "lucide-react";
 import type { CasoHistoricoItem } from "@/services/projeto-casos/get-historico";
+import { HistoricoTimelineSkeleton } from "./historico-skeleton";
 import { mapearHistoricoParaTimeline } from "./utils";
 
 const LIMITE_CAMPOS_VISIVEIS = 2;
@@ -56,9 +57,7 @@ export function AbaHistorico({
 
       <CardContent className="p-8 pt-3 flex flex-col lg:flex-1 min-h-0">
         {isLoading ? (
-          <div className="text-sm text-muted-foreground">
-            Carregando histórico...
-          </div>
+          <HistoricoTimelineSkeleton />
         ) : error ? (
           <div className="text-sm text-destructive">
             {getErrorMessage(error)}
@@ -68,8 +67,10 @@ export function AbaHistorico({
             Nenhuma alteração encontrada para este caso.
           </div>
         ) : (
-          <div className="min-h-0 overflow-y-auto overflow-x-visible pr-1">
-            <div className="border-l border-border-divider pl-6 space-y-6 overflow-visible">
+          <div className="min-h-0 overflow-y-auto pr-1">
+            {/* Faixa à esquerda: com overflow-y auto o eixo X efetivo corta overflow; evita recorte do marcador. */}
+            <div className="pl-5">
+              <div className="border-l border-border-divider pl-6 space-y-6">
               {eventos.map((evento, indexEvento) => {
                 const totalCampos = evento.campos.length;
                 const expandido = Boolean(expandidoPorSeq[evento.seq]);
@@ -112,6 +113,17 @@ export function AbaHistorico({
                     </header>
 
                     <div className="mt-2 space-y-2">
+                      {evento.textoNaoParseado ? (
+                        <div
+                          className="rounded-lg bg-muted/30 px-4 py-2"
+                          role="note"
+                          aria-label="Trecho do histórico não estruturado"
+                        >
+                          <p className="text-xs whitespace-pre-wrap break-words text-muted-foreground">
+                            {evento.textoNaoParseado}
+                          </p>
+                        </div>
+                      ) : null}
                       {camposVisiveis.map((campo, idx) => (
                         <article
                           key={`${evento.seq}-${campo.campo}-${idx}`}
@@ -169,12 +181,13 @@ export function AbaHistorico({
                   </section>
                 );
               })}
+              </div>
+              {isFetching && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Atualizando histórico...
+                </p>
+              )}
             </div>
-            {isFetching && (
-              <p className="mt-3 text-xs text-muted-foreground">
-                Atualizando histórico...
-              </p>
-            )}
           </div>
         )}
       </CardContent>

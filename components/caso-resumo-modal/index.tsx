@@ -73,6 +73,8 @@ export function CasoResumoModal({
     variant === "kanban"
       ? Boolean(initialCaseId) && kanbanQuery.isError
       : readySearch && searchQuery.isError;
+  const queryError =
+    variant === "kanban" ? kanbanQuery.error : searchQuery.error;
 
   const memoriaQueryId = useMemo(() => {
     if (variant === "pesquisa") return searchId ?? "";
@@ -160,6 +162,12 @@ export function CasoResumoModal({
                   showEmptyForSearch={variant === "pesquisa" && !readySearch}
                   isLoading={isLoading}
                   isError={isError}
+                  error={queryError}
+                  searchedCaseId={
+                    variant === "pesquisa"
+                      ? searchId
+                      : String(initialCaseId ?? "")
+                  }
                   searchHeader={
                     variant === "pesquisa" ? (
                       <div className="px-6 pt-8 pb-4 shrink-0 bg-card">
@@ -203,6 +211,7 @@ export function CasoResumoModal({
                     !showProducaoButton
                   }
                   hasAnotations={hasAnotations}
+                  onBeforeNavigate404={() => onOpenChange(false)}
                 />
               </div>
             </CasoFormProvider>

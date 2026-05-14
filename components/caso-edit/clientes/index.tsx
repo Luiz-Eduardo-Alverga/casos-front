@@ -10,14 +10,14 @@ import { ClientesForm } from "./clientes-form";
 import { ClientesTable } from "./clientes-table";
 import type { AbaClientesProps, ClientesFormValues } from "./types";
 import { useCasoEdit } from "../caso-edit-context";
+import { useCreateClienteCaso } from "@/hooks/use-create-cliente-caso";
+import { useDeleteClienteCaso } from "@/hooks/use-delete-cliente-caso";
+import toast from "react-hot-toast";
 
-export function AbaClientes({
-  clientes,
-  onAdd,
-  onDelete,
-  isAdding = false,
-}: AbaClientesProps) {
-  const { numeroCaso } = useCasoEdit();
+export function AbaClientes({ clientes }: AbaClientesProps) {
+  const { numeroCaso, invalidate } = useCasoEdit();
+  const createClienteCaso = useCreateClienteCaso();
+  const deleteClienteCaso = useDeleteClienteCaso();
   const methods = useForm<ClientesFormValues>({
     defaultValues: {
       clienteId: "",
@@ -44,7 +44,9 @@ export function AbaClientes({
     if (!excluirModal.open) return;
     setIsDeleting(true);
     try {
-      await onDelete(excluirModal.sequencia);
+      await deleteClienteCaso.mutateAsync(excluirModal.sequencia);
+      toast.success("Cliente removido do caso.");
+      invalidate();
       setExcluirModal({ open: false, sequencia: 0 });
     } finally {
       setIsDeleting(false);
@@ -62,10 +64,14 @@ export function AbaClientes({
         <CardContent className="p-6 pt-3 space-y-4 lg:flex-1 ">
           <ClientesForm
             methods={methods}
-            isAdding={isAdding}
+            isAdding={createClienteCaso.isPending}
             clienteId={clienteId}
             clienteSelecionado={clienteSelecionado}
-            onAdd={onAdd}
+            onAdd={async (payload) => {
+              await createClienteCaso.mutateAsync(payload);
+              toast.success("Cliente vinculado com sucesso.");
+              invalidate();
+            }}
           />
 
           <ClientesTable

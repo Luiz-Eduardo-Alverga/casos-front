@@ -14,6 +14,7 @@ import { ImportanciaBadge } from "@/components/badges/importancia-badge";
 import { CategoriaBadge } from "@/components/casos/tabela/categoria-badge";
 import { CasosTabelaSkeletonRows } from "@/components/casos/layout/casos-tabela-skeleton";
 import Link from "next/link";
+import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
 import { Box, ExternalLink, SquarePen } from "lucide-react";
 import { formatMinutesToHHMM } from "@/lib/utils";
 
@@ -176,7 +177,7 @@ export function CasosTabelaTable({
                 <SquarePen className="w-4 h-4 text-emerald-500" />
               </Link>
 
-              <Link target="_blank" href={`/casos/${row.id}`}>
+              <Link target="_blank" href={buildCasoHrefForNewTab(row.id)}>
                 <ExternalLink className="w-4 h-4 text-blue-500" />
               </Link>
             </TableCell>

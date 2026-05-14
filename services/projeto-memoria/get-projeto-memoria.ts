@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { HttpError } from "@/lib/http-error";
 import type {
   ProjetoMemoriaItemResponse,
   ProjetoMemoriaParams,
@@ -106,11 +107,11 @@ export async function getProjetoMemoriaById(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
+    const message =
       error?.message ||
-        error?.error ||
-        "Erro ao buscar detalhes do projeto memória",
-    );
+      error?.error ||
+      "Erro ao buscar detalhes do projeto memória";
+    throw new HttpError(response.status, message);
   }
 
   return await response.json();

@@ -102,13 +102,7 @@ export function Painel() {
 
   return (
     <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
-      <PainelPageHeader
-        onVerCasos={() => router.push("/casos")}
-        onAtualizar={() => {
-          queryClient.invalidateQueries({ queryKey: ["agenda-dev"] });
-          queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
-        }}
-      />
+      <PainelPageHeader />
 
       {/* Content Grid - desktop: altura fixa; mobile: fluxo natural com scroll do navegador */}
       <div className="flex flex-col sm:flex-row gap-6 lg:flex-1 lg:min-h-0 lg:overflow-hidden">

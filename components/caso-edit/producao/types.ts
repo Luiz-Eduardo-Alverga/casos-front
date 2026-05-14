@@ -8,6 +8,5 @@ export interface AbaProducaoSavePayload {
 
 export interface AbaProducaoProps {
   item: ProjetoMemoriaItem;
-  onSaveProducao: (payload: AbaProducaoSavePayload) => Promise<void>;
 }
 

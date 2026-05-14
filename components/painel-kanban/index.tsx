@@ -390,13 +390,6 @@ export function PainelKanban() {
     [queryClient, updateCaso],
   );
 
-  const handleAtualizar = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ["agenda-dev"] });
-    queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
-  }, [queryClient]);
-
-  console.log("agendaRowForFilters", agendaRowForFilters);
-
   const colaboradorModalLabel =
     devAtribuidoLabel?.trim() || nomeColaborador || "Não informado";
   const projetoModalId = String(
@@ -440,10 +433,7 @@ export function PainelKanban() {
   if (!idColaborador) {
     return (
       <div className="px-6 pt-20 py-10 flex-1 flex flex-col overflow-x-hidden">
-        <PainelPageHeader
-          onVerCasos={() => router.push("/casos")}
-          onAtualizar={handleAtualizar}
-        />
+        <PainelPageHeader />
         <EmptyState
           icon={LayoutGrid}
           title="Sessão inválida"
@@ -462,9 +452,8 @@ export function PainelKanban() {
       <FormProvider {...methods}>
         <div className="px-6 pt-20 py-5 flex-1 flex flex-col overflow-x-hidden lg:min-h-0 lg:overflow-hidden">
           <PainelPageHeader
-            onVerCasos={() => router.push("/casos")}
-            onAtualizar={handleAtualizar}
             onHorasAnaliticas={() => setIsHorasAnaliticasOpen(true)}
+            isLoading={isAgendaLoading}
             actionSlot={
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
                 <CasoFormDevAtribuido

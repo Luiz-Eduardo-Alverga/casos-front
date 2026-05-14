@@ -11,16 +11,16 @@ import { RelacoesTable } from "./relacoes-table";
 import { isTipoRelacaoCaso } from "./utils";
 import type { AbaRelacoesProps, RelacaoFormValues } from "./types";
 import { useCasoEdit } from "../caso-edit-context";
+import { useCreateCasoRelacao } from "@/hooks/use-create-caso-relacao";
+import { useUpdateCasoRelacao } from "@/hooks/use-update-caso-relacao";
+import { useDeleteCasoRelacao } from "@/hooks/use-delete-caso-relacao";
+import toast from "react-hot-toast";
 
-export function AbaRelacoes({
-  relacoes,
-  onAdd,
-  onUpdate,
-  onDelete,
-  isAdding = false,
-  isUpdating = false,
-}: AbaRelacoesProps) {
-  const { numeroCaso } = useCasoEdit();
+export function AbaRelacoes({ relacoes }: AbaRelacoesProps) {
+  const { numeroCaso, invalidate } = useCasoEdit();
+  const createCasoRelacao = useCreateCasoRelacao();
+  const updateCasoRelacao = useUpdateCasoRelacao();
+  const deleteCasoRelacao = useDeleteCasoRelacao();
   const methods = useForm<RelacaoFormValues>({
     defaultValues: {
       tipo_relacao: "3",
@@ -47,7 +47,8 @@ export function AbaRelacoes({
   const descricaoResumoValue =
     useWatch({ control: methods.control, name: "descricao_resumo" }) ?? "";
 
-  const isSaving = isAdding || isUpdating;
+  const isSaving =
+    createCasoRelacao.isPending || updateCasoRelacao.isPending;
   const isEditing = editandoId != null;
   const canSubmit =
     Boolean(casoRelacionadoValue.trim()) && Boolean(descricaoResumoValue.trim());
@@ -56,19 +57,6 @@ export function AbaRelacoes({
     methods.setValue("tipo_relacao", "3");
     methods.setValue("caso_relacionado", "");
     methods.setValue("descricao_resumo", "");
-  };
-
-  const handleSalvarRelacao = async () => {
-    const values = methods.getValues();
-    const tipoRelacao = Number(values.tipo_relacao);
-    const casoRelacionado = Number(values.caso_relacionado);
-    const descricaoResumo = values.descricao_resumo.trim();
-
-    if (!Number.isFinite(casoRelacionado) || casoRelacionado <= 0) return;
-    if (!isTipoRelacaoCaso(tipoRelacao)) return;
-    if (!descricaoResumo) return;
-
-    limparFormulario();
   };
 
   const cancelarEdicaoInline = () => {
@@ -87,7 +75,7 @@ export function AbaRelacoes({
     if (!isTipoRelacaoCaso(tipoRelacao)) return;
     if (!descricaoResumo) return;
 
-    await onUpdate({
+    await updateCasoRelacao.mutateAsync({
       id: editandoId,
       data: {
         tipo_relacao: tipoRelacao,
@@ -95,6 +83,8 @@ export function AbaRelacoes({
         descricao_resumo: descricaoResumo,
       },
     });
+    toast.success("Relação atualizada com sucesso.");
+    invalidate();
     cancelarEdicaoInline();
   };
 
@@ -123,12 +113,14 @@ export function AbaRelacoes({
                 if (!Number.isFinite(casoRelacionado) || casoRelacionado <= 0) return;
                 if (!isTipoRelacaoCaso(tipoRelacao)) return;
                 if (!descricaoResumo) return;
-                await onAdd({
+                await createCasoRelacao.mutateAsync({
                   registro: numeroCaso,
                   tipo_relacao: tipoRelacao,
                   caso_relacionado: casoRelacionado,
                   descricao_resumo: descricaoResumo,
                 });
+                toast.success("Relação criada com sucesso.");
+                invalidate();
                 limparFormulario();
               }}
             />
@@ -175,7 +167,9 @@ export function AbaRelacoes({
           if (!excluirModal.open) return;
           setIsDeleting(true);
           try {
-            await onDelete(excluirModal.sequencia);
+            await deleteCasoRelacao.mutateAsync(excluirModal.sequencia);
+            toast.success("Relação excluída com sucesso.");
+            invalidate();
             setExcluirModal({ open: false, sequencia: 0 });
           } finally {
             setIsDeleting(false);

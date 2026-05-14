@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/date-picker";
 import { useAtualizarProducao } from "@/hooks/use-atualizar-producao";
 import { useExcluirProducao } from "@/hooks/use-excluir-producao";
+import { useUpdateCaso } from "@/hooks/use-update-caso";
 import { Package } from "lucide-react";
-import type { AbaProducaoProps } from "./types";
+import type { AbaProducaoProps, AbaProducaoSavePayload } from "./types";
 import { useCasoEdit } from "../caso-edit-context";
+import toast from "react-hot-toast";
 import {
   hasProducaoAberta,
   isProducaoTipoTeste,
@@ -28,12 +30,29 @@ import { ProducaoDetalhes } from "./producao-detalhes";
 /** Intervalo para atualizar duração e métricas de produções em aberto (ms). */
 const PRODUCAO_TEMPO_ATUALIZACAO_MS = 1000;
 
-export function AbaProducao({ item, onSaveProducao }: AbaProducaoProps) {
+export function AbaProducao({ item }: AbaProducaoProps) {
   const {
     numeroCaso,
     invalidate: onProducaoAlterada,
-    isSaving,
+    isSaving: casoFormSaving,
+    memoriaQueryId,
   } = useCasoEdit();
+  const updateCaso = useUpdateCaso(memoriaQueryId);
+
+  const handleSaveProducao = async (payload: AbaProducaoSavePayload) => {
+    await updateCaso.mutateAsync({
+      id: memoriaQueryId,
+      data: {
+        TempoEstimado: payload.TempoEstimado ?? undefined,
+        tamanho: payload.tamanho ?? undefined,
+        NaoPlanejado: payload.NaoPlanejado ?? undefined,
+      },
+    });
+    toast.success("Produção atualizada com sucesso.");
+    onProducaoAlterada();
+  };
+
+  const isSavingEstimativa = casoFormSaving || updateCaso.isPending;
   const caso = item?.caso;
   const tempos = caso?.tempos;
   const naoPlanejadoFlag = caso?.flags?.nao_planejado ?? false;
@@ -208,7 +227,7 @@ export function AbaProducao({ item, onSaveProducao }: AbaProducaoProps) {
           <ProducaoEstimativa
             showForm={showForm}
             setShowForm={setShowForm}
-            isSaving={isSaving}
+            isSaving={isSavingEstimativa}
             naoPlanejado={naoPlanejado}
             setNaoPlanejado={setNaoPlanejado}
             naoPlanejadoFlag={naoPlanejadoFlag}
@@ -217,7 +236,7 @@ export function AbaProducao({ item, onSaveProducao }: AbaProducaoProps) {
             tempoEstimado={tempoEstimado}
             setTempoEstimado={setTempoEstimado}
             estimadoMin={estimadoMin}
-            onSaveProducao={onSaveProducao}
+            onSaveProducao={handleSaveProducao}
           />
 
           <div className="space-y-6 pt-4 ">

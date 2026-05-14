@@ -1,6 +1,10 @@
 "use client";
 
-import { Eye, Info, Package } from "lucide-react";
+import {
+  Eye,
+  Info,
+  Package,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/badges/status-badge";
@@ -10,6 +14,8 @@ import { CasoResumoInfoBox } from "@/components/caso-resumo-modal/caso-resumo-in
 import { CasoResumoStatusActions } from "@/components/caso-resumo-modal/caso-resumo-status-actions";
 import { CasoResumoModalSkeleton } from "@/components/caso-resumo-modal/caso-resumo-modal-skeleton";
 import { CasoProducaoActionButton } from "@/components/caso-resumo-modal/caso-producao-action-button";
+import { isHttpError } from "@/lib/http-error";
+import { CasoNaoEncontrado } from "@/components/caso-edit/caso-nao-encontrado";
 
 interface CasoResumoModalContentProps {
   variant: "kanban" | "pesquisa";
@@ -18,6 +24,8 @@ interface CasoResumoModalContentProps {
   showEmptyForSearch: boolean;
   isLoading?: boolean;
   isError?: boolean;
+  error?: unknown;
+  searchedCaseId?: string | null;
   onStatusUpdated: () => void;
   onVerCasoCompleto: () => void;
   onAcaoProducao?: () => void;
@@ -28,6 +36,8 @@ interface CasoResumoModalContentProps {
   resultBannerText?: string;
   searchHeader?: React.ReactNode;
   hasAnotations?: boolean;
+  /** Fecha o modal antes da navegação nos CTAs do 404 (mesmo componente da edição). */
+  onBeforeNavigate404?: () => void;
 }
 
 export function CasoResumoModalContent({
@@ -37,6 +47,8 @@ export function CasoResumoModalContent({
   showEmptyForSearch,
   isLoading = false,
   isError = false,
+  error,
+  searchedCaseId = null,
   onStatusUpdated,
   onVerCasoCompleto,
   onAcaoProducao,
@@ -47,6 +59,7 @@ export function CasoResumoModalContent({
   resultBannerText,
   searchHeader,
   hasAnotations,
+  onBeforeNavigate404,
 }: CasoResumoModalContentProps) {
   if (showEmptyForSearch) {
     return (
@@ -75,6 +88,23 @@ export function CasoResumoModalContent({
   }
 
   if (isError) {
+    if (isHttpError(error) && error.status === 404) {
+      const id404 =
+        (searchedCaseId?.trim() || memoriaQueryId?.trim() || "").trim() || "—";
+      return (
+        <div className="flex flex-col">
+          {searchHeader}
+          <div className="flex min-h-[320px] flex-1 items-center justify-center px-6 pb-8 pt-4">
+            <CasoNaoEncontrado
+              casoId={id404}
+              className="w-full"
+              onBeforeNavigate={onBeforeNavigate404}
+            />
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="flex flex-col">
         {searchHeader}
@@ -94,8 +124,6 @@ export function CasoResumoModalContent({
   const caso = item.caso;
   const statusLabel = caso?.status?.status_tipo ?? "Não informado";
   const statusIdApi = Number(caso?.status?.status_id ?? 0);
-
-  console.log("hasAnotations", hasAnotations);
 
   return (
     <div className="flex max-h-[90vh] w-full min-w-0 flex-col bg-card">

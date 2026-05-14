@@ -9,6 +9,9 @@ import { AnotacoesEditor } from "./anotacoes-editor";
 import { AnotacoesList } from "./anotacoes-list";
 import type { AbaAnotacoesProps } from "./types";
 import { useReportAnalysis } from "@/hooks/use-report-analysis";
+import { useCreateAnotacao } from "@/hooks/use-create-anotacao";
+import { useUpdateAnotacao } from "@/hooks/use-update-anotacao";
+import { useDeleteAnotacao } from "@/hooks/use-delete-anotacao";
 import toast from "react-hot-toast";
 import { useCasoEdit } from "../caso-edit-context";
 
@@ -17,15 +20,11 @@ import { useCasoEdit } from "../caso-edit-context";
  * Estrutura: Card com header (título + badge #caso), seção Descrição Completa (nova anotação) e lista de anotações com scroll interno.
  * Segue PADRAO_COMPONENTES e PADRAO_ESPACAMENTOS.
  */
-export function AbaAnotacoes({
-  report,
-  anotacoes,
-  onCreate,
-  onUpdate,
-  onDelete,
-  isCreating = false,
-}: AbaAnotacoesProps) {
-  const { numeroCaso } = useCasoEdit();
+export function AbaAnotacoes({ report, anotacoes }: AbaAnotacoesProps) {
+  const { numeroCaso, invalidate } = useCasoEdit();
+  const createAnotacao = useCreateAnotacao();
+  const updateAnotacao = useUpdateAnotacao();
+  const deleteAnotacao = useDeleteAnotacao();
   const [novaAnotacao, setNovaAnotacao] = useState("");
   const improveReport = useReportAnalysis();
   const [editandoId, setEditandoId] = useState<number | null>(null);
@@ -39,10 +38,12 @@ export function AbaAnotacoes({
   const handleAdicionar = async () => {
     const texto = novaAnotacao.trim();
     if (!texto) return;
-    await onCreate({
+    await createAnotacao.mutateAsync({
       registro: numeroCaso,
       anotacoes: texto.replace(/\r?\n/g, "\r\n"),
     });
+    toast.success("Anotação criada com sucesso.");
+    invalidate();
     setNovaAnotacao("");
   };
 
@@ -80,7 +81,12 @@ export function AbaAnotacoes({
 
   const handleSalvarEdicao = async () => {
     if (editandoId == null) return;
-    await onUpdate({ id: editandoId, data: { anotacoes: editandoTexto } });
+    await updateAnotacao.mutateAsync({
+      id: editandoId,
+      data: { anotacoes: editandoTexto },
+    });
+    toast.success("Anotação atualizada com sucesso.");
+    invalidate();
     setEditandoId(null);
     setEditandoTexto("");
   };
@@ -89,7 +95,9 @@ export function AbaAnotacoes({
     if (!excluirModal.open) return;
     setIsDeleting(true);
     try {
-      await onDelete(excluirModal.sequencia);
+      await deleteAnotacao.mutateAsync(excluirModal.sequencia);
+      toast.success("Anotação excluída com sucesso.");
+      invalidate();
       setExcluirModal({ open: false, sequencia: 0 });
     } finally {
       setIsDeleting(false);
@@ -110,7 +118,7 @@ export function AbaAnotacoes({
             value={novaAnotacao}
             onChange={setNovaAnotacao}
             onSave={handleAdicionar}
-            disabled={isCreating}
+            disabled={createAnotacao.isPending}
             onImproveWithIA={handleMelhorarComIA}
             isImproving={improveReport.isPending}
           />

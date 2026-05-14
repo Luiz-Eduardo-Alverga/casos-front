@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getProjetoMemoriaById } from "@/services/projeto-memoria/get-projeto-memoria";
+import { isHttpError } from "@/lib/http-error";
 
 export interface UseProjetoMemoriaByIdOptions {
   enabled?: boolean;
@@ -18,5 +19,10 @@ export function useProjetoMemoriaById(
     queryKey: ["projeto-memoria", id],
     queryFn: () => getProjetoMemoriaById(id as number | string),
     enabled: shouldFetch,
+    refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      if (isHttpError(error) && error.status === 404) return false;
+      return failureCount < 1;
+    },
   });
 }

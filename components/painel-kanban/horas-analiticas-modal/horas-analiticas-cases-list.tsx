@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import type { HorasAnaliticasCasesListProps } from "./types";
 import { formatMinutesCompact } from "./utils";
 import Link from "next/link";
+import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
 
 function getTipoBadgeClass(tipo: string): string {
   if (tipo.trim().toUpperCase() === "CASOS") {
@@ -57,7 +58,7 @@ export function HorasAnaliticasCasesList({
 
                 <Link
                   target="_blank"
-                  href={`/casos/${caso.registro}`}
+                  href={buildCasoHrefForNewTab(caso.registro)}
                   type="button"
                   className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={`Editar caso ${caso.registro}`}

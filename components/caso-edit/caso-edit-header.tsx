@@ -1,10 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Copy, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import {
+  appendStandaloneToCasoPath,
+  isCasoStandaloneMode,
+} from "@/lib/caso-standalone-url";
+import { useRouter, useSearchParams } from "next/navigation";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 import {
   Tooltip,
@@ -12,6 +17,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import toast from "react-hot-toast";
+import { ConfirmacaoModal } from "@/components/confirmacao-modal";
+import { useClonarCaso } from "@/hooks/use-clonar-caso";
+import { useDeleteCaso } from "@/hooks/use-delete-caso";
+import { useCasoEdit } from "./caso-edit-context";
 
 export interface CasoEditHeaderProps {
   countAnotacoes: number;
@@ -22,10 +32,6 @@ export interface CasoEditHeaderProps {
   countAnexos: number;
   /** Se false, a aba "Anexos" não é exibida (RBAC `list-case-attachment`). */
   showAnexosTab: boolean;
-  onClonar: () => void;
-  onExcluir: () => void;
-  isClonando?: boolean;
-  isExcluindo?: boolean;
 }
 
 const TAB_TRIGGER_CLASS = cn(
@@ -54,26 +60,66 @@ export function CasoEditHeader({
   countHistorico,
   countAnexos,
   showAnexosTab,
-  onClonar,
-  onExcluir,
-  isClonando = false,
-  isExcluindo = false,
 }: CasoEditHeaderProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const standalone = isCasoStandaloneMode(searchParams);
+  const { memoriaQueryId, invalidate } = useCasoEdit();
+  const clonarCaso = useClonarCaso();
+  const deleteCaso = useDeleteCaso();
+  const [excluirCasoModal, setExcluirCasoModal] = useState(false);
   const rbacReady = permissionsLoaded();
   const canDeleteCase = !rbacReady || hasPermission("delete-case");
   const showDeleteTooltip = rbacReady && !canDeleteCase;
 
+  const tryCloseTabOrIrCasos = () => {
+    window.close();
+    window.setTimeout(() => {
+      if (document.visibilityState === "visible") {
+        router.push("/casos");
+      }
+    }, 200);
+  };
+
+  const handleClonar = async () => {
+    try {
+      const res = await clonarCaso.mutateAsync(Number(memoriaQueryId));
+      toast.success(res.message ?? "Caso clonado com sucesso.");
+      invalidate();
+      if (res?.data?.registro) {
+        const path = `/casos/${res.data.registro}`;
+        router.push(standalone ? appendStandaloneToCasoPath(path) : path);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao clonar caso.");
+    }
+  };
+
+  const handleExcluirCaso = async () => {
+    try {
+      await deleteCaso.mutateAsync(Number(memoriaQueryId));
+      toast.success("Caso excluído com sucesso.");
+      invalidate();
+      if (standalone) {
+        tryCloseTabOrIrCasos();
+      } else {
+        router.back();
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao excluir caso.");
+    }
+  };
+
   const tabs: TabItem[] = [
     { value: "inicial", label: "Inicial" },
+    { value: "anotacoes", label: "Anotações", count: countAnotacoes },
     ...(showAnexosTab
       ? [{ value: "anexos", label: "Anexos", count: countAnexos }]
       : []),
-    { value: "anotacoes", label: "Anotações", count: countAnotacoes },
-    { value: "historico", label: "Histórico", count: countHistorico },
-    { value: "relacoes", label: "Relações", count: countRelacoes },
     { value: "clientes", label: "Clientes", count: countClientes },
+    { value: "relacoes", label: "Relações", count: countRelacoes },
     { value: "producao", label: "Produção" },
+    { value: "historico", label: "Histórico", count: countHistorico },
   ];
 
   return (
@@ -107,25 +153,36 @@ export function CasoEditHeader({
 
         {/* Coluna direita: mesmo espaço da coluna direita do formulário (362px em lg) */}
         <div className="w-full lg:w-[362px] flex flex-row items-center justify-between gap-2 shrink-0 ">
-        <Button
-          type="button"
-          variant="outline"
-          className=" px-3 flex-1"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
-          Voltar
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          className=" px-3 flex-1"
-          onClick={onClonar}
-          disabled={isClonando}
-        >
-          <Copy className="h-3.5 w-3.5 mr-1.5" />
-          {isClonando ? "Clonando..." : "Clonar"}
-        </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className=" px-3 flex-1"
+            onClick={() =>
+              standalone ? tryCloseTabOrIrCasos() : router.back()
+            }
+          >
+            {standalone ? (
+              <>
+                <X className="h-3.5 w-3.5 mr-1.5" />
+                Fechar
+              </>
+            ) : (
+              <>
+                <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
+                Voltar
+              </>
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className=" px-3 flex-1"
+            onClick={handleClonar}
+            disabled={clonarCaso.isPending}
+          >
+            <Copy className="h-3.5 w-3.5 mr-1.5" />
+            {clonarCaso.isPending ? "Clonando..." : "Clonar"}
+          </Button>
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="flex-1">
@@ -133,8 +190,8 @@ export function CasoEditHeader({
                   type="button"
                   variant="outline"
                   className="w-full px-3 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
-                  onClick={onExcluir}
-                  disabled={isExcluindo || !canDeleteCase}
+                  onClick={() => setExcluirCasoModal(true)}
+                  disabled={deleteCaso.isPending || !canDeleteCase}
                 >
                   <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                   Excluir
@@ -149,6 +206,18 @@ export function CasoEditHeader({
           </Tooltip>
         </div>
       </div>
+
+      <ConfirmacaoModal
+        open={excluirCasoModal}
+        onOpenChange={setExcluirCasoModal}
+        titulo="Excluir caso"
+        descricao="Tem certeza que deseja excluir este caso? Esta ação não pode ser desfeita."
+        confirmarLabel="Excluir"
+        cancelarLabel="Cancelar"
+        onConfirm={handleExcluirCaso}
+        variant="danger"
+        isLoading={deleteCaso.isPending}
+      />
     </TooltipProvider>
   );
 }

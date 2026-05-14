@@ -5,25 +5,14 @@ import { useRouter } from "next/navigation";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useIsMutating } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
 import { useUpdateCaso } from "@/hooks/use-update-caso";
-import { useClonarCaso } from "@/hooks/use-clonar-caso";
-import { useDeleteCaso } from "@/hooks/use-delete-caso";
-import { useCreateAnotacao } from "@/hooks/use-create-anotacao";
-import { useUpdateAnotacao } from "@/hooks/use-update-anotacao";
-import { useDeleteAnotacao } from "@/hooks/use-delete-anotacao";
-import { useCreateClienteCaso } from "@/hooks/use-create-cliente-caso";
-import { useDeleteClienteCaso } from "@/hooks/use-delete-cliente-caso";
-import { useCreateCasoRelacao } from "@/hooks/use-create-caso-relacao";
-import { useUpdateCasoRelacao } from "@/hooks/use-update-caso-relacao";
-import { useDeleteCasoRelacao } from "@/hooks/use-delete-caso-relacao";
 
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
-import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { CasoEditHeader } from "./caso-edit-header";
 import { CasoEditRodapeAcoes } from "./caso-edit-rodape-acoes";
 import { CasoEditColunaDireita } from "./caso-edit-coluna-direita";
@@ -123,7 +112,6 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [tabValue, setTabValue] = useState("inicial");
-  const [excluirCasoModal, setExcluirCasoModal] = useState(false);
 
   const caso = item.caso;
   const numeroCaso = caso?.id ?? Number(casoId);
@@ -163,17 +151,9 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
 
   const produtoWatch = methods.watch("produto");
 
-  const updateCaso = useUpdateCaso();
-  const clonarCaso = useClonarCaso();
-  const deleteCaso = useDeleteCaso();
-  const createAnotacao = useCreateAnotacao();
-  const updateAnotacao = useUpdateAnotacao();
-  const deleteAnotacao = useDeleteAnotacao();
-  const createClienteCaso = useCreateClienteCaso();
-  const deleteClienteCaso = useDeleteClienteCaso();
-  const createCasoRelacao = useCreateCasoRelacao();
-  const updateCasoRelacao = useUpdateCasoRelacao();
-  const deleteCasoRelacao = useDeleteCasoRelacao();
+  const updateCaso = useUpdateCaso(casoId);
+  const isUpdateCasoMutatingForPage =
+    useIsMutating({ mutationKey: ["update-caso", casoId] }) > 0;
 
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["projeto-memoria", casoId] });
@@ -266,6 +246,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       const forceStatusEDevPorAnalise = statusReportFinal === "21";
       const statusReportAlterado =
         statusReportFinal !== "" && statusReportFinal !== statusReportAtual;
+      const statusReportAprovado = statusReportFinal !== "21";
 
       const analiseDataConclusao = statusReportAlterado
         ? buildAnaliseConclusaoByStatus(statusReportFinal)
@@ -290,7 +271,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         Id_Origem: Number(formData.origem),
         status: forceStatusEDevPorAnalise ? 8 : statusCasoFinal,
         atribuido_qa: Number(formData.qaAtribuido),
-        report_analise_aprovado: statusReportAlterado,
+        report_analise_aprovado: statusReportAprovado,
         report_analise_status: statusReportAlterado
           ? statusReportFinal
           : undefined,
@@ -309,117 +290,6 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
 
   const canEditCase = !rbacReady || hasPermission("edit-case");
 
-  const handleClonar = async () => {
-    try {
-      const res = await clonarCaso.mutateAsync(Number(casoId));
-      toast.success(res.message ?? "Caso clonado com sucesso.");
-      invalidate();
-      if (res?.data?.registro) {
-        router.push(`/casos/${res.data.registro}`);
-      }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao clonar caso.");
-    }
-  };
-
-  const handleExcluirCaso = async () => {
-    try {
-      await deleteCaso.mutateAsync(Number(casoId));
-      toast.success("Caso excluído com sucesso.");
-      invalidate();
-      router.back();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao excluir caso.");
-    }
-  };
-
-  const handleCreateAnotacao = async (payload: {
-    registro: number;
-    anotacoes: string;
-  }) => {
-    await createAnotacao.mutateAsync(payload);
-    toast.success("Anotação criada com sucesso.");
-    invalidate();
-  };
-
-  const handleUpdateAnotacao = async (payload: {
-    id: number;
-    data: { anotacoes: string };
-  }) => {
-    await updateAnotacao.mutateAsync(payload);
-    toast.success("Anotação atualizada com sucesso.");
-    invalidate();
-  };
-
-  const handleDeleteAnotacao = async (sequencia: number) => {
-    await deleteAnotacao.mutateAsync(sequencia);
-    toast.success("Anotação excluída com sucesso.");
-    invalidate();
-  };
-
-  const handleAddCliente = async (payload: {
-    registro: number;
-    cliente: number;
-    incidente: number;
-  }) => {
-    await createClienteCaso.mutateAsync(payload);
-    toast.success("Cliente vinculado com sucesso.");
-    invalidate();
-  };
-
-  const handleDeleteCliente = async (sequencia: number) => {
-    await deleteClienteCaso.mutateAsync(sequencia);
-    toast.success("Cliente removido do caso.");
-    invalidate();
-  };
-
-  const handleAddRelacao = async (payload: {
-    registro: number;
-    tipo_relacao: 1 | 2 | 3 | 4 | 5;
-    caso_relacionado: number;
-    descricao_resumo: string;
-  }) => {
-    await createCasoRelacao.mutateAsync(payload);
-    toast.success("Relação criada com sucesso.");
-    invalidate();
-  };
-
-  const handleUpdateRelacao = async (payload: {
-    id: number;
-    data: {
-      tipo_relacao: 1 | 2 | 3 | 4 | 5;
-      caso_relacionado: number;
-      descricao_resumo: string;
-    };
-  }) => {
-    await updateCasoRelacao.mutateAsync(payload);
-    toast.success("Relação atualizada com sucesso.");
-    invalidate();
-  };
-
-  const handleDeleteRelacao = async (sequencia: number) => {
-    await deleteCasoRelacao.mutateAsync(sequencia);
-    toast.success("Relação excluída com sucesso.");
-    invalidate();
-  };
-
-  const handleSaveProducao = async (payload: {
-    TempoEstimado?: string | null;
-    tamanho?: number | null;
-    NaoPlanejado?: number | boolean;
-  }) => {
-    await updateCaso.mutateAsync({
-      id: casoId,
-      data: {
-        TempoEstimado: payload.TempoEstimado ?? undefined,
-        tamanho: payload.tamanho ?? undefined,
-        NaoPlanejado: payload.NaoPlanejado ?? undefined,
-      },
-    });
-    toast.success("Produção atualizada com sucesso.");
-    invalidate();
-  };
-
   const anotacoes = (caso?.anotacoes ??
     []) as ProjetoMemoriaItem["caso"]["anotacoes"];
   const clientes = (caso?.clientes ??
@@ -435,11 +305,19 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       form: methods,
       importanceOptions,
       produto: produtoWatch,
-      isDisabled: updateCaso.isPending || !canEditCase,
+      isDisabled:
+        updateCaso.isPending || isUpdateCasoMutatingForPage || !canEditCase,
       lazyLoadComboboxOptions: true as const,
       editCaseItem: item,
     }),
-    [methods, produtoWatch, updateCaso.isPending, canEditCase, item],
+    [
+      methods,
+      produtoWatch,
+      updateCaso.isPending,
+      isUpdateCasoMutatingForPage,
+      canEditCase,
+      item,
+    ],
   );
 
   const casoEditValue = useMemo(
@@ -448,7 +326,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       numeroCaso,
       canEditCase,
       invalidate,
-      isSaving: updateCaso.isPending,
+      isSaving: updateCaso.isPending || isUpdateCasoMutatingForPage,
       statusIdApi,
       onSalvar: handleSalvar,
     }),
@@ -458,6 +336,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       canEditCase,
       invalidate,
       updateCaso.isPending,
+      isUpdateCasoMutatingForPage,
       statusIdApi,
       handleSalvar,
     ],
@@ -474,13 +353,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
           countAnotacoes={countAnotacoes}
           countRelacoes={countRelacoes}
           countClientes={countClientes}
-          countHistorico={countHistorico}
           countAnexos={countAnexos}
           showAnexosTab={showAnexosTab}
-          onClonar={handleClonar}
-          onExcluir={() => setExcluirCasoModal(true)}
-          isClonando={clonarCaso.isPending}
-          isExcluindo={deleteCaso.isPending}
         />
 
         <div className="mt-4 flex-1 flex flex-col min-h-0 overflow-auto">
@@ -504,17 +378,6 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       </fieldset>
                     </TabsContent>
 
-                    {showAnexosTab && (
-                      <TabsContent
-                        value="anexos"
-                        className="mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden"
-                      >
-                        <div className="flex-1 flex flex-col gap-6 min-w-0">
-                          <AbaAnexos casoRegistro={numeroCaso} />
-                        </div>
-                      </TabsContent>
-                    )}
-
                     <TabsContent
                       value="anotacoes"
                       className="mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden"
@@ -528,11 +391,34 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         <AbaAnotacoes
                           report={item.caso.textos.descricao_completa ?? ""}
                           anotacoes={anotacoes ?? []}
-                          onCreate={handleCreateAnotacao}
-                          onUpdate={handleUpdateAnotacao}
-                          onDelete={handleDeleteAnotacao}
-                          isCreating={createAnotacao.isPending}
                         />
+                      </div>
+                      {/* </fieldset> */}
+                    </TabsContent>
+
+                    {showAnexosTab && (
+                      <TabsContent
+                        value="anexos"
+                        className="mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden"
+                      >
+                        <div className="flex-1 flex flex-col gap-6 min-w-0">
+                          <AbaAnexos casoRegistro={numeroCaso} />
+                        </div>
+                      </TabsContent>
+                    )}
+
+                    <TabsContent
+                      value="clientes"
+                      className="mt-0 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
+                    >
+                      {/* <fieldset
+                        disabled={!canEditCase}
+                        className="contents"
+                        aria-disabled={!canEditCase}
+                      > */}
+                      <div className="flex-1 flex flex-col gap-6 min-w-0">
+                        <AbaClientes clientes={clientes ?? []} />
+                        <CasoEditCardClassificacao />
                       </div>
                       {/* </fieldset> */}
                     </TabsContent>
@@ -547,38 +433,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         aria-disabled={!canEditCase}
                       >
                         <div className="flex-1 flex flex-col gap-6 min-w-0">
-                          <AbaRelacoes
-                            relacoes={relacoes ?? []}
-                            onAdd={handleAddRelacao}
-                            onUpdate={handleUpdateRelacao}
-                            onDelete={handleDeleteRelacao}
-                            isAdding={createCasoRelacao.isPending}
-                            isUpdating={updateCasoRelacao.isPending}
-                          />
+                          <AbaRelacoes relacoes={relacoes ?? []} />
                           <CasoEditCardClassificacao />
                         </div>
                       </fieldset>
-                    </TabsContent>
-
-                    <TabsContent
-                      value="clientes"
-                      className="mt-0 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
-                    >
-                      {/* <fieldset
-                        disabled={!canEditCase}
-                        className="contents"
-                        aria-disabled={!canEditCase}
-                      > */}
-                      <div className="flex-1 flex flex-col gap-6 min-w-0">
-                        <AbaClientes
-                          clientes={clientes ?? []}
-                          onAdd={handleAddCliente}
-                          onDelete={handleDeleteCliente}
-                          isAdding={createClienteCaso.isPending}
-                        />
-                        <CasoEditCardClassificacao />
-                      </div>
-                      {/* </fieldset> */}
                     </TabsContent>
 
                     <TabsContent
@@ -591,10 +449,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         aria-disabled={!canEditCase}
                       >
                         <div className="flex-1 flex flex-col gap-6 min-w-0">
-                          <AbaProducao
-                            item={item}
-                            onSaveProducao={handleSaveProducao}
-                          />
+                          <AbaProducao item={item} />
                         </div>
                       </fieldset>
                     </TabsContent>
@@ -643,18 +498,6 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
           </CasoFormProvider>
         </div>
       </Tabs>
-
-      <ConfirmacaoModal
-        open={excluirCasoModal}
-        onOpenChange={setExcluirCasoModal}
-        titulo="Excluir caso"
-        descricao="Tem certeza que deseja excluir este caso? Esta ação não pode ser desfeita."
-        confirmarLabel="Excluir"
-        cancelarLabel="Cancelar"
-        onConfirm={handleExcluirCaso}
-        variant="danger"
-        isLoading={deleteCaso.isPending}
-      />
     </CasoEditProvider>
   );
 }
