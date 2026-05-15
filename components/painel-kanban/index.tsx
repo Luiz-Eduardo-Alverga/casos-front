@@ -279,19 +279,19 @@ export function PainelKanban() {
   };
 
   const abertosQ = useProjetoMemoria(
-    { ...baseParams, status_id: ["1", "2"] },
+    { ...baseParams, status_id: ["1", "2"], projeto_id: cronogramaIdAgenda },
     { enabled: queryEnabled },
   );
   const corrigidosQ = useProjetoMemoria(
-    { ...baseParams, status_id: "3" },
+    { ...baseParams, status_id: "3", projeto_id: cronogramaIdAgenda },
     { enabled: queryEnabled },
   );
   const retornosQ = useProjetoMemoria(
-    { ...baseParams, status_id: "4" },
+    { ...baseParams, status_id: "4", projeto_id: cronogramaIdAgenda },
     { enabled: queryEnabled },
   );
   const concluidosQ = useProjetoMemoria(
-    { ...baseParams, status_id: "9" },
+    { ...baseParams, status_id: "9", projeto_id: cronogramaIdAgenda },
     { enabled: queryEnabled },
   );
 
