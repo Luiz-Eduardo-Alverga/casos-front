@@ -15,7 +15,7 @@ import { RefreshCcw, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
 import { RetornoSkeleton } from "@/components/painel/retorno-skeleton";
 import { getUser } from "@/lib/auth";
-import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
+import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
 import { useRouter } from "next/navigation";
 

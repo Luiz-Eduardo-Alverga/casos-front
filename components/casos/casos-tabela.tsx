@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
+import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
 import { getUser } from "@/lib/auth";
 import { ArrowLeftRight, Box, ChevronUp } from "lucide-react";
@@ -14,7 +14,7 @@ import {
   CasosTabelaTable,
   type CasosTabelaRow,
 } from "@/components/casos/tabela/casos-tabela-table";
-import { useBulkUpdateCasos } from "@/hooks/use-bulk-update-casos";
+import { useBulkUpdateCasos } from "@/hooks/casos/use-bulk-update-casos";
 import { CasosTransferenciaModal } from "@/components/casos/transferencia/casos-transferencia-modal";
 import { buildBulkTransferPayload } from "@/components/casos/transferencia/utils";
 import type { CasosTransferenciaFormValues } from "@/components/casos/transferencia/types";

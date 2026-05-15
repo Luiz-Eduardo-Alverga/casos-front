@@ -5,7 +5,7 @@ import { Package } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
-import { useModulos } from "@/hooks/use-modulos";
+import { useModulos } from "@/hooks/catalogos/use-modulos";
 
 interface CasoFormModuloProps {
   required?: boolean;

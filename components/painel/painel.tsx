@@ -6,7 +6,7 @@ import { CasosProduto } from "@/components/painel/casos-produto";
 import { CasosProdutoSkeleton } from "@/components/painel/casos-produto-skeleton";
 import { Retorno } from "@/components/painel/retorno";
 import { RetornoSkeleton } from "@/components/painel/retorno-skeleton";
-import { useAgendaDev } from "@/hooks/use-agenda-dev";
+import { useAgendaDev } from "@/hooks/painel/use-agenda-dev";
 import { getUser, PAINEL_PRODUTO_ORDEM_KEY } from "@/lib/auth";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";

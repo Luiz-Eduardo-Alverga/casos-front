@@ -10,9 +10,9 @@ import { AssistantModal } from "@/components/caso-form/assistant-modal";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
 import { getUser } from "@/lib/auth";
-import { useAssistant } from "@/hooks/use-assistant";
-import { useCreateCaso } from "@/hooks/use-create-caso";
-import { useUploadCaseAttachmentsBatch } from "@/hooks/use-case-attachments";
+import { useAssistant } from "@/hooks/assistant/use-assistant";
+import { useCreateCaso } from "@/hooks/casos/use-create-caso";
+import { useUploadCaseAttachmentsBatch } from "@/hooks/casos/use-case-attachments";
 import {
   clearAberturaStats,
   getIgnoreAutoFill,

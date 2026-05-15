@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Users } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useClientes } from "@/hooks/use-clientes";
+import { useClientes } from "@/hooks/catalogos/use-clientes";
 import { useFormContext, useWatch } from "react-hook-form";
 
 interface CasoEditClienteComboboxProps {

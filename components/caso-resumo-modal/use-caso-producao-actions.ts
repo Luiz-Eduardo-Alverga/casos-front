@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import { useIniciarProducao } from "@/hooks/use-iniciar-producao";
-import { usePararProducao } from "@/hooks/use-parar-producao";
+import { useIniciarProducao } from "@/hooks/producao/use-iniciar-producao";
+import { usePararProducao } from "@/hooks/producao/use-parar-producao";
 import { IniciarProducaoError } from "@/services/projeto-casos-producao/iniciar-producao";
 
 interface UseCasoProducaoActionsParams {

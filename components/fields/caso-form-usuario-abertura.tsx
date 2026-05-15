@@ -5,7 +5,7 @@ import { User } from "lucide-react";
 
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
-import { useUsuarios } from "@/hooks/use-usuarios";
+import { useUsuarios } from "@/hooks/catalogos/use-usuarios";
 
 interface CasoFormUsuarioAberturaProps {
   required?: boolean;

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useCreateVersion, useUpdateVersion } from "@/hooks/use-create-version";
+import { useCreateVersion, useUpdateVersion } from "@/hooks/cadastros/use-create-version";
 import { versionCreateSchema } from "@/lib/validators/db/versions";
 import type { VersionCreateInput } from "@/lib/validators/db/versions";
 import { Button } from "@/components/ui/button";

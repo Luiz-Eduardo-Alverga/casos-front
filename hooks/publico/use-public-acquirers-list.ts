@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { usePublicCadastroList } from "@/hooks/use-public-cadastro-list";
+import { usePublicCadastroList } from "@/hooks/publico/use-public-cadastro-list";
 import {
   getPublicAcquirers,
   type PublicAcquirerListItem,

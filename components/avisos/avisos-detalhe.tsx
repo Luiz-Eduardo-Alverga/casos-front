@@ -6,8 +6,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/painel/empty-state";
 import { Bell, FileText, Check, User } from "lucide-react";
-import { useMarcarMensagemComoLida } from "@/hooks/use-marcar-mensagem-lida";
-import { useMensagens } from "@/hooks/use-mensagens";
+import { useMarcarMensagemComoLida } from "@/hooks/mensagens/use-marcar-mensagem-lida";
+import { useMensagens } from "@/hooks/mensagens/use-mensagens";
 import { AvisosDetalheSkeleton } from "./avisos-detalhe-skeleton";
 
 interface AvisosDetalheProps {

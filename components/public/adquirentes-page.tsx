@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { usePublicAcquirersList } from "@/hooks/use-public-acquirers-list";
+import { usePublicAcquirersList } from "@/hooks/publico/use-public-acquirers-list";
 import { STATUS_TYPE_VALUES } from "@/lib/validators/db/shared";
 import {
   AdquirentesPageHeader,

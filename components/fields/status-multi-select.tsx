@@ -3,7 +3,7 @@
 import * as React from "react";
 import { CircleDot } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { useStatus } from "@/hooks/use-status";
+import { useStatus } from "@/hooks/catalogos/use-status";
 import toast from "react-hot-toast";
 import { MAX_STATUS_IDS_FILTRO_CASOS } from "@/components/casos/filtros/constants";
 import {

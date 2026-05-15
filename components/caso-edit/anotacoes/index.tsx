@@ -8,10 +8,10 @@ import { FileText } from "lucide-react";
 import { AnotacoesEditor } from "./anotacoes-editor";
 import { AnotacoesList } from "./anotacoes-list";
 import type { AbaAnotacoesProps } from "./types";
-import { useReportAnalysis } from "@/hooks/use-report-analysis";
-import { useCreateAnotacao } from "@/hooks/use-create-anotacao";
-import { useUpdateAnotacao } from "@/hooks/use-update-anotacao";
-import { useDeleteAnotacao } from "@/hooks/use-delete-anotacao";
+import { useReportAnalysis } from "@/hooks/casos/anotacoes/use-report-analysis";
+import { useCreateAnotacao } from "@/hooks/casos/anotacoes/use-create-anotacao";
+import { useUpdateAnotacao } from "@/hooks/casos/anotacoes/use-update-anotacao";
+import { useDeleteAnotacao } from "@/hooks/casos/anotacoes/use-delete-anotacao";
 import toast from "react-hot-toast";
 import { useCasoEdit } from "../caso-edit-context";
 

@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import {
   useCreateAcquirer,
   useUpdateAcquirer,
-} from "@/hooks/use-create-acquirer";
+} from "@/hooks/cadastros/use-create-acquirer";
 import { acquirerCreateSchema } from "@/lib/validators/db/acquirers";
 import type { AcquirerCreateInput } from "@/lib/validators/db/acquirers";
 import { Button } from "@/components/ui/button";

@@ -1,3 +1,5 @@
+import type { StatusItem } from "@/services/auxiliar/status";
+
 export function formatReportDate(value: string | null | undefined): string {
   if (!value?.trim()) return "—";
   const raw = value.trim();
@@ -57,22 +59,79 @@ export function normalizeAnaliseStatusForForm(
   return v;
 }
 
-export function mapCasoStatusToReportStatus(
-  status: number | string | null | undefined,
+/**
+ * Lê o campo `report_status_equivalente` na lista da API para um determinado
+ * Registro. Retorna `undefined` quando não há equivalente (`"0"` ou ausente).
+ */
+export function getReportStatusEquivalente(
+  statusList: readonly StatusItem[] | undefined,
+  statusId: number | string | null | undefined,
 ): string | undefined {
-  const statusId = Number(status);
-  if (statusId === 10) return "23";
-  if (statusId === 8) return "21";
-  return undefined;
+  if (!statusList?.length) return undefined;
+  const id = Number(statusId);
+  if (!Number.isFinite(id) || id === 0) return undefined;
+
+  const item = statusList.find((s) => Number(s.Registro) === id);
+  if (!item) return undefined;
+
+  const equivalente = String(item.report_status_equivalente ?? "").trim();
+  if (!equivalente || equivalente === "0") return undefined;
+  return equivalente;
 }
 
-export function mapReportStatusToCasoStatus(
-  status: number | string | null | undefined,
+const VERSAO_FALLBACK_TERMS = ["BUG", "MELHORIA", "BACKLOG"] as const;
+
+/**
+ * Indica se o nome/label da versão selecionada corresponde a um dos
+ * tipos especiais (BUG, MELHORIA, BACKLOG) que disparam fallback para
+ * report 22 quando o status do caso não tem equivalente direto.
+ */
+export function isVersaoBugMelhoriaBacklog(
+  versaoLabel: string | undefined | null,
+): boolean {
+  const raw = String(versaoLabel ?? "").toUpperCase();
+  if (!raw) return false;
+  return VERSAO_FALLBACK_TERMS.some((term) => raw.includes(term));
+}
+
+/**
+ * Quando o status do caso não tem report equivalente direto, decide entre
+ * o report `"22"` (Aprovado | Pendente versão) e `"20"` (Aprovado | Versão definida)
+ * a partir do label da versão selecionada.
+ */
+export function getReportStatusFallbackPorVersao(
+  versaoLabel: string | undefined | null,
+): "20" | "22" {
+  return isVersaoBugMelhoriaBacklog(versaoLabel) ? "22" : "20";
+}
+
+/**
+ * Resolve o status REPORT equivalente a um status CASO selecionado.
+ * - Usa `report_status_equivalente` da API quando disponível.
+ * - Quando não houver equivalente direto, aplica o fallback de versão.
+ */
+export function resolveReportStatusFromCaso(
+  statusList: readonly StatusItem[] | undefined,
+  casoStatus: number | string | null | undefined,
+  versaoLabel: string | undefined | null,
+): string | undefined {
+  const equivalente = getReportStatusEquivalente(statusList, casoStatus);
+  if (equivalente) return equivalente;
+  return getReportStatusFallbackPorVersao(versaoLabel);
+}
+
+/**
+ * Resolve o status CASO equivalente a um status REPORT selecionado, via
+ * `report_status_equivalente` retornado pela API.
+ */
+export function resolveCasoStatusFromReport(
+  statusList: readonly StatusItem[] | undefined,
+  reportStatus: number | string | null | undefined,
 ): number | undefined {
-  const statusId = Number(status);
-  if (statusId === 23) return 10;
-  if (statusId === 21) return 8;
-  return undefined;
+  const equivalente = getReportStatusEquivalente(statusList, reportStatus);
+  if (!equivalente) return undefined;
+  const id = Number(equivalente);
+  return Number.isFinite(id) ? id : undefined;
 }
 
 /**
@@ -86,9 +145,12 @@ export function buildAnaliseConclusaoByStatus(
 ): string | null | undefined {
   if (!analiseStatus) return undefined;
   if (analiseStatus === "21") return null;
-  if (analiseStatus === "20" || analiseStatus === "22" || analiseStatus === "23") {
+  if (
+    analiseStatus === "20" ||
+    analiseStatus === "22" ||
+    analiseStatus === "23"
+  ) {
     return nowSaoPauloToApiDateTime();
   }
   return undefined;
 }
-

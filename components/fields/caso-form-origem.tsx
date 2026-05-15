@@ -5,7 +5,7 @@ import { Activity } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
-import { useOrigens } from "@/hooks/use-origens";
+import { useOrigens } from "@/hooks/catalogos/use-origens";
 
 export function CasoFormOrigem() {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();

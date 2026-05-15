@@ -21,7 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { SwitchChoiceCard } from "@/components/ui/switch-choice-card";
 import { StatusAdquirentesSheetSkeleton } from "./status-adquirentes-sheet-skeleton";
-import { useDbDevices } from "@/hooks/use-db-devices";
+import { useDbDevices } from "@/hooks/cadastros/use-db-devices";
 import {
   useAcquirerCompatibleDevicesByStatus,
   useAcquirerStatusById,
@@ -29,7 +29,7 @@ import {
   useLinkAcquirerCompatibleDevice,
   useUnlinkAcquirerCompatibleDevice,
   useUpdateAcquirerStatus,
-} from "@/hooks/use-create-acquirer-status";
+} from "@/hooks/cadastros/use-create-acquirer-status";
 import {
   AcquirerStatusAcquirerField,
   AcquirerStatusCurrentVersionField,

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/painel/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Bell, Mail, MailOpen } from "lucide-react";
-import { useMensagens } from "@/hooks/use-mensagens";
+import { useMensagens } from "@/hooks/mensagens/use-mensagens";
 import { useRouter } from "next/navigation";
 import type { Mensagem } from "@/services/mensagens/get-mensagens";
 import { getPeriodoRange } from "@/lib/periodo-avisos";

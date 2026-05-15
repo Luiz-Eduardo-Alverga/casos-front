@@ -19,15 +19,19 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { useProdutosOrdem } from "@/hooks/use-produtos-ordem";
-import { useCreateProdutosOrdem } from "@/hooks/use-create-produtos-ordem";
-import { useUpdateProdutosOrdem } from "@/hooks/use-update-produtos-ordem";
-import { useBulkUpdateProdutosOrdem } from "@/hooks/use-bulk-update-produtos-ordem";
-import { useDeleteProdutosOrdem } from "@/hooks/use-delete-produtos-ordem";
-import { useVersoes } from "@/hooks/use-versoes";
+import { useProdutosOrdem } from "@/hooks/painel/produtos-ordem/use-produtos-ordem";
+import { useCreateProdutosOrdem } from "@/hooks/painel/produtos-ordem/use-create-produtos-ordem";
+import { useUpdateProdutosOrdem } from "@/hooks/painel/produtos-ordem/use-update-produtos-ordem";
+import { useBulkUpdateProdutosOrdem } from "@/hooks/painel/produtos-ordem/use-bulk-update-produtos-ordem";
+import { useDeleteProdutosOrdem } from "@/hooks/painel/produtos-ordem/use-delete-produtos-ordem";
+import { useVersoes } from "@/hooks/catalogos/use-versoes";
 import type { ProdutoOrdem } from "@/services/projeto-dev/get-produtos-ordem";
 import type { PainelKanbanProdutosModalProps } from "./types";
-import { parseVersaoFieldValue, toSortableId } from "./utils";
+import {
+  getColaboradorLabelFromKanbanFiltros,
+  parseVersaoFieldValue,
+  toSortableId,
+} from "./utils";
 import { ProdutosModalAddForm } from "./produtos-modal-add-form";
 import { ProdutosModalList } from "./produtos-modal-list";
 import { PainelKanbanProdutosModalSkeleton } from "./produtos-modal-skeleton";
@@ -46,6 +50,14 @@ export function PainelKanbanProdutosModal({
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["agenda-dev", idColaborador] });
   }, [queryClient, idColaborador]);
+
+  const colaboradorExibicao = useMemo(
+    () =>
+      open
+        ? getColaboradorLabelFromKanbanFiltros(idColaborador, nomeColaborador)
+        : nomeColaborador,
+    [open, idColaborador, nomeColaborador],
+  );
 
   const createMutation = useCreateProdutosOrdem();
   const updateMutation = useUpdateProdutosOrdem();
@@ -167,16 +179,39 @@ export function PainelKanbanProdutosModal({
 
   const handleDelete = useCallback(
     async (item: ProdutoOrdem) => {
+      const itemId = String(item.id);
+      let removedItem: ProdutoOrdem | undefined;
+      let removedAtIndex = -1;
+
+      setItems((prev) => {
+        const index = prev.findIndex((i) => String(i.id) === itemId);
+        if (index < 0) return prev;
+        removedItem = prev[index];
+        removedAtIndex = index;
+        return prev.filter((i) => String(i.id) !== itemId);
+      });
+
+      if (editingItemId === itemId) handleCancelEdit();
+
       try {
         await deleteMutation.mutateAsync({
           id: item.id,
           id_colaborador: Number(idColaborador),
         });
         toast.success("Produto removido do quadro.");
-        if (editingItemId === String(item.id)) handleCancelEdit();
         await produtosOrdemQuery.refetch();
         await invalidate();
       } catch (error) {
+        if (removedItem != null && removedAtIndex >= 0) {
+          setItems((prev) => {
+            if (prev.some((i) => String(i.id) === itemId)) return prev;
+            const next = [...prev];
+            next.splice(removedAtIndex, 0, removedItem!);
+            return next;
+          });
+        } else {
+          await produtosOrdemQuery.refetch();
+        }
         toast.error(
           error instanceof Error ? error.message : "Erro ao remover produto.",
         );
@@ -247,7 +282,9 @@ export function PainelKanbanProdutosModal({
         <SheetHeader className="shrink-0 border-b border-border-divider space-y-1.5 px-4 pb-4 pt-5 sm:px-6">
           <SheetTitle className="text-xl font-semibold text-text-primary leading-tight">
             Produtos do colaborador -{" "}
-            <span className="font-bold">{nomeColaborador}</span>
+            <span className="font-bold">
+              {colaboradorExibicao.trim() || "Não informado"}
+            </span>
           </SheetTitle>
           <SheetDescription className="text-base text-text-secondary">
             Adicione os produtos e ordene da forma desejada
@@ -281,7 +318,11 @@ export function PainelKanbanProdutosModal({
                   editVersao={editVersao}
                   versoesEdicao={versoesEdicao}
                   isSavingEdicao={updateMutation.isPending}
-                  isDeleting={deleteMutation.isPending}
+                  deletingItemId={
+                    deleteMutation.isPending && deleteMutation.variables
+                      ? String(deleteMutation.variables.id)
+                      : null
+                  }
                   onStartEdit={handleStartEdit}
                   onCancelEdit={handleCancelEdit}
                   onChangeEditVersao={setEditVersao}

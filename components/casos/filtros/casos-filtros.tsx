@@ -15,7 +15,7 @@ import { CasoFormCategoria } from "@/components/fields/caso-form-categoria";
 import { CasoFormUsuarioAbertura } from "@/components/fields/caso-form-usuario-abertura";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { importanceOptions } from "@/mocks/teste";
-import { useCategorias } from "@/hooks/use-categorias";
+import { useCategorias } from "@/hooks/catalogos/use-categorias";
 import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { CasosFiltrosSheet } from "@/components/casos/filtros/casos-filtros-sheet";
 import { MAX_STATUS_IDS_FILTRO_CASOS } from "@/components/casos/filtros/constants";

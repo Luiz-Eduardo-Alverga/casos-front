@@ -12,7 +12,7 @@ import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
-import { useProjetoMemoriaById } from "@/hooks/use-projeto-memoria-by-id";
+import { useProjetoMemoriaById } from "@/hooks/casos/use-projeto-memoria-by-id";
 import { CasoResumoModalContent } from "@/components/caso-resumo-modal/caso-resumo-modal-content";
 import {
   formatCaseSearchValue,

@@ -9,7 +9,7 @@ import { useQueryClient, useIsMutating } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
-import { useUpdateCaso } from "@/hooks/use-update-caso";
+import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
@@ -24,17 +24,18 @@ import { AbaClientes } from "./clientes";
 import { AbaProducao } from "./producao";
 import { CasoEditProvider } from "./caso-edit-context";
 import { AbaAnexos } from "./anexos";
-import { useCaseAttachments } from "@/hooks/use-case-attachments";
-import { useCasoHistorico } from "@/hooks/use-caso-historico";
+import { useCaseAttachments } from "@/hooks/casos/use-case-attachments";
+import { useCasoHistorico } from "@/hooks/casos/use-caso-historico";
 
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
-import type { UpdateCasoRequest } from "@/services/projeto-casos/update";
+import { buildCasoUpdatePayload } from "@/components/caso-form/shared/payload";
+import { useStatus } from "@/hooks/catalogos/use-status";
 import {
   buildAnaliseConclusaoByStatus,
-  mapCasoStatusToReportStatus,
-  mapReportStatusToCasoStatus,
   normalizeAnaliseStatusForForm,
+  resolveCasoStatusFromReport,
+  resolveReportStatusFromCaso,
 } from "./report-analise-modal/utils";
 import { AbaHistorico } from "./historico/index";
 
@@ -144,12 +145,15 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     control: methods.control,
     name: "analiseStatus",
   });
+  const versaoValue = useWatch({ control: methods.control, name: "versao" });
   const previousStatusValueRef = useRef(String(defaultValues.status ?? ""));
   const previousAnaliseStatusValueRef = useRef(
     String(defaultValues.analiseStatus ?? ""),
   );
 
   const produtoWatch = methods.watch("produto");
+
+  const { data: statusList } = useStatus();
 
   const updateCaso = useUpdateCaso(casoId);
   const isUpdateCasoMutatingForPage =
@@ -158,6 +162,12 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["projeto-memoria", casoId] });
   }, [queryClient, casoId]);
+
+  const getReportStatusFromCasoStatus = useCallback(
+    (status: number) =>
+      resolveReportStatusFromCaso(statusList, status, versaoValue),
+    [statusList, versaoValue],
+  );
 
   useEffect(() => {
     const statusAtual = String(statusValue ?? "").trim();
@@ -174,8 +184,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       analiseStatusAtual !== previousAnaliseStatusValueRef.current;
 
     if (analiseStatusAlterado && !statusAlterado) {
-      const statusCasoEquivalente =
-        mapReportStatusToCasoStatus(analiseStatusAtual);
+      const statusCasoEquivalente = resolveCasoStatusFromReport(
+        statusList,
+        analiseStatusAtual,
+      );
       if (
         statusCasoEquivalente !== undefined &&
         statusAtual !== String(statusCasoEquivalente)
@@ -191,7 +203,23 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     }
 
     if (statusAlterado && !analiseStatusAlterado) {
-      const statusReportEquivalente = mapCasoStatusToReportStatus(statusAtual);
+      // Regra especial: se o report atual é "21" (Incompleto) e o usuário
+      // altera o status do caso, o report é limpo (será enviado como "0").
+      if (analiseStatusAtual === "21") {
+        methods.setValue("analiseStatus", "", {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+        previousStatusValueRef.current = statusAtual;
+        previousAnaliseStatusValueRef.current = "";
+        return;
+      }
+
+      const statusReportEquivalente = resolveReportStatusFromCaso(
+        statusList,
+        statusAtual,
+        versaoValue,
+      );
       if (
         statusReportEquivalente !== undefined &&
         analiseStatusAtual !== statusReportEquivalente
@@ -208,12 +236,17 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
 
     previousStatusValueRef.current = statusAtual;
     previousAnaliseStatusValueRef.current = analiseStatusAtual;
-  }, [analiseStatusValue, isReport, methods, statusValue]);
+  }, [
+    analiseStatusValue,
+    isReport,
+    methods,
+    statusList,
+    statusValue,
+    versaoValue,
+  ]);
 
   const handleSalvar = methods.handleSubmit(async (formData: EditFormData) => {
     try {
-      const versaoProduto =
-        formData.versao?.split("-")[1]?.trim() || formData.versao || "";
       const statusReportAtual = normalizeAnaliseStatusForForm(
         item.report?.analise_status,
       );
@@ -225,64 +258,78 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         statusReportSelecionado !== "" &&
         statusReportSelecionado !== statusReportAtual;
 
-      if (isReport) {
+      // Quando o report atual era "21" e o form esvaziou o analiseStatus
+      // (porque o useEffect limpou após alteração do status do caso), o
+      // payload deve enviar "0" para limpar o report no banco.
+      const reportFoiLimpadoDe21 =
+        isReport &&
+        statusReportAtual === "21" &&
+        statusReportSelecionado === "";
+
+      if (reportFoiLimpadoDe21) {
+        statusReportFinal = "0";
+      } else if (isReport) {
         const statusCasoPorReport = statusReportSelecionadoAlterado
-          ? mapReportStatusToCasoStatus(statusReportSelecionado)
+          ? resolveCasoStatusFromReport(statusList, statusReportSelecionado)
           : undefined;
 
         if (statusCasoPorReport !== undefined) {
           statusCasoFinal = statusCasoPorReport;
         } else if (!statusReportSelecionadoAlterado) {
-          // Sincroniza report a partir do status do caso apenas quando o usuário
-          // não escolheu um status de report novo sem mapeamento (ex.: 20, 22).
-          const statusReportPorCaso =
-            mapCasoStatusToReportStatus(statusCasoFinal);
+          // Quando o usuário não trocou o report neste save, sincronizamos o
+          // report a partir do status final do caso (inclui fallback de versão
+          // para status sem equivalente direto).
+          const statusReportPorCaso = resolveReportStatusFromCaso(
+            statusList,
+            statusCasoFinal,
+            formData.versao,
+          );
           if (statusReportPorCaso !== undefined) {
             statusReportFinal = statusReportPorCaso;
           }
         }
       }
 
-      const forceStatusEDevPorAnalise = statusReportFinal === "21";
+      // O force (AtribuidoPara=631, status=8, report_data_limite=null) só
+      // dispara quando o usuário escolheu explicitamente report "21" neste
+      // save. Se 21 já vinha do banco e o usuário só mudou o caso, respeitamos
+      // o status final do caso e o novo report calculado pela sincronização.
+      const forceStatusEDevPorAnalise =
+        statusReportSelecionadoAlterado && statusReportSelecionado === "21";
+
       const statusReportAlterado =
-        statusReportFinal !== "" && statusReportFinal !== statusReportAtual;
+        reportFoiLimpadoDe21 ||
+        (statusReportFinal !== "" && statusReportFinal !== statusReportAtual);
       const statusReportAprovado =
         statusReportFinal !== "21" && statusReportFinal !== "0";
-
-      console.log("statusReportFinal", statusReportFinal);
 
       const analiseDataConclusao = statusReportAlterado
         ? buildAnaliseConclusaoByStatus(statusReportFinal)
         : undefined;
 
-      const payload: UpdateCasoRequest = {
-        DescricaoResumo: formData.DescricaoResumo,
-        DescricaoCompleta: (formData.DescricaoCompleta || "").replace(
-          /\r?\n/g,
-          "\r\n",
-        ),
-        InformacoesAdicionais: formData.InformacoesAdicionais ?? undefined,
-        Prioridade: Number(formData.importancia),
-        Categoria: Number(formData.categoria),
-        Relator: Number(formData.relator),
-        AtribuidoPara: forceStatusEDevPorAnalise
-          ? 631
-          : Number(formData.devAtribuido),
-        Modulo: formData.modulo || undefined,
-        VersaoProduto: versaoProduto,
-        Cronograma_id: Number(formData.projeto),
-        Id_Origem: Number(formData.origem),
-        status: forceStatusEDevPorAnalise ? 8 : statusCasoFinal,
-        atribuido_qa: Number(formData.qaAtribuido),
-        report_analise_aprovado: isReport ? statusReportAprovado : undefined,
-        report_analise_status: statusReportAlterado
-          ? statusReportFinal
+      const payload = buildCasoUpdatePayload({
+        data: {
+          ...formData,
+          devAtribuido: forceStatusEDevPorAnalise
+            ? "631"
+            : formData.devAtribuido,
+        },
+        isReport,
+        statusCasoFinal: forceStatusEDevPorAnalise ? 8 : statusCasoFinal,
+        reportFields: isReport
+          ? {
+              aprovado: statusReportAprovado,
+              analiseStatus: statusReportAlterado
+                ? statusReportFinal
+                : undefined,
+              analiseDataConclusao,
+              dataLimite: forceStatusEDevPorAnalise
+                ? null
+                : analiseDataConclusao,
+            }
           : undefined,
-        report_analise_data_conclusao: analiseDataConclusao,
-        report_data_limite: forceStatusEDevPorAnalise
-          ? null
-          : analiseDataConclusao,
-      };
+      });
+
       await updateCaso.mutateAsync({ id: casoId, data: payload });
       toast.success("Caso atualizado com sucesso.");
       invalidate();
@@ -332,6 +379,9 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       isSaving: updateCaso.isPending || isUpdateCasoMutatingForPage,
       statusIdApi,
       onSalvar: handleSalvar,
+      getReportStatusFromCasoStatus: isReport
+        ? getReportStatusFromCasoStatus
+        : undefined,
     }),
     [
       casoId,
@@ -342,6 +392,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       isUpdateCasoMutatingForPage,
       statusIdApi,
       handleSalvar,
+      isReport,
+      getReportStatusFromCasoStatus,
     ],
   );
 

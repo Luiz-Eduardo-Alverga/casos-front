@@ -811,7 +811,7 @@ export function MinhaTabela() {
 
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
+import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
 
 export function ListaComPaginacao() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =

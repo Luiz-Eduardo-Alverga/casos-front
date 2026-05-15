@@ -5,8 +5,8 @@ import { FolderKanban } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
-import { useProjetos } from "@/hooks/use-projetos";
-import { useProdutos } from "@/hooks/use-produtos";
+import { useProjetos } from "@/hooks/catalogos/use-projetos";
+import { useProdutos } from "@/hooks/catalogos/use-produtos";
 import type { Projeto } from "@/services/auxiliar/projetos";
 
 interface CasoFormProjetoProps {

@@ -16,10 +16,11 @@ import type { PainelKanbanFiltrosForm } from "@/interfaces/kanban/painel-kanban-
 import { PainelKanbanBoard } from "@/components/painel-kanban/kanban/painel-kanban-board";
 import { PainelKanbanSkeleton } from "@/components/painel-kanban/layout/painel-kanban-skeleton";
 import { EmptyState } from "@/components/painel/empty-state";
-import { useAgendaDev } from "@/hooks/use-agenda-dev";
-import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
+import { useAgendaDev } from "@/hooks/painel/use-agenda-dev";
+import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
 import { parseAgendaDevCount } from "@/services/auxiliar/get-agenda-dev";
-import { useUpdateCaso } from "@/hooks/use-update-caso";
+import { useFinalizarCaso } from "@/hooks/casos/use-finalizar-caso";
+import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 import { getUser, PAINEL_PRODUTO_ORDEM_KEY } from "@/lib/auth";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
@@ -51,6 +52,7 @@ export function PainelKanban() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const updateCaso = useUpdateCaso();
+  const finalizarCaso = useFinalizarCaso();
 
   const methods = useForm<PainelKanbanFiltrosForm>({
     defaultValues: {
@@ -368,26 +370,50 @@ export function PainelKanban() {
       if (!targetCol || !fromCol || fromCol === targetCol) {
         return;
       }
+
+      const invalidateKanban = () => {
+        queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
+        queryClient.invalidateQueries({ queryKey: ["agenda-dev"] });
+      };
+
+      const deveFinalizarCaso =
+        targetCol === "corrigidos" &&
+        (fromCol === "abertos" || fromCol === "retornos");
+
+      if (deveFinalizarCaso) {
+        finalizarCaso.mutate(activeId, {
+          onSuccess: (res) => {
+            toast.success(res.message ?? "Caso finalizado com sucesso.");
+            invalidateKanban();
+          },
+          onError: (err) => {
+            toast.error(
+              err instanceof Error ? err.message : "Erro ao finalizar caso.",
+            );
+            invalidateKanban();
+          },
+        });
+        return;
+      }
+
       const status = columnIdToApiStatus(targetCol);
       updateCaso.mutate(
         { id: activeId, data: { status } },
         {
           onSuccess: () => {
             toast.success("Status atualizado com sucesso.");
-            queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
-            queryClient.invalidateQueries({ queryKey: ["agenda-dev"] });
+            invalidateKanban();
           },
           onError: (err) => {
             toast.error(
               err instanceof Error ? err.message : "Erro ao atualizar status.",
             );
-            queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
-            queryClient.invalidateQueries({ queryKey: ["agenda-dev"] });
+            invalidateKanban();
           },
         },
       );
     },
-    [queryClient, updateCaso],
+    [queryClient, updateCaso, finalizarCaso],
   );
 
   const colaboradorModalLabel =

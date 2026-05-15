@@ -5,7 +5,7 @@ import { Rocket } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
-import { useVersoes } from "@/hooks/use-versoes";
+import { useVersoes } from "@/hooks/catalogos/use-versoes";
 
 interface CasoFormVersaoProps {
   required?: boolean;

@@ -21,7 +21,7 @@ import {
   Square,
 } from "lucide-react";
 import { UseFormRegister, UseFormHandleSubmit } from "react-hook-form";
-import { useAudioRecorder } from "@/hooks/use-audio-recorder";
+import { useAudioRecorder } from "@/hooks/assistant/use-audio-recorder";
 
 interface AssistantModalProps {
   isOpen: boolean;

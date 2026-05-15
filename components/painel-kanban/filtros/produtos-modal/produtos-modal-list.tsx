@@ -26,7 +26,7 @@ interface ProdutosModalListProps {
   editVersao: string;
   versoesEdicao: string[];
   isSavingEdicao: boolean;
-  isDeleting: boolean;
+  deletingItemId: string | null;
 
   onStartEdit: (item: ProdutoOrdem) => void;
   onCancelEdit: () => void;
@@ -46,7 +46,7 @@ export function ProdutosModalList({
   editVersao,
   versoesEdicao,
   isSavingEdicao,
-  isDeleting,
+  deletingItemId,
   onStartEdit,
   onCancelEdit,
   onChangeEditVersao,
@@ -116,7 +116,7 @@ export function ProdutosModalList({
                     editVersao={editVersao}
                     versoesEdicao={versoesEdicao}
                     isSavingEdicao={isSavingEdicao}
-                    isDeleting={isDeleting}
+                    isDeleting={deletingItemId === String(item.id)}
                     onStartEdit={onStartEdit}
                     onCancelEdit={onCancelEdit}
                     onChangeEditVersao={onChangeEditVersao}

@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import type { AcquirerListExpandedItem } from "@/components/cadastros/types";
 import { CadastroFiltrosCard } from "@/components/cadastros/cadastro-filtros-card";
 import { CadastroListagemCard } from "@/components/cadastros/cadastro-listagem-card";
-import { useDeleteAcquirer } from "@/hooks/use-create-acquirer";
-import { useAcquirerDetailQuery } from "@/hooks/use-db-cadastro-detail";
+import { useDeleteAcquirer } from "@/hooks/cadastros/use-create-acquirer";
+import { useAcquirerDetailQuery } from "@/hooks/cadastros/use-db-cadastro-detail";
 import { AdquirentesModalNovo } from "./adquirentes-modal-novo";
 import {
   hasAdquirentesFiltrosAtivos,

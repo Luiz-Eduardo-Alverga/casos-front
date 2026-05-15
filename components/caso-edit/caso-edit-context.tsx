@@ -14,6 +14,12 @@ export interface CasoEditContextValue {
   statusIdApi: number;
   /** Submissão principal do formulário de edição do caso. */
   onSalvar: () => void;
+  /**
+   * Resolve o status REPORT equivalente a um status CASO selecionado
+   * (considera `report_status_equivalente` da API + fallback de versão).
+   * Disponível apenas quando o registro é um REPORT.
+   */
+  getReportStatusFromCasoStatus?: (status: number) => string | undefined;
 }
 
 const CasoEditContext = createContext<CasoEditContextValue | undefined>(

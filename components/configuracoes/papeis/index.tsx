@@ -5,16 +5,16 @@ import { usePathname, useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { useDbRolesWithCount } from "@/hooks/use-db-roles-with-count";
-import { useDbRolePermissions } from "@/hooks/use-db-role-permissions";
-import { useDbPermissionModulesWithPermissions } from "@/hooks/use-db-permission-modules-with-permissions";
-import { useSyncRolePermissions } from "@/hooks/use-sync-role-permissions";
+import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
+import { useDbRolesWithCount } from "@/hooks/configuracoes/use-db-roles-with-count";
+import { useDbRolePermissions } from "@/hooks/configuracoes/use-db-role-permissions";
+import { useDbPermissionModulesWithPermissions } from "@/hooks/configuracoes/use-db-permission-modules-with-permissions";
+import { useSyncRolePermissions } from "@/hooks/configuracoes/use-sync-role-permissions";
 import {
   useCreateRole,
   useDeleteRole,
   useUpdateRole,
-} from "@/hooks/use-db-roles";
+} from "@/hooks/configuracoes/use-db-roles";
 import { EmptySelectionState } from "./empty-selection-state";
 import { PapeisEAcessosSkeleton } from "./papeis-e-acessos-skeleton";
 import { PapeisSidebar } from "./papeis-sidebar";

@@ -3,7 +3,7 @@
 import type { ProdutoOrdem } from "@/services/projeto-dev/get-produtos-ordem";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Check, GripVertical, Pencil, Tag, Trash2, X } from "lucide-react";
+import { Check, GripVertical, Loader2, Pencil, Tag, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -145,8 +145,16 @@ export function SortableRow({
             className="text-red-500 hover:text-red-600"
             onClick={() => onDelete(item)}
             disabled={isDeleting}
+            aria-busy={isDeleting}
+            aria-label={
+              isDeleting ? "Removendo produto..." : "Remover produto do quadro"
+            }
           >
-            <Trash2 className="h-4 w-4" />
+            {isDeleting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
           </Button>
         </div>
       )}

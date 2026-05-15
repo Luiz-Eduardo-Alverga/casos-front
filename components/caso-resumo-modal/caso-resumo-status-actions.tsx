@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 import { CasoFormStatus } from "@/components/fields/caso-form-status";
 import { Button } from "@/components/ui/button";
-import { useUpdateCaso } from "@/hooks/use-update-caso";
+import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 import { mapStatusAvancar } from "@/components/caso-resumo-modal/utils";
 import type { UpdateCasoRequest } from "@/services/projeto-casos/update";
 import { buildAnaliseConclusaoByStatus } from "@/components/caso-edit/report-analise-modal/utils";
@@ -101,7 +101,7 @@ export function CasoResumoStatusActions({
       <div className="flex-1">
         <CasoFormStatus disabled={statusDisabled} />
       </div>
-      {exibirReverter && (
+      {/* {exibirReverter && (
         <Button
           type="button"
           variant="outline"
@@ -112,7 +112,7 @@ export function CasoResumoStatusActions({
         >
           <RotateCcw className="h-4 w-4" />
         </Button>
-      )}
+      )} */}
       {/* {exibirAvancar && (
         <Button
           type="button"

@@ -5,7 +5,7 @@ import { BriefcaseBusiness } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
-import { useProdutos } from "@/hooks/use-produtos";
+import { useProdutos } from "@/hooks/catalogos/use-produtos";
 import type { Produto } from "@/services/auxiliar/produtos";
 
 interface CasoFormProdutoProps {

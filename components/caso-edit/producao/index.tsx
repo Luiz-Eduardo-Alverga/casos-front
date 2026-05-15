@@ -10,9 +10,9 @@ import {
   apiStringToDate,
   dateTimeToApiString,
 } from "@/components/ui/date-picker";
-import { useAtualizarProducao } from "@/hooks/use-atualizar-producao";
-import { useExcluirProducao } from "@/hooks/use-excluir-producao";
-import { useUpdateCaso } from "@/hooks/use-update-caso";
+import { useAtualizarProducao } from "@/hooks/producao/use-atualizar-producao";
+import { useExcluirProducao } from "@/hooks/producao/use-excluir-producao";
+import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 import { Package } from "lucide-react";
 import type { AbaProducaoProps, AbaProducaoSavePayload } from "./types";
 import { useCasoEdit } from "../caso-edit-context";

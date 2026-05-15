@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import Image from "next/image";
-import { useLogin } from "@/hooks/use-login";
+import { useLogin } from "@/hooks/auth/use-login";
 import { saveAuthData } from "@/lib/auth";
 import { getSafeInternalReturnPath } from "@/lib/safe-callback-url";
 import { LoginBanner } from "./login-banner";

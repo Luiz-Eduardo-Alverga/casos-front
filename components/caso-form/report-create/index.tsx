@@ -12,9 +12,9 @@ import { CreateFormHeader } from "@/components/caso-form/shared/create-form-head
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
 import { getUser } from "@/lib/auth";
-import { useAssistant } from "@/hooks/use-assistant";
-import { useCreateCaso } from "@/hooks/use-create-caso";
-import { useRelatores } from "@/hooks/use-usuarios";
+import { useAssistant } from "@/hooks/assistant/use-assistant";
+import { useCreateCaso } from "@/hooks/casos/use-create-caso";
+import { useRelatores } from "@/hooks/catalogos/use-usuarios";
 import { ReportCreateLeftColumn } from "./report-create-left-column";
 import { ReportCreateRightColumn } from "./report-create-right-column";
 import { reportCreateFormSchema, type ReportCreateFormData } from "./schema";

@@ -7,12 +7,12 @@ import toast from "react-hot-toast";
 import { CadastroFiltrosCard } from "@/components/cadastros/cadastro-filtros-card";
 import { CadastroListagemCard } from "@/components/cadastros/cadastro-listagem-card";
 import { Button } from "@/components/ui/button";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
 import {
   useDbAppUsersInfinite,
   useReplaceAppUserRole,
-} from "@/hooks/use-db-app-users";
-import { useDbRolesSelectList } from "@/hooks/use-db-roles-select-list";
+} from "@/hooks/configuracoes/use-db-app-users";
+import { useDbRolesSelectList } from "@/hooks/configuracoes/use-db-roles-select-list";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 import { GerenciarPerfilModal } from "./gerenciar-perfil-modal";
 import type { PapelItem, UsuarioListItem } from "./types";

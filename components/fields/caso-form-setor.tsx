@@ -5,7 +5,7 @@ import { Building2 } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
-import { useSetores } from "@/hooks/use-setores";
+import { useSetores } from "@/hooks/catalogos/use-setores";
 
 interface CasoFormSetorProps {
   required?: boolean;

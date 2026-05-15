@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormSetor } from "@/components/fields/caso-form-setor";
 import { CasoFormProduto } from "@/components/fields/caso-form-produto";
-import { useSetores } from "@/hooks/use-setores";
+import { useSetores } from "@/hooks/catalogos/use-setores";
 import { FileText, Search } from "lucide-react";
 import { importanceOptions } from "@/mocks/teste";
 

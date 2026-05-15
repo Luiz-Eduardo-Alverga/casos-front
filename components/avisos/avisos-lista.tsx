@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/painel/empty-state";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, Mail, MailOpen, User } from "lucide-react";
-import { useMensagens } from "@/hooks/use-mensagens";
+import { useMensagens } from "@/hooks/mensagens/use-mensagens";
 import type { Mensagem } from "@/services/mensagens/get-mensagens";
 import { AvisosListaSkeleton } from "./avisos-lista-skeleton";
 import { cn } from "@/lib/utils";

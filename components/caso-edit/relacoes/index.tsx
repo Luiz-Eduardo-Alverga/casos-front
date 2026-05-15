@@ -11,9 +11,9 @@ import { RelacoesTable } from "./relacoes-table";
 import { isTipoRelacaoCaso } from "./utils";
 import type { AbaRelacoesProps, RelacaoFormValues } from "./types";
 import { useCasoEdit } from "../caso-edit-context";
-import { useCreateCasoRelacao } from "@/hooks/use-create-caso-relacao";
-import { useUpdateCasoRelacao } from "@/hooks/use-update-caso-relacao";
-import { useDeleteCasoRelacao } from "@/hooks/use-delete-caso-relacao";
+import { useCreateCasoRelacao } from "@/hooks/casos/relacoes/use-create-caso-relacao";
+import { useUpdateCasoRelacao } from "@/hooks/casos/relacoes/use-update-caso-relacao";
+import { useDeleteCasoRelacao } from "@/hooks/casos/relacoes/use-delete-caso-relacao";
 import toast from "react-hot-toast";
 
 export function AbaRelacoes({ relacoes }: AbaRelacoesProps) {

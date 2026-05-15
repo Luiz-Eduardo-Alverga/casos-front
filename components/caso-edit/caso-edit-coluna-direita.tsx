@@ -16,7 +16,6 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { ReportAnaliseModal } from "./report-analise-modal";
 import { useCasoEdit } from "./caso-edit-context";
-import { mapCasoStatusToReportStatus } from "./report-analise-modal/utils";
 
 export function CasoEditColunaDireita() {
   const {
@@ -26,6 +25,7 @@ export function CasoEditColunaDireita() {
     canEditCase,
     statusIdApi,
     onSalvar,
+    getReportStatusFromCasoStatus,
   } = useCasoEdit();
   const { editCaseItem } = useCasoForm();
   const report = editCaseItem?.report;
@@ -49,7 +49,7 @@ export function CasoEditColunaDireita() {
               memoriaQueryId={memoriaQueryId}
               onStatusUpdated={invalidate}
               getReportStatusFromCasoStatus={
-                isReport ? mapCasoStatusToReportStatus : undefined
+                isReport ? getReportStatusFromCasoStatus : undefined
               }
             />
 

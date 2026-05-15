@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFormContext } from "react-hook-form";
-import { useProdutos } from "@/hooks/use-produtos";
+import { useProdutos } from "@/hooks/catalogos/use-produtos";
 import { FileText, Users } from "lucide-react";
 import type { ReportCreateFormData } from "./schema";
 

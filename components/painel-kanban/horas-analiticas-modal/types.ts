@@ -1,4 +1,4 @@
-import type { ProducaoHorasAnaliticasItem } from "@/hooks/use-producao-horas-analiticas";
+import type { ProducaoHorasAnaliticasItem } from "@/hooks/producao/use-producao-horas-analiticas";
 
 export interface HorasAnaliticasModalProps {
   open: boolean;

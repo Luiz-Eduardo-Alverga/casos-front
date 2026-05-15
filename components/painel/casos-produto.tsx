@@ -11,7 +11,7 @@ import {
   CasosProdutoSkeletonList,
 } from "@/components/painel/casos-produto-skeleton";
 import { getUser } from "@/lib/auth";
-import { useProjetoMemoria } from "@/hooks/use-projeto-memoria";
+import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
 import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
 import { useRouter } from "next/navigation";
 import { cn, formatMinutesToHHMM } from "@/lib/utils";

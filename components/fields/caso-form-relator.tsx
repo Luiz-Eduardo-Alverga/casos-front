@@ -5,7 +5,7 @@ import { User } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
-import { useRelatores } from "@/hooks/use-usuarios";
+import { useRelatores } from "@/hooks/catalogos/use-usuarios";
 import { getUser } from "@/lib/auth";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 

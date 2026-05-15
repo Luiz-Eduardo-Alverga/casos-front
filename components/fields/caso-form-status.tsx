@@ -5,7 +5,7 @@ import { CircleDot } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
-import { useStatus } from "@/hooks/use-status";
+import { useStatus } from "@/hooks/catalogos/use-status";
 
 export interface CasoFormStatusProps {
   name?: string;

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useCreateDevice, useUpdateDevice } from "@/hooks/use-create-device";
+import { useCreateDevice, useUpdateDevice } from "@/hooks/cadastros/use-create-device";
 import { deviceCreateSchema } from "@/lib/validators/db/devices";
 import type { DeviceCreateInput } from "@/lib/validators/db/devices";
 import { Button } from "@/components/ui/button";

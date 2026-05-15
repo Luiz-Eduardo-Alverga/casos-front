@@ -9,7 +9,7 @@ import {
   auxiliarImportanciasParaCombobox,
   type AuxiliarImportanciaTipoFilter,
   useImportancias,
-} from "@/hooks/use-importancias";
+} from "@/hooks/catalogos/use-importancias";
 
 interface CasoFormImportanciaProps {
   /**

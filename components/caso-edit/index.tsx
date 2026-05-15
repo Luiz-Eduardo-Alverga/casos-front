@@ -1,6 +1,6 @@
 "use client";
 
-import { useProjetoMemoriaById } from "@/hooks/use-projeto-memoria-by-id";
+import { useProjetoMemoriaById } from "@/hooks/casos/use-projeto-memoria-by-id";
 import { isHttpError } from "@/lib/http-error";
 import { CasoEditForm } from "./caso-edit-form";
 import { CasoEditSkeleton } from "./caso-edit-skeleton";

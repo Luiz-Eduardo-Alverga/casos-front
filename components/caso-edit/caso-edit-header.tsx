@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/tooltip";
 import toast from "react-hot-toast";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
-import { useClonarCaso } from "@/hooks/use-clonar-caso";
-import { useDeleteCaso } from "@/hooks/use-delete-caso";
+import { useClonarCaso } from "@/hooks/casos/use-clonar-caso";
+import { useDeleteCaso } from "@/hooks/casos/use-delete-caso";
 import { useCasoEdit } from "./caso-edit-context";
 
 export interface CasoEditHeaderProps {

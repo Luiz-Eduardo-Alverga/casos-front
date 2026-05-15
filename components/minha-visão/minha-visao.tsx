@@ -7,7 +7,7 @@ import { ArrowLeft, RefreshCcw } from "lucide-react";
 import { MinhaVisaoFiltros } from "@/components/minha-visão/minha-visao-filtros";
 import { CasosParaTestar } from "@/components/minha-visão/casos-para-testar";
 import { CasosParaTestarSkeleton } from "@/components/minha-visão/casos-para-testar-skeleton";
-import { useAgendaDev } from "@/hooks/use-agenda-dev";
+import { useAgendaDev } from "@/hooks/painel/use-agenda-dev";
 import { getUser } from "@/lib/auth";
 
 export function MinhaVisao() {

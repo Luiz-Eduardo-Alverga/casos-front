@@ -16,7 +16,7 @@ import {
 import { PlusCircle } from "lucide-react";
 import { TIPO_RELACAO_VALUES } from "./utils";
 import type { RelacaoFormValues } from "./types";
-import { useProjetoMemoriaById } from "@/hooks/use-projeto-memoria-by-id";
+import { useProjetoMemoriaById } from "@/hooks/casos/use-projeto-memoria-by-id";
 
 export interface RelacoesFormProps {
   methods: UseFormReturn<RelacaoFormValues>;

@@ -13,7 +13,7 @@ import {
   useCaseAttachments,
   useDeleteCaseAttachment,
   useUploadCaseAttachmentsBatch,
-} from "@/hooks/use-case-attachments";
+} from "@/hooks/casos/use-case-attachments";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
 export interface AbaAnexosProps {

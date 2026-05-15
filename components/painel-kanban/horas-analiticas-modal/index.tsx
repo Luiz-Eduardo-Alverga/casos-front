@@ -20,7 +20,7 @@ import { importanceOptions } from "@/mocks/teste";
 import {
   useProducaoHorasAnaliticas,
   type ProducaoHorasAnaliticasParams,
-} from "@/hooks/use-producao-horas-analiticas";
+} from "@/hooks/producao/use-producao-horas-analiticas";
 import type { HorasAnaliticasModalProps } from "./types";
 import { getTodayYmd, parseHorasAnaliticasData } from "./utils";
 import { HorasAnaliticasSummaryCards } from "./horas-analiticas-summary-cards";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useDbCadastroList } from "@/hooks/use-db-cadastro-list";
+import { useDbCadastroList } from "@/hooks/cadastros/use-db-cadastro-list";
 import { STATUS_TYPE_VALUES } from "@/lib/validators/db/shared";
 import { listAcquirersClient } from "@/services/db-api/list-cadastros";
 import type { AcquirerListExpandedItem } from "@/components/cadastros/types";

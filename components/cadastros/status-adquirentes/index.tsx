@@ -14,7 +14,7 @@ import {
   useAdquirentesList,
   type AcquirerStatusKanbanColumn,
 } from "@/components/cadastros/adquirentes/adquirentes-shared";
-import { useUpdateAcquirerStatus } from "@/hooks/use-create-acquirer-status";
+import { useUpdateAcquirerStatus } from "@/hooks/cadastros/use-create-acquirer-status";
 import type { AcquirerStatusUpdateInput } from "@/lib/validators/db/acquirer-status";
 import { mapAdquirentesRowsToKanban } from "./kanban/status-adquirentes-map";
 import { StatusAdquirentesBoard } from "./kanban/status-adquirentes-board";

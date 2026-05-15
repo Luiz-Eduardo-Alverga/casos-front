@@ -10,8 +10,8 @@ import { ClientesForm } from "./clientes-form";
 import { ClientesTable } from "./clientes-table";
 import type { AbaClientesProps, ClientesFormValues } from "./types";
 import { useCasoEdit } from "../caso-edit-context";
-import { useCreateClienteCaso } from "@/hooks/use-create-cliente-caso";
-import { useDeleteClienteCaso } from "@/hooks/use-delete-cliente-caso";
+import { useCreateClienteCaso } from "@/hooks/casos/clientes/use-create-cliente-caso";
+import { useDeleteClienteCaso } from "@/hooks/casos/clientes/use-delete-cliente-caso";
 import toast from "react-hot-toast";
 
 export function AbaClientes({ clientes }: AbaClientesProps) {
