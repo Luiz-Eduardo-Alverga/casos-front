@@ -35,6 +35,7 @@ export function useCasoProducaoActions({
       },
       onError: (e) => {
         if (e instanceof IniciarProducaoError) {
+          console.log("e", e.code);
           if (e.code === "CASO_JA_ABERTO") {
             if (e.caso_aberto != null) {
               setCasoAbertoId(e.caso_aberto);
@@ -96,4 +97,3 @@ export function useCasoProducaoActions({
     handleIrParaAbaProducao,
   };
 }
-
