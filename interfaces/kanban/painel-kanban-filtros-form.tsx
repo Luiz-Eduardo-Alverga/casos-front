@@ -14,6 +14,6 @@ export interface PainelKanbanFiltrosForm {
   devAtribuidoSetor?: string;
   /** Projeto selecionado para filtrar o kanban (opcional). */
   projeto?: string;
-  /** True enquanto o campo de projeto está carregando/auto-definindo no Kanban. */
-  projetoLoading?: boolean;
+  /** Data final (YYYY-MM-DD) do projeto salvo no localStorage. */
+  projetoDataFinal?: string;
 }

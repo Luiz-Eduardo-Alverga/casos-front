@@ -28,6 +28,7 @@ interface CasosFiltrosSheetProps {
   methods: UseFormReturn<any>;
   onFiltrar: () => void;
   onLimpar: () => void;
+  filtrarDisabled?: boolean;
 }
 
 export const CasosFiltrosSheet = ({
@@ -37,6 +38,7 @@ export const CasosFiltrosSheet = ({
   methods,
   onFiltrar,
   onLimpar,
+  filtrarDisabled = false,
 }: CasosFiltrosSheetProps) => {
   const tipoAberturaOptions = React.useMemo(
     () => [
@@ -122,6 +124,7 @@ export const CasosFiltrosSheet = ({
           <div className="flex flex-col p-6 pt-4 border-t gap-2">
             <Button
               type="button"
+              disabled={filtrarDisabled}
               onClick={() => {
                 onFiltrar();
                 onOpenChange(false);

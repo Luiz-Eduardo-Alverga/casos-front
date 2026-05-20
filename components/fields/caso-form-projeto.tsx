@@ -61,6 +61,17 @@ interface CasoFormProjetoProps {
    * Útil quando a tela precisa exibir skeleton até o projeto carregar/auto-definir.
    */
   loadingFieldName?: string;
+  /**
+   * Quando true, usa `projetosExternos` / `projetosLoadingExterno` em vez de `useProjetos` interno.
+   * Evita requisição duplicada (ex.: Kanban resolve projeto no container pai).
+   */
+  useExternalProjetos?: boolean;
+  /** Lista de projetos fornecida pelo container (com `useExternalProjetos`). */
+  projetosExternos?: Projeto[];
+  /** Loading da lista externa (com `useExternalProjetos`). */
+  projetosLoadingExterno?: boolean;
+  /** Não envia `setor_projeto` na API (filtro de setor só no cliente, se necessário). */
+  omitSetorProjetoInRequest?: boolean;
 }
 
 export function CasoFormProjeto({
@@ -77,6 +88,10 @@ export function CasoFormProjeto({
   valueLabelPrefix,
   autoSelectProjeto = "whenProduto",
   loadingFieldName,
+  useExternalProjetos = false,
+  projetosExternos,
+  projetosLoadingExterno = false,
+  omitSetorProjetoInRequest = false,
 }: CasoFormProjetoProps) {
   const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } =
     useCasoForm();
@@ -87,7 +102,7 @@ export function CasoFormProjeto({
     ? String(watch(setorProjetoFieldName) ?? "")
     : "";
   const [optionsRequested, setOptionsRequested] = useState(
-    !lazyLoadComboboxOptions,
+    useExternalProjetos || !lazyLoadComboboxOptions,
   );
 
   // Em telas como o Kanban, queremos buscar opções automaticamente ao carregar.
@@ -120,18 +135,27 @@ export function CasoFormProjeto({
     return Number.isFinite(n) ? n : undefined;
   }, [usuarioId]);
 
-  const { data: projetos, isLoading: isProjetosLoading } = useProjetos({
-    usuario_id: usuarioIdNumber,
-    setor_projeto: setorProjetoResolved,
-    requireSetorProjeto: requireSetorProjetoResolved,
-    enabled:
-      optionsRequested &&
-      (!requireSetorProjetoResolved || Boolean(setorProjetoResolved)),
-  });
+  const { data: projetosInternos, isLoading: isProjetosLoadingInterno } =
+    useProjetos({
+      usuario_id: usuarioIdNumber,
+      setor_projeto: omitSetorProjetoInRequest
+        ? undefined
+        : setorProjetoResolved,
+      requireSetorProjeto: requireSetorProjetoResolved,
+      enabled:
+        !useExternalProjetos &&
+        optionsRequested &&
+        (!requireSetorProjetoResolved || Boolean(setorProjetoResolved)),
+    });
+
+  const projetos = useExternalProjetos ? projetosExternos : projetosInternos;
+  const isProjetosLoading = useExternalProjetos
+    ? projetosLoadingExterno
+    : isProjetosLoadingInterno;
 
   // Expõe um loading para o form quando solicitado (ex.: Kanban Skeleton).
   useEffect(() => {
-    if (!loadingFieldName) return;
+    if (!loadingFieldName || useExternalProjetos) return;
     const next = Boolean(
       (autoSelectProjeto === "always" && !optionsRequested) ||
         isProjetosLoading,
@@ -187,6 +211,23 @@ export function CasoFormProjeto({
       value: String(p.id),
       label: p.id + " | " + p.nome_projeto,
     }));
+
+    const projetoId = String(projetoValue ?? "").trim();
+    if (projetoId && !options.some((o) => o.value === projetoId)) {
+      const found = projetos.find((p) => String(p.id) === projetoId);
+      if (found) {
+        options.unshift({
+          value: projetoId,
+          label: `${found.id} | ${found.nome_projeto}`,
+        });
+      } else if (useExternalProjetos || lazyLoadComboboxOptions) {
+        options.unshift({
+          value: projetoId,
+          label: projetoId,
+        });
+      }
+    }
+
     if (
       lazyLoadComboboxOptions &&
       editCaseItem?.projeto &&
@@ -199,7 +240,13 @@ export function CasoFormProjeto({
       });
     }
     return options;
-  }, [projetos, lazyLoadComboboxOptions, editCaseItem, projetoValue]);
+  }, [
+    projetos,
+    lazyLoadComboboxOptions,
+    editCaseItem,
+    projetoValue,
+    useExternalProjetos,
+  ]);
 
   const parseLocalDate = (value: string | null | undefined): Date | null => {
     if (!value?.trim()) return null;
@@ -349,7 +396,7 @@ export function CasoFormProjeto({
         }
         required={required}
         onOpenChange={
-          lazyLoadComboboxOptions
+          lazyLoadComboboxOptions && !useExternalProjetos
             ? (open) => open && setOptionsRequested(true)
             : undefined
         }

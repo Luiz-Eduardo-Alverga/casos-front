@@ -24,7 +24,9 @@ export interface CasoBaseFormInput {
  * Extrai a "versão crua" do valor selecionado no combobox de versão
  * (ex.: "12-1.2.3" -> "1.2.3", "1.2.3" -> "1.2.3").
  */
-export function extractVersaoProduto(versao: string | undefined | null): string {
+export function extractVersaoProduto(
+  versao: string | undefined | null,
+): string {
   const raw = String(versao ?? "");
   if (!raw) return "";
   const parts = raw.split("-");
@@ -101,6 +103,8 @@ export interface CasoUpdateReportFields {
   analiseDataConclusao: string | null | undefined;
   /** Nova data limite do report. Quando undefined, não é incluído. */
   dataLimite: string | null | undefined;
+
+  reportAnaliseUsuarioId: string | undefined;
 }
 
 export interface BuildCasoUpdatePayloadArgs {
@@ -142,6 +146,7 @@ export function buildCasoUpdatePayload({
 
   if (isReport && reportFields) {
     payload.report_analise_aprovado = reportFields.aprovado;
+    payload.report_analise_usuario_id = reportFields.reportAnaliseUsuarioId;
     if (reportFields.analiseStatus !== undefined) {
       payload.report_analise_status = reportFields.analiseStatus;
     }

@@ -18,23 +18,14 @@ import { useBulkUpdateCasos } from "@/hooks/casos/use-bulk-update-casos";
 import { CasosTransferenciaModal } from "@/components/casos/transferencia/casos-transferencia-modal";
 import { buildBulkTransferPayload } from "@/components/casos/transferencia/utils";
 import type { CasosTransferenciaFormValues } from "@/components/casos/transferencia/types";
+import type { CasosFiltrosAplicados } from "@/components/casos/filtros/casos-filtros.types";
+import {
+  filtrosToProjetoMemoriaParams,
+  hasFiltersApplied,
+} from "@/components/casos/filtros/casos-filtros-mappers";
 
 interface CasosTabelaProps {
-  filtros: {
-    produto: string;
-    versao: string;
-    modulo: string;
-    tipo_categoria: string;
-    tipo_abertura: string;
-    descricao_resumo: string;
-    status_ids: string[];
-    projeto_id: string;
-    usuario_abertura_id: string;
-    usuario_dev_id: string;
-    usuario_qa_id: string;
-    data_producao_inicio: string;
-    data_producao_fim: string;
-  };
+  filtros: CasosFiltrosAplicados;
 }
 
 function mapItemToRow(item: ProjetoMemoriaItem): CasosTabelaRow {
@@ -59,91 +50,13 @@ function mapItemToRow(item: ProjetoMemoriaItem): CasosTabelaRow {
 export function CasosTabela({ filtros }: CasosTabelaProps) {
   const user = getUser();
   const bulkUpdateCasos = useBulkUpdateCasos();
-  // Processar versão (remover sequência se houver)
-  const versaoProduto = useMemo(() => {
-    if (!filtros.versao) return undefined;
-    const part = filtros.versao.split("-")[1]?.trim();
-    return part || filtros.versao;
-  }, [filtros.versao]);
 
-  // Construir parâmetros para a API
   const projetoMemoriaParams = useMemo(
-    () => ({
-      per_page: 15,
-      ...(filtros.produto ? { produto_id: filtros.produto } : {}),
-      ...(versaoProduto ? { versao_produto: versaoProduto } : {}),
-      ...(filtros.status_ids.length > 0
-        ? { status_id: filtros.status_ids }
-        : {}),
-      ...(filtros.modulo?.trim() ? { modulo: filtros.modulo.trim() } : {}),
-      ...(filtros.tipo_categoria
-        ? { tipo_categoria: filtros.tipo_categoria }
-        : {}),
-      ...(filtros.tipo_abertura?.trim()
-        ? {
-            tipo_abertura:
-              filtros.tipo_abertura.trim() === "CASO" ||
-              filtros.tipo_abertura.trim() === "REPORT"
-                ? (filtros.tipo_abertura.trim() as "CASO" | "REPORT")
-                : undefined,
-          }
-        : {}),
-      ...(filtros.descricao_resumo?.trim()
-        ? { descricao_resumo: filtros.descricao_resumo.trim() }
-        : {}),
-      ...(filtros.projeto_id?.trim()
-        ? { projeto_id: filtros.projeto_id.trim() }
-        : {}),
-      ...(filtros.usuario_abertura_id?.trim()
-        ? { usuario_abertura_id: filtros.usuario_abertura_id.trim() }
-        : {}),
-      ...(filtros.usuario_dev_id?.trim()
-        ? { usuario_dev_id: filtros.usuario_dev_id.trim() }
-        : {}),
-      ...(filtros.usuario_qa_id?.trim()
-        ? { usuario_qa_id: filtros.usuario_qa_id.trim() }
-        : {}),
-      ...(filtros.data_producao_inicio?.trim()
-        ? { data_producao_inicio: filtros.data_producao_inicio.trim() }
-        : {}),
-      ...(filtros.data_producao_fim?.trim()
-        ? { data_producao_fim: filtros.data_producao_fim.trim() }
-        : {}),
-    }),
-    [
-      filtros.produto,
-      versaoProduto,
-      filtros.status_ids,
-      filtros.modulo,
-      filtros.tipo_categoria,
-      filtros.tipo_abertura,
-      filtros.descricao_resumo,
-      filtros.projeto_id,
-      filtros.usuario_abertura_id,
-      filtros.usuario_dev_id,
-      filtros.usuario_qa_id,
-      filtros.data_producao_inicio,
-      filtros.data_producao_fim,
-    ],
+    () => filtrosToProjetoMemoriaParams(filtros),
+    [filtros],
   );
 
-  const hasFilters = useMemo(() => {
-    if (filtros.status_ids.length > 0) return true;
-    if (filtros.usuario_abertura_id?.trim()) return true;
-    return (
-      !!filtros.produto?.trim() ||
-      !!filtros.versao?.trim() ||
-      !!filtros.modulo?.trim() ||
-      !!filtros.tipo_categoria?.trim() ||
-      !!filtros.tipo_abertura?.trim() ||
-      !!filtros.descricao_resumo?.trim() ||
-      !!filtros.projeto_id?.trim() ||
-      !!filtros.usuario_dev_id?.trim() ||
-      !!filtros.usuario_qa_id?.trim() ||
-      !!filtros.data_producao_inicio?.trim() ||
-      !!filtros.data_producao_fim?.trim()
-    );
-  }, [filtros]);
+  const hasFilters = useMemo(() => hasFiltersApplied(filtros), [filtros]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useProjetoMemoria(projetoMemoriaParams, {

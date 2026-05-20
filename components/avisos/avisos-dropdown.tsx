@@ -102,7 +102,7 @@ export function AvisosDropdown() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 hover:bg-muted relative "
+          className="h-9 w-9 hover:bg-muted relative"
           aria-label={
             totalNaoLidos > 0
               ? `Abrir avisos (${totalNaoLidosLabel} não lidos)`

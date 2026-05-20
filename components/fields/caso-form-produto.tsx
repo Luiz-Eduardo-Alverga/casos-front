@@ -34,7 +34,10 @@ export function CasoFormProduto({
     const options: Array<{ value: string; label: string }> = [];
 
     if (produtos && Array.isArray(produtos)) {
-      const list = onlyWithPoQaConfigured ? produtos.filter(hasPoQaConfigured) : produtos;
+      let list = produtos.filter(isProdutoAtivo);
+      if (onlyWithPoQaConfigured) {
+        list = list.filter(hasPoQaConfigured);
+      }
       list.forEach((p) => {
         options.push({
           value: String(p.id),
@@ -118,6 +121,11 @@ export function CasoFormProduto({
 function isConfiguredId(value: string | null) {
   const normalized = String(value ?? "").trim();
   return normalized !== "" && normalized !== "0";
+}
+
+/** Produto ativo quando `desativado` é `"0"` (mesmo padrão da API de status). */
+function isProdutoAtivo(produto: Produto) {
+  return String(produto.desativado ?? "").trim() === "0";
 }
 
 function hasPoQaConfigured(produto: Produto) {

@@ -66,8 +66,6 @@ export function HorasAnaliticasModal({
     },
   });
 
-  console.log("projetoId", projetoId);
-
   const [dataProducao, setDataProducao] = useState<Date | undefined>(
     getTodayDate(),
   );

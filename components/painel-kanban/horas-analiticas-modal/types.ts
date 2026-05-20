@@ -19,6 +19,7 @@ export interface HorasAnaliticasResumo {
 }
 
 export interface HorasAnaliticasCaseItem {
+  tarefa_tecnica: boolean;
   id: string;
   registro: string;
   descricaoResumo: string;
@@ -49,9 +50,7 @@ export interface HorasAnaliticasCommitBoxProps {
   isGenerateDisabled?: boolean;
 }
 
-export type HorasAnaliticasEmptyStateVariant =
-  | "sem_filtros"
-  | "sem_resultados";
+export type HorasAnaliticasEmptyStateVariant = "sem_filtros" | "sem_resultados";
 
 export interface HorasAnaliticasEmptyStateProps {
   variant: HorasAnaliticasEmptyStateVariant;

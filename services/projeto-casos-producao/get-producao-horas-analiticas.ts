@@ -16,6 +16,7 @@ export interface ProducaoHorasAnaliticasItem {
   hora_abertura: string;
   hora_fechamento: string;
   realizado_minutos: string;
+  tarefa_tecnica: boolean;
   tipo: string;
   produto: string;
   versao_produto: string;

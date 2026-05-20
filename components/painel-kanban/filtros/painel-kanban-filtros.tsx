@@ -6,19 +6,21 @@ import type { AgendaDevItem } from "@/services/auxiliar/get-agenda-dev";
 import type { PainelKanbanFiltrosForm } from "@/interfaces/kanban/painel-kanban-filtros-form";
 import { PainelKanbanAgendaCardsField } from "@/components/painel-kanban/filtros/painel-kanban-agenda-cards-field";
 import { CasoFormProjeto } from "@/components/fields";
+import type { Projeto } from "@/services/auxiliar/projetos";
 
 export type { PainelKanbanFiltrosForm };
 
 interface PainelKanbanFiltrosProps {
-  /** Itens da agenda do desenvolvedor (`useAgendaDev`); seleção de produto/versão vem daqui. */
   agendaItems: AgendaDevItem[];
-  /** Usuário selecionado no filtro "Ver como", usado para buscar projetos. */
-  usuarioId?: string;
+  /** Projetos carregados no container (uma única requisição, sem setor na API). */
+  projetos?: Projeto[];
+  projetosLoading?: boolean;
 }
 
 export function PainelKanbanFiltros({
   agendaItems,
-  usuarioId,
+  projetos,
+  projetosLoading = false,
 }: PainelKanbanFiltrosProps) {
   return (
     <Card className="bg-card shadow-card rounded-lg shrink-0 mb-6 min-w-0">
@@ -32,9 +34,12 @@ export function PainelKanbanFiltros({
           </div>
           <CasoFormProjeto
             requireProduto={false}
-            usuarioId={usuarioId}
-            autoSelectProjeto="always"
-            loadingFieldName="projetoLoading"
+            requireSetorProjeto={false}
+            useExternalProjetos
+            projetosExternos={projetos}
+            projetosLoadingExterno={projetosLoading}
+            omitSetorProjetoInRequest
+            autoSelectProjeto="never"
             required={false}
             hideLabel
             valueLabelPrefix="Projeto: "

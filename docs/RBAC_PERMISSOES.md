@@ -190,9 +190,11 @@ Exemplo já implementado:
 - `assign-user-role`: alterar perfil do usuário
 - `list-acquirer`: acessar cadastros de adquirentes
 - `create-acquirer` / `edit-acquirer` / `delete-acquirer`: ações em adquirentes
+- `list-project`: acessar tela **Ver Projetos** (`/projetos`) e listar cadastros SGP (`GET /api/sgp-cadastros`)
+- `create-project`: acessar tela **Adicionar Novo Projeto** (`/projetos/novo`) e cadastrar via `POST /api/sgp-cadastros`
 - `list-case-attachment`: listar e obter URL de download de anexos de caso
 - `create-case-attachment`: gerar URL de upload e registrar anexo após envio ao Storage
 - `delete-case-attachment`: remover anexo (Storage + metadados)
 
-Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql).
+Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql), [`db/scripts/seed-list-project-rbac.sql`](../db/scripts/seed-list-project-rbac.sql), [`db/scripts/seed-create-project-rbac.sql`](../db/scripts/seed-create-project-rbac.sql).
 

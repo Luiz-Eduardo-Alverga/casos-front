@@ -3,6 +3,7 @@ import "./globals.css";
 import ReactQueryProvider from "./providers/react-query-provider";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 export const metadata: Metadata = {
   title: "Casos Front",
   description: "Aplicação de casos",
@@ -23,7 +24,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Toaster />
-          <ReactQueryProvider>{children}</ReactQueryProvider>
+          <NuqsAdapter>
+            <ReactQueryProvider>{children}</ReactQueryProvider>
+          </NuqsAdapter>
         </ThemeProvider>
       </body>
     </html>

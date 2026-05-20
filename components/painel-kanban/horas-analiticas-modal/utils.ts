@@ -83,6 +83,7 @@ function mapCaso(item: HorasAnaliticasApiItem): HorasAnaliticasCaseItem {
       item.produto ?? "",
       item.versao_produto ?? "",
     ),
+    tarefa_tecnica: item.tarefa_tecnica,
   };
 }
 
@@ -93,7 +94,7 @@ export function parseHorasAnaliticasData(
 
   const resumo = casos.reduce(
     (acc, item) => {
-      if (isTipoTecnico(item.tipo)) {
+      if (item.tarefa_tecnica) {
         acc.minutosTecnicos += item.minutosRealizados;
       } else {
         acc.minutosNaoTecnicos += item.minutosRealizados;

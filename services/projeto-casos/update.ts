@@ -65,6 +65,7 @@ export interface UpdateCasoRequest {
   report_analise_status?: string;
   report_analise_data_conclusao?: string | null;
   report_data_limite?: string | null;
+  report_analise_usuario_id?: string;
 }
 
 export interface UpdateCasoResponse {

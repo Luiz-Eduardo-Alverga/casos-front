@@ -38,6 +38,7 @@ import {
   resolveReportStatusFromCaso,
 } from "./report-analise-modal/utils";
 import { AbaHistorico } from "./historico/index";
+import { getUser } from "@/lib/auth";
 
 const editFormSchema = z.object({
   produto: z.string().min(1, "Produto é obrigatório"),
@@ -247,6 +248,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
 
   const handleSalvar = methods.handleSubmit(async (formData: EditFormData) => {
     try {
+      const userId = getUser()?.id;
+
       const statusReportAtual = normalizeAnaliseStatusForForm(
         item.report?.analise_status,
       );
@@ -326,6 +329,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
               dataLimite: forceStatusEDevPorAnalise
                 ? null
                 : analiseDataConclusao,
+              reportAnaliseUsuarioId: String(userId),
             }
           : undefined,
       });

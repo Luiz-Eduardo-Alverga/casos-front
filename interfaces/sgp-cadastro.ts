@@ -74,8 +74,71 @@ export interface SgpCadastroData {
   viabilidade: SgpCadastroViabilidadeDetalhe;
 }
 
+/** Paginação da listagem GET /sgp-cadastros */
+export interface SgpCadastroPagination {
+  per_page: number;
+  next_cursor: string | null;
+  prev_cursor: string | null;
+  has_more: boolean;
+}
+
 /** Resposta da API ao buscar um cadastro SGP por ID */
 export interface SgpCadastroResponse {
   success: boolean;
   data: SgpCadastroData;
+}
+
+/** Resposta da API ao listar cadastros SGP (GET /sgp-cadastros) */
+export interface SgpCadastrosListResponse {
+  success: boolean;
+  data: SgpCadastroData[];
+  pagination: SgpCadastroPagination;
+}
+
+/** Payload POST /sgp-cadastros (cadastro de projeto) */
+export interface CreateSgpCadastroRequest {
+  Datas: string;
+  DataDesativado: string;
+  NomeProjeto: string;
+  Necessidades?: string;
+  Expectativas?: string;
+  Tipo: string;
+  Status: string;
+  Cliente: number;
+  Usuario: number;
+  PDV: string;
+  ClasseProjeto?: string;
+  ObjetivoID?: number;
+}
+
+/** Resposta POST /sgp-cadastros */
+export interface CreateSgpCadastroApiResponse {
+  success: boolean;
+  message: string;
+  data: SgpCadastroData;
+}
+
+/** Payload POST /sgp-usuarios (vínculo usuário ↔ projeto) */
+export interface CreateSgpUsuarioRequest {
+  Registro: number;
+  Usuario: number;
+}
+
+/** Resposta POST /sgp-usuarios */
+export interface CreateSgpUsuarioApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    sequencia: number;
+    registro: number;
+    usuario: number;
+  };
+}
+
+/** Resposta unificada da rota Next POST /api/sgp-cadastros */
+export interface CreateSgpProjetoResponse {
+  success: boolean;
+  message: string;
+  cadastro: CreateSgpCadastroApiResponse;
+  usuario: CreateSgpUsuarioApiResponse;
 }

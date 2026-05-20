@@ -7,6 +7,7 @@ import {
   Bell,
   Grid3x3,
   FileText,
+  FolderKanban,
   ChevronRight,
   Kanban,
   Database,
@@ -115,6 +116,13 @@ const MAIN_NAV: MainNavEntry[] = [
   },
   {
     type: "link",
+    order: 35,
+    label: "Ver Projetos",
+    href: "/projetos",
+    icon: FolderKanban,
+  },
+  {
+    type: "link",
     order: 40,
     label: "Kanban Adquirentes",
     href: "/cadastros/adquirentes/status",
@@ -159,6 +167,7 @@ export function AppSidebar({
   const rbacReady = permissionsLoaded();
   const canListAcquirer = !rbacReady || hasPermission("list-acquirer");
   const canListCase = rbacReady && hasPermission("list-case");
+  const canListProject = rbacReady && hasPermission("list-project");
   const canAssignUserRole = rbacReady && hasPermission("assign-user-role");
   const canListUser = rbacReady && hasPermission("list-user");
   const configuracoesSubitemsSorted = CONFIGURACOES_SUBITEMS_SORTED.filter(
@@ -176,6 +185,10 @@ export function AppSidebar({
 
     if (rbacReady && !canListCase && entry.type === "link") {
       return entry.href !== "/casos";
+    }
+
+    if (rbacReady && !canListProject && entry.type === "link") {
+      return entry.href !== "/projetos";
     }
 
     if (!canListAcquirer && entry.type === "link") {
