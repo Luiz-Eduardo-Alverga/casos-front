@@ -21,8 +21,6 @@ import type { PainelKanbanItem } from "@/components/painel-kanban/kanban/painel-
 import { EmptyColumnPlaceholder } from "../layout/empty-colums-placeholder";
 import { PainelKanbanCardBody } from "@/components/painel-kanban/kanban/painel-kanban-card-body";
 import { KanbanColumnLoadSentinel } from "@/components/painel-kanban/kanban/kanban-column-load-sentinel";
-import { useState } from "react";
-import { CasoResumoModal } from "@/components/caso-resumo-modal";
 
 export interface PainelKanbanColumnLoadState {
   hasNextPage: boolean;
@@ -36,6 +34,7 @@ interface PainelKanbanBoardProps {
   onDataChange: (data: PainelKanbanItem[]) => void;
   onDragStart?: (event: DragStartEvent) => void;
   onDragEnd?: (event: DragEndEvent) => void;
+  onExpand?: (item: PainelKanbanItem) => void;
   /** Totais por coluna vindos da agenda (API); se ausente, o badge usa a contagem local dos itens carregados. */
   columnBadgeCounts?: Partial<Record<PainelKanbanColumnId, number>>;
   columnLoad?: Partial<
@@ -48,17 +47,14 @@ export function PainelKanbanBoard({
   onDataChange,
   onDragStart,
   onDragEnd,
+  onExpand,
   columnBadgeCounts,
   columnLoad,
 }: PainelKanbanBoardProps) {
   const columns = PAINEL_KANBAN_COLUMNS;
-  const [openResumo, setOpenResumo] = useState(false);
-  const [itemSelecionado, setItemSelecionado] =
-    useState<PainelKanbanItem | null>(null);
 
   return (
-    <>
-      <KanbanProvider
+    <KanbanProvider
         columns={columns}
         data={data}
         onDataChange={onDataChange}
@@ -160,10 +156,7 @@ export function PainelKanbanBoard({
                       >
                         <PainelKanbanCardBody
                           item={item}
-                          onExpand={(selected) => {
-                            setItemSelecionado(selected);
-                            setOpenResumo(true);
-                          }}
+                          onExpand={onExpand ?? (() => {})}
                         />
                       </KanbanCard>
                     )}
@@ -173,13 +166,6 @@ export function PainelKanbanBoard({
             </div>
           );
         }}
-      </KanbanProvider>
-      <CasoResumoModal
-        open={openResumo}
-        onOpenChange={setOpenResumo}
-        variant="kanban"
-        initialCaseId={itemSelecionado?.id}
-      />
-    </>
+    </KanbanProvider>
   );
 }

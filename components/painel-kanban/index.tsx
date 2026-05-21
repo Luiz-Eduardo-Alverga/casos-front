@@ -13,6 +13,7 @@ import { PainelKanbanProdutosModal } from "@/components/painel-kanban/filtros/pa
 import { HorasAnaliticasModal } from "@/components/painel-kanban/horas-analiticas-modal";
 import type { PainelKanbanFiltrosForm } from "@/interfaces/kanban/painel-kanban-filtros-form";
 import { PainelKanbanBoard } from "@/components/painel-kanban/kanban/painel-kanban-board";
+import { CasoResumoModal } from "@/components/caso-resumo-modal";
 import { PainelKanbanSkeleton } from "@/components/painel-kanban/layout/painel-kanban-skeleton";
 import { EmptyState } from "@/components/painel/empty-state";
 import { useFinalizarCaso } from "@/hooks/casos/use-finalizar-caso";
@@ -120,6 +121,9 @@ export function PainelKanban() {
     : "Ver como: selecione...";
 
   const [kanbanData, setKanbanData] = useState<PainelKanbanItem[]>([]);
+  const [openResumo, setOpenResumo] = useState(false);
+  const [itemSelecionado, setItemSelecionado] =
+    useState<PainelKanbanItem | null>(null);
   const [isProdutosModalOpen, setIsProdutosModalOpen] = useState(false);
   const [isHorasAnaliticasOpen, setIsHorasAnaliticasOpen] = useState(false);
 
@@ -311,11 +315,22 @@ export function PainelKanban() {
                 onDataChange={setKanbanData}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
+                onExpand={(selected) => {
+                  setItemSelecionado(selected);
+                  setOpenResumo(true);
+                }}
                 columnBadgeCounts={columnBadgeCounts}
                 columnLoad={columnLoad}
               />
             </div>
           )}
+
+          <CasoResumoModal
+            open={openResumo}
+            onOpenChange={setOpenResumo}
+            variant="kanban"
+            initialCaseId={itemSelecionado?.id}
+          />
         </div>
       </FormProvider>
     </CasoFormProvider>

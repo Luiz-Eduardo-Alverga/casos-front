@@ -140,7 +140,6 @@ export function usePainelKanbanQueries({
     hydrated &&
     Boolean(apiFiltros?.devAtribuidoId) &&
     agendaQuery.isSuccess &&
-    !isAgendaFetching &&
     hasValidSelection;
 
   const cronogramaIdAgenda = apiFiltros?.cronogramaId;
