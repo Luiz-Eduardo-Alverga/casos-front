@@ -13,16 +13,15 @@ import { useSetores } from "@/hooks/catalogos/use-setores";
 import { SuccessModal } from "@/components/reports-form/success-modal";
 import {
   getProjetoCreateDefaultValues,
-  projetoCreateFormSchema,
-  type ProjetoCreateFormData,
+  projetoFormSchema,
+  type ProjetoFormData,
 } from "@/components/projetos/cadastro/schema";
+import { ProjetoAberturaForm } from "@/components/projetos/shared/projeto-abertura-form";
 import {
   buildCreateSgpProjetoPayload,
   resolveSetorIdByNome,
 } from "@/components/projetos/cadastro/utils";
 import { ProjetoCreateHeader } from "@/components/projetos/cadastro/projeto-create-header";
-import { ProjetoCreateLeftColumn } from "@/components/projetos/cadastro/projeto-create-left-column";
-import { ProjetoCreateRightColumn } from "@/components/projetos/cadastro/projeto-create-right-column";
 import { ProjetoCreateFooter } from "@/components/projetos/cadastro/projeto-create-footer";
 
 export function ProjetoCreateForm() {
@@ -35,8 +34,8 @@ export function ProjetoCreateForm() {
   const { data: setores } = useSetores({ enabled: true });
   const { mutateAsync: createProjetoAsync, isPending } = useCreateSgpCadastro();
 
-  const methods = useForm<ProjetoCreateFormData>({
-    resolver: zodResolver(projetoCreateFormSchema),
+  const methods = useForm<ProjetoFormData>({
+    resolver: zodResolver(projetoFormSchema),
     defaultValues: getProjetoCreateDefaultValues(
       user ? String(user.id) : undefined,
     ),
@@ -52,7 +51,7 @@ export function ProjetoCreateForm() {
     }
   }, [user?.setor, setorValue, setores, methods]);
 
-  async function onSubmit(data: ProjetoCreateFormData) {
+  async function onSubmit(data: ProjetoFormData) {
     try {
       const payload = buildCreateSgpProjetoPayload(data);
       const response = await createProjetoAsync(payload);
@@ -108,10 +107,7 @@ export function ProjetoCreateForm() {
           >
             <ProjetoCreateHeader onBack={() => router.push("/projetos")} />
 
-            <div className="flex min-h-0 flex-col gap-6 lg:flex-row">
-              <ProjetoCreateLeftColumn />
-              <ProjetoCreateRightColumn />
-            </div>
+            <ProjetoAberturaForm />
           </form>
 
           <ProjetoCreateFooter

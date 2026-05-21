@@ -9,9 +9,14 @@ import { useSgpObjetivos } from "@/hooks/catalogos/use-sgp-objetivos";
 
 interface CasoFormSgpObjetivoProps {
   required?: boolean;
+  /** Opção exibida quando o valor já está no form mas ainda não está na lista carregada. */
+  fallbackOption?: { value: string; label: string };
 }
 
-export function CasoFormSgpObjetivo({ required = false }: CasoFormSgpObjetivoProps) {
+export function CasoFormSgpObjetivo({
+  required = false,
+  fallbackOption,
+}: CasoFormSgpObjetivoProps) {
   const { isDisabled, lazyLoadComboboxOptions } = useCasoForm();
   const { watch } = useFormContext();
   const objetivoValue = watch("objetivo");
@@ -22,21 +27,39 @@ export function CasoFormSgpObjetivo({ required = false }: CasoFormSgpObjetivoPro
 
   const searchTrimmed = objetivoSearch.trim();
   const shouldFetch =
-    optionsRequested || searchTrimmed.length >= 2 || Boolean(objetivoValue);
+    optionsRequested ||
+    searchTrimmed.length >= 2 ||
+    Boolean(objetivoValue);
 
   const { data: objetivosResponse, isLoading } = useSgpObjetivos({
     search: searchTrimmed.length >= 2 ? searchTrimmed : undefined,
     enabled: shouldFetch,
   });
 
-  const objetivosOptions = useMemo(
-    () =>
-      (objetivosResponse?.data ?? []).map((item) => ({
-        value: String(item.Registro),
-        label: item.Objetivo,
-      })),
-    [objetivosResponse?.data],
-  );
+  const objetivosOptions = useMemo(() => {
+    const list = (objetivosResponse?.data ?? []).map((item) => ({
+      value: String(item.Registro),
+      label: item.Objetivo,
+    }));
+
+    if (!fallbackOption?.label || !objetivoValue) return list;
+
+    const valorAtual = String(objetivoValue);
+    const jaNaLista = list.some(
+      (o) => o.value === valorAtual || o.label === fallbackOption.label,
+    );
+    const valorCombinaFallback =
+      valorAtual === fallbackOption.value ||
+      valorAtual === fallbackOption.label;
+
+    if (!jaNaLista && valorCombinaFallback) {
+      list.unshift({
+        value: valorAtual,
+        label: fallbackOption.label,
+      });
+    }
+    return list;
+  }, [objetivosResponse?.data, fallbackOption, objetivoValue]);
 
   return (
     <div className="space-y-2">

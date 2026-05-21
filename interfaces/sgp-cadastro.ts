@@ -142,3 +142,23 @@ export interface CreateSgpProjetoResponse {
   cadastro: CreateSgpCadastroApiResponse;
   usuario: CreateSgpUsuarioApiResponse;
 }
+
+/** Payload PUT /sgp-cadastros/{id} (aba Abertura) */
+export interface UpdateSgpCadastroRequest {
+  Datas: string;
+  DataDesativado: string;
+  NomeProjeto: string;
+  Necessidades?: string;
+  Expectativas?: string;
+  Tipo: string;
+  Status: string;
+  ClasseProjeto?: string;
+  ObjetivoID?: number;
+}
+
+/** Resposta PUT /sgp-cadastros/{id} */
+export interface UpdateSgpCadastroApiResponse {
+  success: boolean;
+  message: string;
+  data: SgpCadastroData;
+}

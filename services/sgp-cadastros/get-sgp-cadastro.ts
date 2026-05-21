@@ -1,3 +1,4 @@
+import { HttpError } from "@/lib/http-error";
 import { fetchWithAuth } from "@/lib/fetch";
 import type {
   SgpCadastroData,
@@ -31,9 +32,9 @@ export async function getSgpCadastroById(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error?.message || error?.error || "Erro ao buscar cadastro SGP",
-    );
+    const message =
+      error?.message || error?.error || "Erro ao buscar cadastro SGP";
+    throw new HttpError(response.status, message);
   }
 
   return await response.json();

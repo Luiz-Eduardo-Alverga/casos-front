@@ -7,7 +7,7 @@ import { FolderKanban, ChevronUp } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
 import { ProjetosTabelaSkeleton } from "@/components/projetos/layout/projetos-tabela-skeleton";
 import { ProjetosTabelaTable } from "@/components/projetos/tabela/projetos-tabela-table";
-import { useSgpCadastrosInfinite } from "@/hooks/cadastros/use-sgp-cadastros";
+import { useSgpCadastrosInfinite } from "@/hooks/projetos/use-sgp-cadastros";
 import { useSetores } from "@/hooks/catalogos/use-setores";
 import type { ProjetosFiltrosAplicados } from "@/components/projetos/filtros/projetos-filtros.types";
 import {
@@ -37,10 +37,7 @@ export function ProjetosTabela({ filtros }: ProjetosTabelaProps) {
       enabled: hasFilters && canFetch,
     });
 
-  const itens = useMemo(
-    () => data?.pages.flatMap((p) => p.data) ?? [],
-    [data],
-  );
+  const itens = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);

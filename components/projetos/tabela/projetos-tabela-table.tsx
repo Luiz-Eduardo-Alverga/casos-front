@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableHeader,
@@ -29,6 +30,8 @@ export function ProjetosTabelaTable({
   itens,
   isFetchingNextPage,
 }: ProjetosTabelaTableProps) {
+  const router = useRouter();
+
   return (
     <Table>
       <TableHeader>
@@ -85,8 +88,7 @@ export function ProjetosTabelaTable({
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  disabled
-                  onClick={handleAcaoEmBreve}
+                  onClick={() => router.push(`/projetos/${item.registro}`)}
                   aria-label="Editar projeto"
                 >
                   <SquarePen className="h-4 w-4 text-text-primary" />

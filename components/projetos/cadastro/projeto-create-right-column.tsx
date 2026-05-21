@@ -7,11 +7,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CasoFormSgpObjetivo } from "@/components/fields/caso-form-sgp-objetivo";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
-import type { ProjetoCreateFormData } from "@/components/projetos/cadastro/schema";
+import type { ProjetoFormData } from "@/components/projetos/cadastro/schema";
 
-export function ProjetoCreateRightColumn() {
+export interface ProjetoCreateRightColumnProps {
+  objetivoFallback?: { value: string; label: string };
+}
+
+export function ProjetoCreateRightColumn({
+  objetivoFallback,
+}: ProjetoCreateRightColumnProps) {
   const { isDisabled } = useCasoForm();
-  const { register } = useFormContext<ProjetoCreateFormData>();
+  const { register } = useFormContext<ProjetoFormData>();
 
   return (
     <div className="flex min-w-0 flex-1 flex-col">
@@ -25,7 +31,10 @@ export function ProjetoCreateRightColumn() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4 p-6 pt-3">
-          <CasoFormSgpObjetivo required={false} />
+          <CasoFormSgpObjetivo
+            required={false}
+            fallbackOption={objetivoFallback}
+          />
 
           <div className="space-y-2">
             <Label className="text-sm font-medium text-text-label">

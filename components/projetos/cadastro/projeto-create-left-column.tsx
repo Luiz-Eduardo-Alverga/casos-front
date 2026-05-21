@@ -11,12 +11,12 @@ import { CasoFormProjetoTipo } from "@/components/fields/caso-form-projeto-tipo"
 import { CasoFormRelator } from "@/components/fields/caso-form-relator";
 import { CasoFormProjetoStatus } from "@/components/fields/caso-form-projeto-status";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
-import type { ProjetoCreateFormData } from "@/components/projetos/cadastro/schema";
+import type { ProjetoFormData } from "@/components/projetos/cadastro/schema";
 
 export function ProjetoCreateLeftColumn() {
   const { isDisabled } = useCasoForm();
   const { control, register, formState } =
-    useFormContext<ProjetoCreateFormData>();
+    useFormContext<ProjetoFormData>();
 
   const nomeError = formState.errors.nomeProjeto?.message;
   const dataInicioError = formState.errors.dataInicio?.message as
@@ -112,7 +112,7 @@ export function ProjetoCreateLeftColumn() {
         </CardContent>
       </Card>
 
-      {/* <Card className="rounded-lg bg-card shadow-card">
+      <Card className="rounded-lg bg-card shadow-card">
         <CardHeader className="border-b border-border-divider p-5 pb-2">
           <div className="flex items-center gap-2">
             <Package className="h-3.5 w-3.5 text-text-primary" />
@@ -124,7 +124,7 @@ export function ProjetoCreateLeftColumn() {
         <CardContent className="p-6 pt-3">
           <CasoFormProjetoStatus required />
         </CardContent>
-      </Card> */}
+      </Card>
     </div>
   );
 }
