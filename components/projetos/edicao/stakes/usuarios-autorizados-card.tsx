@@ -1,7 +1,6 @@
 "use client";
 
 import { Plus, UserCheck } from "lucide-react";
-import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/painel/empty-state";
@@ -16,6 +15,8 @@ export interface UsuariosAutorizadosCardProps {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
+  onAdicionar?: () => void;
+  onExcluir?: (usuario: SgpUsuarioProjetoItem) => void;
 }
 
 export function UsuariosAutorizadosCard({
@@ -26,6 +27,8 @@ export function UsuariosAutorizadosCard({
   hasNextPage,
   isFetchingNextPage,
   onLoadMore,
+  onAdicionar,
+  onExcluir,
 }: UsuariosAutorizadosCardProps) {
   return (
     <Card className="rounded-lg bg-card shadow-card">
@@ -43,7 +46,8 @@ export function UsuariosAutorizadosCard({
             type="button"
             size="sm"
             className="shrink-0"
-            onClick={() => toast("Em breve")}
+            onClick={onAdicionar}
+            disabled={!onAdicionar}
           >
             <Plus className="mr-1.5 h-3.5 w-3.5" />
             Adicionar usuário
@@ -68,6 +72,7 @@ export function UsuariosAutorizadosCard({
             hasNextPage={hasNextPage}
             isFetchingNextPage={isFetchingNextPage}
             onLoadMore={onLoadMore}
+            onExcluir={onExcluir}
           />
         )}
       </CardContent>

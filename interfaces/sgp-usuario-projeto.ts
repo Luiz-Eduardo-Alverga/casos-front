@@ -27,3 +27,9 @@ export interface SgpUsuariosByProjetoResponse {
   data: SgpUsuarioProjetoItem[];
   pagination: SgpUsuarioProjetoPagination;
 }
+
+/** Resposta DELETE /sgp-usuarios/{sequencia} */
+export interface DeleteSgpUsuarioApiResponse {
+  success: boolean;
+  message: string;
+}

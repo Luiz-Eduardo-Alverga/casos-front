@@ -5,6 +5,10 @@ import {
   updateSgpStake,
   type UpdateSgpStakeRequest,
 } from "@/services/sgp-stakes/update-sgp-stake";
+import {
+  invalidateSgpStakesQueries,
+  resolveProjetoId,
+} from "@/hooks/projetos/sgp-projeto-query-keys";
 
 export interface UseUpdateSgpStakeOptions {
   projetoId?: number | string | null;
@@ -22,14 +26,10 @@ export function useUpdateSgpStake(options?: UseUpdateSgpStakeOptions) {
       sequencia: number | string;
       data: UpdateSgpStakeRequest;
     }) => updateSgpStake(sequencia, data),
-    onSuccess: (_response, variables) => {
-      const registro = variables.data.Registro ?? projetoId;
-      queryClient.invalidateQueries({ queryKey: ["sgp-stakes"] });
-      if (registro != null && String(registro) !== "") {
-        queryClient.invalidateQueries({
-          queryKey: ["sgp-stakes", "projeto"],
-        });
-      }
-    },
+    onSuccess: (_response, variables) =>
+      invalidateSgpStakesQueries(
+        queryClient,
+        resolveProjetoId(variables.data.Registro, projetoId),
+      ),
   });
 }

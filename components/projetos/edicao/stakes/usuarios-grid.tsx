@@ -10,6 +10,7 @@ export interface UsuariosGridProps {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
+  onExcluir?: (usuario: SgpUsuarioProjetoItem) => void;
 }
 
 function UsuarioRowSkeleton() {
@@ -30,6 +31,7 @@ export function UsuariosGrid({
   hasNextPage,
   isFetchingNextPage,
   onLoadMore,
+  onExcluir,
 }: UsuariosGridProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +53,11 @@ export function UsuariosGrid({
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {usuarios.map((item) => (
-          <UsuarioAutorizadoCard key={item.sequencia} usuario={item} />
+          <UsuarioAutorizadoCard
+            key={item.sequencia}
+            usuario={item}
+            onExcluir={onExcluir}
+          />
         ))}
       </div>
       {isFetchingNextPage && (

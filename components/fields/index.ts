@@ -8,6 +8,7 @@ export { CasoFormCategoria } from "./caso-form-categoria";
 export { CasoFormRelator } from "./caso-form-relator";
 export { CasoFormUsuarioAbertura } from "./caso-form-usuario-abertura";
 export { CasoFormDevAtribuido } from "./caso-form-dev-atribuido";
+export { CasoFormSgpTipo } from "./caso-form-sgp-tipo";
 export { CasoFormQaAtribuido } from "./caso-form-qa-atribuido";
 export { CasoFormSetor } from "./caso-form-setor";
 export { CasoFormSgpObjetivo } from "./caso-form-sgp-objetivo";

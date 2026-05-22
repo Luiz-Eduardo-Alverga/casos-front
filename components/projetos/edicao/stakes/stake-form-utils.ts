@@ -32,6 +32,7 @@ export function maskStakeHorasInput(value: string): string {
 export function stakeToFormValues(stake: SgpStakeItem): StakeFormValues {
   return {
     colaboradorId: String(stake.suporte_id),
+    colaboradorLabel: stake.nomes?.trim() ?? "",
     idTipo: String(stake.id_tipo),
     diasUteis: stake.dias_uteis ?? 1,
     horasPlanejadas: formatMinutesToHorasInput(

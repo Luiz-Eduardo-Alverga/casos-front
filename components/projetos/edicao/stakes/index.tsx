@@ -6,12 +6,16 @@ import { useSgpTipos } from "@/hooks/catalogos/use-sgp-tipos";
 import { useSgpStakesByProjetoInfinite } from "@/hooks/projetos/use-sgp-stakes-by-projeto";
 import { useSgpUsuariosByProjetoInfinite } from "@/hooks/projetos/use-sgp-usuarios-by-projeto";
 import { useDeleteSgpStake } from "@/hooks/projetos/use-delete-sgp-stake";
+import { useDeleteSgpUsuario } from "@/hooks/projetos/use-delete-sgp-usuario";
 import type { SgpStakeItem } from "@/interfaces/sgp-stake";
+import type { SgpUsuarioProjetoItem } from "@/interfaces/sgp-usuario-projeto";
+import { getUsuarioNomeExibicao } from "@/components/projetos/edicao/stakes/utils";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { buildSgpTiposMap } from "@/components/projetos/edicao/stakes/utils";
 import { AbaStakesSkeleton } from "@/components/projetos/edicao/stakes/aba-stakes-skeleton";
 import { StakesCard } from "@/components/projetos/edicao/stakes/stakes-card";
 import { StakeFormModal } from "@/components/projetos/edicao/stakes/stake-form-modal";
+import { UsuarioAutorizadoFormModal } from "@/components/projetos/edicao/stakes/usuario-autorizado-form-modal";
 import { UsuariosAutorizadosCard } from "@/components/projetos/edicao/stakes/usuarios-autorizados-card";
 
 const PER_PAGE = 15;
@@ -23,14 +27,20 @@ export interface AbaStakesProps {
 
 export function AbaStakes({ projetoId, enabled = true }: AbaStakesProps) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [usuarioModalOpen, setUsuarioModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [stakeEmEdicao, setStakeEmEdicao] = useState<SgpStakeItem | null>(null);
   const [excluirModal, setExcluirModal] = useState<{
     open: boolean;
     stake: SgpStakeItem | null;
   }>({ open: false, stake: null });
+  const [excluirUsuarioModal, setExcluirUsuarioModal] = useState<{
+    open: boolean;
+    usuario: SgpUsuarioProjetoItem | null;
+  }>({ open: false, usuario: null });
 
   const deleteStake = useDeleteSgpStake({ projetoId });
+  const deleteUsuario = useDeleteSgpUsuario({ projetoId });
 
   const stakesQuery = useSgpStakesByProjetoInfinite(projetoId, {
     enabled,
@@ -80,6 +90,10 @@ export function AbaStakes({ projetoId, enabled = true }: AbaStakesProps) {
     setExcluirModal({ open: true, stake });
   };
 
+  const abrirExcluirUsuario = (usuario: SgpUsuarioProjetoItem) => {
+    setExcluirUsuarioModal({ open: true, usuario });
+  };
+
   const handleExcluirConfirm = async () => {
     const sequencia = excluirModal.stake?.sequencia;
     if (!sequencia) return;
@@ -98,7 +112,34 @@ export function AbaStakes({ projetoId, enabled = true }: AbaStakesProps) {
     }
   };
 
+  const handleExcluirUsuarioConfirm = async () => {
+    const sequencia = excluirUsuarioModal.usuario?.sequencia;
+    if (!sequencia) return;
+
+    try {
+      const response = await deleteUsuario.mutateAsync(sequencia);
+      toast.success(
+        response.message ?? "Usuário autorizado excluído com sucesso.",
+      );
+      setExcluirUsuarioModal({ open: false, usuario: null });
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erro ao excluir usuário autorizado.",
+      );
+      throw error;
+    }
+  };
+
   const nomeStakeExcluir = excluirModal.stake?.nomes?.trim() || "este stakeholder";
+  const nomeUsuarioExcluir =
+    excluirUsuarioModal.usuario != null
+      ? getUsuarioNomeExibicao(
+          excluirUsuarioModal.usuario.nome,
+          excluirUsuarioModal.usuario.usuario,
+        )
+      : "este usuário";
 
   if (isInitialLoading) {
     return <AbaStakesSkeleton />;
@@ -135,6 +176,15 @@ export function AbaStakes({ projetoId, enabled = true }: AbaStakesProps) {
         hasNextPage={usuariosQuery.hasNextPage ?? false}
         isFetchingNextPage={usuariosQuery.isFetchingNextPage}
         onLoadMore={() => usuariosQuery.fetchNextPage()}
+        onAdicionar={() => setUsuarioModalOpen(true)}
+        onExcluir={abrirExcluirUsuario}
+      />
+
+      <UsuarioAutorizadoFormModal
+        open={usuarioModalOpen}
+        onOpenChange={setUsuarioModalOpen}
+        projetoId={projetoId}
+        usuariosVinculados={usuarios}
       />
 
       <StakeFormModal
@@ -157,6 +207,20 @@ export function AbaStakes({ projetoId, enabled = true }: AbaStakesProps) {
         onConfirm={handleExcluirConfirm}
         variant="danger"
         isLoading={deleteStake.isPending}
+      />
+
+      <ConfirmacaoModal
+        open={excluirUsuarioModal.open}
+        onOpenChange={(open) => {
+          if (!open) setExcluirUsuarioModal({ open: false, usuario: null });
+        }}
+        titulo="Remover usuário autorizado"
+        descricao={`Tem certeza que deseja remover ${nomeUsuarioExcluir} deste projeto? Esta ação não pode ser desfeita.`}
+        confirmarLabel="Remover"
+        cancelarLabel="Cancelar"
+        onConfirm={handleExcluirUsuarioConfirm}
+        variant="danger"
+        isLoading={deleteUsuario.isPending}
       />
     </div>
   );

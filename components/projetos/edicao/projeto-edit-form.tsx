@@ -27,7 +27,9 @@ import { cn } from "@/lib/utils";
 import { ProjetoEditHeader } from "@/components/projetos/edicao/projeto-edit-header";
 import { ProjetoEditRodapeAcoes } from "@/components/projetos/edicao/projeto-edit-rodape-acoes";
 import { AbaAbertura } from "@/components/projetos/edicao/abas/aba-abertura";
-import { AbaPlaceholder } from "@/components/projetos/edicao/abas/aba-placeholder";
+import { AbaCronogramaTab } from "@/components/projetos/edicao/abas/aba-cronograma";
+import { AbaEscopoTab } from "@/components/projetos/edicao/abas/aba-escopo";
+import { AbaRiscoTab } from "@/components/projetos/edicao/abas/aba-risco";
 import { AbaStakesTab } from "@/components/projetos/edicao/abas/aba-stakes";
 
 export interface ProjetoEditFormProps {
@@ -79,7 +81,7 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
     methods.reset(sgpCadastroToFormValues(cadastro, setores, objetivos));
   }, [cadastro, setores, objetivos, methods]);
 
-  const isSaving =
+  const isSavingAbertura =
     methods.formState.isSubmitting || updateProjeto.isPending;
 
   async function onSubmit(data: ProjetoFormData) {
@@ -90,9 +92,7 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
 
     const objetivoRaw = data.objetivo?.trim();
     if (objetivoRaw && !/^\d+$/.test(objetivoRaw)) {
-      toast.error(
-        "Selecione um objetivo válido na lista antes de salvar.",
-      );
+      toast.error("Selecione um objetivo válido na lista antes de salvar.");
       return;
     }
 
@@ -102,9 +102,7 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
         id: cadastro.registro,
         data: payload,
       });
-      toast.success(
-        response.message ?? "Projeto atualizado com sucesso.",
-      );
+      toast.success(response.message ?? "Projeto atualizado com sucesso.");
       if (response.data) {
         methods.reset(
           sgpCadastroToFormValues(response.data, setores, objetivos),
@@ -112,9 +110,7 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
       }
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Erro ao atualizar projeto.",
+        error instanceof Error ? error.message : "Erro ao atualizar projeto.",
       );
     }
   }
@@ -125,21 +121,16 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
     () => ({
       form: methods,
       importanceOptions,
-      isDisabled: isSaving || !canEditProject,
+      isDisabled: isSavingAbertura || !canEditProject,
       lazyLoadComboboxOptions: false,
     }),
-    [methods, isSaving, canEditProject],
+    [methods, isSavingAbertura, canEditProject],
   );
 
   return (
     <div className="flex min-h-0 flex-1 flex-col lg:overflow-hidden">
       <CasoFormProvider value={providerValue}>
         <FormProvider {...methods}>
-          <form
-            id={FORM_ID}
-            onSubmit={methods.handleSubmit(onSubmit)}
-            className="flex min-h-0 flex-1 flex-col"
-          >
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -154,7 +145,13 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
               )}
             >
               <TabsContent value="abertura" className="mt-0">
-                <AbaAbertura objetivoFallback={objetivoFallback} />
+                <form
+                  id={FORM_ID}
+                  onSubmit={methods.handleSubmit(onSubmit)}
+                  className="min-h-0"
+                >
+                  <AbaAbertura objetivoFallback={objetivoFallback} />
+                </form>
               </TabsContent>
               <TabsContent value="stakes" className="mt-0">
                 <AbaStakesTab
@@ -163,13 +160,22 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
                 />
               </TabsContent>
               <TabsContent value="cronograma" className="mt-0">
-                <AbaPlaceholder titulo="Cronograma" />
+                <AbaCronogramaTab
+                  projetoId={cadastro.registro}
+                  enabled={activeTab === "cronograma"}
+                />
               </TabsContent>
               <TabsContent value="escopo" className="mt-0">
-                <AbaPlaceholder titulo="Escopo" />
+                <AbaEscopoTab
+                  projetoId={cadastro.registro}
+                  enabled={activeTab === "escopo"}
+                />
               </TabsContent>
               <TabsContent value="risco" className="mt-0">
-                <AbaPlaceholder titulo="Risco" />
+                <AbaRiscoTab
+                  projetoId={cadastro.registro}
+                  enabled={activeTab === "risco"}
+                />
               </TabsContent>
             </div>
           </Tabs>
@@ -181,12 +187,11 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
               nomeProjeto={
                 methods.watch("nomeProjeto") ?? cadastro.nome_projeto ?? ""
               }
-              isSaving={isSaving}
+              isSaving={isSavingAbertura}
               canEdit={canEditProject}
               onCancelar={() => router.push("/projetos")}
             />
           )}
-          </form>
         </FormProvider>
       </CasoFormProvider>
     </div>

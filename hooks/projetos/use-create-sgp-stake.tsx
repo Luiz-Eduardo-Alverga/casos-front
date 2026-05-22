@@ -5,6 +5,10 @@ import {
   createSgpStake,
   type CreateSgpStakeRequest,
 } from "@/services/sgp-stakes/create-sgp-stake";
+import {
+  invalidateSgpStakesQueries,
+  resolveProjetoId,
+} from "@/hooks/projetos/sgp-projeto-query-keys";
 
 export interface UseCreateSgpStakeOptions {
   /** ID do projeto para invalidar listagem de stakes após sucesso */
@@ -17,14 +21,10 @@ export function useCreateSgpStake(options?: UseCreateSgpStakeOptions) {
 
   return useMutation({
     mutationFn: (data: CreateSgpStakeRequest) => createSgpStake(data),
-    onSuccess: (_response, variables) => {
-      const registro = variables.Registro ?? projetoId;
-      queryClient.invalidateQueries({ queryKey: ["sgp-stakes"] });
-      if (registro != null && String(registro) !== "") {
-        queryClient.invalidateQueries({
-          queryKey: ["sgp-stakes", "projeto"],
-        });
-      }
-    },
+    onSuccess: (_response, variables) =>
+      invalidateSgpStakesQueries(
+        queryClient,
+        resolveProjetoId(variables.Registro, projetoId),
+      ),
   });
 }

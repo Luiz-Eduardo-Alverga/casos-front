@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteSgpStake } from "@/services/sgp-stakes/delete-sgp-stake";
+import { invalidateSgpStakesQueries } from "@/hooks/projetos/sgp-projeto-query-keys";
 
 export interface UseDeleteSgpStakeOptions {
   projetoId?: number | string | null;
@@ -13,13 +14,6 @@ export function useDeleteSgpStake(options?: UseDeleteSgpStakeOptions) {
 
   return useMutation({
     mutationFn: (sequencia: number | string) => deleteSgpStake(sequencia),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sgp-stakes"] });
-      if (projetoId != null && String(projetoId) !== "") {
-        queryClient.invalidateQueries({
-          queryKey: ["sgp-stakes", "projeto"],
-        });
-      }
-    },
+    onSuccess: () => invalidateSgpStakesQueries(queryClient, projetoId),
   });
 }

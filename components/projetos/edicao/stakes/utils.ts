@@ -1,24 +1,16 @@
 import type { SgpStakeItem } from "@/interfaces/sgp-stake";
-import type { SgpTipo } from "@/services/auxiliar/sgp-tipos";
+import {
+  buildSgpTiposMap,
+  resolveTipoLabel,
+} from "@/components/projetos/edicao/shared/sgp-tipos-utils";
 
-/** Mapa `id_tipo` → label (`Nomes`) para exibição nos cards de stake. */
-export function buildSgpTiposMap(tipos: SgpTipo[]): Map<number, string> {
-  const map = new Map<number, string>();
-  for (const tipo of tipos) {
-    const id = Number(tipo.Registro);
-    if (!Number.isFinite(id)) continue;
-    const label = tipo.Nomes?.trim();
-    if (label) map.set(id, label);
-  }
-  return map;
-}
+export { buildSgpTiposMap };
 
 export function resolveStakeTipoLabel(
   idTipo: number,
   tiposMap: Map<number, string>,
 ): string {
-  const label = tiposMap.get(idTipo)?.trim();
-  return label || `Tipo ${idTipo}`;
+  return resolveTipoLabel(idTipo, tiposMap);
 }
 
 /** Extrai horas e minutos da data/hora SGP (`1899-12-30 HH:mm:ss`). */

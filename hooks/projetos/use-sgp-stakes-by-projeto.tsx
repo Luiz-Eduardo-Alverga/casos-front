@@ -5,6 +5,7 @@ import {
   getSgpStakesByProjeto,
   type GetSgpStakesByProjetoParams,
 } from "@/services/sgp-stakes/get-sgp-stakes-by-projeto";
+import { sgpStakesQueryKeys } from "@/hooks/projetos/sgp-projeto-query-keys";
 
 export interface UseSgpStakesByProjetoOptions {
   enabled?: boolean;
@@ -28,13 +29,11 @@ export function useSgpStakesByProjeto(
     : null;
 
   return useQuery({
-    queryKey: [
-      "sgp-stakes",
-      "projeto",
-      projetoId ?? "",
-      options?.per_page ?? "",
-      options?.cursor ?? "",
-    ],
+    queryKey: sgpStakesQueryKeys.list(
+      projetoId as number | string,
+      options?.per_page,
+      options?.cursor,
+    ),
     queryFn: () => getSgpStakesByProjeto(params!),
     enabled: Boolean(params),
   });
@@ -49,7 +48,7 @@ export function useSgpStakesByProjetoInfinite(
   const perPage = options?.per_page ?? 15;
 
   return useInfiniteQuery({
-    queryKey: ["sgp-stakes", "projeto", "infinite", projetoId ?? "", perPage],
+    queryKey: sgpStakesQueryKeys.infinite(projetoId as number | string, perPage),
     queryFn: ({ pageParam }) =>
       getSgpStakesByProjeto({
         projetoId: projetoId as number | string,

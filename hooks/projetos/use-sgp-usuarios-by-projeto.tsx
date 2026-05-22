@@ -5,6 +5,7 @@ import {
   getSgpUsuariosByProjeto,
   type GetSgpUsuariosByProjetoParams,
 } from "@/services/sgp-usuarios/get-sgp-usuarios-by-projeto";
+import { sgpUsuariosQueryKeys } from "@/hooks/projetos/sgp-projeto-query-keys";
 
 export interface UseSgpUsuariosByProjetoOptions {
   enabled?: boolean;
@@ -49,13 +50,7 @@ export function useSgpUsuariosByProjetoInfinite(
   const perPage = options?.per_page ?? 15;
 
   return useInfiniteQuery({
-    queryKey: [
-      "sgp-usuarios",
-      "projeto",
-      "infinite",
-      projetoId ?? "",
-      perPage,
-    ],
+    queryKey: sgpUsuariosQueryKeys.infinite(projetoId as number | string, perPage),
     queryFn: ({ pageParam }) =>
       getSgpUsuariosByProjeto({
         projetoId: projetoId as number | string,

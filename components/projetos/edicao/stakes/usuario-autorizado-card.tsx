@@ -1,7 +1,6 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import type { SgpUsuarioProjetoItem } from "@/interfaces/sgp-usuario-projeto";
 import {
@@ -11,9 +10,13 @@ import {
 
 export interface UsuarioAutorizadoCardProps {
   usuario: SgpUsuarioProjetoItem;
+  onExcluir?: (usuario: SgpUsuarioProjetoItem) => void;
 }
 
-export function UsuarioAutorizadoCard({ usuario }: UsuarioAutorizadoCardProps) {
+export function UsuarioAutorizadoCard({
+  usuario,
+  onExcluir,
+}: UsuarioAutorizadoCardProps) {
   const nome = getUsuarioNomeExibicao(usuario.nome, usuario.usuario);
   const iniciais = getUsuarioIniciais(usuario.nome, usuario.usuario);
 
@@ -38,7 +41,8 @@ export function UsuarioAutorizadoCard({ usuario }: UsuarioAutorizadoCardProps) {
         variant="ghost"
         size="icon"
         className="h-8 w-8 shrink-0 text-destructive hover:text-destructive"
-        onClick={() => toast("Em breve")}
+        onClick={() => onExcluir?.(usuario)}
+        disabled={!onExcluir}
         aria-label={`Remover ${nome}`}
       >
         <Trash2 className="h-4 w-4" />
