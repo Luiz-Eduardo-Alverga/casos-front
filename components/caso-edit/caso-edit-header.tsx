@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Copy, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -53,6 +54,8 @@ interface TabItem {
   count?: number;
 }
 
+const APP_HEADER_HEIGHT = 60;
+
 export function CasoEditHeader({
   countAnotacoes,
   countRelacoes,
@@ -68,9 +71,57 @@ export function CasoEditHeader({
   const clonarCaso = useClonarCaso();
   const deleteCaso = useDeleteCaso();
   const [excluirCasoModal, setExcluirCasoModal] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const { isCollapsed } = useSidebar();
+  const [isMobile, setIsMobile] = useState(false);
   const rbacReady = permissionsLoaded();
   const canDeleteCase = !rbacReady || hasPermission("delete-case");
   const showDeleteTooltip = rbacReady && !canDeleteCase;
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+
+    const measure = () => setHeaderHeight(header.offsetHeight);
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, [isMobile, showAnexosTab]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const sentinel = sentinelRef.current;
+      if (!sentinel) return;
+      setIsPinned(sentinel.getBoundingClientRect().top < APP_HEADER_HEIGHT);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const pinnedStyle = isPinned
+    ? {
+        top: `${APP_HEADER_HEIGHT}px`,
+        left: isMobile ? "0" : isCollapsed ? "64px" : "256px",
+        right: "0",
+        width: isMobile
+          ? "100%"
+          : `calc(100% - ${isCollapsed ? "64px" : "256px"})`,
+      }
+    : undefined;
 
   const tryCloseTabOrIrCasos = () => {
     window.close();
@@ -124,9 +175,27 @@ export function CasoEditHeader({
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col lg:flex-row gap-6 shrink-0 ">
+      <div ref={sentinelRef} className="h-0 shrink-0" aria-hidden />
+
+      {isPinned && headerHeight > 0 && (
+        <div
+          className="shrink-0"
+          style={{ height: headerHeight }}
+          aria-hidden
+        />
+      )}
+
+      <div
+        ref={headerRef}
+        className={cn(
+          "flex shrink-0 flex-col gap-6 lg:flex-row",
+          isPinned &&
+            "fixed z-20 bg-white px-6 py-2 shadow-sm border-b border-border/40 transition-[left,width] duration-300",
+        )}
+        style={pinnedStyle}
+      >
         {/* Coluna esquerda: mesmo espaço do conteúdo à esquerda do formulário */}
-        <div className="flex-1 flex flex-col gap-6 min-w-0">
+        <div className="flex min-w-0 flex-1 flex-col gap-6">
           <TabsList
             className={cn(
               "w-full max-w-full min-w-0 flex flex-nowrap justify-start items-center gap-0",

@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RiscoHistoricoTableSkeleton } from "@/components/projetos/edicao/risco/risco-historico-table";
 import { cn } from "@/lib/utils";
 
 function CardHeaderSkeleton({ titleWidth = "w-40" }: { titleWidth?: string }) {
@@ -71,17 +72,7 @@ export function AbaRiscoSkeleton() {
       <Card className="rounded-lg bg-card shadow-card">
         <CardHeaderSkeleton titleWidth="w-52" />
         <CardContent className="p-6 pt-3">
-          <div className="overflow-hidden rounded-lg border border-border-divider">
-            <div className="flex gap-6 border-b border-border-divider px-5 py-4">
-              <Skeleton className="h-5 w-[95px]" />
-              <Skeleton className="h-5 flex-1" />
-              <Skeleton className="h-5 w-[200px]" />
-              <Skeleton className="h-5 w-[66px]" />
-            </div>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <HistoricoRowSkeleton key={i} />
-            ))}
-          </div>
+          <RiscoHistoricoTableSkeleton rowCount={4} />
         </CardContent>
       </Card>
     </div>

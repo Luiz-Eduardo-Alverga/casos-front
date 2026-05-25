@@ -153,25 +153,25 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
                   <AbaAbertura objetivoFallback={objetivoFallback} />
                 </form>
               </TabsContent>
-              <TabsContent value="stakes" className="mt-0">
+              <TabsContent value="stakes" className="mt-0 mb-4">
                 <AbaStakesTab
                   projetoId={cadastro.registro}
                   enabled={activeTab === "stakes"}
                 />
               </TabsContent>
-              <TabsContent value="cronograma" className="mt-0">
+              <TabsContent value="cronograma" className="mt-0 mb-4">
                 <AbaCronogramaTab
                   projetoId={cadastro.registro}
                   enabled={activeTab === "cronograma"}
                 />
               </TabsContent>
-              <TabsContent value="escopo" className="mt-0">
+              <TabsContent value="escopo" className="mt-0 mb-4">
                 <AbaEscopoTab
                   projetoId={cadastro.registro}
                   enabled={activeTab === "escopo"}
                 />
               </TabsContent>
-              <TabsContent value="risco" className="mt-0">
+              <TabsContent value="risco" className="mt-0 mb-4">
                 <AbaRiscoTab
                   projetoId={cadastro.registro}
                   enabled={activeTab === "risco"}

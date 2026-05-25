@@ -44,6 +44,10 @@ function mapItemToRow(item: ProjetoMemoriaItem): CasosTabelaRow {
     estimado_minutos: item.caso.tempos.estimado_minutos ?? 0,
     realizado_minutos: item.caso.tempos.realizado_minutos ?? 0,
     desenvolvedor: item.caso.usuarios?.desenvolvimento?.nome?.trim() ?? "",
+    tempoStatus:
+      item.caso.tempos?.tempo_status ?? item.caso.status?.tempo_status ?? "",
+    statusTempo:
+      item.caso.tempos?.status_tempo ?? item.caso.status?.status_tempo ?? "",
   };
 }
 

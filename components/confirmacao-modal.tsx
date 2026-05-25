@@ -59,12 +59,12 @@ export function ConfirmacaoModal({
         <div className="flex flex-col items-center px-6 pt-8 pb-6">
           <div className="flex justify-center mb-6">
             <Image
-              src="/images/alert.svg"
+              src="/images/alertnew.svg"
               alt=""
-              width={64}
-              height={64}
-              aria-hidden
-              className="shrink-0"
+              width={100}
+              height={58}
+              className="mx-auto"
+              unoptimized
             />
           </div>
           <DialogTitle className="text-lg font-semibold text-text-primary text-center max-w-[280px]">

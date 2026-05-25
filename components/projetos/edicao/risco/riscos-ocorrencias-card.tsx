@@ -5,10 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/painel/empty-state";
 import type { SgpRiscoHistoricoItem } from "@/interfaces/sgp-risco-historico";
-import { RiscoHistoricoTable } from "@/components/projetos/edicao/risco/risco-historico-table";
+import {
+  RiscoHistoricoTable,
+  RiscoHistoricoTableSkeleton,
+} from "@/components/projetos/edicao/risco/risco-historico-table";
 
 export interface RiscosOcorrenciasCardProps {
   itens: SgpRiscoHistoricoItem[];
+  semRiscoSelecionado?: boolean;
+  isLoading?: boolean;
   isError: boolean;
   errorMessage?: string;
   hasNextPage: boolean;
@@ -21,6 +26,8 @@ export interface RiscosOcorrenciasCardProps {
 
 export function RiscosOcorrenciasCard({
   itens,
+  semRiscoSelecionado = false,
+  isLoading = false,
   isError,
   errorMessage,
   hasNextPage,
@@ -55,15 +62,24 @@ export function RiscosOcorrenciasCard({
         </div>
       </CardHeader>
       <CardContent className="p-6 pt-3">
-        {isError ? (
+        {semRiscoSelecionado ? (
+          <EmptyState
+            icon={ClipboardList}
+            title="Selecione um risco"
+            description="Selecione um risco acima para visualizar as ocorrências."
+            className="min-h-[160px]"
+          />
+        ) : isError ? (
           <p className="text-sm text-destructive">
             {errorMessage ?? "Erro ao carregar ocorrências."}
           </p>
+        ) : isLoading ? (
+          <RiscoHistoricoTableSkeleton />
         ) : itens.length === 0 ? (
           <EmptyState
             icon={ClipboardList}
             title="Nenhuma ocorrência registrada"
-            description="Este projeto ainda não possui ocorrências de risco cadastradas."
+            description="Este risco ainda não possui ocorrências cadastradas."
             className="min-h-[160px]"
           />
         ) : (

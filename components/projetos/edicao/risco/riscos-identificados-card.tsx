@@ -9,24 +9,28 @@ import { RiscosGrid } from "@/components/projetos/edicao/risco/riscos-grid";
 
 export interface RiscosIdentificadosCardProps {
   riscos: SgpRiscoItem[];
+  riscoSelecionadoId?: number | null;
   isError: boolean;
   errorMessage?: string;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
   onAdicionar?: () => void;
+  onSelecionar?: (item: SgpRiscoItem) => void;
   onEditar?: (item: SgpRiscoItem) => void;
   onExcluir?: (item: SgpRiscoItem) => void;
 }
 
 export function RiscosIdentificadosCard({
   riscos,
+  riscoSelecionadoId = null,
   isError,
   errorMessage,
   hasNextPage,
   isFetchingNextPage,
   onLoadMore,
   onAdicionar,
+  onSelecionar,
   onEditar,
   onExcluir,
 }: RiscosIdentificadosCardProps) {
@@ -69,9 +73,11 @@ export function RiscosIdentificadosCard({
         ) : (
           <RiscosGrid
             riscos={riscos}
+            riscoSelecionadoId={riscoSelecionadoId}
             hasNextPage={hasNextPage}
             isFetchingNextPage={isFetchingNextPage}
             onLoadMore={onLoadMore}
+            onSelecionar={onSelecionar}
             onEditar={onEditar}
             onExcluir={onExcluir}
           />

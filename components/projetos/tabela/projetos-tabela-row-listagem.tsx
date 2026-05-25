@@ -58,7 +58,7 @@ export function ProjetosTabelaRowListagem({
           >
             <SquarePen className="h-4 w-4 text-text-primary" />
           </Button>
-          <Button
+          {/* <Button
             type="button"
             variant="ghost"
             size="icon"
@@ -68,7 +68,7 @@ export function ProjetosTabelaRowListagem({
             aria-label="Abrir projeto em nova aba"
           >
             <ExternalLink className="h-4 w-4 text-text-primary" />
-          </Button>
+          </Button> */}
         </div>
       </TableCell>
     </TableRow>

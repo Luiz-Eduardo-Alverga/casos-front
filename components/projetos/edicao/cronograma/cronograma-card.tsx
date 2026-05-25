@@ -44,7 +44,7 @@ export function CronogramaCard({
   const canEdit = !rbacReady || hasPermission("edit-project");
 
   return (
-    <Card className="rounded-lg bg-card shadow-card">
+    <Card className="rounded-lg bg-card shadow-card ">
       <CardHeader className="border-b border-border-divider p-5 pb-2">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">

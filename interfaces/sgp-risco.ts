@@ -33,3 +33,30 @@ export interface SgpRiscosByProjetoResponse {
   data: SgpRiscoItem[];
   pagination: SgpRiscoPagination;
 }
+
+export interface CreateSgpRiscoRequest {
+  sgp_cadastro_id: number;
+  datas: string;
+  descricao_risco: string;
+  probalidade: string;
+  impacto: string;
+  prioridade: string;
+  contingencia: string;
+  mitigacao: string;
+  id_risco: number;
+}
+
+export interface CreateSgpRiscoApiResponse {
+  success?: boolean;
+  message?: string;
+  data: SgpRiscoItem;
+}
+
+export type UpdateSgpRiscoRequest = CreateSgpRiscoRequest;
+export type UpdateSgpRiscoApiResponse = CreateSgpRiscoApiResponse;
+
+/** Resposta DELETE /sgp-riscos/{sequencia} (API externa pode retornar 204 sem body) */
+export interface DeleteSgpRiscoApiResponse {
+  success?: boolean;
+  message?: string;
+}

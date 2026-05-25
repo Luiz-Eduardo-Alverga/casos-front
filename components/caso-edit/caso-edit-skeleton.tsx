@@ -82,7 +82,6 @@ export function CasoEditSkeleton() {
             ))}
           </div>
         </div>
-        {/* CasoEditHeader — mesma hierarquia de caso-edit-header.tsx (135–176): Voltar / Clonar / Tooltip>span>Excluir */}
         <div className="flex w-full shrink-0 flex-row items-center justify-between gap-2 lg:w-[362px]">
           <Button
             type="button"

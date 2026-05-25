@@ -1,27 +1,28 @@
 import { HttpError } from "@/lib/http-error";
 import { fetchWithAuth } from "@/lib/fetch";
 import type {
-  SgpRiscosHistoricoByProjetoApiResponse,
-  SgpRiscosHistoricoByProjetoResponse,
+  SgpRiscosHistoricoByRiscoApiResponse,
+  SgpRiscosHistoricoByRiscoResponse,
 } from "@/interfaces/sgp-risco-historico";
 
 export type {
   SgpRiscoHistoricoItem,
   SgpRiscoHistoricoPagination,
-  SgpRiscosHistoricoByProjetoApiResponse,
-  SgpRiscosHistoricoByProjetoResponse,
+  SgpRiscosHistoricoByRiscoApiResponse,
+  SgpRiscosHistoricoByRiscoResponse,
 } from "@/interfaces/sgp-risco-historico";
 
-export interface GetSgpRiscosHistoricoByProjetoParams {
-  projetoId: number | string;
+export interface GetSgpRiscosHistoricoParams {
+  /** Sequência do risco (SgpRiscoItem.sequencia) */
+  id_seq: number | string;
   per_page?: number;
   cursor?: string | null;
 }
 
 function normalizeSgpRiscosHistoricoResponse(
-  raw: SgpRiscosHistoricoByProjetoApiResponse,
+  raw: SgpRiscosHistoricoByRiscoApiResponse,
   perPage: number,
-): SgpRiscosHistoricoByProjetoResponse {
+): SgpRiscosHistoricoByRiscoResponse {
   const next_cursor = raw.next_cursor ?? null;
   const prev_cursor = raw.prev_cursor ?? null;
 
@@ -38,18 +39,16 @@ function normalizeSgpRiscosHistoricoResponse(
 }
 
 /**
- * Lista histórico de riscos de um projeto SGP.
- * Fluxo: Service → API Route → API externa GET /sgp-riscos-historico/projeto/{sgp_cadastro_id}
+ * Lista histórico (ocorrências) de um risco SGP.
+ * Fluxo: Service → API Route → API externa GET /sgp-riscos-historico?id_seq=...
  */
-export async function getSgpRiscosHistoricoByProjeto(
-  params: GetSgpRiscosHistoricoByProjetoParams,
-): Promise<SgpRiscosHistoricoByProjetoResponse> {
-  const { projetoId, per_page = 15, cursor } = params;
-  const url = new URL(
-    `/api/sgp-riscos-historico/projeto/${encodeURIComponent(String(projetoId))}`,
-    window.location.origin,
-  );
+export async function getSgpRiscosHistorico(
+  params: GetSgpRiscosHistoricoParams,
+): Promise<SgpRiscosHistoricoByRiscoResponse> {
+  const { id_seq, per_page = 15, cursor } = params;
+  const url = new URL("/api/sgp-riscos-historico", window.location.origin);
 
+  url.searchParams.set("id_seq", String(id_seq));
   url.searchParams.set("per_page", String(per_page));
   if (cursor != null && cursor !== "") {
     url.searchParams.set("cursor", cursor);
@@ -62,10 +61,10 @@ export async function getSgpRiscosHistoricoByProjeto(
     const message =
       error?.message ||
       error?.error ||
-      "Erro ao buscar histórico de riscos do projeto";
+      "Erro ao buscar histórico de riscos";
     throw new HttpError(response.status, message);
   }
 
-  const raw = (await response.json()) as SgpRiscosHistoricoByProjetoApiResponse;
+  const raw = (await response.json()) as SgpRiscosHistoricoByRiscoApiResponse;
   return normalizeSgpRiscosHistoricoResponse(raw, per_page);
 }

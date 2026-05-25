@@ -123,32 +123,30 @@ export async function invalidateSgpRiscosQueries(
   });
 }
 
-/** Query keys das listagens GET de histórico de riscos por projeto */
+/** Query keys das listagens GET de histórico de riscos por risco (id_seq) */
 export const sgpRiscosHistoricoQueryKeys = {
   all: ["sgp-riscos-historico"] as const,
-  byProjetoRoot: ["sgp-riscos-historico", "projeto"] as const,
-  byProjeto: (projetoId: number | string) =>
-    ["sgp-riscos-historico", "projeto", String(projetoId)] as const,
-  byProjetoInfinite: (projetoId: number | string) =>
-    ["sgp-riscos-historico", "projeto", "infinite", String(projetoId)] as const,
+  byRiscoRoot: ["sgp-riscos-historico", "risco"] as const,
+  byRisco: (id_seq: number | string) =>
+    ["sgp-riscos-historico", "risco", String(id_seq)] as const,
   list: (
-    projetoId: number | string,
+    id_seq: number | string,
     per_page?: number | string,
     cursor?: string | null,
   ) =>
     [
       "sgp-riscos-historico",
-      "projeto",
-      String(projetoId),
+      "risco",
+      String(id_seq),
       per_page ?? "",
       cursor ?? "",
     ] as const,
-  infinite: (projetoId: number | string, perPage?: number) =>
+  infinite: (id_seq: number | string, perPage?: number) =>
     [
       "sgp-riscos-historico",
-      "projeto",
+      "risco",
       "infinite",
-      String(projetoId),
+      String(id_seq),
       perPage ?? 15,
     ] as const,
 };
@@ -156,15 +154,15 @@ export const sgpRiscosHistoricoQueryKeys = {
 /** Invalida listagens GET de histórico de riscos após mutações futuras */
 export async function invalidateSgpRiscosHistoricoQueries(
   queryClient: QueryClient,
-  projetoId?: number | string | null,
+  id_seq?: number | string | null,
 ) {
-  const id =
-    projetoId != null && String(projetoId) !== "" ? String(projetoId) : null;
+  const seq =
+    id_seq != null && String(id_seq) !== "" ? String(id_seq) : null;
 
   await queryClient.invalidateQueries({
-    queryKey: id
-      ? sgpRiscosHistoricoQueryKeys.byProjetoInfinite(id)
-      : sgpRiscosHistoricoQueryKeys.byProjetoRoot,
+    queryKey: seq
+      ? sgpRiscosHistoricoQueryKeys.infinite(seq)
+      : sgpRiscosHistoricoQueryKeys.all,
   });
 }
 

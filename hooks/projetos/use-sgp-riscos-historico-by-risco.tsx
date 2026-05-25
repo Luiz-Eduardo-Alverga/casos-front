@@ -2,27 +2,28 @@
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
-  getSgpRiscosHistoricoByProjeto,
-  type GetSgpRiscosHistoricoByProjetoParams,
-} from "@/services/sgp-riscos-historico/get-sgp-riscos-historico-by-projeto";
+  getSgpRiscosHistorico,
+  type GetSgpRiscosHistoricoParams,
+} from "@/services/sgp-riscos-historico/get-sgp-riscos-historico";
 import { sgpRiscosHistoricoQueryKeys } from "@/hooks/projetos/sgp-projeto-query-keys";
 
-export interface UseSgpRiscosHistoricoByProjetoOptions {
+export interface UseSgpRiscosHistoricoByRiscoOptions {
   enabled?: boolean;
   per_page?: number;
   cursor?: string | null;
 }
 
-export function useSgpRiscosHistoricoByProjeto(
-  projetoId: number | string | null | undefined,
-  options?: UseSgpRiscosHistoricoByProjetoOptions,
+export function useSgpRiscosHistoricoByRisco(
+  id_seq: number | string | null | undefined,
+  options?: UseSgpRiscosHistoricoByRiscoOptions,
 ) {
   const enabled = options?.enabled ?? true;
-  const shouldFetch = projetoId != null && projetoId !== "" && enabled;
+  const shouldFetch =
+    id_seq != null && id_seq !== "" && !Number.isNaN(Number(id_seq)) && enabled;
 
-  const params: GetSgpRiscosHistoricoByProjetoParams | null = shouldFetch
+  const params: GetSgpRiscosHistoricoParams | null = shouldFetch
     ? {
-        projetoId: projetoId as number | string,
+        id_seq: id_seq as number | string,
         per_page: options?.per_page,
         cursor: options?.cursor,
       }
@@ -30,31 +31,32 @@ export function useSgpRiscosHistoricoByProjeto(
 
   return useQuery({
     queryKey: sgpRiscosHistoricoQueryKeys.list(
-      projetoId ?? "",
+      id_seq ?? "",
       options?.per_page ?? "",
       options?.cursor ?? "",
     ),
-    queryFn: () => getSgpRiscosHistoricoByProjeto(params!),
+    queryFn: () => getSgpRiscosHistorico(params!),
     enabled: Boolean(params),
   });
 }
 
-export function useSgpRiscosHistoricoByProjetoInfinite(
-  projetoId: number | string | null | undefined,
-  options?: UseSgpRiscosHistoricoByProjetoOptions,
+export function useSgpRiscosHistoricoByRiscoInfinite(
+  id_seq: number | string | null | undefined,
+  options?: UseSgpRiscosHistoricoByRiscoOptions,
 ) {
   const enabled = options?.enabled ?? true;
-  const shouldFetch = projetoId != null && projetoId !== "" && enabled;
+  const shouldFetch =
+    id_seq != null && id_seq !== "" && !Number.isNaN(Number(id_seq)) && enabled;
   const perPage = options?.per_page ?? 15;
 
   return useInfiniteQuery({
     queryKey: sgpRiscosHistoricoQueryKeys.infinite(
-      projetoId as number | string,
+      id_seq ?? "",
       perPage,
     ),
     queryFn: ({ pageParam }) =>
-      getSgpRiscosHistoricoByProjeto({
-        projetoId: projetoId as number | string,
+      getSgpRiscosHistorico({
+        id_seq: id_seq as number | string,
         per_page: perPage,
         cursor: pageParam ?? null,
       }),

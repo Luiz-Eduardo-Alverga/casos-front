@@ -20,8 +20,41 @@ function HistoricoRowSkeleton() {
     <div className="flex items-center gap-6 border-t border-border-divider px-5 py-3">
       <Skeleton className="h-5 w-[95px] shrink-0" />
       <Skeleton className="h-5 flex-1" />
-      <Skeleton className="h-5 w-[200px] shrink-0" />
+      <Skeleton className="h-5 w-full max-w-[355px] shrink-0" />
       <Skeleton className="h-8 w-[66px] shrink-0" />
+    </div>
+  );
+}
+
+export interface RiscoHistoricoTableSkeletonProps {
+  rowCount?: number;
+}
+
+/** Skeleton da tabela de ocorrências (header + linhas), espelha `RiscoHistoricoTable`. */
+export function RiscoHistoricoTableSkeleton({
+  rowCount = 5,
+}: RiscoHistoricoTableSkeletonProps) {
+  return (
+    <div
+      className="overflow-hidden rounded-lg border border-border-divider bg-background"
+      role="status"
+      aria-busy="true"
+      aria-label="Carregando ocorrências"
+    >
+      <div className="flex items-end gap-6 border-b border-border-divider px-5 py-4">
+        <Skeleton className="h-5 w-[95px] shrink-0" />
+        <Skeleton className="h-5 flex-1" />
+        <Skeleton className="h-5 w-full max-w-[355px] shrink-0" />
+        <Skeleton className="h-5 w-[66px] shrink-0" />
+      </div>
+
+      <ScrollArea className="h-[360px]">
+        <div>
+          {Array.from({ length: rowCount }).map((_, i) => (
+            <HistoricoRowSkeleton key={i} />
+          ))}
+        </div>
+      </ScrollArea>
     </div>
   );
 }

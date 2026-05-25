@@ -12,6 +12,7 @@ export { CasoFormSgpTipo } from "./caso-form-sgp-tipo";
 export { CasoFormQaAtribuido } from "./caso-form-qa-atribuido";
 export { CasoFormSetor } from "./caso-form-setor";
 export { CasoFormSgpObjetivo } from "./caso-form-sgp-objetivo";
+export { CasoFormSgpRiscoCadastro } from "./caso-form-sgp-risco-cadastro";
 export { CasoFormProjetoTipo } from "./caso-form-projeto-tipo";
 export { CasoFormProjetoStatus } from "./caso-form-projeto-status";
 export { CasoFormStatus } from "./caso-form-status";

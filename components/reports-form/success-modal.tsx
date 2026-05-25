@@ -5,9 +5,10 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Copy, Check, Plus } from "lucide-react";
+import { Copy, Check, Plus, ArrowLeftRight, List } from "lucide-react";
 import toast from "react-hot-toast";
 import { useFormContext } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -29,11 +30,12 @@ export function SuccessModal({
   entitySingular = "Caso",
   novoRegistroButtonLabel = "Novo caso",
 }: SuccessModalProps) {
-  const { reset } = useFormContext()
+  const { reset } = useFormContext();
   const [copied, setCopied] = useState(false);
   const [progress, setProgress] = useState(100);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!isOpen) {
@@ -61,7 +63,7 @@ export function SuccessModal({
     // Timeout para fechar o modal após 15 segundos
     timeoutRef.current = setTimeout(() => {
       onClose();
-      reset();  
+      reset();
     }, duration);
 
     // Cleanup
@@ -82,7 +84,7 @@ export function SuccessModal({
       await navigator.clipboard.writeText(String(numeroCaso));
       setCopied(true);
       toast.success(`Número do ${entitySingular.toLowerCase()} copiado!`);
-      
+
       // Resetar o estado de copiado após 2 segundos
       setTimeout(() => {
         setCopied(false);
@@ -132,13 +134,9 @@ export function SuccessModal({
                   aberto com sucesso!
                 </h2>
               </div>
-              
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleCopy}
-                >
+
+              <div className="flex flex-col gap-2">
+                <Button variant="outline" onClick={handleCopy}>
                   {copied ? (
                     <>
                       <Check className="h-4 w-4" />
@@ -151,8 +149,8 @@ export function SuccessModal({
                     </>
                   )}
                 </Button>
+
                 <Button
-                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={() => {
                     onNovoCasoClick?.();
                     onClose();
@@ -162,6 +160,14 @@ export function SuccessModal({
                     <Plus className="h-4 w-4 " />
                     {novoRegistroButtonLabel}
                   </>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(`/casos/${numeroCaso}`)}
+                >
+                  <List className="h-4 w-4" />
+                  Ver Detalhes
                 </Button>
               </div>
             </motion.div>

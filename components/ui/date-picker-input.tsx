@@ -3,7 +3,9 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import IMask from "imask";
 import { CalendarIcon, Clock3 } from "lucide-react";
+import { useIMask } from "react-imask";
 
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -39,36 +41,12 @@ function formatDate(date: Date | undefined) {
   return date ? format(date, "dd/MM/yyyy", { locale: ptBR }) : "";
 }
 
-function maskDateInput(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 8);
-
-  if (digits.length <= 2) {
-    return digits;
-  }
-
-  if (digits.length <= 4) {
-    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-  }
-
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-}
-
 function formatTime(date: Date | undefined) {
   if (!date) return "00:00";
 
   return `${String(date.getHours()).padStart(2, "0")}:${String(
     date.getMinutes(),
   ).padStart(2, "0")}`;
-}
-
-function maskTimeInput(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 4);
-
-  if (digits.length <= 2) {
-    return digits;
-  }
-
-  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
 }
 
 function parseDateInput(value: string) {
@@ -128,6 +106,36 @@ function combineDateAndTime(date: Date, timeValue: string) {
   );
 }
 
+function getDateTimestamp(date: Date | undefined) {
+  return date?.getTime() ?? null;
+}
+
+const DATE_MASK_OPTIONS = {
+  mask: "00/00/0000",
+  lazy: false,
+  overwrite: false,
+} satisfies Record<string, unknown>;
+
+const TIME_MASK_OPTIONS = {
+  mask: "HH:MM",
+  lazy: false,
+  overwrite: false,
+  blocks: {
+    HH: {
+      mask: IMask.MaskedRange,
+      from: 0,
+      to: 23,
+      maxLength: 2,
+    },
+    MM: {
+      mask: IMask.MaskedRange,
+      from: 0,
+      to: 59,
+      maxLength: 2,
+    },
+  },
+} satisfies Record<string, unknown>;
+
 export function DatePickerInput(props: DatePickerInputProps) {
   const {
     id,
@@ -148,77 +156,150 @@ export function DatePickerInput(props: DatePickerInputProps) {
   const [internalDate, setInternalDate] = React.useState<Date | undefined>(
     defaultValue,
   );
-  const [inputValue, setInputValue] = React.useState(() =>
-    formatDate(defaultValue),
-  );
-  const [timeValue, setTimeValue] = React.useState(() =>
-    formatTime(defaultValue),
-  );
 
   const isControlled = Object.prototype.hasOwnProperty.call(props, "value");
   const selectedDate = isControlled ? value : internalDate;
-  const [month, setMonth] = React.useState<Date | undefined>(
-    selectedDate ?? defaultValue,
-  );
+  const selectedTimestamp = getDateTimestamp(selectedDate);
+  const initialSelectedDate = selectedDate ?? defaultValue;
+  const [month, setMonth] = React.useState<Date | undefined>(initialSelectedDate);
   const reactId = React.useId();
   const fieldId = id ?? `date-picker-${reactId}`;
 
+  const showTimeRef = React.useRef(showTime);
+  showTimeRef.current = showTime;
+
+  const selectedDateRef = React.useRef(selectedDate);
+  selectedDateRef.current = selectedDate;
+
+  const lastSyncedTimestampRef = React.useRef<number | null>(
+    getDateTimestamp(initialSelectedDate),
+  );
+  const skipDateAcceptRef = React.useRef(false);
+  const skipTimeAcceptRef = React.useRef(false);
+
+  const handleChange = React.useCallback(
+    (nextDate: Date | undefined) => {
+      if (!isControlled) {
+        setInternalDate(nextDate);
+      }
+
+      onChange?.(nextDate);
+    },
+    [isControlled, onChange],
+  );
+
+  const handleChangeRef = React.useRef(handleChange);
+  handleChangeRef.current = handleChange;
+
+  const {
+    ref: timeInputRef,
+    setValue: setTimeMaskValue,
+    maskRef: timeMaskRef,
+  } = useIMask(
+    TIME_MASK_OPTIONS as NonNullable<Parameters<typeof useIMask>[0]>,
+    {
+      defaultValue: formatTime(initialSelectedDate),
+      onComplete: (value) => {
+        if (skipTimeAcceptRef.current) {
+          skipTimeAcceptRef.current = false;
+          return;
+        }
+
+        const currentDate = selectedDateRef.current;
+        const time = parseTimeInput(value);
+
+        if (currentDate && time) {
+          handleChangeRef.current(
+            new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth(),
+              currentDate.getDate(),
+              time.hours,
+              time.minutes,
+              0,
+            ),
+          );
+        }
+      },
+    },
+  );
+
+  const {
+    ref: dateInputRef,
+    setValue: setDateMaskValue,
+    maskRef: dateMaskRef,
+  } = useIMask(
+    DATE_MASK_OPTIONS as NonNullable<Parameters<typeof useIMask>[0]>,
+    {
+      defaultValue: formatDate(initialSelectedDate),
+      onAccept: (_value, maskRef) => {
+        if (skipDateAcceptRef.current) {
+          skipDateAcceptRef.current = false;
+          return;
+        }
+
+        if (!maskRef.unmaskedValue) {
+          lastSyncedTimestampRef.current = null;
+          handleChangeRef.current(undefined);
+        }
+      },
+      onComplete: (value) => {
+        if (skipDateAcceptRef.current) {
+          skipDateAcceptRef.current = false;
+          return;
+        }
+
+        const parsedDate = parseDateInput(value);
+
+        if (!parsedDate) {
+          return;
+        }
+
+        const timeValue =
+          timeMaskRef.current?.value ?? formatTime(selectedDateRef.current);
+        const nextDate = showTimeRef.current
+          ? combineDateAndTime(parsedDate, timeValue)
+          : parsedDate;
+
+        lastSyncedTimestampRef.current = parsedDate.getTime();
+        handleChangeRef.current(nextDate);
+        setMonth(parsedDate);
+      },
+    },
+  );
+
   React.useEffect(() => {
-    if (selectedDate) {
-      setMonth(selectedDate);
-    }
-    setInputValue(formatDate(selectedDate));
-    setTimeValue(formatTime(selectedDate));
-  }, [selectedDate]);
-
-  const handleChange = (nextDate: Date | undefined) => {
-    if (!isControlled) {
-      setInternalDate(nextDate);
-    }
-
-    onChange?.(nextDate);
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextValue = maskDateInput(event.target.value);
-
-    setInputValue(nextValue);
-
-    if (!nextValue.trim()) {
-      handleChange(undefined);
+    if (selectedTimestamp === lastSyncedTimestampRef.current) {
       return;
     }
 
-    const parsedDate = parseDateInput(nextValue);
-    if (parsedDate) {
-      const nextDate = showTime
-        ? combineDateAndTime(parsedDate, timeValue)
-        : parsedDate;
+    lastSyncedTimestampRef.current = selectedTimestamp;
 
-      handleChange(nextDate);
-      setMonth(parsedDate);
+    if (selectedDate) {
+      setMonth(selectedDate);
     }
-  };
 
-  const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextValue = maskTimeInput(event.target.value);
+    const nextDateValue = formatDate(selectedDate);
 
-    setTimeValue(nextValue);
-
-    const time = parseTimeInput(nextValue);
-    if (selectedDate && time) {
-      handleChange(
-        new Date(
-          selectedDate.getFullYear(),
-          selectedDate.getMonth(),
-          selectedDate.getDate(),
-          time.hours,
-          time.minutes,
-          0,
-        ),
-      );
+    if (dateMaskRef.current?.value !== nextDateValue) {
+      skipDateAcceptRef.current = true;
+      setDateMaskValue(nextDateValue);
     }
-  };
+
+    const nextTimeValue = formatTime(selectedDate);
+
+    if (timeMaskRef.current?.value !== nextTimeValue) {
+      skipTimeAcceptRef.current = true;
+      setTimeMaskValue(nextTimeValue);
+    }
+  }, [
+    selectedDate,
+    selectedTimestamp,
+    setDateMaskValue,
+    setTimeMaskValue,
+    dateMaskRef,
+    timeMaskRef,
+  ]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!disabled) {
@@ -253,22 +334,14 @@ export function DatePickerInput(props: DatePickerInputProps) {
                 disabled && "cursor-not-allowed opacity-50",
               )}
             >
-              {/* <InputGroupAddon align="inline-start">
-                <CalendarIcon
-                  className="h-4 w-4 shrink-0 text-muted-foreground"
-                  aria-hidden
-                />
-              </InputGroupAddon> */}
               <input
+                ref={dateInputRef as React.RefObject<HTMLInputElement>}
                 data-slot="input-group-control"
                 id={fieldId}
                 type="text"
                 inputMode="numeric"
-                maxLength={10}
-                value={inputValue}
                 placeholder={placeholder}
                 disabled={disabled}
-                onChange={handleInputChange}
                 onKeyDown={(event) => {
                   if (event.key === "ArrowDown") {
                     event.preventDefault();
@@ -310,13 +383,11 @@ export function DatePickerInput(props: DatePickerInputProps) {
                   />
                 </InputGroupAddon>
                 <input
+                  ref={timeInputRef as React.RefObject<HTMLInputElement>}
                   type="text"
                   inputMode="numeric"
-                  maxLength={5}
-                  value={timeValue}
                   placeholder="HH:mm"
                   disabled={disabled}
-                  onChange={handleTimeChange}
                   className="min-w-0 flex-1 rounded-none border-0 bg-transparent px-1 py-1 text-sm shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:bg-transparent dark:bg-transparent dark:disabled:bg-transparent"
                   aria-label="Hora"
                 />
@@ -336,12 +407,26 @@ export function DatePickerInput(props: DatePickerInputProps) {
             month={month}
             onMonthChange={setMonth}
             onSelect={(nextDate) => {
-              setInputValue(formatDate(nextDate));
+              const formattedDate = formatDate(nextDate);
+              lastSyncedTimestampRef.current = getDateTimestamp(nextDate);
+
+              skipDateAcceptRef.current = true;
+              setDateMaskValue(formattedDate);
+
               handleChange(
                 nextDate && showTime
-                  ? combineDateAndTime(nextDate, timeValue)
+                  ? combineDateAndTime(
+                      nextDate,
+                      timeMaskRef.current?.value ??
+                        formatTime(selectedDateRef.current),
+                    )
                   : nextDate,
               );
+
+              if (nextDate) {
+                setMonth(nextDate);
+              }
+
               setOpen(false);
             }}
           />
