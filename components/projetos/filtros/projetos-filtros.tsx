@@ -90,9 +90,9 @@ export function ProjetosFiltros({
                 />
               </div>
 
-              <CasoFormSetor required={false} />
+              {/* <CasoFormSetor required={false} />
 
-              <CasoFormSgpObjetivo required={false} />
+              <CasoFormSgpObjetivo required={false} /> */}
 
               <div className="flex gap-2 sm:col-span-2 lg:col-span-1">
                 <Button

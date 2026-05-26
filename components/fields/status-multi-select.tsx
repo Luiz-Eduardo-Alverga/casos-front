@@ -108,7 +108,7 @@ export function StatusMultiSelect({
         disabled={disabled}
         filter={filterByLabel}
       >
-        <ComboboxChips ref={anchor} className="w-full min-h-[42px] h-auto ">
+        <ComboboxChips ref={anchor} className="w-full min-h-9 h-auto">
           <ComboboxValue>
             {(values: string[]) => (
               <React.Fragment>

@@ -32,6 +32,7 @@ import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { usePainelKanbanFiltros } from "@/components/painel-kanban/hooks/use-painel-kanban-filtros";
 import { usePainelKanbanQueries } from "@/components/painel-kanban/hooks/use-painel-kanban-queries";
 import { usePainelKanbanProjetosCatalogo } from "@/components/painel-kanban/hooks/use-painel-kanban-projetos-catalogo";
+import { getInitialKanbanFiltrosBootstrap } from "@/components/painel-kanban/filtros/build-kanban-filtros-state";
 
 function isColumnId(id: string): id is PainelKanbanColumnId {
   return (PAINEL_KANBAN_COLUMN_IDS as readonly string[]).includes(id);
@@ -45,16 +46,12 @@ export function PainelKanban() {
   const updateCaso = useUpdateCaso();
   const finalizarCaso = useFinalizarCaso();
 
+  const [defaultFormValues] = useState(() =>
+    getInitialKanbanFiltrosBootstrap(idColaborador, nomeColaborador).form,
+  );
+
   const methods = useForm<PainelKanbanFiltrosForm>({
-    defaultValues: {
-      produto: "",
-      versao: "",
-      devAtribuido: idColaborador,
-      devAtribuidoLabel: nomeColaborador,
-      devAtribuidoSetor: "",
-      projeto: "",
-      projetoDataFinal: "",
-    },
+    defaultValues: defaultFormValues,
   });
 
   const { watch, setValue, getValues } = methods;
@@ -228,7 +225,7 @@ export function PainelKanban() {
     );
   }
 
-  if (showKanbanSkeleton) {
+  if (!hydrated || showKanbanSkeleton) {
     return <PainelKanbanSkeleton />;
   }
 

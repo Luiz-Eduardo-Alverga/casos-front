@@ -35,6 +35,10 @@ export const STATUS_BADGE_CONFIG: StatusBadgeConfigItem[] = [
     className: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
   },
   { values: [], className: "bg-gray-100 text-gray-700 hover:bg-gray-100" },
+  {
+    values: ["REABERTO"],
+    className: "bg-orange-100 text-orange-700 hover:bg-orange-100",
+  },
 ];
 
 /** Exibe o status com primeira letra maiúscula e o resto minúsculo */

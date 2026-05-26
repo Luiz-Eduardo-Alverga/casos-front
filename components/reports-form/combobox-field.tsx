@@ -199,7 +199,7 @@ function RHFComboboxField({
         render={({ field }) => (
           <Combobox
             options={options}
-            value={field.value ?? ""}
+            value={field.value != null ? String(field.value) : ""}
             onValueChange={(v) => field.onChange(v ?? "")}
             placeholder={placeholder}
             emptyText={emptyText}

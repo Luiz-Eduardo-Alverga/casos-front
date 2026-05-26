@@ -1,5 +1,6 @@
-import type { User } from "@/lib/auth";
+import { getUser, type User } from "@/lib/auth";
 import type { PainelKanbanFiltrosForm } from "@/interfaces/kanban/painel-kanban-filtros-form";
+import { readPainelKanbanFiltros } from "@/components/painel-kanban/filtros/painel-kanban-filtros-storage";
 
 export type PainelKanbanApiFiltros = {
   devAtribuidoId: string;
@@ -24,17 +25,17 @@ export function buildKanbanFiltrosFromStorage(
     : fallbackColaboradorNome;
   const loggedSetor = loggedUser?.setor?.trim() ?? "";
 
-  const devAtribuidoId = saved?.devAtribuido?.trim()
-    ? saved.devAtribuido.trim()
-    : loggedId;
+  const savedDevId =
+    saved?.devAtribuido != null ? String(saved.devAtribuido).trim() : "";
+  const devAtribuidoId = savedDevId || loggedId;
 
   const projeto = saved?.projeto?.trim() ?? "";
   const projetoDataFinal = saved?.projetoDataFinal?.trim() ?? "";
 
-  let devAtribuidoLabel = loggedNome;
-  if (saved?.devAtribuidoLabel?.trim()) {
-    devAtribuidoLabel = saved.devAtribuidoLabel.trim();
-  }
+  const savedDevLabel = saved?.devAtribuidoLabel?.trim() ?? "";
+  const devAtribuidoLabel =
+    savedDevLabel ||
+    (String(devAtribuidoId) === String(loggedId) ? loggedNome : "");
 
   let devAtribuidoSetor = "";
   if (saved?.devAtribuidoSetor?.trim()) {
@@ -62,6 +63,21 @@ export function buildKanbanFiltrosFromStorage(
   };
 
   return { form, api };
+}
+
+/** Bootstrap síncrono (client) para defaultValues e apiFiltros iniciais. */
+export function getInitialKanbanFiltrosBootstrap(
+  fallbackColaboradorId: string,
+  fallbackColaboradorNome: string,
+): PainelKanbanBootstrapResult {
+  const loggedUser = getUser();
+  const saved = readPainelKanbanFiltros();
+  return buildKanbanFiltrosFromStorage(
+    loggedUser,
+    saved,
+    fallbackColaboradorId,
+    fallbackColaboradorNome,
+  );
 }
 
 /** Deriva parâmetros de API a partir do estado atual do form (sem auto-resolve). */

@@ -11,6 +11,7 @@ import {
 import {
   apiFiltrosFromFormValues,
   buildKanbanFiltrosFromStorage,
+  getInitialKanbanFiltrosBootstrap,
   type PainelKanbanApiFiltros,
 } from "@/components/painel-kanban/filtros/build-kanban-filtros-state";
 
@@ -28,7 +29,10 @@ export function usePainelKanbanFiltros({
   const { reset, setValue, watch, getValues } = methods;
   const [hydrated, setHydrated] = useState(false);
   const [apiFiltros, setApiFiltros] = useState<PainelKanbanApiFiltros | null>(
-    null,
+    () =>
+      typeof window !== "undefined"
+        ? getInitialKanbanFiltrosBootstrap(idColaborador, nomeColaborador).api
+        : null,
   );
 
   const hasHydratedRef = useRef(false);
@@ -60,7 +64,9 @@ export function usePainelKanbanFiltros({
     isPersistingRef.current = false;
     setHydrated(true);
 
-    if (!saved?.devAtribuido?.trim() && form.devAtribuido) {
+    const savedDevId =
+      saved?.devAtribuido != null ? String(saved.devAtribuido).trim() : "";
+    if (!savedDevId && form.devAtribuido) {
       writePainelKanbanFiltros({
         devAtribuido: form.devAtribuido,
         devAtribuidoLabel: form.devAtribuidoLabel,
@@ -80,8 +86,8 @@ export function usePainelKanbanFiltros({
       writePainelKanbanFiltros({
         produto: values.produto ?? "",
         versao: values.versao ?? "",
-        devAtribuido: values.devAtribuido?.trim()
-          ? values.devAtribuido
+        devAtribuido: String(values.devAtribuido ?? "").trim()
+          ? String(values.devAtribuido)
           : idColaborador,
         devAtribuidoLabel: (values.devAtribuidoLabel ?? "").trim()
           ? values.devAtribuidoLabel
@@ -112,7 +118,7 @@ export function usePainelKanbanFiltros({
   useEffect(() => {
     if (!hydrated || isPersistingRef.current) return;
 
-    const dev = devAtribuido?.trim() || idColaborador;
+    const dev = String(devAtribuido ?? "").trim() || idColaborador;
     const proj = projeto?.trim() ?? "";
     const prevDev = prevDevRef.current;
     const prevProj = prevProjetoRef.current;
@@ -157,7 +163,7 @@ export function usePainelKanbanFiltros({
     projeto,
   ]);
 
-  const usuarioDevId = devAtribuido?.trim() || idColaborador;
+  const usuarioDevId = String(devAtribuido ?? "").trim() || idColaborador;
 
   return {
     hydrated,

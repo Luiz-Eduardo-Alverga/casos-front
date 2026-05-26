@@ -62,8 +62,8 @@ export const EMPTY_CASOS_FILTROS: CasosFiltrosAplicados = {
   data_producao_fim: "",
 };
 
-/** Chaves dos filtros exibidos apenas no sheet "Mais filtros". */
-export const CASOS_FILTROS_SHEET_KEYS = [
+/** Chaves dos filtros exibidos apenas na visão expandida do card. */
+export const CASOS_FILTROS_EXPANDIDOS_KEYS = [
   "projeto_id",
   "usuario_dev_id",
   "usuario_qa_id",

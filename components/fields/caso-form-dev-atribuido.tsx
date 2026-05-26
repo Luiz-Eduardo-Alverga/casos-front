@@ -49,7 +49,10 @@ export function CasoFormDevAtribuido({
   const devAtribuido = watch(name);
   const devAtribuidoLabel = watch(labelName);
   const produtoValue = watch("produto");
-  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
+  const devAtribuidoValue = String(devAtribuido ?? "").trim();
+  const [optionsRequested, setOptionsRequested] = useState(
+    !lazyLoadComboboxOptions || Boolean(devAtribuidoValue),
+  );
   const [devSelecionado, setDevSelecionado] = useState<Usuario | null>(null);
 
   const user = getUser();
@@ -60,26 +63,40 @@ export function CasoFormDevAtribuido({
     enabled: optionsRequested,
   });
 
+  useEffect(() => {
+    if (!lazyLoadComboboxOptions) return;
+    if (optionsRequested) return;
+
+    const hasValue = Boolean(String(devAtribuido ?? "").trim());
+    if (hasValue) setOptionsRequested(true);
+  }, [devAtribuido, lazyLoadComboboxOptions, optionsRequested]);
+
   const devOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
-    const valuesAdded = new Set<string>(); // Set para rastrear valores únicos
+    const valuesAdded = new Set<string>();
 
-    // Seed: quando o valor vem persistido (ex.: localStorage) mas as opções são lazy-loaded,
-    // injeta a opção com o label salvo para o Combobox conseguir renderizar o texto no F5.
-    if (devAtribuido?.toString().trim() && devAtribuidoLabel?.toString().trim()) {
-      const seedValue = String(devAtribuido);
+    // Seed: valor persistido (localStorage) antes das opções lazy-loaded chegarem.
+    if (devAtribuidoValue) {
+      const seedValue = devAtribuidoValue;
+      const seedLabel =
+        String(devAtribuidoLabel ?? "").trim() || seedValue;
       if (!valuesAdded.has(seedValue)) {
         options.unshift({
           value: seedValue,
-          label: String(devAtribuidoLabel),
+          label: seedLabel,
         });
         valuesAdded.add(seedValue);
       }
     }
 
-    // Adiciona usuário logado (dev padrão / "ver como" com valor inicial)
-    if (user) {
-      const userId = user.id.toString();
+    // Usuário logado só entra na lista quando é o valor selecionado ou opções já carregadas.
+    if (
+      user &&
+      (!lazyLoadComboboxOptions ||
+        !devAtribuidoValue ||
+        String(user.id) === devAtribuidoValue)
+    ) {
+      const userId = String(user.id);
       if (!valuesAdded.has(userId)) {
         options.push({
           value: userId,
@@ -127,6 +144,7 @@ export function CasoFormDevAtribuido({
     usuarios,
     devAtribuido,
     devAtribuidoLabel,
+    devAtribuidoValue,
     devSelecionado,
     user,
     lazyLoadComboboxOptions,
@@ -222,6 +240,21 @@ export function CasoFormDevAtribuido({
         });
       }
     };
+
+    const currentLabel = String(getValues(labelName as any) ?? "").trim();
+
+    // Preserva label persistido até a API resolver (F5 + lazy load).
+    if (
+      currentLabel &&
+      user &&
+      String(user.id) !== String(currentId) &&
+      !devSelecionado
+    ) {
+      const editDev = editCaseItem?.caso?.usuarios?.desenvolvimento;
+      if (!editDev || String(editDev.id) !== String(currentId)) {
+        return;
+      }
+    }
 
     // 1) Se é o usuário logado.
     if (user && String(user.id) === String(currentId)) {

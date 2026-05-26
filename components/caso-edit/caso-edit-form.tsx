@@ -476,7 +476,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         aria-disabled={!canEditCase}
                       > */}
                       <div className="flex-1 flex flex-col gap-6 min-w-0">
-                        <AbaClientes clientes={clientes ?? []} />
+                        <AbaClientes
+                          clientes={clientes ?? []}
+                          isTabActive={tabValue === "clientes"}
+                        />
                         <CasoEditCardClassificacao />
                       </div>
                       {/* </fieldset> */}

@@ -20,7 +20,9 @@ export function CasoFormProduto({
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch, setValue } = useFormContext();
   const produtoValue = watch("produto");
-  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
+  const [optionsRequested, setOptionsRequested] = useState(
+    !lazyLoadComboboxOptions,
+  );
   const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(
     null,
   );
@@ -54,7 +56,12 @@ export function CasoFormProduto({
       }
     }
 
-    if (lazyLoadComboboxOptions && editCaseItem?.produto && produtoValue && !options.some((o) => o.value === produtoValue)) {
+    if (
+      lazyLoadComboboxOptions &&
+      editCaseItem?.produto &&
+      produtoValue &&
+      !options.some((o) => o.value === produtoValue)
+    ) {
       const p = editCaseItem.produto;
       options.unshift({ value: String(p.id), label: p.nome });
     }
@@ -97,7 +104,7 @@ export function CasoFormProduto({
   }, [produtoValue, produtos, setValue]);
 
   return (
-    <div className="space-y-2">
+    <div className="">
       <ComboboxField
         name="produto"
         label="Produto"
@@ -112,7 +119,11 @@ export function CasoFormProduto({
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}
-        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
+        onOpenChange={
+          lazyLoadComboboxOptions
+            ? (open) => open && setOptionsRequested(true)
+            : undefined
+        }
       />
     </div>
   );

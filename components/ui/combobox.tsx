@@ -90,7 +90,9 @@ export function Combobox({
     onOpenChange?.(next);
   };
 
-  const selectedOption = options.find((option) => option.value === value);
+  const selectedOption = options.find(
+    (option) => String(option.value) === String(value),
+  );
 
   const filteredOptions = useMemo(() => {
     if (!searchValue) return options;
