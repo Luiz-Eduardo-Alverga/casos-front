@@ -77,10 +77,28 @@ export function CasoFormProduto({
   ]);
 
   // Quando o produto é selecionado, buscar e salvar os dados completos.
-  // Só limpa versão/projeto/módulo quando o usuário remove o produto (não no mount inicial vazio antes do reset da URL).
+  // Limpa versão/projeto/módulo ao trocar ou remover o produto (não no mount inicial
+  // nem quando o valor veio de reset/sincronização com a API na edição).
   useEffect(() => {
     const prev = prevProdutoValueRef.current;
+    const prevHadValue = Boolean(prev && String(prev).trim() !== "");
+    const produtoMudou =
+      prevHadValue &&
+      Boolean(produtoValue && String(produtoValue).trim() !== "") &&
+      String(prev) !== String(produtoValue);
+
+    const isFormProdutoAlignedWithItem =
+      lazyLoadComboboxOptions &&
+      editCaseItem?.produto?.id != null &&
+      String(produtoValue) === String(editCaseItem.produto.id);
+
     prevProdutoValueRef.current = produtoValue || undefined;
+
+    if (produtoMudou && !isFormProdutoAlignedWithItem) {
+      setValue("versao", "");
+      setValue("projeto", "");
+      setValue("modulo", "");
+    }
 
     if (produtoValue && produtos && Array.isArray(produtos)) {
       const produtoEncontrado = produtos.find(
@@ -101,7 +119,13 @@ export function CasoFormProduto({
         setValue("modulo", "");
       }
     }
-  }, [produtoValue, produtos, setValue]);
+  }, [
+    produtoValue,
+    produtos,
+    setValue,
+    lazyLoadComboboxOptions,
+    editCaseItem,
+  ]);
 
   return (
     <div className="">

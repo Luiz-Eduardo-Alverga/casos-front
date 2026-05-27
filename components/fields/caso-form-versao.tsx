@@ -1,25 +1,58 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Rocket } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
+import { extractVersaoProduto } from "@/components/caso-form/shared/payload";
 
 interface CasoFormVersaoProps {
   required?: boolean;
   todas?: boolean;
 }
 
+function versaoJaExisteNaLista(
+  list: Array<{ value: string; label: string }>,
+  candidate: string,
+): boolean {
+  const cand = candidate.trim();
+  if (!cand) return true;
+
+  const normCandidate = extractVersaoProduto(cand);
+  return list.some((o) => {
+    if (o.value === cand) return true;
+    return extractVersaoProduto(o.value) === normCandidate;
+  });
+}
+
+/** Alinha value curto do form (ex.: "7.1.1.0") ao value da opção (ex.: "42-7.1.1.0"). */
+function findVersaoValueCanonica(
+  list: Array<{ value: string; label: string }>,
+  candidate: string,
+): string | undefined {
+  const cand = candidate.trim();
+  if (!cand || !list.length) return undefined;
+
+  if (list.some((o) => o.value === cand)) return undefined;
+
+  const normCandidate = extractVersaoProduto(cand);
+  return list.find((o) => extractVersaoProduto(o.value) === normCandidate)?.value;
+}
+
 export function CasoFormVersao({
   required = true,
   todas = false,
 }: CasoFormVersaoProps) {
-  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
-  const { watch } = useFormContext();
+  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } =
+    useCasoForm();
+  const { watch, setValue } = useFormContext();
   const produtoValue = watch("produto");
-  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
+  const versaoValue = watch("versao");
+  const [optionsRequested, setOptionsRequested] = useState(
+    !lazyLoadComboboxOptions,
+  );
 
   const produtoAtual = produtoValue || produto;
 
@@ -40,14 +73,45 @@ export function CasoFormVersao({
         label: ver || seq || value,
       };
     });
-    // Em modo lazy, opção apenas com dados da API (sem depender do estado do form)
-    const versaoApi = editCaseItem?.produto?.versao;
-    if (lazyLoadComboboxOptions && versaoApi != null && String(versaoApi).trim() !== "" && !list.some((o) => o.value === String(versaoApi))) {
-      const value = String(versaoApi);
-      list.unshift({ value, label: value });
+
+    const produtoAlinhadoComItem =
+      editCaseItem?.produto?.id != null &&
+      String(produtoAtual) === String(editCaseItem.produto.id);
+
+    const formVersao = String(versaoValue ?? "").trim();
+    const fallbackVersao =
+      formVersao ||
+      (produtoAlinhadoComItem && editCaseItem?.produto?.versao
+        ? String(editCaseItem.produto.versao).trim()
+        : "");
+
+    if (
+      fallbackVersao &&
+      !versaoJaExisteNaLista(list, fallbackVersao)
+    ) {
+      const label = extractVersaoProduto(fallbackVersao) || fallbackVersao;
+      list.unshift({ value: fallbackVersao, label });
     }
+
     return list;
-  }, [versoes, lazyLoadComboboxOptions, editCaseItem?.produto?.versao]);
+  }, [
+    versoes,
+    versaoValue,
+    produtoAtual,
+    editCaseItem?.produto?.id,
+    editCaseItem?.produto?.versao,
+  ]);
+
+  // Sincroniza "7.1.1.0" (memória) com "seq-7.1.1.0" (opções) para o Combobox resolver selectedOption.
+  useEffect(() => {
+    const atual = String(versaoValue ?? "").trim();
+    if (!atual || !versoes?.length) return;
+
+    const canonico = findVersaoValueCanonica(versoesOptions, atual);
+    if (canonico && canonico !== atual) {
+      setValue("versao", canonico, { shouldDirty: false });
+    }
+  }, [versoesOptions, versaoValue, versoes, setValue]);
 
   return (
     <div className="space-y-2">
@@ -72,7 +136,11 @@ export function CasoFormVersao({
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
         required={required}
-        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
+        onOpenChange={
+          lazyLoadComboboxOptions
+            ? (open) => open && setOptionsRequested(true)
+            : undefined
+        }
       />
     </div>
   );

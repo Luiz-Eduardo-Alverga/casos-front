@@ -95,16 +95,16 @@ export function buildCasoCreatePayload({
 }
 
 export interface CasoUpdateReportFields {
-  /** Equivale a report_analise_aprovado. */
-  aprovado: boolean;
+  /** Equivale a report_analise_aprovado. Quando undefined, não é incluído no PATCH. */
+  aprovado?: boolean;
   /** Novo status do report. Quando undefined, não é incluído no PATCH. */
-  analiseStatus: string | undefined;
+  analiseStatus?: string;
   /** Data de conclusão da análise. Quando undefined, não é incluído. */
-  analiseDataConclusao: string | null | undefined;
+  analiseDataConclusao?: string | null;
   /** Nova data limite do report. Quando undefined, não é incluído. */
-  dataLimite: string | null | undefined;
-
-  reportAnaliseUsuarioId: string | undefined;
+  dataLimite?: string | null;
+  /** Usuário da análise. Quando undefined, não é incluído no PATCH. */
+  reportAnaliseUsuarioId?: string;
 }
 
 export interface BuildCasoUpdatePayloadArgs {
@@ -129,6 +129,7 @@ export function buildCasoUpdatePayload({
   const base = buildCasoBasePayload(data);
 
   const payload: UpdateCasoRequest = {
+    Projeto: Number(data.produto),
     DescricaoResumo: base.DescricaoResumo,
     DescricaoCompleta: base.DescricaoCompleta,
     InformacoesAdicionais: base.InformacoesAdicionais || undefined,
@@ -136,7 +137,7 @@ export function buildCasoUpdatePayload({
     Categoria: base.Categoria,
     Relator: base.Relator,
     AtribuidoPara: base.AtribuidoPara,
-    Modulo: base.Modulo || undefined,
+    Modulo: base.Modulo,
     VersaoProduto: base.VersaoProduto,
     Cronograma_id: base.Cronograma_id,
     Id_Origem: base.Id_Origem,
@@ -145,8 +146,12 @@ export function buildCasoUpdatePayload({
   };
 
   if (isReport && reportFields) {
-    payload.report_analise_aprovado = reportFields.aprovado;
-    payload.report_analise_usuario_id = reportFields.reportAnaliseUsuarioId;
+    if (reportFields.aprovado !== undefined) {
+      payload.report_analise_aprovado = reportFields.aprovado;
+    }
+    if (reportFields.reportAnaliseUsuarioId !== undefined) {
+      payload.report_analise_usuario_id = reportFields.reportAnaliseUsuarioId;
+    }
     if (reportFields.analiseStatus !== undefined) {
       payload.report_analise_status = reportFields.analiseStatus;
     }

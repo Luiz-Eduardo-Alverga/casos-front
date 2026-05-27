@@ -121,17 +121,26 @@ export function resolveReportStatusFromCaso(
 }
 
 /**
- * Resolve o status CASO equivalente a um status REPORT selecionado, via
- * `report_status_equivalente` retornado pela API.
+ * Resolve o status CASO equivalente a um status REPORT selecionado,
+ * buscando o registro CASO cujo `report_status_equivalente` aponta para o report.
  */
 export function resolveCasoStatusFromReport(
   statusList: readonly StatusItem[] | undefined,
   reportStatus: number | string | null | undefined,
 ): number | undefined {
-  const equivalente = getReportStatusEquivalente(statusList, reportStatus);
-  if (!equivalente) return undefined;
-  const id = Number(equivalente);
-  return Number.isFinite(id) ? id : undefined;
+  if (!statusList?.length) return undefined;
+
+  const target = String(reportStatus ?? "").trim();
+  if (!target || target === "0") return undefined;
+
+  const item = statusList.find(
+    (s) =>
+      s.tipo_status === "CASO" &&
+      String(s.report_status_equivalente ?? "").trim() === target,
+  );
+
+  if (!item) return undefined;
+  return item.Registro;
 }
 
 /**
