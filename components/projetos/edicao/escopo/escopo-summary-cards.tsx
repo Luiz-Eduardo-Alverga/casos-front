@@ -1,14 +1,25 @@
 "use client";
 
 import { BarChart3, CheckCircle2, Clock, Layers } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatMinutesToHHMM } from "@/lib/utils";
 
 const STATIC_SUMMARY = {
   quantidade: "111",
   qtdPlanejada: "53",
   excedidoPlanejado: "13",
-  tempoTotal: "E: 293:04 / R: 280:13",
 } as const;
+
+function formatTempoTotalEstimadoRealizado(
+  estimadoMinutos: number,
+  realizadoMinutos: number,
+): string {
+  return `E: ${formatMinutesToHHMM(estimadoMinutos)} / R: ${formatMinutesToHHMM(realizadoMinutos)}`;
+}
+
+export interface EscopoSummaryCardsProps {
+  tempoTotalEstimadoMinutos?: number;
+  tempoTotalRealizadoMinutos?: number;
+}
 
 interface SummaryCardProps {
   label: string;
@@ -56,7 +67,15 @@ function SummaryCard({
   );
 }
 
-export function EscopoSummaryCards() {
+export function EscopoSummaryCards({
+  tempoTotalEstimadoMinutos = 0,
+  tempoTotalRealizadoMinutos = 0,
+}: EscopoSummaryCardsProps) {
+  const tempoTotal = formatTempoTotalEstimadoRealizado(
+    tempoTotalEstimadoMinutos,
+    tempoTotalRealizadoMinutos,
+  );
+
   return (
     <div className="grid grid-cols-1 gap-4 border-b border-border-divider pb-4 pt-2 sm:grid-cols-2 lg:grid-cols-4">
       <SummaryCard
@@ -86,7 +105,7 @@ export function EscopoSummaryCards() {
       />
       <SummaryCard
         label="Tempo Total"
-        value={STATIC_SUMMARY.tempoTotal}
+        value={tempoTotal}
         icon={Clock}
         className="bg-sidebar-bg border-sidebar-border"
         iconClassName="bg-card text-text-primary"

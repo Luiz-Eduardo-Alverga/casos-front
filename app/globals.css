@@ -121,6 +121,16 @@
     --public-info-text: 214 95% 40%;
     --public-danger-bg: 0 86% 97%;
     --public-danger-text: 0 72% 51%;
+
+    /* Auditoria Squad — status */
+    --audit-conforme: 152 69% 39%;
+    --audit-conforme-bg: 152 69% 39%;
+    --audit-alerta-leve: 38 91% 45%;
+    --audit-alerta-leve-bg: 38 91% 45%;
+    --audit-alerta-critico: 2 66% 54%;
+    --audit-alerta-critico-bg: 2 66% 54%;
+    --audit-inconsistencia: 254 59% 59%;
+    --audit-inconsistencia-bg: 254 59% 59%;
   }
 
   .dark {

@@ -13,6 +13,7 @@ import { EscopoContentSkeleton } from "@/components/projetos/edicao/escopo/escop
 import {
   buildEscopoMemoriaParams,
   mapProjetoMemoriaToTabelaRow,
+  type EscopoNaoPlanejadoFiltro,
 } from "@/components/projetos/edicao/escopo/utils";
 
 export interface AbaEscopoProps {
@@ -23,10 +24,18 @@ export interface AbaEscopoProps {
 export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
   const [statusIds, setStatusIds] = useState<string[]>([]);
   const [usuarioDevId, setUsuarioDevId] = useState("");
+  const [naoPlanejadoFiltro, setNaoPlanejadoFiltro] =
+    useState<EscopoNaoPlanejadoFiltro>("todos");
 
   const memoriaParams = useMemo(
-    () => buildEscopoMemoriaParams(projetoId, statusIds, usuarioDevId),
-    [projetoId, statusIds, usuarioDevId],
+    () =>
+      buildEscopoMemoriaParams(
+        projetoId,
+        statusIds,
+        usuarioDevId,
+        naoPlanejadoFiltro,
+      ),
+    [projetoId, statusIds, usuarioDevId, naoPlanejadoFiltro],
   );
 
   const escopoQuery = useProjetoMemoria(memoriaParams, { enabled });
@@ -38,6 +47,8 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
       ) ?? [],
     [escopoQuery.data?.pages],
   );
+
+  const totalizadores = escopoQuery.data?.pages[0]?.totalizadores;
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -61,10 +72,17 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [escopoQuery.hasNextPage, escopoQuery.isFetchingNextPage, escopoQuery.fetchNextPage]);
+  }, [
+    escopoQuery.hasNextPage,
+    escopoQuery.isFetchingNextPage,
+    escopoQuery.fetchNextPage,
+    escopoQuery,
+  ]);
 
   const hasFiltrosAplicados =
-    statusIds.length > 0 || Boolean(usuarioDevId.trim());
+    statusIds.length > 0 ||
+    Boolean(usuarioDevId.trim()) ||
+    naoPlanejadoFiltro !== "todos";
 
   /** Skeleton só na carga inicial (sem filtros). Evita desmontar filtros ao refetch. */
   const isInitialLoading =
@@ -98,6 +116,8 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
             statusIds={statusIds}
             onStatusIdsChange={setStatusIds}
             onDevChange={handleDevChange}
+            naoPlanejadoFiltro={naoPlanejadoFiltro}
+            onNaoPlanejadoFiltroChange={setNaoPlanejadoFiltro}
           />
         </div>
       </CardHeader>
@@ -113,7 +133,14 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
           <EscopoContentSkeleton />
         ) : (
           <>
-            <EscopoSummaryCards />
+            <EscopoSummaryCards
+              tempoTotalEstimadoMinutos={
+                totalizadores?.tempo_total_estimado_minutos
+              }
+              tempoTotalRealizadoMinutos={
+                totalizadores?.tempo_total_realizado_minutos
+              }
+            />
             {itens.length === 0 ? (
               <EmptyState
                 icon={FileText}

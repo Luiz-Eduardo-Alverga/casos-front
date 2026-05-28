@@ -13,6 +13,7 @@ import {
   Database,
   type LucideIcon,
   Shield,
+  Clock3,
 } from "lucide-react";
 import {
   Sidebar,
@@ -113,6 +114,13 @@ const MAIN_NAV: MainNavEntry[] = [
     label: "Listagem de Casos",
     href: "/casos",
     icon: FileText,
+  },
+  {
+    type: "link",
+    order: 37,
+    label: "Auditoria de horas",
+    href: "/auditoria/horas-colaboradores",
+    icon: Clock3,
   },
   {
     type: "link",

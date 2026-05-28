@@ -142,7 +142,9 @@ export function Combobox({
       disabled={disabled}
       className={cn(
         "w-full justify-between h-9",
-        useAnchorLayout && value && "rounded-l-lg rounded-r-none border-r-0 pr-0",
+        useAnchorLayout &&
+          value &&
+          "rounded-l-lg rounded-r-none border-r-0 pr-0",
         useAnchorLayout && !value && "rounded-lg",
         !useAnchorLayout && value && "pr-0",
         !value && "text-muted-foreground",
@@ -167,10 +169,7 @@ export function Combobox({
       {useAnchorLayout ? (
         <PopoverAnchor asChild>
           <div
-            className={cn(
-              "flex w-full min-w-0 items-stretch",
-              anchorClassName,
-            )}
+            className={cn("flex w-full min-w-0 items-stretch", anchorClassName)}
           >
             <div className="min-w-0 flex-1">
               <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
@@ -190,6 +189,11 @@ export function Combobox({
             placeholder={searchPlaceholder}
             value={searchValue}
             onValueChange={setSearchValue}
+            onKeyDown={(event) => {
+              if (event.key === "Home" || event.key === "End") {
+                event.stopPropagation();
+              }
+            }}
           />
           <CommandList>
             <CommandEmpty>{emptyText}</CommandEmpty>

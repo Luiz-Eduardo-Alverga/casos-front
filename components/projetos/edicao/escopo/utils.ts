@@ -4,6 +4,22 @@ import type { ProjetosTabelaEscopoRow } from "@/components/projetos/tabela/proje
 
 const DUPLICADO_RELACAO_NOME = "É DUPLICADO DE";
 
+export type EscopoNaoPlanejadoFiltro = "todos" | "planejado" | "nao_planejado";
+
+export const ESCOPO_NAO_PLANEJADO_OPTIONS = [
+  { value: "todos" as const, label: "Todos" },
+  { value: "planejado" as const, label: "Planejado" },
+  { value: "nao_planejado" as const, label: "Não planejados" },
+] as const;
+
+export function naoPlanejadoFiltroToApiParam(
+  filtro: EscopoNaoPlanejadoFiltro,
+): boolean | undefined {
+  if (filtro === "todos") return undefined;
+  if (filtro === "planejado") return false;
+  return true;
+}
+
 export function isNaoPlanejado(item: ProjetoMemoriaItem): boolean {
   return item.caso.flags?.nao_planejado === true;
 }
@@ -46,11 +62,15 @@ export function buildEscopoMemoriaParams(
   projetoId: number | string,
   statusIds: string[],
   usuarioDevId: string,
+  naoPlanejadoFiltro: EscopoNaoPlanejadoFiltro = "todos",
 ): ProjetoMemoriaQueryParams {
+  const naoPlanejado = naoPlanejadoFiltroToApiParam(naoPlanejadoFiltro);
+
   return {
     per_page: 15,
     projeto_id: String(projetoId),
     ...(statusIds.length > 0 ? { status_id: statusIds } : {}),
     ...(usuarioDevId.trim() ? { usuario_dev_id: usuarioDevId.trim() } : {}),
+    ...(naoPlanejado !== undefined ? { nao_planejado: naoPlanejado } : {}),
   };
 }

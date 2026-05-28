@@ -147,6 +147,15 @@ const config: Config = {
         "public-info-text": "hsl(var(--public-info-text))",
         "public-danger-bg": "hsl(var(--public-danger-bg))",
         "public-danger-text": "hsl(var(--public-danger-text))",
+        // Auditoria Squad
+        "audit-conforme": "hsl(var(--audit-conforme))",
+        "audit-conforme-bg": "hsl(var(--audit-conforme-bg) / 0.1)",
+        "audit-alerta-leve": "hsl(var(--audit-alerta-leve))",
+        "audit-alerta-leve-bg": "hsl(var(--audit-alerta-leve-bg) / 0.1)",
+        "audit-alerta-critico": "hsl(var(--audit-alerta-critico))",
+        "audit-alerta-critico-bg": "hsl(var(--audit-alerta-critico-bg) / 0.1)",
+        "audit-inconsistencia": "hsl(var(--audit-inconsistencia))",
+        "audit-inconsistencia-bg": "hsl(var(--audit-inconsistencia-bg) / 0.1)",
       },
       backgroundImage: {
         "login-gradient":

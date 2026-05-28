@@ -272,6 +272,7 @@ export interface ProjetoMemoriaParams {
   produto_id?: string;
   produto_nome?: string;
   versao_produto?: string;
+  nao_planejado?: boolean;
   /** Um ou mais IDs de status (ex.: "1", "2" para status 1 e 2) */
   status_id?: string | string[] | null;
   tipo_categoria?: string;

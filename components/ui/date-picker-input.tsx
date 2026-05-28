@@ -161,7 +161,9 @@ export function DatePickerInput(props: DatePickerInputProps) {
   const selectedDate = isControlled ? value : internalDate;
   const selectedTimestamp = getDateTimestamp(selectedDate);
   const initialSelectedDate = selectedDate ?? defaultValue;
-  const [month, setMonth] = React.useState<Date | undefined>(initialSelectedDate);
+  const [month, setMonth] = React.useState<Date | undefined>(
+    initialSelectedDate,
+  );
   const reactId = React.useId();
   const fieldId = id ?? `date-picker-${reactId}`;
 
@@ -348,7 +350,7 @@ export function DatePickerInput(props: DatePickerInputProps) {
                     setOpen(true);
                   }
                 }}
-                className="flex-1 rounded-none border-0 bg-transparent px-2 py-1 text-sm shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:bg-transparent dark:bg-transparent dark:disabled:bg-transparent"
+                className="flex-1 font-semibold rounded-none border-0 bg-transparent px-2 py-1 text-sm shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:bg-transparent dark:bg-transparent dark:disabled:bg-transparent"
               />
               <InputGroupAddon align="inline-start">
                 <PopoverTrigger asChild>

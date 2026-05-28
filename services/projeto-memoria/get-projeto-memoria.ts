@@ -79,6 +79,10 @@ export async function getProjetoMemoria(
     url.searchParams.set("cursor", params.cursor);
   }
 
+  if (params.nao_planejado !== undefined) {
+    url.searchParams.set("nao_planejado", params.nao_planejado ? "1" : "0");
+  }
+
   const response = await fetchWithAuth(url.toString(), { method: "GET" });
 
   if (!response.ok) {
