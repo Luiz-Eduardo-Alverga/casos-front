@@ -111,7 +111,7 @@ export function AuditoriaSquad() {
     : String(loggedUserId ?? colaboradorSelecionado);
 
   const canAudit = canAuditAllUsers
-    ? Boolean(dataProducaoYmd && projetoSelecionado && usuarioAuditoria)
+    ? Boolean((dataProducaoYmd && projetoSelecionado) || usuarioAuditoria)
     : Boolean(dataProducaoYmd && usuarioAuditoria);
   const query = useProductionAnalysis(filtrosAplicados ?? undefined, {
     enabled: false,
