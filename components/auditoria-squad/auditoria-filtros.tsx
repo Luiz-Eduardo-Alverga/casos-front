@@ -50,7 +50,7 @@ export function AuditoriaFiltros({
           <FormProvider {...form}>
             <div
               className={cn(
-                "grid grid-cols-1 gap-4 sm:grid-cols-2",
+                "grid grid-cols-1 gap-4 sm:grid-cols-2 items-end",
                 canAuditAllUsers ? "lg:grid-cols-4" : "lg:grid-cols-3",
               )}
             >
