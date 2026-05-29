@@ -17,15 +17,24 @@ import type {
 import type { RoleRow, RoleWithPermissionCountRow } from "@/lib/db/roles";
 import type { PermissionModuleCreateInput } from "@/lib/validators/db/permission-modules";
 import type { PermissionModuleUpdateInput } from "@/lib/validators/db/permission-modules";
-import type { PermissionCreateInput, PermissionUpdateInput } from "@/lib/validators/db/permissions";
-import type { RoleCreateInput, RoleUpdateInput } from "@/lib/validators/db/roles";
+import type {
+  PermissionCreateInput,
+  PermissionUpdateInput,
+} from "@/lib/validators/db/permissions";
+import type {
+  RoleCreateInput,
+  RoleUpdateInput,
+} from "@/lib/validators/db/roles";
 
 interface ApiDbResponse<T> {
   data?: T;
   error?: { message?: string };
 }
 
-function readErrorMessage(json: ApiDbResponse<unknown>, status: number): string {
+function readErrorMessage(
+  json: ApiDbResponse<unknown>,
+  status: number,
+): string {
   return typeof json?.error?.message === "string"
     ? json.error.message
     : `Erro ${status}`;
@@ -68,9 +77,7 @@ function buildPermissionModulesUrl(
 export async function listPermissionModulesClient(
   search?: string,
   expand?: "permissions",
-): Promise<
-  PermissionModuleRow[] | PermissionModuleWithPermissions[]
-> {
+): Promise<PermissionModuleRow[] | PermissionModuleWithPermissions[]> {
   const res = await fetchWithAuth(buildPermissionModulesUrl(search, expand));
   return parseSuccessWithData(res);
 }
@@ -194,7 +201,9 @@ export async function listRolesWithCountClient(
   return parseSuccessWithData<RoleWithPermissionCountRow[]>(res);
 }
 
-export async function createRoleClient(input: RoleCreateInput): Promise<RoleRow> {
+export async function createRoleClient(
+  input: RoleCreateInput,
+): Promise<RoleRow> {
   const res = await fetchWithAuth("/api/db/roles", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -301,8 +310,10 @@ export async function listAppUsersInfiniteClient(params: {
   limit?: number;
 }): Promise<ListAppUsersPageResult> {
   const url = new URL("/api/db/app-users", window.location.origin);
-  if (params.search?.trim()) url.searchParams.set("search", params.search.trim());
-  if (params.cursor != null) url.searchParams.set("cursor", String(params.cursor));
+  if (params.search?.trim())
+    url.searchParams.set("search", params.search.trim());
+  if (params.cursor != null)
+    url.searchParams.set("cursor", String(params.cursor));
   if (params.limit != null) url.searchParams.set("limit", String(params.limit));
 
   const res = await fetchWithAuth(url.toString(), { method: "GET" });
@@ -318,7 +329,9 @@ export async function getAppUserByIdClient(
   return parseSuccessWithData(res);
 }
 
-export async function listAppUserRolesClient(userId: string): Promise<RoleRow[]> {
+export async function listAppUserRolesClient(
+  userId: string,
+): Promise<RoleRow[]> {
   const res = await fetchWithAuth(`/api/db/app-users/${userId}/roles`);
   return parseSuccessWithData<RoleRow[]>(res);
 }

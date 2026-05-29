@@ -98,7 +98,7 @@ export function Combobox({
     if (!searchValue) return options;
     const searchLower = searchValue.toLowerCase();
     return options.filter((option) =>
-      option.label.toLowerCase().includes(searchLower),
+      (option.label ?? "").toLowerCase().includes(searchLower),
     );
   }, [options, searchValue]);
 
@@ -153,7 +153,7 @@ export function Combobox({
     >
       <span className="truncate">
         {selectedOption
-          ? `${valueLabelPrefix}${selectedOption.label}`
+          ? `${valueLabelPrefix}${selectedOption.label ?? ""}`
           : placeholder}
       </span>
 
@@ -210,7 +210,7 @@ export function Combobox({
                       value === option.value ? "opacity-100" : "opacity-0",
                     )}
                   />
-                  {option.label}
+                  {option.label ?? ""}
                 </CommandItem>
               ))}
             </CommandGroup>

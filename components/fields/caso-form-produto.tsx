@@ -43,14 +43,18 @@ export function CasoFormProduto({
       list.forEach((p) => {
         options.push({
           value: String(p.id),
-          label: p.nome_projeto,
+          label: p.nome_projeto?.trim() || `Produto ${p.id}`,
         });
       });
     }
 
     if (produtoValue && produtoSelecionado) {
       const produtoValueStr = String(produtoSelecionado.id);
-      const produtoLabel = `${produtoSelecionado.nome_projeto} - ${produtoSelecionado.setor}`;
+      const nome =
+        produtoSelecionado.nome_projeto?.trim() ||
+        `Produto ${produtoSelecionado.id}`;
+      const setor = produtoSelecionado.setor?.trim();
+      const produtoLabel = setor ? `${nome} - ${setor}` : nome;
       if (!options.some((opt) => opt.value === produtoValueStr)) {
         options.unshift({ value: produtoValueStr, label: produtoLabel });
       }
@@ -63,7 +67,10 @@ export function CasoFormProduto({
       !options.some((o) => o.value === produtoValue)
     ) {
       const p = editCaseItem.produto;
-      options.unshift({ value: String(p.id), label: p.nome });
+      options.unshift({
+        value: String(p.id),
+        label: p.nome?.trim() || `Produto ${p.id}`,
+      });
     }
 
     return options;

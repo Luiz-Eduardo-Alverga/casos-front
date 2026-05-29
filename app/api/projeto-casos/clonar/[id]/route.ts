@@ -1,5 +1,10 @@
 import { api } from "@/lib/axios";
 import { getAuthorizationHeader } from "@/lib/auth-server";
+import { scheduleDiscordCasoNotify } from "@/lib/discord/schedule-notify";
+import {
+  buildNotifyInputFromClone,
+  type ClonarCasoApiData,
+} from "@/lib/discord/parse-create-payload";
 
 export async function POST(
   _request: Request,
@@ -25,6 +30,19 @@ export async function POST(
         ...authHeaders,
       },
     });
+
+    const clonePayload = response.data as {
+      data?: ClonarCasoApiData;
+    };
+    const notifyInput = buildNotifyInputFromClone(
+      clonePayload?.data ?? (response.data as ClonarCasoApiData),
+    );
+    if (notifyInput && authHeaders.Authorization) {
+      scheduleDiscordCasoNotify(
+        { Authorization: authHeaders.Authorization },
+        notifyInput,
+      );
+    }
 
     return Response.json(response.data, {
       status: response.status,

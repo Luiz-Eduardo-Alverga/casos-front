@@ -51,7 +51,7 @@ export function GerenciarPerfilModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[460px] max-h-[85vh] overflow-hidden p-0 gap-0 border-border-divider">
+      <DialogContent className="sm:max-w-[460px] max-h-[95vh] overflow-hidden p-0 gap-0 border-border-divider">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border-divider">
           <div className="flex items-center gap-2">
             <Image
@@ -72,7 +72,7 @@ export function GerenciarPerfilModal({
 
         <div className="px-6 py-4 overflow-y-auto space-y-4">
           <div className="space-y-2">
-            <div className="max-h-[320px] overflow-y-auto pr-1 space-y-2">
+            <div className="max-h-[520px] overflow-y-auto pr-1 space-y-2">
               {roles.length === 0 && (
                 <p className="text-sm text-text-secondary py-2">
                   {isLoadingRoles
@@ -137,7 +137,6 @@ export function GerenciarPerfilModal({
             disabled={isSaving}
             className="flex-1 text-base font-semibold"
           >
-            <X className="h-4 w-4" />
             Cancelar
           </Button>
           <Button
@@ -146,8 +145,7 @@ export function GerenciarPerfilModal({
             disabled={!canSave}
             className="flex-1 text-base font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <Save className="h-4 w-4" />
-            Salvar perfil
+            Salvar
           </Button>
         </DialogFooter>
       </DialogContent>
