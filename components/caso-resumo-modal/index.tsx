@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -106,6 +106,14 @@ export function CasoResumoModal({
     queryClient.invalidateQueries({ queryKey: ["agenda-dev"] });
   };
 
+  const handleRedirecionarParaAbaProducao = useCallback(() => {
+    const id = loadedItem?.caso?.id ?? memoriaQueryId;
+    if (!id) return;
+
+    onOpenChange(false);
+    router.push(`/casos/${id}?tab=producao`);
+  }, [loadedItem?.caso?.id, memoriaQueryId, onOpenChange, router]);
+
   const {
     iniciarProducao,
     pararProducao,
@@ -121,6 +129,7 @@ export function CasoResumoModal({
   } = useCasoProducaoActions({
     casoId: memoriaQueryId || loadedItem?.caso?.id || "",
     onProducaoAlterada: invalidate,
+    onRedirecionarParaAbaProducao: handleRedirecionarParaAbaProducao,
   });
 
   const tempoStatus =
@@ -229,7 +238,10 @@ export function CasoResumoModal({
         descricao="Já existe um caso em produção. Deseja visualizar o caso aberto?"
         confirmarLabel="Visualizar caso"
         cancelarLabel="Cancelar"
-        onConfirm={handleConfirmarVisualizarCaso}
+        onConfirm={() => {
+          handleConfirmarVisualizarCaso();
+          onOpenChange(false);
+        }}
       />
 
       <ConfirmacaoModal

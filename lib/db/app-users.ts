@@ -113,6 +113,26 @@ export async function listAppUsers(search?: string): Promise<AppUserListRow[]> {
 export interface ListAppUsersPageResult {
   items: AppUserListRow[];
   nextCursor: number | null;
+  total: number;
+}
+
+async function countAppUsers(search?: string): Promise<number> {
+  const term = search?.trim();
+  const base = db
+    .select({ count: sql<number>`cast(count(*) as int)` })
+    .from(appUsers);
+
+  const rows = term
+    ? await base.where(
+        or(
+          ilikeContains(appUsers.email, term),
+          ilikeContains(appUsers.nome, term),
+          ilikeContainsAsText(appUsers.legacyUserId, term),
+        ),
+      )
+    : await base;
+
+  return rows[0]?.count ?? 0;
 }
 
 export async function listAppUsersPage(params: {
@@ -161,7 +181,10 @@ export async function listAppUsersPage(params: {
         .orderBy(asc(appUsers.nome), asc(appUsers.email))
     : base.orderBy(asc(appUsers.nome), asc(appUsers.email));
 
-  const rows = await query.limit(limit).offset(cursor);
+  const [rows, total] = await Promise.all([
+    query.limit(limit).offset(cursor),
+    countAppUsers(term),
+  ]);
 
   const items = rows.map((row) => ({
     ...row.user,
@@ -171,6 +194,7 @@ export async function listAppUsersPage(params: {
   return {
     items,
     nextCursor: items.length >= limit ? cursor + limit : null,
+    total,
   };
 }
 

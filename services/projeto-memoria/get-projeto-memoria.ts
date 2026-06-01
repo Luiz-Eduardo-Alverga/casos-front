@@ -59,6 +59,7 @@ export async function getProjetoMemoria(
     ["data_producao_inicio", params.data_producao_inicio],
     ["data_producao_fim", params.data_producao_fim],
     ["tipo_abertura", params.tipo_abertura],
+    ["duplicado", params.duplicado],
   ];
 
   for (const [key, value] of stringParams) {

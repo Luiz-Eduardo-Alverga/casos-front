@@ -1,6 +1,6 @@
 "use client";
 
-import { ReportCreateForm } from "@/components/caso-form";
+import { ReportCreateForm } from "@/components/casos/cadastro";
 import { RequirePermission } from "@/components/require-permission";
 
 export default function ReportNovoPage() {

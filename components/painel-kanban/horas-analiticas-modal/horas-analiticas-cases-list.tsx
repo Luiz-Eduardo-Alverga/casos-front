@@ -7,11 +7,15 @@ import { formatMinutesCompact } from "./utils";
 import Link from "next/link";
 import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
 
-function getTipoBadgeClass(tipo: string): string {
-  if (tipo.trim().toUpperCase() === "CASOS") {
+function getTarefaTecnicaBadgeClass(tarefaTecnica: boolean): string {
+  if (tarefaTecnica) {
     return "bg-blue-100 text-blue-700 hover:bg-blue-100";
   }
   return "bg-emerald-100 text-emerald-700 hover:bg-emerald-100";
+}
+
+function getTarefaTecnicaLabel(tarefaTecnica: boolean): string {
+  return tarefaTecnica ? "Técnico" : "Não técnico";
 }
 
 export function HorasAnaliticasCasesList({
@@ -46,9 +50,9 @@ export function HorasAnaliticasCasesList({
                       #{caso.registro}
                     </p>
                     <Badge
-                      className={`h-5 rounded px-2 text-[10px] uppercase ${getTipoBadgeClass(caso.tipo)}`}
+                      className={`h-5 rounded px-2 text-[10px] uppercase ${getTarefaTecnicaBadgeClass(caso.tarefa_tecnica)}`}
                     >
-                      {caso.tipo}
+                      {getTarefaTecnicaLabel(caso.tarefa_tecnica)}
                     </Badge>
                   </div>
                   <p className="text-sm font-medium leading-tight text-text-primary">

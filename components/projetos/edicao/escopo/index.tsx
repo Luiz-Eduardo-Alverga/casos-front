@@ -34,6 +34,7 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
         statusIds,
         usuarioDevId,
         naoPlanejadoFiltro,
+        "TODOS",
       ),
     [projetoId, statusIds, usuarioDevId, naoPlanejadoFiltro],
   );

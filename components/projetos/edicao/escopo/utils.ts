@@ -30,11 +30,7 @@ export function isViavel(item: ProjetoMemoriaItem): boolean {
 }
 
 export function isDuplicado(item: ProjetoMemoriaItem): boolean {
-  return (
-    item.caso.relacoes?.some(
-      (r) => r.tipo_relacao_nome?.trim() === DUPLICADO_RELACAO_NOME,
-    ) ?? false
-  );
+  return item.caso.flags.bloqueado === true;
 }
 
 export function mapProjetoMemoriaToTabelaRow(
@@ -63,12 +59,14 @@ export function buildEscopoMemoriaParams(
   statusIds: string[],
   usuarioDevId: string,
   naoPlanejadoFiltro: EscopoNaoPlanejadoFiltro = "todos",
+  duplicado: "TRUE" | "FALSE" | "TODOS" = "TODOS",
 ): ProjetoMemoriaQueryParams {
   const naoPlanejado = naoPlanejadoFiltroToApiParam(naoPlanejadoFiltro);
 
   return {
     per_page: 15,
     projeto_id: String(projetoId),
+    duplicado,
     ...(statusIds.length > 0 ? { status_id: statusIds } : {}),
     ...(usuarioDevId.trim() ? { usuario_dev_id: usuarioDevId.trim() } : {}),
     ...(naoPlanejado !== undefined ? { nao_planejado: naoPlanejado } : {}),

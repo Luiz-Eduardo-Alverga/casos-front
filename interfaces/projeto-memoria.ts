@@ -280,4 +280,5 @@ export interface ProjetoMemoriaParams {
   data_producao_inicio?: string;
   data_producao_fim?: string;
   tipo_abertura?: "CASO" | "REPORT";
+  duplicado?: "TRUE" | "FALSE" | "TODOS";
 }

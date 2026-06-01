@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 export const metadata: Metadata = {
-  title: "Casos Front",
+  title: "Softflow",
   description: "Aplicação de casos",
 };
 

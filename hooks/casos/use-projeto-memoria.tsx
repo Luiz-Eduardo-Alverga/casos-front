@@ -13,6 +13,8 @@ export type ProjetoMemoriaQueryParams = Omit<
 
 export interface UseProjetoMemoriaOptions {
   enabled?: boolean;
+  refetchInterval?: number | false;
+  refetchIntervalInBackground?: boolean;
 }
 
 export function useProjetoMemoria(
@@ -33,5 +35,8 @@ export function useProjetoMemoria(
         ? lastPage.pagination.next_cursor
         : undefined,
     enabled: options?.enabled ?? true,
+    refetchInterval: options?.refetchInterval,
+    refetchIntervalInBackground: options?.refetchIntervalInBackground ?? true,
+    refetchOnWindowFocus: false,
   });
 }

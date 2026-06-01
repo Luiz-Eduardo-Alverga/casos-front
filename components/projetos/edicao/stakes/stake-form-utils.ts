@@ -3,7 +3,7 @@ import type {
   UpdateSgpStakeRequest,
 } from "@/interfaces/sgp-stake";
 import type { SgpStakeItem } from "@/interfaces/sgp-stake";
-import { maskHHMM } from "@/components/caso-edit/producao/utils";
+import { maskHHMM } from "@/components/casos/edicao/producao/utils";
 import type { StakeFormValues } from "@/components/projetos/edicao/stakes/stake-form-schema";
 import { parseSgpHorasToMinutes } from "@/components/projetos/edicao/stakes/utils";
 

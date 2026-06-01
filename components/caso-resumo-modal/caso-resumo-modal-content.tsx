@@ -15,7 +15,7 @@ import { CasoResumoStatusActions } from "@/components/caso-resumo-modal/caso-res
 import { CasoResumoModalSkeleton } from "@/components/caso-resumo-modal/caso-resumo-modal-skeleton";
 import { CasoProducaoActionButton } from "@/components/caso-resumo-modal/caso-producao-action-button";
 import { isHttpError } from "@/lib/http-error";
-import { CasoNaoEncontrado } from "@/components/caso-edit/caso-nao-encontrado";
+import { CasoNaoEncontrado } from "@/components/casos/edicao/caso-nao-encontrado";
 
 interface CasoResumoModalContentProps {
   variant: "kanban" | "pesquisa";

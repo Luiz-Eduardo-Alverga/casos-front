@@ -63,10 +63,6 @@ export function formatMinutesCompact(minutes: number): string {
   return `${hours}h ${rest}min`;
 }
 
-function isTipoTecnico(tipo: string): boolean {
-  return tipo.trim().toUpperCase() === "CASOS";
-}
-
 function mapCaso(item: HorasAnaliticasApiItem): HorasAnaliticasCaseItem {
   const registro = String(item.registro ?? "").trim();
   const minutosRealizados = parseMinutes(item.realizado_minutos);

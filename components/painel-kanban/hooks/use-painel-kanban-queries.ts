@@ -16,6 +16,7 @@ import {
   type PainelKanbanItem,
 } from "@/components/painel-kanban/kanban/painel-kanban-map";
 import type { PainelKanbanColumnId } from "@/components/painel-kanban/kanban/painel-kanban-columns";
+import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
 
 function hasValidAgendaSelection(
   agendaItems: AgendaDevItem[] | undefined,
@@ -48,6 +49,11 @@ export function usePainelKanbanQueries({
   const agendaInitRef = useRef(false);
   const hasAgendaLoadedOnceRef = useRef(false);
 
+  const autoRefetchOptions = {
+    refetchInterval: AUTO_REFETCH_INTERVAL_MS,
+    refetchIntervalInBackground: true,
+  } as const;
+
   const agendaQuery = useAgendaDev(
     {
       id_colaborador: apiFiltros?.devAtribuidoId ?? "",
@@ -55,6 +61,7 @@ export function usePainelKanbanQueries({
     },
     {
       enabled: hydrated && Boolean(apiFiltros?.devAtribuidoId),
+      ...autoRefetchOptions,
     },
   );
 
@@ -154,19 +161,19 @@ export function usePainelKanbanQueries({
 
   const abertosQ = useProjetoMemoria(
     { ...baseParams, status_id: ["1", "2"] },
-    { enabled: memoriaEnabled },
+    { enabled: memoriaEnabled, ...autoRefetchOptions },
   );
   const corrigidosQ = useProjetoMemoria(
     { ...baseParams, status_id: "3" },
-    { enabled: memoriaEnabled },
+    { enabled: memoriaEnabled, ...autoRefetchOptions },
   );
   const retornosQ = useProjetoMemoria(
     { ...baseParams, status_id: "4" },
-    { enabled: memoriaEnabled },
+    { enabled: memoriaEnabled, ...autoRefetchOptions },
   );
   const concluidosQ = useProjetoMemoria(
     { ...baseParams, status_id: "9" },
-    { enabled: memoriaEnabled },
+    { enabled: memoriaEnabled, ...autoRefetchOptions },
   );
 
   const abertosItems = useMemo(() => {

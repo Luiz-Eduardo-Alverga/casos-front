@@ -48,6 +48,7 @@ export function ConfiguracoesUsuarios({
     () => usersQuery.data?.pages.flatMap((p) => p.items) ?? [],
     [usersQuery.data],
   );
+  const totalUsers = usersQuery.data?.pages[0]?.total;
   const roles = rolesQuery.data ?? EMPTY_ROLES;
 
   const hasSearchActive = useMemo(
@@ -161,7 +162,13 @@ export function ConfiguracoesUsuarios({
         inputAriaLabel="Buscar usuários"
       />
 
-      <CadastroListagemCard title="Listagem de Usuários" icon={Users}>
+      <CadastroListagemCard
+        title="Listagem de Usuários"
+        icon={Users}
+        showTotalRecords
+        totalRecords={totalUsers}
+        totalRecordsUnit={{ singular: "usuário", plural: "usuários" }}
+      >
         {usersQuery.isLoading ? (
           <UsuariosTableSkeleton />
         ) : (

@@ -29,6 +29,8 @@ export interface CasoFormDevAtribuidoProps {
   controlHeightClassName?: string;
   /** Prefixo exibido apenas no gatilho quando há valor selecionado. */
   valueLabelPrefix?: string;
+  /** Desabilita o campo independentemente do contexto do provider. */
+  disabled?: boolean;
 }
 
 export function CasoFormDevAtribuido({
@@ -43,6 +45,7 @@ export function CasoFormDevAtribuido({
   wrapperClassName,
   controlHeightClassName,
   valueLabelPrefix,
+  disabled,
 }: CasoFormDevAtribuidoProps = {}) {
   const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch, setValue, getValues } = useFormContext();
@@ -286,7 +289,9 @@ export function CasoFormDevAtribuido({
         emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
-        disabled={isDisabled || (requireProduto && !produtoAtual)}
+        disabled={
+          isDisabled || Boolean(disabled) || (requireProduto && !produtoAtual)
+        }
         required={required}
         onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
         hideLabel={hideLabel}

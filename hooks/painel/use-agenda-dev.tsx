@@ -5,6 +5,8 @@ import { getAgendaDev } from "@/services/auxiliar/get-agenda-dev";
 
 export interface UseAgendaDevOptions {
   enabled?: boolean;
+  refetchInterval?: number | false;
+  refetchIntervalInBackground?: boolean;
 }
 
 export function useAgendaDev(
@@ -25,5 +27,8 @@ export function useAgendaDev(
         id_colaborador: params.id_colaborador,
         ...(cronogramaId ? { Cronograma_id: cronogramaId } : {}),
       }),
+    refetchInterval: options?.refetchInterval,
+    refetchIntervalInBackground: options?.refetchIntervalInBackground ?? true,
+    refetchOnWindowFocus: false,
   });
 }

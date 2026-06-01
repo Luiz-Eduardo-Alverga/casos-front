@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { CasoEditView } from "@/components/caso-edit/index";
+import { CasoEditView } from "@/components/casos/edicao";
 
 interface CasoEditPageProps {
   params: Promise<{ id: string }>;

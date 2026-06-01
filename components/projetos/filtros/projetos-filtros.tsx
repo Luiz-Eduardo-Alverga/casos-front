@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, type FormEvent } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,15 @@ export function ProjetosFiltros({
     [formValues],
   );
 
+  const handleSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!canFiltrar) return;
+      handleFiltrar();
+    },
+    [canFiltrar, handleFiltrar],
+  );
+
   const providerValue = useMemo(
     () => ({
       form: methods,
@@ -78,7 +87,10 @@ export function ProjetosFiltros({
             </div>
           </CardHeader>
           <CardContent className="p-6 pt-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+            <form
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end"
+              onSubmit={handleSubmit}
+            >
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-text-label">
                   Id do Projeto
@@ -96,8 +108,7 @@ export function ProjetosFiltros({
 
               <div className="flex gap-2 sm:col-span-2 lg:col-span-1">
                 <Button
-                  type="button"
-                  onClick={handleFiltrar}
+                  type="submit"
                   disabled={!canFiltrar}
                   className="w-full px-4 h-9"
                 >
@@ -105,7 +116,7 @@ export function ProjetosFiltros({
                   <span>Filtrar</span>
                 </Button>
               </div>
-            </div>
+            </form>
           </CardContent>
         </Card>
       </FormProvider>

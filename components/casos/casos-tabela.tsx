@@ -23,6 +23,7 @@ import {
   filtrosToProjetoMemoriaParams,
   hasFiltersApplied,
 } from "@/components/casos/filtros/casos-filtros-mappers";
+import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
 
 interface CasosTabelaProps {
   filtros: CasosFiltrosAplicados;
@@ -65,6 +66,7 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useProjetoMemoria(projetoMemoriaParams, {
       enabled: hasFilters,
+      refetchInterval: hasFilters ? AUTO_REFETCH_INTERVAL_MS : false,
     });
 
   const itens = useMemo(

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 import { mapStatusAvancar } from "@/components/caso-resumo-modal/utils";
 import type { UpdateCasoRequest } from "@/services/projeto-casos/update";
-import { buildAnaliseConclusaoByStatus } from "@/components/caso-edit/report-analise-modal/utils";
+import { buildAnaliseConclusaoByStatus } from "@/components/casos/edicao/report-analise-modal/utils";
 
 interface CasoResumoStatusActionsProps {
   statusIdApi: number;

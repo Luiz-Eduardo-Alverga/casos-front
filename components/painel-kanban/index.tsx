@@ -33,6 +33,7 @@ import { usePainelKanbanFiltros } from "@/components/painel-kanban/hooks/use-pai
 import { usePainelKanbanQueries } from "@/components/painel-kanban/hooks/use-painel-kanban-queries";
 import { usePainelKanbanProjetosCatalogo } from "@/components/painel-kanban/hooks/use-painel-kanban-projetos-catalogo";
 import { getInitialKanbanFiltrosBootstrap } from "@/components/painel-kanban/filtros/build-kanban-filtros-state";
+import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
 function isColumnId(id: string): id is PainelKanbanColumnId {
   return (PAINEL_KANBAN_COLUMN_IDS as readonly string[]).includes(id);
@@ -45,9 +46,11 @@ export function PainelKanban() {
   const queryClient = useQueryClient();
   const updateCaso = useUpdateCaso();
   const finalizarCaso = useFinalizarCaso();
+  const rbacReady = permissionsLoaded();
+  const canAuditAllUsers = !rbacReady || hasPermission("audit-all-users");
 
-  const [defaultFormValues] = useState(() =>
-    getInitialKanbanFiltrosBootstrap(idColaborador, nomeColaborador).form,
+  const [defaultFormValues] = useState(
+    () => getInitialKanbanFiltrosBootstrap(idColaborador, nomeColaborador).form,
   );
 
   const methods = useForm<PainelKanbanFiltrosForm>({
@@ -232,23 +235,26 @@ export function PainelKanban() {
   return (
     <CasoFormProvider value={providerValue}>
       <FormProvider {...methods}>
-        <div className="px-6 pt-20 py-5 flex-1 flex flex-col overflow-x-hidden lg:min-h-0 lg:overflow-hidden">
+        <div className="px-6 pt-20 py-5 flex-1 flex flex-col overflow-x-hidden">
           <PainelPageHeader
             onHorasAnaliticas={() => setIsHorasAnaliticasOpen(true)}
             isLoading={isAgendaLoading}
             actionSlot={
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-                <CasoFormDevAtribuido
-                  required={false}
-                  requireProduto={false}
-                  label="Ver como"
-                  placeholder={verComoPlaceholder}
-                  valueLabelPrefix="Ver como: "
-                  hideLabel
-                  setorName="devAtribuidoSetor"
-                  wrapperClassName="w-full sm:w-[220px] h-full"
-                  controlHeightClassName="h-[42px]"
-                />
+                {canAuditAllUsers && (
+                  <CasoFormDevAtribuido
+                    required={false}
+                    requireProduto={false}
+                    label="Ver como"
+                    placeholder={verComoPlaceholder}
+                    valueLabelPrefix="Ver como: "
+                    hideLabel
+                    setorName="devAtribuidoSetor"
+                    wrapperClassName="w-full sm:w-[220px] h-full"
+                    controlHeightClassName="h-[42px]"
+                  />
+                )}
+
                 <Button
                   type="button"
                   variant="outline"

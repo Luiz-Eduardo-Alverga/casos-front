@@ -1,6 +1,6 @@
 "use client";
 
-import { CasoCreateForm } from "@/components/caso-form";
+import { CasoCreateForm } from "@/components/casos/cadastro";
 import { RequirePermission } from "@/components/require-permission";
 
 export default function CasosPage() {

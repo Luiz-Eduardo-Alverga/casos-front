@@ -29,6 +29,7 @@ import { HorasAnaliticasCommitBox } from "./horas-analiticas-commit-box";
 import { HorasAnaliticasEmptyState } from "./horas-analiticas-empty-state";
 import { HorasAnaliticasContentSkeleton } from "./horas-analiticas-content-skeleton";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
 interface HorasAnaliticasFiltersForm {
   produto: string;
@@ -57,6 +58,9 @@ export function HorasAnaliticasModal({
   projetoId,
   usuarioId,
 }: HorasAnaliticasModalProps) {
+  const rbacReady = permissionsLoaded();
+  const canAuditAllUsers = !rbacReady || hasPermission("audit-all-users");
+
   const methods = useForm<HorasAnaliticasFiltersForm>({
     defaultValues: {
       versao: "",
@@ -194,6 +198,7 @@ export function HorasAnaliticasModal({
                     label="Colaborador"
                     required={false}
                     requireProduto={false}
+                    disabled={!canAuditAllUsers}
                   />
                   {/* <CasoFormRelator
                     name="relator"
