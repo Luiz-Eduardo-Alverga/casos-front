@@ -77,8 +77,8 @@ export function CasoCreateRightColumn({
           {isUploadingAttachments
             ? "Enviando anexos..."
             : isCreatingCaso || isSubmitting
-              ? "Criando Caso..."
-              : "Criar Caso"}
+              ? "Abrindo Caso..."
+              : "Abrir Caso"}
         </Button>
       </div>
     </div>

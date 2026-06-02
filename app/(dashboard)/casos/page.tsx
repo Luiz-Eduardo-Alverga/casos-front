@@ -21,7 +21,7 @@ function CasosLoading() {
 
 export default function CasosPage() {
   return (
-    <RequirePermission permission="list-case">
+    <RequirePermission permission={["list-case", "list-report"]}>
       <Suspense fallback={<CasosLoading />}>
         <Casos />
       </Suspense>

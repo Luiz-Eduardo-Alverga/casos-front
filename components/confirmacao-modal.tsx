@@ -1,14 +1,10 @@
 "use client";
 
-import Image from "next/image";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { ModalLottieIcon } from "@/components/modal-lottie-icon";
 
 export interface ConfirmacaoModalProps {
   open: boolean;
@@ -48,58 +44,55 @@ export function ConfirmacaoModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTitle className="sr-only">{titulo}</DialogTitle>
       <DialogContent
-        className="sm:max-w-md gap-0 p-0 overflow-hidden"
+        className="sm:max-w-md"
         onPointerDownOutside={(e) => {
           if (isLoading) e.preventDefault();
           else onCancel?.();
         }}
         onEscapeKeyDown={() => onCancel?.()}
       >
-        <div className="flex flex-col items-center px-6 pt-8 pb-6">
-          <div className="flex justify-center mb-6">
-            <Image
-              src="/images/alertnew.svg"
-              alt=""
-              width={100}
-              height={58}
-              className="mx-auto"
-              unoptimized
-            />
-          </div>
-          <DialogTitle className="text-lg font-semibold text-text-primary text-center max-w-[280px]">
-            {titulo}
-          </DialogTitle>
-          <DialogDescription className="text-sm text-text-secondary text-center mt-2 max-w-[280px]">
-            {descricao}
-          </DialogDescription>
-        </div>
+        <div className="flex flex-col justify-center pt-6 space-y-4">
+          <ModalLottieIcon
+            variant={variant === "danger" ? "danger" : "alert"}
+            playKey={`${open}-${variant}`}
+          />
 
-        <div className="h-px bg-border shrink-0" aria-hidden />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="text-center space-y-4"
+          >
+            <div>
+              <h1 className="text-xl font-bold">{titulo}</h1>
+              <p className=" mt-2 text-text-secondary">{descricao}</p>
+            </div>
 
-        <div className="flex flex-row gap-3 p-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={dismiss}
-            disabled={isLoading}
-            className="flex-1"
-          >
-            {cancelarLabel}
-          </Button>
-          <Button
-            type="button"
-            className={cn(
-              "flex-1",
-              variant === "danger"
-                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                : "bg-papeis-button-dark-bg text-white hover:bg-papeis-button-dark-bg-hover",
-            )}
-            onClick={handleConfirm}
-            disabled={isLoading}
-          >
-            {isLoading ? "Aguarde..." : confirmarLabel}
-          </Button>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={dismiss}
+                disabled={isLoading}
+              >
+                {cancelarLabel}
+              </Button>
+              <Button
+                type="button"
+                className={cn(
+                  variant === "danger"
+                    ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    : "bg-papeis-button-dark-bg text-white hover:bg-papeis-button-dark-bg-hover",
+                )}
+                onClick={handleConfirm}
+                disabled={isLoading}
+              >
+                {isLoading ? "Aguarde..." : confirmarLabel}
+              </Button>
+            </div>
+          </motion.div>
         </div>
       </DialogContent>
     </Dialog>

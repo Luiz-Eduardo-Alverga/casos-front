@@ -4,6 +4,7 @@ import { ProtectedRoute } from "@/components/protected-route";
 import { SidebarProvider } from "@/components/sidebar/sidebar-provider";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { Header } from "@/components/header";
+import { CasoAbertoMiniPlayer } from "@/components/caso-aberto-player";
 import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -74,6 +75,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
         >
           {children}
         </div>
+        <CasoAbertoMiniPlayer />
       </div>
     </div>
   );

@@ -25,7 +25,11 @@ import {
 } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
+import {
+  hasAnyPermission,
+  hasPermission,
+  permissionsLoaded,
+} from "@/lib/rbac-client";
 import {
   SidebarCollapsibleGroup,
   type SidebarSubitem as SidebarSubitemBase,
@@ -174,7 +178,8 @@ export function AppSidebar({
   const pathname = usePathname();
   const rbacReady = permissionsLoaded();
   const canListAcquirer = !rbacReady || hasPermission("list-acquirer");
-  const canListCase = rbacReady && hasPermission("list-case");
+  const canListCase =
+    rbacReady && hasAnyPermission(["list-case", "list-report"]);
   const canListProject = rbacReady && hasPermission("list-project");
   const canAssignUserRole = rbacReady && hasPermission("assign-user-role");
   const canListUser = rbacReady && hasPermission("list-user");
@@ -325,7 +330,7 @@ export function AppSidebar({
                   }));
             const collapsedHref =
               entry.key === "configuracoes"
-                ? configuracoesSubitemsSorted[0]?.href ?? entry.collapsedHref
+                ? (configuracoesSubitemsSorted[0]?.href ?? entry.collapsedHref)
                 : entry.collapsedHref;
 
             return (

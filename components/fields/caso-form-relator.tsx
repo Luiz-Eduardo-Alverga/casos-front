@@ -14,6 +14,8 @@ export interface CasoFormRelatorProps {
   label?: string;
   placeholder?: string;
   required?: boolean;
+  /** Rótulo exibido para o valor selecionado (ex.: `report.responsavel_feedback_nome`). */
+  selectedLabelOverride?: string;
 }
 
 export function CasoFormRelator({
@@ -21,6 +23,7 @@ export function CasoFormRelator({
   label = "Relator",
   placeholder = "Selecione o relator...",
   required = true,
+  selectedLabelOverride,
 }: CasoFormRelatorProps = {}) {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
@@ -71,13 +74,35 @@ export function CasoFormRelator({
       }
     }
 
-    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.relator && relator && !valuesAdded.has(relator)) {
-      const u = editCaseItem.caso.usuarios.relator;
-      options.unshift({ value: String(u.id), label: u.nome ?? String(u.id) });
+    const relatorValue = relator ? String(relator) : "";
+    const nomeEdicao =
+      selectedLabelOverride?.trim() ||
+      (name === "reportResponsavelSuporteId"
+        ? editCaseItem?.report?.responsavel_feedback_nome?.trim()
+        : undefined) ||
+      editCaseItem?.caso?.usuarios?.relator?.nome?.trim();
+
+    if (lazyLoadComboboxOptions && relatorValue && nomeEdicao) {
+      const existingIdx = options.findIndex((o) => o.value === relatorValue);
+      if (existingIdx >= 0) {
+        options[existingIdx] = { value: relatorValue, label: nomeEdicao };
+      } else if (!valuesAdded.has(relatorValue)) {
+        options.unshift({ value: relatorValue, label: nomeEdicao });
+        valuesAdded.add(relatorValue);
+      }
     }
 
     return options;
-  }, [usuarios, relator, relatorSelecionado, user, lazyLoadComboboxOptions, editCaseItem]);
+  }, [
+    usuarios,
+    relator,
+    relatorSelecionado,
+    user,
+    lazyLoadComboboxOptions,
+    editCaseItem,
+    name,
+    selectedLabelOverride,
+  ]);
   
   // Quando relator é selecionado, buscar e salvar os dados completos
   useEffect(() => {

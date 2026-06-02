@@ -12,6 +12,7 @@ Este documento descreve a organização de pastas do módulo **Casos** (`compone
 | **Cadastro** | `/casos/novo` | `components/casos/cadastro/index.tsx` → `CasoCreateForm` |
 | **Cadastro Report** | `/reports/novo` | `components/casos/cadastro/report-create/index.tsx` → `ReportCreateForm` |
 | **Edição** | `/casos/[id]` | `components/casos/edicao/index.tsx` → `CasoEditView` |
+| **Edição Report (sem list-case)** | `/casos/[id]` | `components/casos/report/index.tsx` → `ReportEditView` |
 
 Hooks de dados ficam em `hooks/casos/`.
 
@@ -75,6 +76,18 @@ components/casos/
 │       ├── index.tsx
 │       ├── types.ts
 │       └── utils.ts
+│
+├── report/                            # Edição de report (layout alternativo, sem list-case)
+│   ├── index.tsx                      # ReportEditView
+│   ├── report-edit-form.tsx
+│   ├── report-edit-header.tsx
+│   ├── report-edit-rodape-acoes.tsx
+│   ├── report-edit-coluna-direita.tsx
+│   ├── report-edit-skeleton.tsx
+│   ├── schema.ts
+│   ├── utils.ts
+│   └── abas/
+│       └── aba-inicial.tsx
 │
 └── edicao/                            # Fluxo de edição (abas)
     ├── index.tsx                      # Fetch do caso + skeleton + 404

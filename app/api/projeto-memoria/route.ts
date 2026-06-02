@@ -3,7 +3,7 @@ import { getAuthorizationHeader } from "@/lib/auth-server";
 import { withPermission } from "@/lib/api-db/with-permission";
 
 export async function GET(request: Request) {
-  return withPermission("list-case", async () => {
+  return withPermission(["list-case", "list-report"], async () => {
     try {
       const url = new URL(request.url);
       const params: Record<string, string | string[]> = {};

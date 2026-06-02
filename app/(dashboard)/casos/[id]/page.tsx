@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { CasoEditView } from "@/components/casos/edicao";
+import { CasoOuReportEditView } from "@/components/casos/caso-ou-report-edit-view";
 
 interface CasoEditPageProps {
   params: Promise<{ id: string }>;
@@ -19,7 +19,7 @@ export default function CasoEditPage({ params }: CasoEditPageProps) {
 
   return (
     <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
-      <CasoEditView casoId={id} />
+      <CasoOuReportEditView casoId={id} />
     </div>
   );
 }

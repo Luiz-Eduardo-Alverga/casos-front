@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import Image from "next/image";
-import { Copy, Check, Plus, ArrowLeftRight, List } from "lucide-react";
+import { Copy, Check, Plus, List } from "lucide-react";
+import { ModalLottieIcon } from "@/components/modal-lottie-icon";
 import toast from "react-hot-toast";
 import { useFormContext } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -100,25 +100,7 @@ export function SuccessModal({
       <DialogTitle className="sr-only"></DialogTitle>
       <DialogContent className="sm:max-w-md">
         <div className="flex flex-col justify-center pt-6 space-y-4">
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{
-              type: "spring",
-              stiffness: 200,
-              damping: 15,
-              duration: 0.5,
-            }}
-          >
-            <Image
-              src="/images/success.svg"
-              alt="Sucesso"
-              width={150}
-              height={58}
-              className="mx-auto"
-              unoptimized
-            />
-          </motion.div>
+          <ModalLottieIcon variant="success" playKey={isOpen} />
           {numeroCaso && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -127,7 +109,7 @@ export function SuccessModal({
               className="text-center space-y-4"
             >
               <div>
-                <h1 className="text-2xl font-bold">Tudo certo!</h1>
+                <h1 className="text-xl font-bold">Tudo certo!</h1>
                 <h2 className="text-lg mt-2">
                   {entitySingular}{" "}
                   <span className="font-bold text-primary">{numeroCaso}</span>{" "}
