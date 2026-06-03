@@ -2,13 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bell,
   Grid3x3,
   FileText,
   FolderKanban,
-  ChevronRight,
   Kanban,
   Database,
   type LucideIcon,
@@ -19,9 +18,9 @@ import {
   Sidebar,
   SidebarHeader,
   SidebarContent,
-  SidebarSection,
   SidebarNav,
   SidebarNavItem,
+  SidebarSectionLabel,
 } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -58,6 +57,10 @@ interface SidebarSubitem {
   href: string;
   exact?: boolean;
 }
+
+const STANDALONE_NAV_ORDERS = new Set([20]);
+const GERENCIAR_NAV_ORDERS = new Set([10, 30, 35, 37, 40]);
+const RECURSOS_NAV_ORDERS = new Set([50, 60]);
 
 const CADASTROS_SUBITEMS: SidebarSubitem[] = [
   {
@@ -170,6 +173,24 @@ const MAIN_NAV: MainNavEntry[] = [
 
 const MAIN_NAV_SORTED = [...MAIN_NAV].sort((a, b) => a.order - b.order);
 
+function partitionNavEntries(entries: MainNavEntry[]) {
+  const standalone: MainNavEntry[] = [];
+  const gerenciar: MainNavEntry[] = [];
+  const recursos: MainNavEntry[] = [];
+
+  for (const entry of entries) {
+    if (STANDALONE_NAV_ORDERS.has(entry.order)) {
+      standalone.push(entry);
+    } else if (GERENCIAR_NAV_ORDERS.has(entry.order)) {
+      gerenciar.push(entry);
+    } else if (RECURSOS_NAV_ORDERS.has(entry.order)) {
+      recursos.push(entry);
+    }
+  }
+
+  return { standalone, gerenciar, recursos };
+}
+
 export function AppSidebar({
   isCollapsed,
   isMobileOpen,
@@ -210,6 +231,12 @@ export function AppSidebar({
 
     return true;
   });
+
+  const { standalone, gerenciar, recursos } = useMemo(
+    () => partitionNavEntries(mainNavSorted),
+    [mainNavSorted],
+  );
+
   const cadastrosSubitemsSorted = canListAcquirer
     ? CADASTROS_SUBITEMS_SORTED
     : [];
@@ -241,19 +268,63 @@ export function AppSidebar({
           isActive={isActive}
           className={cn("w-full", isCollapsed && "justify-center")}
         >
-          {isCollapsed ? (
-            <Icon className="h-3.5 w-3.5 shrink-0" />
-          ) : (
-            <>
-              <div className="flex items-center gap-3">
-                <Icon className="h-3.5 w-3.5 shrink-0" />
-                <span>{item.label}</span>
-              </div>
-              <ChevronRight className="h-3 w-3 opacity-50 shrink-0" />
-            </>
-          )}
+          <Icon className="h-3.5 w-3.5 shrink-0" />
+          {!isCollapsed && <span>{item.label}</span>}
         </SidebarNavItem>
       </Link>
+    );
+  }
+
+  function renderNavEntry(entry: MainNavEntry) {
+    if (entry.type === "link") {
+      return (
+        <span key={entry.href} className="contents">
+          {renderNavItem({
+            label: entry.label,
+            href: entry.href,
+            icon: entry.icon,
+            exact: entry.exact,
+          })}
+        </span>
+      );
+    }
+
+    const open = entry.key === "cadastros" ? cadastrosOpen : configuracoesOpen;
+    const onOpenChange =
+      entry.key === "cadastros" ? setCadastrosOpen : setConfiguracoesOpen;
+    const subitems =
+      entry.key === "cadastros"
+        ? cadastrosSubitemsSorted.map((s) => ({
+            label: s.label,
+            href: s.href,
+            exact: s.exact,
+          }))
+        : configuracoesSubitemsSorted.map((s) => ({
+            label: s.label,
+            href: s.href,
+            exact: s.exact,
+          }));
+    const collapsedHref =
+      entry.key === "configuracoes"
+        ? (configuracoesSubitemsSorted[0]?.href ?? entry.collapsedHref)
+        : entry.collapsedHref;
+
+    return (
+      <span key={entry.key} className="contents">
+        <SidebarCollapsibleGroup
+          isCollapsed={isCollapsed}
+          pathname={pathname}
+          open={open}
+          onOpenChange={onOpenChange}
+          collapsedHref={collapsedHref}
+          label={entry.label}
+          icon={entry.icon}
+          subitems={subitems}
+          titleWhenCollapsed={
+            entry.key === "cadastros" ? "Cadastros" : "Configurações"
+          }
+        />
+      </span>
     );
   }
 
@@ -286,71 +357,27 @@ export function AppSidebar({
         )}
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarSection>
-          {!isCollapsed && (
-            <p className="text-sidebar-text-secondary text-xs font-semibold uppercase tracking-[0.6px]">
-              Navegação
-            </p>
+      <SidebarContent className="px-4 py-2">
+        <SidebarNav className={cn("gap-0 p-0", isCollapsed && "items-center")}>
+          {standalone.map(renderNavEntry)}
+
+          {gerenciar.length > 0 && (
+            <>
+              {!isCollapsed && (
+                <SidebarSectionLabel>GERENCIAR</SidebarSectionLabel>
+              )}
+              {gerenciar.map(renderNavEntry)}
+            </>
           )}
-        </SidebarSection>
 
-        <SidebarNav className={isCollapsed ? "items-center" : ""}>
-          {mainNavSorted.map((entry) => {
-            if (entry.type === "link") {
-              return (
-                <span key={entry.href} className="contents">
-                  {renderNavItem({
-                    label: entry.label,
-                    href: entry.href,
-                    icon: entry.icon,
-                    exact: entry.exact,
-                  })}
-                </span>
-              );
-            }
-
-            const open =
-              entry.key === "cadastros" ? cadastrosOpen : configuracoesOpen;
-            const onOpenChange =
-              entry.key === "cadastros"
-                ? setCadastrosOpen
-                : setConfiguracoesOpen;
-            const subitems =
-              entry.key === "cadastros"
-                ? cadastrosSubitemsSorted.map((s) => ({
-                    label: s.label,
-                    href: s.href,
-                    exact: s.exact,
-                  }))
-                : configuracoesSubitemsSorted.map((s) => ({
-                    label: s.label,
-                    href: s.href,
-                    exact: s.exact,
-                  }));
-            const collapsedHref =
-              entry.key === "configuracoes"
-                ? (configuracoesSubitemsSorted[0]?.href ?? entry.collapsedHref)
-                : entry.collapsedHref;
-
-            return (
-              <span key={entry.key} className="contents">
-                <SidebarCollapsibleGroup
-                  isCollapsed={isCollapsed}
-                  pathname={pathname}
-                  open={open}
-                  onOpenChange={onOpenChange}
-                  collapsedHref={collapsedHref}
-                  label={entry.label}
-                  icon={entry.icon}
-                  subitems={subitems}
-                  titleWhenCollapsed={
-                    entry.key === "cadastros" ? "Cadastros" : "Configurações"
-                  }
-                />
-              </span>
-            );
-          })}
+          {recursos.length > 0 && (
+            <>
+              {!isCollapsed && (
+                <SidebarSectionLabel>RECURSOS ESTRATÉGICOS</SidebarSectionLabel>
+              )}
+              {recursos.map(renderNavEntry)}
+            </>
+          )}
         </SidebarNav>
       </SidebarContent>
     </Sidebar>

@@ -86,6 +86,29 @@ const SidebarNav = React.forwardRef<
 ));
 SidebarNav.displayName = "SidebarNav";
 
+const SidebarSectionLabel = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn(
+      "px-3 pt-6 pb-2 text-[10px] font-bold uppercase tracking-[1px] text-sidebar-section-label",
+      className,
+    )}
+    {...props}
+  />
+));
+SidebarSectionLabel.displayName = "SidebarSectionLabel";
+
+const sidebarNavItemStyles = (isActive: boolean) =>
+  cn(
+    "flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+    isActive
+      ? "bg-white/5 border-l-[3px] border-brand-yellow text-white font-medium"
+      : "text-sidebar-text-muted hover:bg-white/5 font-normal",
+  );
+
 const SidebarNavItem = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -94,13 +117,7 @@ const SidebarNavItem = React.forwardRef<
 >(({ className, isActive = false, ...props }, ref) => (
   <button
     ref={ref}
-    className={cn(
-      "flex w-full items-center justify-between gap-3 px-4 py-3 rounded text-sm font-normal transition-colors",
-      isActive
-        ? "bg-white/5 border-l-[3px] border-brand-yellow text-sidebar-text"
-        : "text-sidebar-text hover:bg-white/5",
-      className,
-    )}
+    className={cn(sidebarNavItemStyles(isActive), className)}
     {...props}
   />
 ));
@@ -112,5 +129,7 @@ export {
   SidebarContent,
   SidebarSection,
   SidebarNav,
+  SidebarSectionLabel,
   SidebarNavItem,
+  sidebarNavItemStyles,
 };

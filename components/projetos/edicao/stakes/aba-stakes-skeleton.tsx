@@ -55,7 +55,7 @@ function UsuarioCardSkeleton() {
 
 export function AbaStakesSkeleton() {
   return (
-    <div className="flex flex-col gap-4" role="status" aria-busy="true">
+    <div className="flex flex-col gap-2" role="status" aria-busy="true">
       <Card className="rounded-lg bg-card shadow-card">
         <CardHeaderSkeleton titleWidth="w-36" />
         <CardContent className="space-y-4 p-6 pt-3">

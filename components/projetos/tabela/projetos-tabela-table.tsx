@@ -7,6 +7,7 @@ import {
   TableRow,
   TableHead,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ProjetosTabelaSkeletonRows } from "@/components/projetos/layout/projetos-tabela-skeleton";
 import { ProjetosTabelaEscopoSkeletonRows } from "@/components/projetos/layout/projetos-tabela-escopo-skeleton-rows";
 import { ProjetosTabelaRowListagem } from "@/components/projetos/tabela/projetos-tabela-row-listagem";
@@ -24,42 +25,95 @@ function ProjetosTabelaTableEscopo({
   itens,
   isFetchingNextPage,
   showCheckbox = false,
+  selectedIds = [],
+  onToggleItem,
+  onToggleAll,
 }: ProjetosTabelaTableEscopoProps) {
+  const selectedIdsSet = new Set(selectedIds);
+  const allChecked =
+    itens.length > 0 && itens.every((row) => selectedIdsSet.has(row.id));
+  const someChecked = itens.some((row) => selectedIdsSet.has(row.id));
+
+  const headerCells = [
+    showCheckbox ? (
+      <TableHead
+        key="checkbox"
+        className="w-[48px] text-center font-medium text-sm text-text-primary h-auto py-4 px-2"
+      >
+        <Checkbox
+          checked={allChecked ? true : someChecked ? "indeterminate" : false}
+          onCheckedChange={(checked) => onToggleAll?.(Boolean(checked))}
+          aria-label="Selecionar todos os casos"
+        />
+      </TableHead>
+    ) : null,
+    <TableHead
+      key="id"
+      className="min-w-[95px] font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      ID / Categoria
+    </TableHead>,
+    <TableHead
+      key="detalhes"
+      className="min-w-0 flex-1 font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Detalhes do caso
+    </TableHead>,
+    <TableHead
+      key="estimativas"
+      className="w-[88px] text-center font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Estimativas
+    </TableHead>,
+    <TableHead
+      key="desenvolvedor"
+      className="w-[120px] font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Desenvolvedor
+    </TableHead>,
+    <TableHead
+      key="status"
+      className="w-[123px] font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Status
+    </TableHead>,
+    <TableHead
+      key="acoes"
+      className="w-[66px] text-right font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Ações
+    </TableHead>,
+  ];
+
+  const bodyRows = [
+    ...itens.map((row) => (
+      <ProjetosTabelaRowEscopo
+        key={row.id}
+        row={row}
+        showCheckbox={showCheckbox}
+        checked={selectedIdsSet.has(row.id)}
+        onCheckedChange={(checked) => onToggleItem?.(row.id, checked)}
+      />
+    )),
+    ...(isFetchingNextPage
+      ? [
+          <ProjetosTabelaEscopoSkeletonRows
+            key="skeleton"
+            count={3}
+            showCheckbox={showCheckbox}
+          />,
+        ]
+      : []),
+  ];
+
   return (
     <Table>
-      <TableHeader>
-        <TableRow className={HEADER_ROW_CLASS}>
-          {showCheckbox ? (
-            <TableHead className="w-[48px] text-center font-medium text-sm text-text-primary h-auto py-4 px-2" />
-          ) : null}
-          <TableHead className="min-w-[95px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-            ID / Categoria
-          </TableHead>
-          <TableHead className="min-w-0 flex-1 font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Detalhes do caso
-          </TableHead>
-          <TableHead className="w-[88px] text-center font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Estimativas
-          </TableHead>
-          <TableHead className="w-[120px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Desenvolvedor
-          </TableHead>
-          <TableHead className="w-[123px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Status
-          </TableHead>
-          <TableHead className="w-[66px] text-right font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Ações
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {itens.map((row) => (
-          <ProjetosTabelaRowEscopo key={row.id} row={row} />
-        ))}
-        {isFetchingNextPage ? (
-          <ProjetosTabelaEscopoSkeletonRows count={3} />
-        ) : null}
-      </TableBody>
+      {[
+        <TableHeader key="header">
+          <TableRow className={HEADER_ROW_CLASS}>{headerCells}</TableRow>
+        </TableHeader>,
+        <TableBody key="body">{bodyRows}</TableBody>,
+      ]}
     </Table>
   );
 }
@@ -69,39 +123,68 @@ function ProjetosTabelaTableListagem({
   isFetchingNextPage,
   showCheckbox = false,
 }: ProjetosTabelaTableListagemProps) {
+  const headerCells = [
+    showCheckbox ? (
+      <TableHead
+        key="checkbox"
+        className="w-[48px] text-center font-medium text-sm text-text-primary h-auto py-4 px-2"
+      />
+    ) : null,
+    <TableHead
+      key="registro"
+      className="w-[80px] font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Registro
+    </TableHead>,
+    <TableHead
+      key="nome"
+      className="min-w-0 flex-1 font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Nome do projeto
+    </TableHead>,
+    <TableHead
+      key="data-inicial"
+      className="w-[148px] font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Data inicial
+    </TableHead>,
+    <TableHead
+      key="data-final"
+      className="w-[148px] font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Data final
+    </TableHead>,
+    <TableHead
+      key="status"
+      className="w-[148px] font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Status
+    </TableHead>,
+    <TableHead
+      key="acoes"
+      className="w-[76px] text-right font-medium text-sm text-text-primary h-auto py-4 px-5"
+    >
+      Ações
+    </TableHead>,
+  ];
+
+  const bodyRows = [
+    ...itens.map((item) => (
+      <ProjetosTabelaRowListagem key={item.registro} item={item} />
+    )),
+    ...(isFetchingNextPage
+      ? [<ProjetosTabelaSkeletonRows key="skeleton" count={3} />]
+      : []),
+  ];
+
   return (
     <Table>
-      <TableHeader>
-        <TableRow className={HEADER_ROW_CLASS}>
-          {showCheckbox ? (
-            <TableHead className="w-[48px] text-center font-medium text-sm text-text-primary h-auto py-4 px-2" />
-          ) : null}
-          <TableHead className="w-[80px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Registro
-          </TableHead>
-          <TableHead className="min-w-0 flex-1 font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Nome do projeto
-          </TableHead>
-          <TableHead className="w-[148px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Data inicial
-          </TableHead>
-          <TableHead className="w-[148px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Data final
-          </TableHead>
-          <TableHead className="w-[148px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Status
-          </TableHead>
-          <TableHead className="w-[76px] text-right font-medium text-sm text-text-primary h-auto py-4 px-5">
-            Ações
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {itens.map((item) => (
-          <ProjetosTabelaRowListagem key={item.registro} item={item} />
-        ))}
-        {isFetchingNextPage ? <ProjetosTabelaSkeletonRows count={3} /> : null}
-      </TableBody>
+      {[
+        <TableHeader key="header">
+          <TableRow className={HEADER_ROW_CLASS}>{headerCells}</TableRow>
+        </TableHeader>,
+        <TableBody key="body">{bodyRows}</TableBody>,
+      ]}
     </Table>
   );
 }

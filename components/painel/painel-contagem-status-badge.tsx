@@ -53,7 +53,7 @@ export function PainelContagemStatusBadge({
   return (
     <Badge
       className={cn(
-        "rounded-full w-9 h-7 flex items-center justify-center border-transparent px-0",
+        "rounded-full w-6 h-6 flex items-center justify-center border-transparent px-0",
         VARIANT_CLASSES[variant],
         className,
       )}

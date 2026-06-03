@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { CadastroFiltrosCard } from "@/components/cadastros/cadastro-filtros-card";
 import { CadastroListagemCard } from "@/components/cadastros/cadastro-listagem-card";
+import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import { Button } from "@/components/ui/button";
 import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
 import {
@@ -38,7 +39,9 @@ export function ConfiguracoesUsuarios({
   const rolesQuery = useDbRolesSelectList();
   const replaceRoleMutation = useReplaceAppUserRole();
 
-  const [selectedUser, setSelectedUser] = useState<UsuarioListItem | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UsuarioListItem | null>(
+    null,
+  );
   const [modalOpen, setModalOpen] = useState(false);
 
   const rbacReady = permissionsLoaded();
@@ -122,16 +125,11 @@ export function ConfiguracoesUsuarios({
   };
 
   return (
-    <div className="px-6 pt-20 py-10 flex-1 flex flex-col">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3 shrink-0">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold text-text-primary">Usuários</h1>
-          <p className="text-sm text-text-secondary">
-            Gerencie o perfil de acesso dos usuários da plataforma
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+    <ListagemPageLayout
+      title="Usuários"
+      subtitle="Gerencie o perfil de acesso dos usuários da plataforma"
+      actions={
+        <>
           <Button
             variant="outline"
             type="button"
@@ -151,9 +149,9 @@ export function ConfiguracoesUsuarios({
             <ArrowLeft className="h-3.5 w-3.5" />
             Voltar ao Painel
           </Button>
-        </div>
-      </div>
-
+        </>
+      }
+    >
       <CadastroFiltrosCard
         fieldLabel="Usuário"
         placeholder="Buscar por nome ou e-mail..."
@@ -199,7 +197,6 @@ export function ConfiguracoesUsuarios({
           onConfirm={handleSaveProfile}
         />
       )}
-    </div>
+    </ListagemPageLayout>
   );
 }
-

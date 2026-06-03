@@ -14,7 +14,7 @@ export function ReportCreateRightColumn({
   isCreating,
 }: ReportCreateRightColumnProps) {
   return (
-    <div className="flex w-full flex-col gap-4 lg:w-[292px]">
+    <div className="flex w-full shrink-0 flex-col gap-2 lg:w-[292px]">
       <ReportPrioridadeSlaCard />
 
       <div className="rounded-lg border border-border-accent bg-gradient-to-br from-bg-accent-start to-bg-accent-end p-4">

@@ -19,7 +19,8 @@ import {
   incrementAberturaStats,
   setIgnoreAutoFill,
 } from "@/lib/casos-abertura-rapida-storage";
-import { CreateFormHeader } from "@/components/casos/shared/create-form-header";
+import { CreateFormHeaderActions } from "@/components/casos/shared/create-form-header";
+import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import {
   assistantFormSchema,
   casoCreateFormSchema,
@@ -262,42 +263,47 @@ export function CasoCreateForm() {
     isCreatingCaso || isSubmitting || uploadAttachmentsBatch.isPending;
 
   return (
-    <div className="flex-1 overflow-auto px-6 pb-10 pt-20">
+    <ListagemPageLayout
+      title="Adicionar Novo Caso"
+      subtitle="Preencha os campos abaixo para criar um novo caso"
+      className="flex-1 overflow-auto pb-12"
+      actions={
+        <CreateFormHeaderActions
+          onBack={() => {
+            setQuickMode(false);
+            router.back();
+          }}
+          onLimparFormulario={() => {
+            exitQuickMode();
+            methods.reset();
+            setNaoPlanejado(false);
+            setAttachmentFiles([]);
+            setIsAnexosModalOpen(false);
+          }}
+          onOpenAssistant={() => setIsAssistantModalOpen(true)}
+          assistantDisabled={isCreatingCaso}
+        />
+      }
+    >
       <CasoFormProvider value={providerValue}>
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
-            <CreateFormHeader
-              title="Adicionar Novo Caso"
-              description="Preencha os campos abaixo para criar um novo caso"
-              onBack={() => {
-                setQuickMode(false);
-                router.back();
-              }}
-              onLimparFormulario={() => {
-                exitQuickMode();
-                methods.reset();
-                setNaoPlanejado(false);
-                setAttachmentFiles([]);
-                setIsAnexosModalOpen(false);
-              }}
-              onOpenAssistant={() => setIsAssistantModalOpen(true)}
-              assistantDisabled={isCreatingCaso}
-            />
+            <div className="flex flex-col gap-6">
+              <div className="flex min-h-0 flex-col gap-2 lg:flex-row">
+                <CasoCreateLeftColumn
+                  quickMode={quickMode}
+                  attachmentCount={attachmentFiles.length}
+                  onOpenAnexos={() => setIsAnexosModalOpen(true)}
+                />
 
-            <div className="flex flex-col gap-6 lg:flex-row">
-              <CasoCreateLeftColumn
-                quickMode={quickMode}
-                attachmentCount={attachmentFiles.length}
-                onOpenAnexos={() => setIsAnexosModalOpen(true)}
-              />
-
-              <CasoCreateRightColumn
-                naoPlanejado={naoPlanejado}
-                onNaoPlanejadoChange={setNaoPlanejado}
-                isSubmitting={isSubmitting}
-                isCreatingCaso={isCreatingCaso}
-                isUploadingAttachments={uploadAttachmentsBatch.isPending}
-              />
+                <CasoCreateRightColumn
+                  naoPlanejado={naoPlanejado}
+                  onNaoPlanejadoChange={setNaoPlanejado}
+                  isSubmitting={isSubmitting}
+                  isCreatingCaso={isCreatingCaso}
+                  isUploadingAttachments={uploadAttachmentsBatch.isPending}
+                />
+              </div>
             </div>
 
             <CasoCreateModals
@@ -329,6 +335,6 @@ export function CasoCreateForm() {
         onToggleRecording={() => {}}
         isAssistantSubmitting={isAssistantPending}
       />
-    </div>
+    </ListagemPageLayout>
   );
 }

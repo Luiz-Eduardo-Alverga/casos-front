@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { SuccessModal } from "@/components/reports-form/success-modal";
 import { AssistantModal } from "@/components/casos/shared/assistant-modal";
-import { CreateFormHeader } from "@/components/casos/shared/create-form-header";
+import { CreateFormHeaderActions } from "@/components/casos/shared/create-form-header";
+import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
 import { getUser } from "@/lib/auth";
@@ -200,25 +201,30 @@ export function ReportCreateForm() {
   };
 
   return (
-    <div className="flex-1 overflow-auto px-6 pb-10 pt-20">
+    <ListagemPageLayout
+      title="Adicionar Novo Report"
+      subtitle="Preencha os campos abaixo para abrir um novo report"
+      className="flex-1 overflow-auto pb-12"
+      actions={
+        <CreateFormHeaderActions
+          onBack={() => router.back()}
+          onLimparFormulario={() => methods.reset()}
+          onOpenAssistant={() => setIsAssistantModalOpen(true)}
+          assistantDisabled={isCreating}
+        />
+      }
+    >
       <CasoFormProvider value={providerValue}>
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
-            <CreateFormHeader
-              title="Adicionar Novo Report"
-              description="Preencha os campos abaixo para abrir um novo report"
-              onBack={() => router.back()}
-              onLimparFormulario={() => methods.reset()}
-              onOpenAssistant={() => setIsAssistantModalOpen(true)}
-              assistantDisabled={isCreating}
-            />
-
-            <div className="flex flex-col gap-6 lg:flex-row">
-              <ReportCreateLeftColumn />
-              <ReportCreateRightColumn
-                isSubmitting={isSubmitting}
-                isCreating={isCreating}
-              />
+            <div className="flex flex-col gap-6">
+              <div className="flex min-h-0 flex-col gap-6 lg:flex-row">
+                <ReportCreateLeftColumn />
+                <ReportCreateRightColumn
+                  isSubmitting={isSubmitting}
+                  isCreating={isCreating}
+                />
+              </div>
             </div>
           </form>
           <SuccessModal
@@ -245,6 +251,6 @@ export function ReportCreateForm() {
         onToggleRecording={() => {}}
         isAssistantSubmitting={isAssistantPending}
       />
-    </div>
+    </ListagemPageLayout>
   );
 }

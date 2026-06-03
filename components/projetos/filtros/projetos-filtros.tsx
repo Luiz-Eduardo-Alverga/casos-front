@@ -77,7 +77,7 @@ export function ProjetosFiltros({
   return (
     <CasoFormProvider value={providerValue}>
       <FormProvider {...methods}>
-        <Card className="bg-card shadow-card rounded-lg shrink-0 mb-6">
+        <Card className="bg-card shadow-card rounded-lg shrink-0 mb-2">
           <CardHeader className="flex flex-row justify-between px-5 py-2 border-b border-border-divider">
             <div className="flex items-center gap-2">
               <Filter className="h-3.5 w-3.5 text-text-primary" />

@@ -23,7 +23,7 @@ export function PainelKanbanFiltros({
   projetosLoading = false,
 }: PainelKanbanFiltrosProps) {
   return (
-    <Card className="bg-card shadow-card rounded-lg shrink-0 mb-6 min-w-0">
+    <Card className="bg-card shadow-card rounded-lg shrink-0 mb-2 min-w-0">
       <CardHeader className="px-5 py-3 border-b border-border-divider shrink-0">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">

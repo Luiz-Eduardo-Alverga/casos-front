@@ -17,7 +17,7 @@ export function AbaInicial() {
   const { numeroCaso } = useCasoEdit();
 
   return (
-    <div className="flex flex-col gap-6 h-full">
+    <div className="flex flex-col gap-2 h-full">
       <Card className="bg-card shadow-card rounded-lg h-full">
         <CasoEditCardHeader
           title="Informações"
@@ -25,7 +25,7 @@ export function AbaInicial() {
           badge={numeroCaso}
           shrink={false}
         />
-        <CardContent className="p-6 pt-3 space-y-4 ">
+        <CardContent className="p-6 pt-2 space-y-2">
           <CasoFormDescricaoResumo />
           <CasoFormDescricaoCompleta />
           <CasoFormInformacoesAdicionais />

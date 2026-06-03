@@ -1,130 +1,151 @@
 # Padrão de Espaçamentos - Casos Front
 
-Este documento descreve o padrão de espaçamentos internos dos cards e componentes utilizados na aplicação. **IMPORTANTE**: Os espaçamentos do Figma podem diferir dos espaçamentos implementados na aplicação. Sempre use este documento como referência ao implementar telas do Figma.
+Este documento descreve o padrão de espaçamentos de cards, formulários de edição e layout de abas. **IMPORTANTE**: Os espaçamentos do Figma podem diferir dos valores implementados. Sempre use este documento como referência ao implementar telas do Figma.
 
-## Espaçamentos de Cards
+Referências principais: `components/casos/edicao/caso-edit-form.tsx`, `components/projetos/edicao/projeto-edit-form.tsx`, `components/casos/edicao/caso-edit-card-header.tsx`.
 
-### Estrutura Padrão de Card
+---
 
-Todos os cards na aplicação seguem a seguinte estrutura de espaçamento:
+## Telas de edição com abas (layout shell)
 
-```tsx
-<div className="bg-card rounded-lg shadow-card p-6 flex flex-col">
-  {/* Header do Card */}
-  <div className="flex items-center gap-2 p-5 pb-2 border-b border-border-divider">
-    {/* Ícone e Título */}
-  </div>
-  
-  {/* Conteúdo do Card */}
-  <div className="p-6 pt-3">
-    {/* Conteúdo interno */}
-  </div>
-</div>
-```
+Estrutura comum em **Edição de Caso** e **Edição de Projeto**:
 
-### Detalhamento dos Espaçamentos
+| Camada | Classes | Descrição |
+|--------|---------|-----------|
+| Container de abas | `flex flex-col flex-1 min-h-0 lg:overflow-hidden` | Coluna principal da página |
+| Área rolável | `mt-2 flex-1 flex flex-col min-h-0 overflow-auto` | 8px abaixo do header de abas |
+| Reserva do rodapé fixo | `flex-1 pb-12` ou `pb-24` | `pb-24` quando há rodapé de ações fixo (ex.: aba Abertura do projeto); `pb-12` nos demais casos |
+| Entre colunas (layout 2 colunas) | `gap-6 lg:flex-row` | 24px entre coluna principal e lateral (362px) |
+| `TabsContent` | `mt-0 flex flex-1 flex-col min-h-0 data-[state=inactive]:hidden` | Remove margem do Radix; aba inativa não ocupa layout |
+| Conteúdo da aba (bloco único) | `flex min-h-0 flex-1 flex-col gap-6 min-w-0` | Uma seção principal ou colunas lado a lado |
+| Conteúdo da aba (vários cards empilhados) | `flex min-h-0 flex-1 flex-col gap-2 min-w-0` | Ex.: Stakes, Risco, Clientes + Classificação |
 
-| Elemento | Padding | Descrição |
-|----------|---------|-----------|
-| **Card Container** | `p-6` | Padding geral de 24px (1.5rem) em todos os lados do card |
-| **Card Header** | `p-5 pb-2` | Padding de 20px (1.25rem) em todos os lados, exceto bottom que é 8px (0.5rem) |
-| **Card Content** | `p-6 pt-3` | Padding de 24px (1.5rem) em todos os lados, exceto top que é 12px (0.75rem) |
-| **Gap entre elementos** | `gap-2` | Espaçamento de 8px (0.5rem) entre ícone e título no header |
-| **Border** | `border-b border-border-divider` | Borda inferior de 1px separando header do conteúdo |
+**Não usar** `mb-4` (ou margens por aba) no lugar de `pb-12` / `pb-24` no wrapper interno.
 
-### Valores em Pixels
-
-- `p-6` = 24px (1.5rem)
-- `p-5` = 20px (1.25rem)
-- `pb-2` = 8px (0.5rem)
-- `pt-3` = 12px (0.75rem)
-- `gap-2` = 8px (0.5rem)
-
-## Exemplo de Implementação
-
-### Card Simples
+### Exemplo (edição de projeto)
 
 ```tsx
-<div className="bg-card rounded-lg shadow-card p-6 flex flex-col">
-  {/* Header */}
-  <div className="flex items-center gap-2 p-5 pb-2 border-b border-border-divider">
-    <FileText className="h-3.5 w-3.5 text-text-primary" />
-    <h2 className="text-sm font-semibold text-text-primary">Título do Card</h2>
-  </div>
-  
-  {/* Content */}
-  <div className="p-6 pt-3 space-y-4">
-    {/* Conteúdo aqui */}
-  </div>
-</div>
-```
+<Tabs className="flex min-h-0 flex-1 flex-col lg:overflow-hidden">
+  <ProjetoEditHeader />
 
-### Card com Grid
-
-```tsx
-<div className="bg-card rounded-lg shadow-card p-6 flex flex-col">
-  {/* Header */}
-  <div className="flex items-center gap-2 p-5 pb-2 border-b border-border-divider">
-    <Bug className="h-3.5 w-3.5 text-text-primary" />
-    <h2 className="text-sm font-semibold text-text-primary">Título</h2>
-  </div>
-  
-  {/* Content com Grid */}
-  <div className="p-6 pt-3">
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px]">
-      {/* Campos do grid */}
+  <div className="mt-2 flex min-h-0 flex-1 flex-col overflow-auto">
+    <div className={cn("flex-1", exibirRodapeAcoes ? "pb-24" : "pb-12")}>
+      <TabsContent
+        value="stakes"
+        className="mt-0 flex min-h-0 flex-1 flex-col data-[state=inactive]:hidden"
+      >
+        <div className="flex min-h-0 flex-1 flex-col gap-2 min-w-0">
+          <AbaStakes />
+        </div>
+      </TabsContent>
     </div>
   </div>
-</div>
+</Tabs>
 ```
 
-## Grid de filtros em cards
+---
 
-Em cards de filtros (ex.: tela Ver Casos):
+## Telas de cadastro (criar caso / report)
 
-- **Grid**: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4` — 1 coluna em mobile, 2 em sm, 4 em lg; gap 16px entre itens.
+Estrutura em `caso-create/index.tsx` e `report-create/index.tsx`:
 
-## Espaçamentos entre Cards
+| Camada | Classes | Descrição |
+|--------|---------|-----------|
+| Página rolável | `flex-1 overflow-auto px-6 pb-12 pt-20` | Padding inferior alinhado ao padrão (`pb-12`) |
+| Bloco do formulário | `flex flex-col gap-6` | 24px entre header de página e colunas |
+| Colunas | `flex min-h-0 flex-col gap-6 lg:flex-row` | 24px entre coluna principal e lateral |
+| Coluna principal (cards empilhados) | `flex min-h-0 min-w-0 flex-1 flex-col gap-2` | 8px entre cards; `mt-auto` no último card quando necessário |
+| Coluna lateral | `gap-2` + `lg:w-[362px]` (caso) ou `lg:w-[292px]` (report) | Cards e ações com 8px entre si |
 
-Quando há múltiplos cards na mesma página:
+O `CreateFormHeader` não define margem inferior; o espaçamento vem do `gap-6` do wrapper pai.
 
-- **Gap entre cards**: `gap-6` = 24px (1.5rem)
-- **Gap entre colunas**: `gap-6` = 24px (1.5rem)
+---
 
-## Espaçamentos Internos de Formulários
+## Espaçamentos de Cards (edição — padrão atual)
 
-Para campos dentro de cards:
+### Estrutura padrão
 
-- **Space entre campos verticais**: `space-y-4` = 16px (1rem)
-- **Gap em grids**: `gap-[20px]` = 20px (valor customizado)
+```tsx
+<Card className="rounded-lg bg-card shadow-card">
+  <CardHeader className="border-b border-border-divider p-4 pb-2">
+    <div className="flex items-center gap-2">
+      <Icon className="h-3.5 w-3.5 text-text-primary" />
+      <CardTitle className="text-sm font-semibold text-text-primary">Título</CardTitle>
+    </div>
+  </CardHeader>
+  <CardContent className="space-y-2 p-6 pt-2">
+    {/* campos */}
+  </CardContent>
+</Card>
+```
 
-## Notas Importantes
+Em edição de caso, preferir o componente `CasoEditCardHeader` (`p-4 pb-2`, `gap-2`, `border-b border-border-divider`).
 
-### ⚠️ Diferenças com Figma
+### Detalhamento
 
-1. **Sempre verifique este documento** antes de implementar espaçamentos do Figma
-2. Os espaçamentos do Figma podem estar em valores diferentes (ex: 16px, 32px)
-3. **Use os valores padrão da aplicação** documentados aqui, não os valores exatos do Figma
-4. O padrão foi estabelecido para manter consistência visual em toda a aplicação
+| Elemento | Classes | Descrição |
+|----------|---------|-----------|
+| **Card Header** | `p-4 pb-2` + `border-b border-border-divider` | 16px lateral/top; 8px abaixo do título |
+| **Ícone e título** | `gap-2` | 8px entre ícone e texto |
+| **Card Content** | `p-6 pt-2` | 24px laterais/bottom; 8px no topo (após o header) |
+| **Campos verticais no content** | `space-y-2` | 8px entre campos/blocos |
+| **Card especial (sem header)** | `p-4` no `CardContent` | Ex.: card de status na coluna direita do caso |
 
-### ✅ Boas Práticas
+### Valores em pixels (edição)
 
-1. **Sempre use as classes Tailwind** documentadas aqui
-2. **Não use valores customizados** a menos que seja absolutamente necessário
-3. **Mantenha consistência** - se um card usa `p-6`, todos devem usar
-4. **Teste visualmente** - ajuste apenas se houver necessidade real de diferenciação
+- `p-4` = 16px
+- `p-6` = 24px
+- `pb-2` / `pt-2` = 8px
+- `gap-2` = 8px (entre cards na mesma coluna, ou ícone/título)
+- `gap-6` = 24px (entre colunas ou bloco principal de aba)
 
-## Checklist ao Implementar Nova Tela do Figma
+---
 
-- [ ] Card container usa `p-6`
-- [ ] Card header usa `p-5 pb-2`
-- [ ] Card content usa `p-6 pt-3`
-- [ ] Gap entre ícone e título é `gap-2`
-- [ ] Border divisória usa `border-border-divider`
-- [ ] Espaçamento entre cards é `gap-6`
-- [ ] Campos em formulário usam `space-y-4` ou `gap-[20px]` para grids
+## Espaçamentos entre cards e colunas
+
+| Contexto | Classes |
+|----------|---------|
+| Vários cards na **mesma coluna** (empilhados) | `flex flex-col gap-2` |
+| Duas colunas (ex.: abertura do projeto) | `flex flex-col gap-6 lg:flex-row` |
+| Coluna lateral fixa | `lg:w-[362px]` + `gap-2` entre cards da coluna |
+
+---
+
+## Grids e filtros
+
+- **Grid de filtros em cards** (ex.: Ver Casos): `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4`
+- **Grid de campos dentro do card** (quando necessário): `gap-4` ou `gap-[20px]` em layouts legados; em edição compacta, preferir `gap-2` / `gap-4` conforme densidade da seção
+
+---
+
+## Padrão legado (telas antigas / painel)
+
+Algumas telas ainda usam header `p-5 pb-2` e content `p-6 pt-3 space-y-4`. Ao **refatorar** ou criar telas novas de edição, migrar para o padrão atual (`p-4 pb-2`, `p-6 pt-2`, `space-y-2`).
+
+---
+
+## Diferenças com Figma
+
+1. Verifique este documento antes de copiar valores do Figma
+2. Use os tokens da aplicação, não pixels exatos do design
+3. Em telas de edição com abas, priorize o **layout shell** e depois os cards
+
+---
+
+## Checklist — nova tela de edição
+
+- [ ] Área rolável: `mt-2` + `overflow-auto` + `min-h-0`
+- [ ] Wrapper com `pb-12` ou `pb-24` (rodapé fixo)
+- [ ] `TabsContent` com `mt-0`, flex, `data-[state=inactive]:hidden`
+- [ ] Wrapper da aba: `gap-6` (bloco único/colunas) ou `gap-2` (cards empilhados)
+- [ ] Card header: `p-4 pb-2` + `border-b border-border-divider`
+- [ ] Card content: `p-6 pt-2` + `space-y-2`
+- [ ] Coluna lateral: `gap-2` entre cards; layout: `gap-6 lg:flex-row`
+
+---
 
 ## Referências
 
-- Componente base: `components/reports.tsx`
-- Cards do painel: `components/painel/produtos-priorizados.tsx`, `components/painel/retorno.tsx`, `components/painel/casos-produto.tsx`
+- Edição caso: `components/casos/edicao/caso-edit-form.tsx`, `caso-edit-card-header.tsx`, `abas/aba-inicial.tsx`
+- Edição projeto: `components/projetos/edicao/projeto-edit-form.tsx`, `shared/projeto-abertura-form.tsx`
+- Cards painel (legado): `components/painel/produtos-priorizados.tsx`, `components/reports.tsx`

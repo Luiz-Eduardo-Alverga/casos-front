@@ -41,9 +41,9 @@ export function CasoFormDescricaoResumo({
         disabled={isDisabled}
         className="h-9 rounded-lg border-border-input px-[17px] py-3"
       />
-      <p className="text-xs text-text-secondary">
+      {/* <p className="text-xs text-text-secondary">
         O resumo deve ser breve e descritivo
-      </p>
+      </p> */}
     </div>
   );
 }

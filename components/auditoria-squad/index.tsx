@@ -191,7 +191,7 @@ export function AuditoriaSquad() {
         </Button>
       }
     >
-      <div className="flex w-full flex-col gap-6">
+      <div className="flex w-full flex-col gap-2">
         <AuditoriaFiltros
           form={form}
           dataProducao={dataProducao}
@@ -209,7 +209,7 @@ export function AuditoriaSquad() {
         ) : semResultados ? (
           <AuditoriaEmptyState variant="sem_resultados" />
         ) : mostrarResultados && resumoSquad ? (
-          <div className="flex w-full flex-col gap-6">
+          <div className="flex w-full flex-col gap-2">
             <AuditoriaSummaryCards resumo={resumoSquad} />
             <AuditoriaColaboradoresTable
               colaboradores={colaboradores}

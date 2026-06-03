@@ -137,7 +137,7 @@ export function CasosFiltrosCamposExpandidos({
           type="button"
           disabled={filtrarDisabled}
           onClick={onFiltrar}
-          className="h-[42px] w-full sm:w-[205px]"
+          className="h-9 w-full sm:w-[205px]"
         >
           <Search className="h-3.5 w-3.5 mr-2" />
           <span>Filtrar</span>

@@ -15,16 +15,8 @@ function mergeRefs<T>(
   };
 }
 
-const TYPES_WITH_CLEAR_BY_DEFAULT = new Set([
-  "text",
-  "search",
-  "email",
-  "tel",
-  "url",
-]);
-
 export type InputProps = React.ComponentProps<"input"> & {
-  /** `true`/`false` força o botão. Omitido: ativa só em tipos de texto comuns (não inclui `password`, `file`, etc.). */
+  /** Exibe o botão X para limpar o valor. Padrão: `true`. Use `false` quando houver outro controle de limpar/fechar. */
   clearable?: boolean;
 };
 
@@ -54,10 +46,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         : String(value)
       : uncontrolledValue;
 
-    const effectiveClearable =
-      clearable !== undefined
-        ? clearable
-        : TYPES_WITH_CLEAR_BY_DEFAULT.has(type ?? "text");
+    const effectiveClearable = clearable ?? true;
 
     const isReadOnly = Boolean(props.readOnly);
 

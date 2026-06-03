@@ -3,17 +3,14 @@
 import { useMemo, useRef, useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
-import type { ProjetoMemoriaItem } from "@/services/projeto-memoria/get-projeto-memoria";
 import { getUser } from "@/lib/auth";
 import { ArrowLeftRight, Box, ChevronUp } from "lucide-react";
 import toast from "react-hot-toast";
 import { EmptyState } from "@/components/painel/empty-state";
 import { CasosTabelaSkeleton } from "@/components/casos/layout/casos-tabela-skeleton";
 import { Button } from "@/components/ui/button";
-import {
-  CasosTabelaTable,
-  type CasosTabelaRow,
-} from "@/components/casos/tabela/casos-tabela-table";
+import { ProjetosTabelaTable } from "@/components/projetos/tabela/projetos-tabela-table";
+import { mapProjetoMemoriaToTabelaRow } from "@/components/projetos/tabela/map-projeto-memoria-to-escopo-row";
 import { useBulkUpdateCasos } from "@/hooks/casos/use-bulk-update-casos";
 import { CasosTransferenciaModal } from "@/components/casos/transferencia/casos-transferencia-modal";
 import { buildBulkTransferPayload } from "@/components/casos/transferencia/utils";
@@ -27,29 +24,6 @@ import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
 
 interface CasosTabelaProps {
   filtros: CasosFiltrosAplicados;
-}
-
-function mapItemToRow(item: ProjetoMemoriaItem): CasosTabelaRow {
-  const prioridade = item.caso.caracteristicas.prioridade;
-
-  return {
-    id: String(item.caso.id),
-    importancia: Number(prioridade) || 0,
-    produto: item.produto.nome ?? "",
-    versao: item.produto.versao ?? "",
-    numero: String(item.caso.id),
-    descricao: item.caso.textos.descricao_resumo ?? "",
-    status: item.caso.status?.status_tipo ?? "",
-    categoria: item.caso.caracteristicas.tipo_categoria ?? "",
-    tipo_abertura: item.report?.tipo_abertura ?? "CASO",
-    estimado_minutos: item.caso.tempos.estimado_minutos ?? 0,
-    realizado_minutos: item.caso.tempos.realizado_minutos ?? 0,
-    desenvolvedor: item.caso.usuarios?.desenvolvimento?.nome?.trim() ?? "",
-    tempoStatus:
-      item.caso.tempos?.tempo_status ?? item.caso.status?.tempo_status ?? "",
-    statusTempo:
-      item.caso.tempos?.status_tempo ?? item.caso.status?.status_tempo ?? "",
-  };
 }
 
 export function CasosTabela({ filtros }: CasosTabelaProps) {
@@ -70,7 +44,7 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
     });
 
   const itens = useMemo(
-    () => data?.pages.flatMap((p) => p.data.map(mapItemToRow)) ?? [],
+    () => data?.pages.flatMap((p) => p.data.map(mapProjetoMemoriaToTabelaRow)) ?? [],
     [data],
   );
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -201,9 +175,11 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
           />
         ) : (
           <>
-            <CasosTabelaTable
+            <ProjetosTabelaTable
+              variant="escopo"
               itens={itens}
               isFetchingNextPage={isFetchingNextPage}
+              showCheckbox
               selectedIds={selectedIds}
               onToggleItem={handleToggleItem}
               onToggleAll={handleToggleAll}

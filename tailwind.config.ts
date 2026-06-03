@@ -72,6 +72,8 @@ const config: Config = {
         "sidebar-border": "hsl(var(--sidebar-border))",
         "sidebar-text": "hsl(var(--sidebar-text))",
         "sidebar-text-secondary": "hsl(var(--sidebar-text-secondary))",
+        "sidebar-text-muted": "hsl(var(--sidebar-text-muted))",
+        "sidebar-section-label": "hsl(var(--sidebar-section-label))",
         // Cores do Painel do Desenvolvedor
         "panel-bg": "hsl(var(--panel-bg))",
         "panel-card-bg": "hsl(var(--panel-card-bg))",
@@ -170,6 +172,7 @@ const config: Config = {
       },
       boxShadow: {
         card: "var(--shadow-card)",
+        "kanban-card": "var(--shadow-kanban-card)",
       },
     },
   },

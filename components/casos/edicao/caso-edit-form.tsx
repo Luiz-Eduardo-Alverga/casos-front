@@ -388,11 +388,11 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
           showAnexosTab={showAnexosTab}
         />
 
-        <div className="mt-4 flex-1 flex flex-col min-h-0 overflow-auto">
+        <div className="mt-2 flex-1 flex flex-col min-h-0 overflow-auto">
           <CasoFormProvider value={providerValue}>
             <FormProvider {...methods}>
               <div className="flex-1 pb-12">
-                <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
+                <div className="flex min-h-0 flex-1 flex-col gap-2 lg:flex-row">
                   <div className="flex min-h-0 flex-1 min-w-0 flex-col gap-6">
                     <TabsContent
                       value="inicial"
@@ -447,7 +447,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         className="contents"
                         aria-disabled={!canEditCase}
                       > */}
-                      <div className="flex-1 flex flex-col gap-6 min-w-0">
+                      <div className="flex-1 flex flex-col gap-2 min-w-0">
                         <AbaClientes
                           clientes={clientes ?? []}
                           isTabActive={tabValue === "clientes"}
@@ -466,7 +466,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                         className="contents"
                         aria-disabled={!canEditCase}
                       >
-                        <div className="flex-1 flex flex-col gap-6 min-w-0">
+                        <div className="flex-1 flex flex-col gap-2 min-w-0">
                           <AbaRelacoes relacoes={relacoes ?? []} />
                           <CasoEditCardClassificacao />
                         </div>

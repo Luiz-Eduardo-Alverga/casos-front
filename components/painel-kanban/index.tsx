@@ -7,7 +7,8 @@ import toast from "react-hot-toast";
 import { LayoutGrid, Pencil } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PainelPageHeader } from "@/components/painel/painel-page-header";
+import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
+import { PainelPageActions } from "@/components/painel/painel-page-header";
 import { PainelKanbanFiltros } from "@/components/painel-kanban/filtros/painel-kanban-filtros";
 import { PainelKanbanProdutosModal } from "@/components/painel-kanban/filtros/painel-kanban-produtos-modal";
 import { HorasAnaliticasModal } from "@/components/painel-kanban/horas-analiticas-modal";
@@ -215,16 +216,48 @@ export function PainelKanban() {
   const produtoModalLabel =
     agendaRowForFilters?.produto?.trim() || "Não informado";
 
+  const painelActionsSlot = (
+    <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+      {canAuditAllUsers && (
+        <CasoFormDevAtribuido
+          required={false}
+          requireProduto={false}
+          label="Ver como"
+          placeholder={verComoPlaceholder}
+          valueLabelPrefix="Ver como: "
+          hideLabel
+          setorName="devAtribuidoSetor"
+          wrapperClassName="w-full sm:w-[220px] h-full"
+        />
+      )}
+
+      <Button
+        type="button"
+        variant="outline"
+        disabled={updateCaso.isPending}
+        onClick={() => setIsProdutosModalOpen(true)}
+        className="w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90"
+      >
+        <Pencil className="h-3.5 w-3.5" />
+        Editar visão geral
+      </Button>
+    </div>
+  );
+
   if (!idColaborador) {
     return (
-      <div className="px-6 pt-20 py-10 flex-1 flex flex-col overflow-x-hidden">
-        <PainelPageHeader />
+      <ListagemPageLayout
+        title="Painel do Desenvolvedor"
+        subtitle="Selecione um produto abaixo para filtrar os dados do Kanban"
+        className="overflow-x-hidden pb-5"
+        actions={<PainelPageActions />}
+      >
         <EmptyState
           icon={LayoutGrid}
           title="Sessão inválida"
           description="Não foi possível identificar o colaborador logado."
         />
-      </div>
+      </ListagemPageLayout>
     );
   }
 
@@ -235,40 +268,18 @@ export function PainelKanban() {
   return (
     <CasoFormProvider value={providerValue}>
       <FormProvider {...methods}>
-        <div className="px-6 pt-20 py-5 flex-1 flex flex-col overflow-x-hidden">
-          <PainelPageHeader
-            onHorasAnaliticas={() => setIsHorasAnaliticasOpen(true)}
-            isLoading={isAgendaLoading}
-            actionSlot={
-              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-                {canAuditAllUsers && (
-                  <CasoFormDevAtribuido
-                    required={false}
-                    requireProduto={false}
-                    label="Ver como"
-                    placeholder={verComoPlaceholder}
-                    valueLabelPrefix="Ver como: "
-                    hideLabel
-                    setorName="devAtribuidoSetor"
-                    wrapperClassName="w-full sm:w-[220px] h-full"
-                    controlHeightClassName="h-[42px]"
-                  />
-                )}
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={updateCaso.isPending}
-                  onClick={() => setIsProdutosModalOpen(true)}
-                  className="w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  Editar visão geral
-                </Button>
-              </div>
-            }
-          />
-
+        <ListagemPageLayout
+          title="Painel do Desenvolvedor"
+          subtitle="Selecione um produto abaixo para filtrar os dados do Kanban"
+          className="overflow-x-hidden pb-5"
+          actions={
+            <PainelPageActions
+              onHorasAnaliticas={() => setIsHorasAnaliticasOpen(true)}
+              isLoading={isAgendaLoading}
+              actionSlot={painelActionsSlot}
+            />
+          }
+        >
           <PainelKanbanFiltros
             agendaItems={agendaDevData ?? []}
             projetos={projetos}
@@ -334,7 +345,7 @@ export function PainelKanban() {
             variant="kanban"
             initialCaseId={itemSelecionado?.id}
           />
-        </div>
+        </ListagemPageLayout>
       </FormProvider>
     </CasoFormProvider>
   );

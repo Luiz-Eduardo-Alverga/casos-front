@@ -19,6 +19,7 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import type { DraggableAttributes } from "@dnd-kit/core";
 import {
   createContext,
   type HTMLAttributes,
@@ -88,9 +89,26 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   );
 };
 
+export type KanbanDragHandleProps = {
+  listeners: Record<string, unknown> | undefined;
+  attributes: DraggableAttributes;
+};
+
+const KanbanDragHandleContext = createContext<KanbanDragHandleProps | null>(
+  null,
+);
+
+export function useKanbanDragHandle(): KanbanDragHandleProps | null {
+  return useContext(KanbanDragHandleContext);
+}
+
 export type KanbanCardProps<T extends KanbanItemProps = KanbanItemProps> = T & {
   children?: ReactNode;
   className?: string;
+  /** Quando true, o arraste só inicia pelo grip (use `useKanbanDragHandle` no conteúdo). */
+  dragHandle?: boolean;
+  /** Clique no corpo do card (ex.: abrir modal). Usar com `dragHandle`. */
+  onCardClick?: () => void;
 };
 
 export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
@@ -98,6 +116,8 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
   name,
   children,
   className,
+  dragHandle = false,
+  onCardClick,
 }: KanbanCardProps<T>) => {
   const {
     attributes,
@@ -116,31 +136,77 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
     transform: CSS.Transform.toString(transform),
   };
 
+  const baseCardClassName = cn(
+    "gap-4 rounded-md p-3 touch-manipulation",
+    !dragHandle && "shadow-sm",
+    "transition-[box-shadow,transform,colors] outline-none",
+    dragHandle
+      ? "cursor-default"
+      : cn("cursor-pointer", "hover:ring-1 hover:ring-ring"),
+    className,
+  );
+
+  const cardClassName = cn(
+    baseCardClassName,
+    isDragging && "pointer-events-none opacity-30",
+    dragHandle && isDragging && "cursor-grabbing",
+  );
+
+  const dragOverlayClassName = cn(
+    baseCardClassName,
+    "cursor-grabbing opacity-100",
+  );
+
+  const cardContent = children ?? (
+    <p className="m-0 font-medium text-sm">{name}</p>
+  );
+
+  const cardElement = (
+    <Card
+      className={cardClassName}
+      onClick={dragHandle ? onCardClick : undefined}
+      role={dragHandle && onCardClick ? "button" : undefined}
+      tabIndex={dragHandle && onCardClick ? 0 : undefined}
+      onKeyDown={
+        dragHandle && onCardClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onCardClick();
+              }
+            }
+          : undefined
+      }
+    >
+      {cardContent}
+    </Card>
+  );
+
+  if (dragHandle) {
+    return (
+      <>
+        <div ref={setNodeRef} style={style}>
+          <KanbanDragHandleContext.Provider value={{ listeners, attributes }}>
+            {cardElement}
+          </KanbanDragHandleContext.Provider>
+        </div>
+        {activeCardId === id && (
+          <t.In>
+            <Card className={dragOverlayClassName}>{cardContent}</Card>
+          </t.In>
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       <div style={style} {...listeners} {...attributes} ref={setNodeRef}>
-        <Card
-          className={cn(
-            "cursor-pointer gap-4 rounded-md p-3 shadow-sm touch-manipulation",
-            /* Mesmo anel do Input (focus-visible:ring-1 ring-ring), aqui em hover */
-            "transition-colors outline-none hover:ring-1 hover:ring-ring",
-            isDragging && "pointer-events-none cursor-grabbing opacity-30",
-            className,
-          )}
-        >
-          {children ?? <p className="m-0 font-medium text-sm">{name}</p>}
-        </Card>
+        {cardElement}
       </div>
       {activeCardId === id && (
         <t.In>
-          <Card
-            className={cn(
-              "cursor-grabbing gap-4 rounded-md p-3 shadow-sm ring-2 ring-primary touch-manipulation",
-              className,
-            )}
-          >
-            {children ?? <p className="m-0 font-medium text-sm">{name}</p>}
-          </Card>
+          <Card className={dragOverlayClassName}>{cardContent}</Card>
         </t.In>
       )}
     </>
@@ -153,6 +219,8 @@ export type KanbanCardsProps<T extends KanbanItemProps = KanbanItemProps> =
     id: string;
     /** Conteúdo após os cartões, dentro da área rolável (ex.: sentinel de infinite scroll). */
     listFooter?: ReactNode;
+    sortItems?: (a: T, b: T) => number;
+    filterItems?: (item: T) => boolean;
   };
 
 export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
@@ -160,10 +228,18 @@ export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
   className,
   listFooter,
   id,
+  sortItems,
+  filterItems,
   ...rest
 }: KanbanCardsProps<T>) => {
   const { data } = useContext(KanbanContext) as KanbanContextProps<T>;
-  const filteredData = data.filter((item) => item.column === id);
+  let filteredData = data.filter((item) => item.column === id);
+  if (filterItems) {
+    filteredData = filteredData.filter(filterItems);
+  }
+  if (sortItems) {
+    filteredData = [...filteredData].sort(sortItems);
+  }
   const items = filteredData.map((item) => item.id);
 
   return (

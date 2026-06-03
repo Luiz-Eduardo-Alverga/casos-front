@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useEffect, useState, useRef } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { AnimatePresence } from "framer-motion";
+import { LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
@@ -139,7 +140,7 @@ export function CasosFiltros({
   return (
     <CasoFormProvider value={providerValue}>
       <FormProvider {...methods}>
-        <Card className="bg-card shadow-card rounded-lg shrink-0 mb-6 overflow-hidden">
+        <Card className={`bg-card shadow-card rounded-lg shrink-0 ${LISTAGEM_CARD_STACK_GAP} overflow-hidden`}>
           <AnimatePresence mode="wait" initial={false}>
             {modoResumo ? (
               <CasosFiltrosAnimatedContent

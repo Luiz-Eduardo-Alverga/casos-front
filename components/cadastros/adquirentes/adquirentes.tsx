@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import type { AcquirerListExpandedItem } from "@/components/cadastros/types";
 import { CadastroFiltrosCard } from "@/components/cadastros/cadastro-filtros-card";
 import { CadastroListagemCard } from "@/components/cadastros/cadastro-listagem-card";
+import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import { useDeleteAcquirer } from "@/hooks/cadastros/use-create-acquirer";
 import { useAcquirerDetailQuery } from "@/hooks/cadastros/use-db-cadastro-detail";
 import { AdquirentesModalNovo } from "./adquirentes-modal-novo";
@@ -137,15 +138,11 @@ export function Adquirentes({
   const canDelete = !rbacReady || hasPermission("delete-acquirer");
 
   return (
-    <div className="px-6 pt-20 py-10 flex-1 flex flex-col">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3 shrink-0">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold text-text-primary">Adquirentes</h1>
-          <p className="text-sm text-text-secondary">
-            Cadastro base de adquirentes utilizados nos casos
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+    <ListagemPageLayout
+      title="Adquirentes"
+      subtitle="Cadastro base de adquirentes utilizados nos casos"
+      actions={
+        <>
           <Button
             variant="outline"
             type="button"
@@ -178,9 +175,9 @@ export function Adquirentes({
               Novo cadastro
             </Button>
           )}
-        </div>
-      </div>
-
+        </>
+      }
+    >
       <CadastroFiltrosCard
         fieldLabel="Nome"
         placeholder="Buscar por nome..."
@@ -247,6 +244,6 @@ export function Adquirentes({
           onConfirm={confirmDelete}
         />
       )}
-    </div>
+    </ListagemPageLayout>
   );
 }

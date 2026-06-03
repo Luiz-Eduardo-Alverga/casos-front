@@ -35,9 +35,7 @@ function buildTitleLine(
 ): string {
   const nome = produtoNome.trim() || "Produto";
   const versao = produtoVersao.trim();
-  return versao
-    ? `#${casoId} - ${nome} • ${versao}`
-    : `#${casoId} - ${nome}`;
+  return versao ? `#${casoId} - ${nome}` : `#${casoId} - ${nome}`;
 }
 
 function buildPathDescription(
@@ -45,8 +43,7 @@ function buildPathDescription(
   modulo: string | null | undefined,
   descricaoResumo: string | null | undefined,
 ): string {
-  const produtoRaiz =
-    produtoNome.split("(")[0]?.trim().toUpperCase() || "CASO";
+  const produtoRaiz = produtoNome.split("(")[0]?.trim().toUpperCase() || "CASO";
   const mod = modulo?.trim();
   const resumo = descricaoResumo?.trim();
 
@@ -74,8 +71,7 @@ export function buildCasoAbertoPlayerViewModel(
   return {
     casoId,
     titulo:
-      caso?.textos?.descricao_resumo?.trim() ||
-      `Caso #${producao.registro}`,
+      caso?.textos?.descricao_resumo?.trim() || `Caso #${producao.registro}`,
     titleLine: buildTitleLine(casoId, produtoNome, produtoVersao),
     pathDescription: buildPathDescription(
       produtoNome,

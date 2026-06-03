@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import { PainelContagemStatusBadge } from "@/components/painel/painel-contagem-status-badge";
@@ -17,10 +18,17 @@ import {
   PAINEL_KANBAN_COLUMNS,
   type PainelKanbanColumnId,
 } from "@/components/painel-kanban/kanban/painel-kanban-columns";
-import type { PainelKanbanItem } from "@/components/painel-kanban/kanban/painel-kanban-map";
+import {
+  compareKanbanByImportancia,
+  type PainelKanbanItem,
+} from "@/components/painel-kanban/kanban/painel-kanban-map";
 import { EmptyColumnPlaceholder } from "../layout/empty-colums-placeholder";
 import { PainelKanbanCardBody } from "@/components/painel-kanban/kanban/painel-kanban-card-body";
 import { KanbanColumnLoadSentinel } from "@/components/painel-kanban/kanban/kanban-column-load-sentinel";
+import {
+  matchesKanbanColumnSearch,
+  PainelKanbanColumnSearch,
+} from "@/components/painel-kanban/kanban/painel-kanban-column-search";
 
 export interface PainelKanbanColumnLoadState {
   hasNextPage: boolean;
@@ -52,6 +60,16 @@ export function PainelKanbanBoard({
   columnLoad,
 }: PainelKanbanBoardProps) {
   const columns = PAINEL_KANBAN_COLUMNS;
+  const [columnSearch, setColumnSearch] = useState<
+    Partial<Record<PainelKanbanColumnId, string>>
+  >({});
+
+  const setColumnSearchValue = useCallback(
+    (columnId: PainelKanbanColumnId, value: string) => {
+      setColumnSearch((prev) => ({ ...prev, [columnId]: value }));
+    },
+    [],
+  );
 
   return (
     <KanbanProvider
@@ -75,6 +93,8 @@ export function PainelKanbanBoard({
         const itemsInColumn = data.filter((d) => d.column === column.id).length;
         const badgeCount = columnBadgeCounts?.[column.id] ?? itemsInColumn;
         const load = columnLoad?.[column.id];
+        const searchQuery = columnSearch[column.id] ?? "";
+
         return (
           <div
             key={column.id}
@@ -87,7 +107,7 @@ export function PainelKanbanBoard({
                 "ring-transparent",
               )}
             >
-              <KanbanHeader className="m-0 flex shrink-0 items-center justify-between gap-2 border-b border-border-divider px-3 py-3">
+              <KanbanHeader className="m-0 flex shrink-0 items-center justify-between gap-2 overflow-visible border-b border-border-divider px-3 py-3">
                 <div className="flex min-w-0 items-center gap-2">
                   <span
                     className={cn(
@@ -106,6 +126,11 @@ export function PainelKanbanBoard({
                     {badgeCount}
                   </PainelContagemStatusBadge>
                 </div>
+                <PainelKanbanColumnSearch
+                  value={searchQuery}
+                  onChange={(value) => setColumnSearchValue(column.id, value)}
+                  className="max-w-[140px] sm:max-w-[180px]"
+                />
               </KanbanHeader>
 
               {load?.isLoading ? (
@@ -129,7 +154,15 @@ export function PainelKanbanBoard({
               ) : (
                 <KanbanCards
                   id={column.id}
-                  className=" min-h-0 flex-1 p-3 "
+                  className="min-h-0 flex-1 p-3"
+                  sortItems={compareKanbanByImportancia}
+                  filterItems={(item) =>
+                    matchesKanbanColumnSearch(
+                      item.descricao,
+                      item.name,
+                      searchQuery,
+                    )
+                  }
                   listFooter={
                     load?.hasNextPage && itemsInColumn > 0 ? (
                       <KanbanColumnLoadSentinel
@@ -146,16 +179,14 @@ export function PainelKanbanBoard({
                       id={item.id}
                       name={item.name}
                       column={item.column}
+                      dragHandle
+                      onCardClick={() => onExpand?.(item)}
                       className={cn(
-                        "rounded-lg border border-border-divider bg-white shadow-sm",
-                        item.statusTempo === "INICIADO" &&
-                          "border-l-4 border-l-primary",
+                        "border-0 bg-white !shadow-kanban-card",
+                        "transition-transform duration-200 hover:scale-[1.02]",
                       )}
                     >
-                      <PainelKanbanCardBody
-                        item={item}
-                        onExpand={onExpand ?? (() => {})}
-                      />
+                      <PainelKanbanCardBody item={item} />
                     </KanbanCard>
                   )}
                 </KanbanCards>

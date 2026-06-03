@@ -23,9 +23,9 @@ export function CasoCreateLeftColumn({
   onOpenAnexos,
 }: CasoCreateLeftColumnProps) {
   return (
-    <div className="flex flex-1 flex-col gap-0">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
       <Card className="rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <FileText className="h-3.5 w-3.5 text-text-primary" />
@@ -47,7 +47,7 @@ export function CasoCreateLeftColumn({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 p-6 pt-3">
+        <CardContent className="space-y-2 p-6 pt-2">
           <CasoFormDescricaoResumo />
           <CasoFormDescricaoCompleta
             showAnexosTrigger
@@ -59,7 +59,7 @@ export function CasoCreateLeftColumn({
       </Card>
 
       <Card className="mt-auto rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center gap-2">
             <Bug className="h-3.5 w-3.5 text-text-primary" />
             <CardTitle className="text-sm font-semibold text-text-primary">
@@ -67,8 +67,8 @@ export function CasoCreateLeftColumn({
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="p-6 pt-3">
-          <div className="grid grid-cols-1 gap-[20px] sm:grid-cols-2">
+        <CardContent className="p-6 pt-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <CasoFormImportancia tipo="CASO" />
             <CasoFormOrigem />
             <CasoFormCategoria />

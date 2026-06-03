@@ -19,8 +19,8 @@ export function CasoEditCardClassificacao() {
         icon={Bug}
         shrink={false}
       />
-      <CardContent className="p-6 pt-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px]">
+      <CardContent className="p-6 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <CasoFormImportancia tipo="CASO" />
           <CasoFormOrigem />
           <CasoFormCategoria />

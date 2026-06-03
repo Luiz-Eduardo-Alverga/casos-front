@@ -11,7 +11,8 @@ import { getUser, PAINEL_PRODUTO_ORDEM_KEY } from "@/lib/auth";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { PainelPageHeader } from "@/components/painel/painel-page-header";
+import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
+import { PainelPageActions } from "@/components/painel/painel-page-header";
 
 export function Painel() {
   const user = getUser();
@@ -85,8 +86,12 @@ export function Painel() {
 
   if (isLoading) {
     return (
-      <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
-        <PainelPageHeader isLoading />
+      <ListagemPageLayout
+        title="Painel do Desenvolvedor"
+        subtitle="Selecione um produto abaixo para filtrar os dados do Kanban"
+        className="lg:min-h-0 lg:overflow-hidden"
+        actions={<PainelPageActions isLoading />}
+      >
         <div className="flex flex-col sm:flex-row gap-6 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
           <div className="flex flex-col gap-6 w-full sm:w-[732px] lg:min-h-0 lg:flex-1 lg:overflow-hidden">
             <ProdutosPriorizadosSkeleton />
@@ -96,15 +101,17 @@ export function Painel() {
             <CasosProdutoSkeleton />
           </div>
         </div>
-      </div>
+      </ListagemPageLayout>
     );
   }
 
   return (
-    <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
-      <PainelPageHeader />
-
-      {/* Content Grid - desktop: altura fixa; mobile: fluxo natural com scroll do navegador */}
+    <ListagemPageLayout
+      title="Painel do Desenvolvedor"
+      subtitle="Selecione um produto abaixo para filtrar os dados do Kanban"
+      className="lg:min-h-0 lg:overflow-hidden"
+      actions={<PainelPageActions />}
+    >
       <div className="flex flex-col sm:flex-row gap-6 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
         {/* Left Column */}
         <div className="flex flex-col gap-6 w-full sm:w-[732px] lg:min-h-0 lg:flex-1 lg:overflow-hidden">
@@ -127,6 +134,6 @@ export function Painel() {
           />
         </div>
       </div>
-    </div>
+    </ListagemPageLayout>
   );
 }

@@ -31,6 +31,9 @@ export interface ProjetosTabelaTableEscopoProps {
   itens: ProjetosTabelaEscopoRow[];
   isFetchingNextPage: boolean;
   showCheckbox?: boolean;
+  selectedIds?: string[];
+  onToggleItem?: (id: string, checked: boolean) => void;
+  onToggleAll?: (checked: boolean) => void;
 }
 
 export type ProjetosTabelaTableProps =

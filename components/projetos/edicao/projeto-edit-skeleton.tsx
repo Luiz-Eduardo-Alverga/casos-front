@@ -23,7 +23,7 @@ function CardHeaderSkeleton({ titleWidthClass = "max-w-[11rem]" }: {
   titleWidthClass?: string;
 }) {
   return (
-    <div className="shrink-0 border-b border-border-divider p-5 pb-2">
+    <div className="shrink-0 border-b border-border-divider p-4 pb-2">
       <div className="flex w-full items-center gap-2">
         <Skeleton className="h-3.5 w-3.5 shrink-0 rounded" />
         <Skeleton className={cn("h-4 flex-1", titleWidthClass)} />
@@ -72,12 +72,12 @@ export function ProjetoEditSkeleton() {
         </div>
       </div>
 
-      <div className="mt-6 flex min-h-0 flex-1 flex-col gap-6 overflow-auto pb-24 lg:flex-row">
-        <div className="flex w-full shrink-0 flex-col gap-6 lg:w-[362px]">
+      <div className="mt-2 flex min-h-0 flex-1 flex-col gap-6 overflow-auto pb-24 lg:flex-row">
+        <div className="flex w-full shrink-0 flex-col gap-2 lg:w-[362px]">
           {[1, 2, 3].map((i) => (
             <Card key={i} className="rounded-lg bg-card shadow-card">
               <CardHeaderSkeleton />
-              <CardContent className="space-y-3 p-6 pt-3">
+              <CardContent className="space-y-2 p-6 pt-2">
                 <Skeleton className="h-9 w-full rounded-md" />
                 <Skeleton className="h-9 w-full rounded-md" />
               </CardContent>
@@ -86,7 +86,7 @@ export function ProjetoEditSkeleton() {
         </div>
         <Card className="min-w-0 flex-1 rounded-lg bg-card shadow-card">
           <CardHeaderSkeleton titleWidthClass="max-w-[14rem]" />
-          <CardContent className="space-y-4 p-6 pt-3">
+          <CardContent className="space-y-2 p-6 pt-2">
             <Skeleton className="h-9 w-full rounded-md" />
             <Skeleton className="min-h-[120px] w-full rounded-md" />
             <Skeleton className="min-h-[120px] w-full rounded-md" />

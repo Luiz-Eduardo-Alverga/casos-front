@@ -27,9 +27,9 @@ export function CasoCreateRightColumn({
   isUploadingAttachments,
 }: CasoCreateRightColumnProps) {
   return (
-    <div className="flex w-full flex-col gap-6 lg:w-[362px]">
+    <div className="flex w-full shrink-0 flex-col gap-2 lg:w-[362px]">
       <Card className="rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center gap-2">
             <Package className="h-3.5 w-3.5 text-text-primary" />
             <CardTitle className="text-sm font-semibold text-text-primary">
@@ -37,7 +37,7 @@ export function CasoCreateRightColumn({
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 p-6 pt-3">
+        <CardContent className="space-y-2 p-6 pt-2">
           <CasoFormProduto />
           <CasoFormVersao todas={false} />
           <CasoFormModulo required={false} />
@@ -46,7 +46,7 @@ export function CasoCreateRightColumn({
       </Card>
 
       <Card className="rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center gap-2">
             <Users className="h-3.5 w-3.5 text-text-primary" />
             <CardTitle className="text-sm font-semibold text-text-primary">
@@ -54,7 +54,7 @@ export function CasoCreateRightColumn({
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 p-6 pt-3">
+        <CardContent className="space-y-2 p-6 pt-2">
           <CasoFormDevAtribuido />
           <CasoFormQaAtribuido />
         </CardContent>

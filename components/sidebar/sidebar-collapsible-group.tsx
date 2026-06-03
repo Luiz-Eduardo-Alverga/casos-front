@@ -8,7 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { SidebarNavItem } from "@/components/ui/sidebar";
+import { SidebarNavItem, sidebarNavItemStyles } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 export interface SidebarSubitem {
@@ -75,10 +75,8 @@ export function SidebarCollapsibleGroup({
         <button
           type="button"
           className={cn(
-            "flex w-full items-center justify-between gap-3 px-4 py-3 rounded text-sm font-normal transition-colors",
-            groupActive
-              ? "bg-white/5 border-l-[3px] border-brand-yellow text-sidebar-text"
-              : "text-sidebar-text hover:bg-white/5",
+            sidebarNavItemStyles(groupActive),
+            "justify-between",
           )}
         >
           <div className="flex items-center gap-3">
@@ -87,7 +85,7 @@ export function SidebarCollapsibleGroup({
           </div>
           <ChevronDown
             className={cn(
-              "h-3.5 w-3.5 shrink-0 opacity-70 transition-transform",
+              "h-2.5 w-2.5 shrink-0 opacity-70 transition-transform",
               open && "rotate-180",
             )}
           />
@@ -100,10 +98,10 @@ export function SidebarCollapsibleGroup({
             <Link key={sub.href} href={sub.href} className="block w-full">
               <span
                 className={cn(
-                  "flex w-full items-center gap-3 px-4 py-2.5 pl-8 rounded text-sm transition-colors",
+                  "flex w-full items-center gap-3 rounded-lg py-2 pl-9 pr-3 text-sm transition-colors",
                   subActive
-                    ? "bg-white/5 text-sidebar-text font-medium border-l-[3px] border-brand-yellow ml-[-3px]"
-                    : "text-sidebar-text/90 hover:bg-white/5",
+                    ? "bg-white/5 font-medium border-l-[3px] border-brand-yellow text-white ml-[-3px]"
+                    : "text-sidebar-text-muted hover:bg-white/5",
                 )}
               >
                 {sub.label}

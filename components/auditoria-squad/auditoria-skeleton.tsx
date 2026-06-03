@@ -22,7 +22,7 @@ const TABLE_ROWS = 4;
 
 export function AuditoriaSkeleton() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-2">
       <Card className="bg-card shadow-card rounded-lg">
         <CardHeader className="p-5 pb-2 border-b border-border-divider">
           <div className="flex items-center gap-2">

@@ -15,8 +15,7 @@ import type { ProjetoFormData } from "@/components/projetos/cadastro/schema";
 
 export function ProjetoCreateLeftColumn() {
   const { isDisabled } = useCasoForm();
-  const { control, register, formState } =
-    useFormContext<ProjetoFormData>();
+  const { control, register, formState } = useFormContext<ProjetoFormData>();
 
   const nomeError = formState.errors.nomeProjeto?.message;
   const dataInicioError = formState.errors.dataInicio?.message as
@@ -24,9 +23,9 @@ export function ProjetoCreateLeftColumn() {
     | undefined;
 
   return (
-    <div className="flex w-full shrink-0 flex-col gap-4 lg:w-[362px]">
+    <div className="flex w-full shrink-0 flex-col gap-2 lg:w-[362px]">
       <Card className="rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center gap-2">
             <CalendarDays className="h-3.5 w-3.5 text-text-primary" />
             <CardTitle className="text-sm font-semibold text-text-primary">
@@ -34,7 +33,7 @@ export function ProjetoCreateLeftColumn() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 p-6 pt-3">
+        <CardContent className="space-y-2 p-6 pt-2">
           <div className="space-y-2">
             <div className="flex justify-between">
               <Label className="text-sm font-medium text-text-label">
@@ -94,7 +93,7 @@ export function ProjetoCreateLeftColumn() {
       </Card>
 
       <Card className="rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center gap-2">
             <User className="h-3.5 w-3.5 text-text-primary" />
             <CardTitle className="text-sm font-semibold text-text-primary">
@@ -102,7 +101,7 @@ export function ProjetoCreateLeftColumn() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="p-6 pt-3">
+        <CardContent className="p-6 pt-2">
           <CasoFormRelator
             name="usuario"
             label="Responsável"
@@ -113,7 +112,7 @@ export function ProjetoCreateLeftColumn() {
       </Card>
 
       <Card className="rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center gap-2">
             <Package className="h-3.5 w-3.5 text-text-primary" />
             <CardTitle className="text-sm font-semibold text-text-primary">
@@ -121,7 +120,7 @@ export function ProjetoCreateLeftColumn() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="p-6 pt-3">
+        <CardContent className="p-6 pt-2">
           <CasoFormProjetoStatus required />
         </CardContent>
       </Card>

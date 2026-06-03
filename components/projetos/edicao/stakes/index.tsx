@@ -104,9 +104,7 @@ export function AbaStakes({ projetoId, enabled = true }: AbaStakesProps) {
       setExcluirModal({ open: false, stake: null });
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Erro ao excluir stakeholder.",
+        error instanceof Error ? error.message : "Erro ao excluir stakeholder.",
       );
       throw error;
     }
@@ -132,7 +130,8 @@ export function AbaStakes({ projetoId, enabled = true }: AbaStakesProps) {
     }
   };
 
-  const nomeStakeExcluir = excluirModal.stake?.nomes?.trim() || "este stakeholder";
+  const nomeStakeExcluir =
+    excluirModal.stake?.nomes?.trim() || "este stakeholder";
   const nomeUsuarioExcluir =
     excluirUsuarioModal.usuario != null
       ? getUsuarioNomeExibicao(
@@ -146,7 +145,7 @@ export function AbaStakes({ projetoId, enabled = true }: AbaStakesProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       <StakesCard
         stakes={stakes}
         tiposMap={tiposMap}

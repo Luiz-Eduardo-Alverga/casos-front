@@ -17,7 +17,7 @@ export interface CasoEditCardHeaderProps {
 
 /**
  * Header padronizado para cards da edição de caso.
- * Segue PADRAO_COMPONENTES e PADRAO_ESPACAMENTOS (p-5 pb-2, border-b, gap-2).
+ * Segue PADRAO_COMPONENTES e PADRAO_ESPACAMENTOS (p-4 pb-2, border-b, gap-2).
  */
 export function CasoEditCardHeader({
   title,
@@ -27,7 +27,7 @@ export function CasoEditCardHeader({
 }: CasoEditCardHeaderProps) {
   return (
     <CardHeader
-      className={`p-5 pb-2 border-b border-border-divider ${shrink ? "shrink-0" : ""}`}
+      className={`p-4 pb-2 border-b border-border-divider ${shrink ? "shrink-0" : ""}`}
     >
       <div className="flex w-full items-center gap-2">
         <Icon className="h-3.5 w-3.5 shrink-0 text-text-primary" />

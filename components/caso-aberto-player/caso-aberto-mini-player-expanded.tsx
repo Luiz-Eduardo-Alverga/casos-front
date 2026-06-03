@@ -1,8 +1,19 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { CheckCircle2, ChevronDown, Eye } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  GripVertical,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  useMiniPlayerDragHandle,
+  useMiniPlayerExpandDirection,
+} from "@/components/caso-aberto-player/mini-player-shell-context";
 import { CasoAbertoCronometro } from "@/components/caso-aberto-player/caso-aberto-cronometro";
 import { CasoAbertoProgressTrack } from "@/components/caso-aberto-player/caso-aberto-progress-track";
 import { PulseRing } from "@/components/caso-aberto-player/pulse-ring";
@@ -13,26 +24,31 @@ import {
   expandTransition,
 } from "@/components/caso-aberto-player/mini-player-transitions";
 
-const panelVariants = {
-  hidden: {
-    opacity: 0,
-    y: 16,
-    scale: 0.94,
-    transition: expandTransition,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: expandTransition,
-  },
-  exit: {
-    opacity: 0,
-    y: 20,
-    scale: 0.92,
-    transition: collapseExitTransition,
-  },
-};
+function buildPanelVariants(expandDirection: "up" | "down") {
+  const enterOffset = expandDirection === "down" ? 16 : -16;
+  const exitOffset = expandDirection === "down" ? 20 : -20;
+
+  return {
+    hidden: {
+      opacity: 0,
+      y: enterOffset,
+      scale: 0.94,
+      transition: expandTransition,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: expandTransition,
+    },
+    exit: {
+      opacity: 0,
+      y: exitOffset,
+      scale: 0.92,
+      transition: collapseExitTransition,
+    },
+  };
+}
 
 export function CasoAbertoMiniPlayerExpanded({
   viewModel,
@@ -44,6 +60,13 @@ export function CasoAbertoMiniPlayerExpanded({
   isFinalizando,
 }: CasoAbertoMiniPlayerExpandedProps) {
   const reduceMotion = useReducedMotion();
+  const startDrag = useMiniPlayerDragHandle();
+  const expandDirection = useMiniPlayerExpandDirection();
+  const panelVariants = useMemo(
+    () => buildPanelVariants(expandDirection),
+    [expandDirection],
+  );
+  const CollapseChevron = expandDirection === "down" ? ChevronUp : ChevronDown;
 
   return (
     <motion.div
@@ -58,20 +81,30 @@ export function CasoAbertoMiniPlayerExpanded({
         "bg-card shadow-2xl",
       )}
     >
-      <div className="flex items-center justify-between border-b border-border-divider px-4 py-3">
-        <div className="flex items-center gap-2">
-          <PulseRing size="sm" />
-          <span className="text-xs font-bold uppercase tracking-wide text-emerald-600">
-            Produção ativa
+      <div className="flex items-center justify-between border-b border-border-divider px-2 py-3">
+        <div
+          className="flex min-w-0 flex-1 cursor-grab items-center gap-1 touch-none active:cursor-grabbing"
+          onPointerDown={(event) => startDrag?.(event)}
+          aria-label="Arrastar player"
+        >
+          <span className="flex size-8 shrink-0 items-center justify-center text-muted-foreground">
+            <GripVertical className="size-4" aria-hidden />
           </span>
+          <div className="flex min-w-0 items-center gap-2">
+            <PulseRing size="sm" />
+            <span className="text-xs font-bold uppercase tracking-wide text-emerald-600">
+              Produção ativa
+            </span>
+          </div>
         </div>
         <button
           type="button"
           onClick={onCollapse}
+          onPointerDown={(event) => event.stopPropagation()}
           className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           aria-label="Minimizar player"
         >
-          <ChevronDown className="size-4" strokeWidth={2.5} aria-hidden />
+          <CollapseChevron className="size-4" strokeWidth={2.5} aria-hidden />
         </button>
       </div>
 

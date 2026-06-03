@@ -22,7 +22,7 @@ const TABLE_ROWS = 4;
 
 export function AuditoriaResultsSkeleton() {
   return (
-    <div className="flex w-full flex-col gap-6">
+    <div className="flex w-full flex-col gap-2">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: SUMMARY_CARDS }).map((_, i) => (
           <div

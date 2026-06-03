@@ -41,9 +41,9 @@ export function CasoEditColunaDireita() {
 
   return (
     <>
-      <div className="w-full lg:w-[362px] flex flex-col gap-6 shrink-0">
+      <div className="w-full lg:w-[362px] flex flex-col gap-2 shrink-0">
         <Card className="bg-card shadow-card rounded-lg">
-          <CardContent className="p-6 pt-3 space-y-4">
+          <CardContent className=" space-y-2 p-4 ">
             <CasoResumoStatusActions
               statusIdApi={statusIdApi}
               memoriaQueryId={memoriaQueryId}
@@ -70,13 +70,13 @@ export function CasoEditColunaDireita() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card shadow-card rounded-lg">
+        <Card className="bg-card  shadow-card rounded-lg">
           <CasoEditCardHeader
             title="Dados do Produto"
             icon={Package}
             shrink={false}
           />
-          <CardContent className="p-6 pt-3 space-y-4">
+          <CardContent className="p-6 pt-2 space-y-2">
             <CasoFormProduto />
             <CasoFormVersao todas={false} />
             <CasoFormModulo required={false} />
@@ -86,7 +86,7 @@ export function CasoEditColunaDireita() {
 
         <Card className="bg-card shadow-card rounded-lg">
           <CasoEditCardHeader title="Atribuição" icon={Users} shrink={false} />
-          <CardContent className="p-6 pt-3 space-y-4">
+          <CardContent className="p-6 pt-2 space-y-2">
             <CasoFormDevAtribuido />
             <CasoFormQaAtribuido />
           </CardContent>

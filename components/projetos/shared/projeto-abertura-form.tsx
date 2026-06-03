@@ -8,7 +8,9 @@ export interface ProjetoAberturaFormProps {
 }
 
 /** Layout compartilhado da aba Abertura (cadastro e edição). */
-export function ProjetoAberturaForm({ objetivoFallback }: ProjetoAberturaFormProps) {
+export function ProjetoAberturaForm({
+  objetivoFallback,
+}: ProjetoAberturaFormProps) {
   return (
     <div className="flex min-h-0 flex-col gap-6 lg:flex-row">
       <ProjetoCreateLeftColumn />

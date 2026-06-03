@@ -12,7 +12,6 @@ import type { PainelKanbanApiFiltros } from "@/components/painel-kanban/filtros/
 import {
   dedupePainelKanbanItemsById,
   mapProjetoMemoriaItemToKanban,
-  sortAbertosIniciadosPrimeiro,
   type PainelKanbanItem,
 } from "@/components/painel-kanban/kanban/painel-kanban-map";
 import type { PainelKanbanColumnId } from "@/components/painel-kanban/kanban/painel-kanban-columns";
@@ -181,7 +180,7 @@ export function usePainelKanbanQueries({
     const raw = pages.flatMap((p) =>
       p.data.map((item) => mapProjetoMemoriaItemToKanban(item, "abertos")),
     );
-    return sortAbertosIniciadosPrimeiro(raw);
+    return raw;
   }, [abertosQ.data]);
 
   const corrigidosItems = useMemo(() => {

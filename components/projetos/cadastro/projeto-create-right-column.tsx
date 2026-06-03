@@ -22,7 +22,7 @@ export function ProjetoCreateRightColumn({
   return (
     <div className="flex min-w-0 flex-1 flex-col">
       <Card className=" rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center gap-2">
             <FileText className="h-3.5 w-3.5 text-text-primary" />
             <CardTitle className="text-sm font-semibold text-text-primary">
@@ -30,7 +30,7 @@ export function ProjetoCreateRightColumn({
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 p-6 pt-3">
+        <CardContent className="space-y-2 p-6 pt-2">
           <CasoFormSgpObjetivo
             required={false}
             fallbackOption={objetivoFallback}
@@ -42,7 +42,7 @@ export function ProjetoCreateRightColumn({
             </Label>
             <Textarea
               placeholder="Descreva detalhadamente o caso, incluindo contexto, passos para reproduzir e comportamento esperado..."
-              className="min-h-[120px] rounded-lg border-border-input resize-y"
+              className="min-h-[300px] rounded-lg border-border-input resize-y"
               disabled={isDisabled}
               {...register("necessidades")}
             />

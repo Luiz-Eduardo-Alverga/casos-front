@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Filter } from "lucide-react";
-import { PainelPageHeader } from "@/components/painel/painel-page-header";
+import { ListagemPageLayout, LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layout";
+import { PainelPageActions } from "@/components/painel/painel-page-header";
 
 const COLS = 4;
 const CARDS = 2;
@@ -16,26 +17,31 @@ const FILTER_CARDS = 8;
 
 export function PainelKanbanSkeleton() {
   return (
-    <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
-      <PainelPageHeader
-        isLoading
-        actionSlot={
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-            <Skeleton className="h-[42px] w-full rounded-lg sm:w-[220px]" />
-            <Skeleton className="h-[42px] w-full rounded-lg sm:w-[170px]" />
-          </div>
-        }
-      />
-
-      <Card className="bg-card shadow-card rounded-lg shrink-0 mb-6 min-w-0">
+    <ListagemPageLayout
+      title="Painel do Desenvolvedor"
+      subtitle="Selecione um produto abaixo para filtrar os dados do Kanban"
+      className="overflow-x-hidden pb-5 lg:min-h-0 lg:overflow-hidden"
+      actions={
+        <PainelPageActions
+          isLoading
+          actionSlot={
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+              <Skeleton className="h-[42px] w-full rounded-lg sm:w-[220px]" />
+              <Skeleton className="h-[42px] w-full rounded-lg sm:w-[170px]" />
+            </div>
+          }
+        />
+      }
+    >
+      <Card className={`bg-card shadow-card rounded-lg shrink-0 ${LISTAGEM_CARD_STACK_GAP} min-w-0`}>
         <CardHeader className="px-5 py-4 border-b border-border-divider shrink-0">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
-            <Filter className="h-3.5 w-3.5 text-text-primary" />
-            <CardTitle className="text-sm font-semibold text-text-primary">
-              Visão geral de Produtos Priorizados
-            </CardTitle>
-          </div>
+              <Filter className="h-3.5 w-3.5 text-text-primary" />
+              <CardTitle className="text-sm font-semibold text-text-primary">
+                Visão geral de Produtos Priorizados
+              </CardTitle>
+            </div>
             <Skeleton className="h-3.5 w-[340px] max-w-full" />
           </div>
         </CardHeader>
@@ -70,6 +76,6 @@ export function PainelKanbanSkeleton() {
           </div>
         ))}
       </div>
-    </div>
+    </ListagemPageLayout>
   );
 }

@@ -163,7 +163,7 @@ export function AbaRisco({ projetoId, enabled = true }: AbaRiscoProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       <RiscosIdentificadosCard
         riscos={riscos}
         riscoSelecionadoId={riscoSelecionado?.sequencia ?? null}

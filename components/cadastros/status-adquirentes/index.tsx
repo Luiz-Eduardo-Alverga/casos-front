@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { EmptyState } from "@/components/painel/empty-state";
+import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -134,10 +135,7 @@ export function StatusAdquirentes({
           deliveryDate: null,
         };
 
-        if (
-          targetColumn === "Concluído" &&
-          draggedRow?.nextVersionId
-        ) {
+        if (targetColumn === "Concluído" && draggedRow?.nextVersionId) {
           return {
             ...base,
             currentVersionId: draggedRow.nextVersionId,
@@ -173,30 +171,23 @@ export function StatusAdquirentes({
   );
 
   return (
-    <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3 shrink-0">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold text-text-primary">
-            Status Adquirentes
-          </h1>
-          <p className="text-sm text-text-secondary">
-            Visualize e gerencie os status de homologação das adquirentes
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-          {canCreate && (
-            <Button
-              type="button"
-              className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
-              onClick={openCreateSheet}
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Nova homologação
-            </Button>
-          )}
-        </div>
-      </div>
-
+    <ListagemPageLayout
+      title="Status Adquirentes"
+      subtitle="Visualize e gerencie os status de homologação das adquirentes"
+      className="lg:min-h-0 lg:overflow-hidden"
+      actions={
+        canCreate ? (
+          <Button
+            type="button"
+            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
+            onClick={openCreateSheet}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Nova homologação
+          </Button>
+        ) : undefined
+      }
+    >
       {showTableSkeleton ? (
         <StatusAdquirentesSkeleton />
       ) : kanbanData.length === 0 ? (
@@ -237,6 +228,6 @@ export function StatusAdquirentes({
           statusId={editingStatusId}
         />
       )}
-    </div>
+    </ListagemPageLayout>
   );
 }

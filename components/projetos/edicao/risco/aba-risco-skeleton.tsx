@@ -57,7 +57,7 @@ function HistoricoRowSkeleton() {
 
 export function AbaRiscoSkeleton() {
   return (
-    <div className="flex flex-col gap-4" role="status" aria-busy="true">
+    <div className="flex flex-col gap-2" role="status" aria-busy="true">
       <Card className="rounded-lg bg-card shadow-card">
         <CardHeaderSkeleton titleWidth="w-44" />
         <CardContent className="space-y-4 p-6 pt-3">

@@ -45,6 +45,14 @@ export function sortAbertosIniciadosPrimeiro(items: PainelKanbanItem[]) {
   );
 }
 
+/** Maior valor de importância primeiro (prioridade mais alta no topo). */
+export function compareKanbanByImportancia(
+  a: PainelKanbanItem,
+  b: PainelKanbanItem,
+) {
+  return Number(b.importancia) - Number(a.importancia);
+}
+
 /**
  * Remove duplicatas por `id`, mantendo a primeira ocorrência na ordem do array.
  * Útil ao unir listas por status quando a API pode devolver o mesmo caso em mais de uma query.

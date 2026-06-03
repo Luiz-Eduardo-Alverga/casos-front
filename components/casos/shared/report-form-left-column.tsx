@@ -81,9 +81,9 @@ export function ReportFormLeftColumn() {
     | undefined;
 
   return (
-    <div className="flex flex-1 flex-col gap-6">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
       <Card className="rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center gap-2">
             <FileText className="h-3.5 w-3.5 text-text-primary" />
             <CardTitle className="text-sm font-semibold text-text-primary">
@@ -91,7 +91,7 @@ export function ReportFormLeftColumn() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 p-6 pt-3">
+        <CardContent className="space-y-2 p-6 pt-2">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <CasoFormProduto onlyWithPoQaConfigured />
             <CasoFormCategoria
@@ -123,7 +123,7 @@ export function ReportFormLeftColumn() {
       </Card>
 
       <Card className="rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center gap-2">
             <FileText className="h-3.5 w-3.5 text-text-primary" />
             <CardTitle className="text-sm font-semibold text-text-primary">
@@ -131,14 +131,14 @@ export function ReportFormLeftColumn() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 p-6 pt-3">
+        <CardContent className="space-y-2 p-6 pt-2">
           <CasoFormDescricaoResumo />
           <CasoFormDescricaoCompleta />
         </CardContent>
       </Card>
 
       <Card className="rounded-lg bg-card shadow-card">
-        <CardHeader className="border-b border-border-divider p-5 pb-2">
+        <CardHeader className="border-b border-border-divider p-4 pb-2">
           <div className="flex items-center gap-2">
             <Users className="h-3.5 w-3.5 text-orange-500" />
             <CardTitle className="text-sm font-semibold text-text-primary">
@@ -146,7 +146,7 @@ export function ReportFormLeftColumn() {
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-4 p-6 pt-3 sm:grid-cols-2">
+        <CardContent className="grid grid-cols-1 gap-4 p-6 pt-2 sm:grid-cols-2">
           <CasoFormDevAtribuido
             name="reportAnaliseUsuarioId"
             labelName="reportAnaliseUsuarioLabel"

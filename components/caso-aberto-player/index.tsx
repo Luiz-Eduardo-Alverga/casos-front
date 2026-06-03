@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { CasoAbertoMiniPlayerCollapsed } from "@/components/caso-aberto-player/caso-aberto-mini-player-collapsed";
 import { CasoAbertoMiniPlayerExpanded } from "@/components/caso-aberto-player/caso-aberto-mini-player-expanded";
+import { CasoAbertoMiniPlayerShell } from "@/components/caso-aberto-player/caso-aberto-mini-player-shell";
 import { buildCasoAbertoPlayerViewModel } from "@/components/caso-aberto-player/utils";
 
 export function CasoAbertoMiniPlayer() {
@@ -81,11 +82,7 @@ export function CasoAbertoMiniPlayer() {
 
   return (
     <>
-      <div
-        className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 lg:left-auto lg:right-6 lg:translate-x-0"
-        role="region"
-        aria-label="Caso em produção aberto"
-      >
+      <CasoAbertoMiniPlayerShell>
         <AnimatePresence mode="wait">
           {expanded ? (
             <CasoAbertoMiniPlayerExpanded
@@ -104,7 +101,7 @@ export function CasoAbertoMiniPlayer() {
             />
           )}
         </AnimatePresence>
-      </div>
+      </CasoAbertoMiniPlayerShell>
 
       <ConfirmacaoModal
         open={finalizarModalOpen}

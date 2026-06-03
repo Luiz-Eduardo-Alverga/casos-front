@@ -4,6 +4,7 @@ import { Filter, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layout";
 import { StatusFilterSelect } from "@/components/cadastros/status-filter-select";
 
 interface CadastroFiltrosCardProps {
@@ -29,7 +30,7 @@ export function CadastroFiltrosCard({
   statusSelect,
 }: CadastroFiltrosCardProps) {
   return (
-    <Card className="bg-card shadow-card rounded-lg shrink-0 mb-6">
+    <Card className={`bg-card shadow-card rounded-lg shrink-0 ${LISTAGEM_CARD_STACK_GAP}`}>
       <CardHeader className="flex flex-row justify-between px-5 py-2 border-b border-border-divider">
         <div className="flex items-center gap-2">
           <Filter className="h-3.5 w-3.5 text-text-primary" />

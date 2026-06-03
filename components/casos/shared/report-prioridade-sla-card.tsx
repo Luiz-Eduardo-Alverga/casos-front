@@ -33,7 +33,7 @@ export function ReportPrioridadeSlaCard() {
           ⚡ Níveis de prioridade / SLA - início análise
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 p-4 pt-3">
+      <CardContent className="space-y-2 p-4 pt-2">
         {PRIORIDADE_AJUDA.map((item) => (
           <div
             key={item.titulo}
