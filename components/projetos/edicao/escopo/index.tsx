@@ -40,6 +40,8 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
   );
 
   const escopoQuery = useProjetoMemoria(memoriaParams, { enabled });
+  const { refetch: refetchEscopo, isFetching, isFetchingNextPage } =
+    escopoQuery;
 
   const itens = useMemo(
     () =>
@@ -56,6 +58,8 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
   const handleDevChange = useCallback((devId: string) => {
     setUsuarioDevId(devId);
   }, []);
+
+  const isAtualizandoEscopo = isFetching && !isFetchingNextPage;
 
   useEffect(() => {
     const el = loadMoreRef.current;
@@ -119,6 +123,8 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
             onDevChange={handleDevChange}
             naoPlanejadoFiltro={naoPlanejadoFiltro}
             onNaoPlanejadoFiltroChange={setNaoPlanejadoFiltro}
+            onAtualizar={() => void refetchEscopo()}
+            isAtualizando={isAtualizandoEscopo}
           />
         </div>
       </CardHeader>

@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { RefreshCcw } from "lucide-react";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import {
@@ -33,6 +36,8 @@ export interface EscopoFiltrosBarProps {
   onDevChange: (devId: string) => void;
   naoPlanejadoFiltro: EscopoNaoPlanejadoFiltro;
   onNaoPlanejadoFiltroChange: (value: EscopoNaoPlanejadoFiltro) => void;
+  onAtualizar: () => void;
+  isAtualizando?: boolean;
 }
 
 export function EscopoFiltrosBar({
@@ -41,6 +46,8 @@ export function EscopoFiltrosBar({
   onDevChange,
   naoPlanejadoFiltro,
   onNaoPlanejadoFiltroChange,
+  onAtualizar,
+  isAtualizando = false,
 }: EscopoFiltrosBarProps) {
   const form = useForm<EscopoFiltrosFormValues>({
     defaultValues: EMPTY_ESCOPO_FILTROS,
@@ -109,6 +116,20 @@ export function EscopoFiltrosBar({
           </div>
         </FormProvider>
       </CasoFormProvider>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="h-9 w-9 shrink-0 rounded-lg border-border-input"
+        onClick={onAtualizar}
+        disabled={isAtualizando}
+        aria-label="Atualizar escopo"
+      >
+        <RefreshCcw
+          className={cn("h-3.5 w-3.5", isAtualizando && "animate-spin")}
+          aria-hidden
+        />
+      </Button>
     </div>
   );
 }
