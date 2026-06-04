@@ -10,6 +10,7 @@ import { useStatus } from "@/hooks/catalogos/use-status";
 export interface CasoFormStatusProps {
   name?: string;
   label?: string;
+  placeholder?: string;
   required?: boolean;
   disabled?: boolean;
   /** Qual valor de `tipo_status` da API filtrar na lista. Padrão: `"CASO"`. */
@@ -21,6 +22,7 @@ export interface CasoFormStatusProps {
 export function CasoFormStatus({
   name = "status",
   label = "Status do caso",
+  placeholder = "Selecione o status...",
   required = false,
   disabled = false,
   tipoStatus = "CASO",
@@ -81,7 +83,7 @@ export function CasoFormStatus({
         label={label}
         icon={CircleDot}
         options={statusOptions}
-        placeholder="Selecione o status..."
+        placeholder={placeholder}
         emptyText={
           isStatusLoading ? "Carregando status..." : "Nenhum status encontrado."
         }

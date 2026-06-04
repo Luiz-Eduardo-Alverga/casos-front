@@ -214,6 +214,8 @@ export interface ProjetoMemoriaReport {
   analise_concluida: boolean;
   analise_status: string;
   analise_data_conclusao: string | null;
+  report_analise_usuario_id: string | number | null;
+  analise_usuario_nome: string | null;
   sla: string | null;
   tipo_abertura: "CASO" | "REPORT";
   responsavel_feedback_nome: string | null;

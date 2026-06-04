@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient, useIsMutating } from "@tanstack/react-query";
@@ -54,7 +53,6 @@ export interface ReportEditFormProps {
 }
 
 export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [tabValue, setTabValue] = useState("inicial");
   const [novaAnotacaoDraft, setNovaAnotacaoDraft] = useState("");
@@ -122,145 +120,10 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
     [],
   );
 
-  // useEffect(() => {
-  //   const statusAtual = String(statusValue ?? "").trim();
-  //   const analiseStatusAtual = String(analiseStatusValue ?? "").trim();
-
-  //   const statusAlterado = statusAtual !== previousStatusValueRef.current;
-  //   const analiseStatusAlterado =
-  //     analiseStatusAtual !== previousAnaliseStatusValueRef.current;
-
-  //   if (analiseStatusAlterado && !statusAlterado) {
-  //     if (
-  //       deveAplicarDev631PorStatus({
-  //         statusReport: analiseStatusAtual,
-  //       })
-  //     ) {
-  //       applyDev631ToReportEditForm(methods.setValue as Dev631SetValue);
-  //     }
-
-  //     const statusCasoEquivalente = resolveCasoStatusFromReport(
-  //       statusList,
-  //       analiseStatusAtual,
-  //     );
-  //     if (
-  //       statusCasoEquivalente !== undefined &&
-  //       statusAtual !== String(statusCasoEquivalente)
-  //     ) {
-  //       methods.setValue("status", String(statusCasoEquivalente), {
-  //         shouldDirty: false,
-  //         shouldValidate: true,
-  //       });
-  //       if (deveAplicarDev631PorStatus({ statusCaso: statusCasoEquivalente })) {
-  //         applyDev631ToReportEditForm(methods.setValue as Dev631SetValue);
-  //       }
-  //       previousStatusValueRef.current = String(statusCasoEquivalente);
-  //       previousAnaliseStatusValueRef.current = analiseStatusAtual;
-  //       return;
-  //     }
-  //   }
-
-  //   if (statusAlterado && !analiseStatusAlterado) {
-  //     const statusReportEquivalente = resolveReportStatusFromCaso(
-  //       statusList,
-  //       statusAtual,
-  //       versaoValue,
-  //     );
-
-  //     if (analiseStatusAtual === "21") {
-  //       methods.setValue("analiseStatus", "", {
-  //         shouldDirty: false,
-  //         shouldValidate: true,
-  //       });
-  //       previousStatusValueRef.current = statusAtual;
-  //       previousAnaliseStatusValueRef.current = "";
-  //       return;
-  //     }
-
-  //     if (
-  //       statusReportEquivalente !== undefined &&
-  //       analiseStatusAtual !== statusReportEquivalente
-  //     ) {
-  //       methods.setValue("analiseStatus", statusReportEquivalente, {
-  //         shouldDirty: false,
-  //         shouldValidate: true,
-  //       });
-  //       if (
-  //         deveAplicarDev631PorStatus({
-  //           statusCaso: statusAtual,
-  //           statusReport: statusReportEquivalente,
-  //         })
-  //       ) {
-  //         applyDev631ToReportEditForm(methods.setValue as Dev631SetValue);
-  //       }
-  //       previousStatusValueRef.current = statusAtual;
-  //       previousAnaliseStatusValueRef.current = statusReportEquivalente;
-  //       return;
-  //     }
-
-  //     if (
-  //       deveAplicarDev631PorStatus({
-  //         statusCaso: statusAtual,
-  //         statusReport: statusReportEquivalente ?? analiseStatusAtual,
-  //       })
-  //     ) {
-  //       applyDev631ToReportEditForm(methods.setValue as Dev631SetValue);
-  //     }
-  //   }
-
-  //   previousStatusValueRef.current = statusAtual;
-  //   previousAnaliseStatusValueRef.current = analiseStatusAtual;
-  // }, [analiseStatusValue, methods, statusList, statusValue, versaoValue]);
-
   const handleSalvar = methods.handleSubmit(
     async (formData: ReportEditFormData) => {
       try {
-        const userId = getUser()?.id;
-        const { dirtyFields } = methods.formState;
-
-        const saveResult = computeCasoEditSave({
-          isReport: true,
-          snapshot: snapshotRef.current,
-          formData: {
-            status: formData.status,
-            analiseStatus: formData.analiseStatus,
-            versao: formData.versao,
-            devAtribuido: formData.reportAnaliseUsuarioId,
-          },
-          dirtyFields: {
-            status: dirtyFields.status,
-            analiseStatus: dirtyFields.analiseStatus,
-            versao: dirtyFields.versao,
-          },
-          defaultCasoStatusId: Number(caso?.status?.status_id ?? 1),
-          userId,
-        });
-
-        const payload = buildCasoUpdatePayload({
-          data: {
-            produto: formData.produto,
-            importancia: formData.importancia,
-            modulo: formData.modulo,
-            categoria: formData.categoria,
-            devAtribuido:
-              saveResult.devAtribuido || formData.reportAnaliseUsuarioId,
-            versao: formData.versao,
-            projeto: formData.projeto,
-            origem: formData.origem,
-            relator: formData.reportResponsavelSuporteId,
-            qaAtribuido: formData.qaAtribuido,
-            DescricaoResumo: formData.DescricaoResumo,
-            DescricaoCompleta: formData.DescricaoCompleta,
-            InformacoesAdicionais: formData.InformacoesAdicionais,
-          },
-          isReport: true,
-          statusCasoFinal: saveResult.statusCasoFinal,
-          reportFields: saveResult.reportFields,
-        });
-
-        await updateCaso.mutateAsync({ id: casoId, data: payload });
-        toast.success("Report atualizado com sucesso.");
-        invalidate();
+        console.log("data", formData);
       } catch (e) {
         toast.error(
           e instanceof Error ? e.message : "Erro ao atualizar report.",
@@ -269,7 +132,7 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
     },
   );
 
-  const canEditCase = !rbacReady || hasPermission("edit-case");
+  const canEditCase = !rbacReady || hasPermission("edit-report");
 
   const anotacoes = (caso?.anotacoes ??
     []) as ProjetoMemoriaItem["caso"]["anotacoes"];
@@ -328,14 +191,6 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
     ],
   );
 
-  const handleCancelar = () => {
-    if (window.history.length > 1) {
-      router.back();
-      return;
-    }
-    router.push("/painel");
-  };
-
   return (
     <CasoEditProvider value={casoEditValue}>
       <Tabs
@@ -355,7 +210,7 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
         <div className="mt-4 flex-1 flex flex-col min-h-0 overflow-auto">
           <CasoFormProvider value={providerValue}>
             <FormProvider {...methods}>
-              <div className="flex-1 pb-12">
+              <div className="flex-1 pb-24">
                 <div className="flex min-h-0 flex-1 flex-col gap-2 lg:flex-row">
                   <div className="flex min-h-0 flex-1 min-w-0 flex-col gap-6">
                     <TabsContent
@@ -451,11 +306,7 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
                 </div>
               </div>
 
-              <ReportEditRodapeAcoes
-                onCancelar={handleCancelar}
-                dataAbertura={item?.caso?.datas?.abertura ?? ""}
-                usuarioAbertura={item?.caso?.usuarios?.abertura?.nome ?? ""}
-              />
+              <ReportEditRodapeAcoes />
             </FormProvider>
           </CasoFormProvider>
         </div>

@@ -5,8 +5,8 @@ import { Calendar, Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { ReportPrioridadeSlaCard } from "@/components/casos/shared/report-prioridade-sla-card";
 import { CasoEditCardHeader } from "@/components/casos/edicao/caso-edit-card-header";
+import { ReportEditStatusCard } from "./report-edit-status-card";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import {
@@ -101,7 +101,7 @@ export function ReportEditColunaDireita({
         </CardContent>
       </Card>
 
-      <ReportPrioridadeSlaCard />
+      <ReportEditStatusCard item={item} />
     </div>
   );
 }

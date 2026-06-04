@@ -15,6 +15,7 @@ import { useFormContext } from "react-hook-form";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useProdutos } from "@/hooks/catalogos/use-produtos";
 import { FileText, Users } from "lucide-react";
+import { resolveReportPoQaAtribuidoPara } from "@/lib/report/resolve-report-po-qa-atribuido";
 
 export interface ReportFormFields {
   produto: string;
@@ -48,28 +49,24 @@ export function ReportFormLeftColumn() {
 
   useEffect(() => {
     const produtoId = String(produtoSelecionado ?? "").trim();
-    const categoriaTipo = String(categoriaTipoLabel ?? "")
-      .trim()
-      .toUpperCase();
+    if (!produtoId) return;
 
-    if (!produtoId || !categoriaTipo) return;
     const produto = (produtos ?? []).find(
       (item) => String(item.id) === produtoId,
     );
     if (!produto) return;
 
-    let responsavelPadrao: string | null = null;
-    if (categoriaTipo === "BUG") {
-      responsavelPadrao = produto.responsavel_bugs_suporte_id;
-    } else if (categoriaTipo === "MELHORIA") {
-      responsavelPadrao = produto.responsavel_melhorias_suporte_id;
-    }
+    const atribuidoPara = resolveReportPoQaAtribuidoPara(
+      produto,
+      categoriaTipoLabel,
+    );
+    if (atribuidoPara == null) return;
 
-    if (!responsavelPadrao) return;
+    const responsavelPadrao = String(atribuidoPara);
     const valorAtual = String(getValues("reportAnaliseUsuarioId") ?? "").trim();
-    if (valorAtual === String(responsavelPadrao)) return;
+    if (valorAtual === responsavelPadrao) return;
 
-    setValue("reportAnaliseUsuarioId", String(responsavelPadrao), {
+    setValue("reportAnaliseUsuarioId", responsavelPadrao, {
       shouldDirty: true,
       shouldTouch: true,
       shouldValidate: true,
