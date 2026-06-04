@@ -1,15 +1,24 @@
 "use client";
 
+import { useCallback } from "react";
 import { Check, RotateCcw } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import toast from "react-hot-toast";
+import {
+  applyDev631ToCasoEditForm,
+  deveAplicarDev631PorStatus,
+  type Dev631SetValue,
+} from "@/lib/report/apply-dev-631-form";
 
 import { CasoFormStatus } from "@/components/fields/caso-form-status";
 import { Button } from "@/components/ui/button";
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 import { mapStatusAvancar } from "@/components/caso-resumo-modal/utils";
 import type { UpdateCasoRequest } from "@/services/projeto-casos/update";
-import { buildAnaliseConclusaoByStatus } from "@/components/casos/edicao/report-analise-modal/utils";
+import {
+  buildAnaliseConclusaoByStatus,
+  shouldClearReportAnaliseForCasoStatus,
+} from "@/components/casos/edicao/report-analise-modal/utils";
 
 interface CasoResumoStatusActionsProps {
   statusIdApi: number;
@@ -29,8 +38,42 @@ export function CasoResumoStatusActions({
   const { setValue } = useFormContext<{
     status: string;
     analiseStatus?: string;
+    devAtribuido?: string;
+    devAtribuidoLabel?: string;
   }>();
   const updateCaso = useUpdateCaso();
+
+  const handleStatusChange = useCallback(
+    (statusId: string) => {
+      if (!getReportStatusFromCasoStatus) return;
+
+      if (shouldClearReportAnaliseForCasoStatus(statusId)) {
+        setValue("analiseStatus", "", {
+          shouldDirty: false,
+          shouldValidate: true,
+        });
+        return;
+      }
+
+      const reportStatus = getReportStatusFromCasoStatus(Number(statusId));
+      if (reportStatus) {
+        setValue("analiseStatus", reportStatus, {
+          shouldDirty: false,
+          shouldValidate: true,
+        });
+      }
+
+      if (
+        deveAplicarDev631PorStatus({
+          statusCaso: statusId,
+          statusReport: reportStatus,
+        })
+      ) {
+        applyDev631ToCasoEditForm(setValue as Dev631SetValue);
+      }
+    },
+    [getReportStatusFromCasoStatus, setValue],
+  );
 
   const proximoStatus = mapStatusAvancar(statusIdApi);
   const podeAvancar = proximoStatus != null;
@@ -38,27 +81,52 @@ export function CasoResumoStatusActions({
   const exibirAvancar = statusIdApi !== 9;
 
   const buildStatusPayload = (status: number): UpdateCasoRequest => {
+    if (shouldClearReportAnaliseForCasoStatus(status)) {
+      return {
+        status,
+        report_analise_aprovado: false,
+        report_analise_status: "0",
+      };
+    }
+
     const reportStatus = getReportStatusFromCasoStatus?.(status);
     if (!reportStatus) {
       return { status };
     }
 
     const analiseDataConclusao = buildAnaliseConclusaoByStatus(reportStatus);
+    const deveForcarDev631 = reportStatus === "21" || status === 8;
+
+    const deveLimparDataLimite = reportStatus === "21" || status === 8;
 
     return {
       status,
+      ...(deveForcarDev631 ? { AtribuidoPara: 631 } : {}),
       report_analise_aprovado: true,
       report_analise_status: reportStatus,
       report_analise_data_conclusao: analiseDataConclusao,
-      report_data_limite: reportStatus === "21" ? null : analiseDataConclusao,
+      ...(deveLimparDataLimite ? { report_data_limite: null } : {}),
     };
   };
 
   const updateFormStatusValues = (status: number) => {
     setValue("status", String(status));
+    if (shouldClearReportAnaliseForCasoStatus(status)) {
+      setValue("analiseStatus", "");
+      return;
+    }
     const reportStatus = getReportStatusFromCasoStatus?.(status);
     if (reportStatus) {
       setValue("analiseStatus", reportStatus);
+    }
+    if (
+      reportStatus &&
+      deveAplicarDev631PorStatus({
+        statusCaso: status,
+        statusReport: reportStatus,
+      })
+    ) {
+      applyDev631ToCasoEditForm(setValue as Dev631SetValue);
     }
   };
 
@@ -99,7 +167,12 @@ export function CasoResumoStatusActions({
   return (
     <div className="flex flex-row gap-2 items-end">
       <div className="flex-1">
-        <CasoFormStatus disabled={statusDisabled} />
+        <CasoFormStatus
+          disabled={statusDisabled}
+          onStatusChange={
+            getReportStatusFromCasoStatus ? handleStatusChange : undefined
+          }
+        />
       </div>
       {/* {exibirReverter && (
         <Button

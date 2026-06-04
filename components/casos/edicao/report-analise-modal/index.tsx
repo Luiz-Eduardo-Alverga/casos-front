@@ -31,6 +31,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { formatReportDate } from "./utils";
 import type { ReportAnaliseModalProps } from "./types";
+import {
+  applyDev631ToCasoEditForm,
+  deveAplicarDev631PorStatus,
+  type Dev631SetValue,
+} from "@/lib/report/apply-dev-631-form";
+import { computeReportDataLimite } from "@/lib/report/compute-report-data-limite";
 
 interface ReportReadonlyFieldProps {
   label: string;
@@ -94,20 +100,27 @@ export function ReportAnaliseModal({
   const { editCaseItem } = useCasoForm();
   const dataAbertura = editCaseItem?.caso?.datas?.abertura;
 
-  const dataLimite = useMemo(() => {
-    const slaHours = Number(String(sla ?? "").replace(",", ".").trim());
+  const slaFormatado = useMemo(() => {
+    const slaHours = Number(
+      String(sla ?? "")
+        .replace(",", ".")
+        .trim(),
+    );
     const aberturaDate = parseApiDateTime(dataAbertura);
     if (!Number.isFinite(slaHours) || !aberturaDate) {
       return formatReportDate(report.data_limite);
     }
 
-    const ms = slaHours * 60 * 60 * 1000;
-    const limite = new Date(aberturaDate.getTime() + ms);
+    const limiteStr = computeReportDataLimite(slaHours, aberturaDate);
+    const limite = parseApiDateTime(limiteStr);
+    if (!limite) return formatReportDate(report.data_limite);
     return formatDateTimeForDisplay(limite);
   }, [dataAbertura, report.data_limite, sla]);
+
+  const dataLimite = report.data_limite;
   const responsavelFeedback = report.responsavel_feedback_nome?.trim() || "—";
   const dataConclusao = formatReportDate(report.analise_data_conclusao);
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
   const analiseStatusValue = useWatch({ control, name: "analiseStatus" });
 
   const analiseStatusId = useMemo(() => {
@@ -169,7 +182,10 @@ export function ReportAnaliseModal({
                   )}
                 />
               </div>
-              <ReportReadonlyField label="Data limite" value={dataLimite} />
+              <ReportReadonlyField
+                label="Data limite"
+                value={dataLimite ?? "00/00/0000 00:00"}
+              />
             </div>
 
             <ReportReadonlyField
@@ -183,6 +199,15 @@ export function ReportAnaliseModal({
               tipoStatus="REPORT"
               required
               disabled={disabled}
+              onStatusChange={(reportStatusId) => {
+                if (
+                  deveAplicarDev631PorStatus({
+                    statusReport: reportStatusId,
+                  })
+                ) {
+                  applyDev631ToCasoEditForm(setValue as Dev631SetValue);
+                }
+              }}
             />
 
             {analiseConcluida ? (

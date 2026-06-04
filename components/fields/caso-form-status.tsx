@@ -14,6 +14,8 @@ export interface CasoFormStatusProps {
   disabled?: boolean;
   /** Qual valor de `tipo_status` da API filtrar na lista. Padrão: `"CASO"`. */
   tipoStatus?: "CASO" | "REPORT";
+  /** Disparado ao selecionar um novo status (após atualizar o form). */
+  onStatusChange?: (statusId: string) => void;
 }
 
 export function CasoFormStatus({
@@ -22,6 +24,7 @@ export function CasoFormStatus({
   required = false,
   disabled = false,
   tipoStatus = "CASO",
+  onStatusChange,
 }: CasoFormStatusProps) {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
@@ -90,6 +93,7 @@ export function CasoFormStatus({
             ? (open) => open && setOptionsRequested(true)
             : undefined
         }
+        onAfterValueChange={(next) => onStatusChange?.(next)}
       />
     </div>
   );

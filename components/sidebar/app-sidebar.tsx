@@ -198,7 +198,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const pathname = usePathname();
   const rbacReady = permissionsLoaded();
-  const canListAcquirer = !rbacReady || hasPermission("list-acquirer");
+  const canListAcquirer = rbacReady && hasPermission("list-acquirer");
   const canListCase =
     rbacReady && hasAnyPermission(["list-case", "list-report"]);
   const canListProject = rbacReady && hasPermission("list-project");
@@ -211,22 +211,40 @@ export function AppSidebar({
       return true;
     },
   );
+
   const canSeeConfiguracoes = configuracoesSubitemsSorted.length > 0;
   const mainNavSorted = MAIN_NAV_SORTED.filter((entry) => {
     if (entry.type === "group" && entry.key === "configuracoes") {
       return canSeeConfiguracoes;
     }
 
-    if (rbacReady && !canListCase && entry.type === "link") {
-      return entry.href !== "/casos";
+    if (entry.type === "group" && entry.key === "cadastros") {
+      return canListAcquirer;
     }
 
-    if (rbacReady && !canListProject && entry.type === "link") {
-      return entry.href !== "/projetos";
+    if (
+      entry.type === "link" &&
+      entry.href === "/cadastros/adquirentes/status"
+    ) {
+      return canListAcquirer;
     }
 
-    if (!canListAcquirer && entry.type === "link") {
-      return entry.href !== "/cadastros/adquirentes/status";
+    if (
+      rbacReady &&
+      !canListCase &&
+      entry.type === "link" &&
+      entry.href === "/casos"
+    ) {
+      return false;
+    }
+
+    if (
+      rbacReady &&
+      !canListProject &&
+      entry.type === "link" &&
+      entry.href === "/projetos"
+    ) {
+      return false;
     }
 
     return true;

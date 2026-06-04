@@ -1,13 +1,19 @@
+import { computeReportDataLimite } from "@/lib/report/compute-report-data-limite";
 import type { ReportCreateFormData } from "./schema";
 
 export interface BuildReportPayloadArgs {
   data: ReportCreateFormData;
   userId?: string | number | null;
+  /** Campo `nivel` da importância REPORT (report_prioridade). */
+  reportPrioridadeNivel: number;
+  slaHours: number;
 }
 
 export function buildReportCreatePayload({
   data,
   userId,
+  reportPrioridadeNivel,
+  slaHours,
 }: BuildReportPayloadArgs) {
   const categoriaTipo = (data.categoriaTipoLabel || "").trim().toUpperCase();
 
@@ -33,7 +39,9 @@ export function buildReportCreatePayload({
     report_data_escalonamento: new Date().toISOString(),
     tipo_abertura: "REPORT",
     report_responsavel_suporte_id: Number(data.reportResponsavelSuporteId),
-    report_prioridade: Number(data.importancia),
+    report_prioridade: reportPrioridadeNivel,
+    // Futuro: passar calendar: { nonBusinessDates } quando houver endpoint de feriados.
+    report_data_limite: computeReportDataLimite(slaHours),
     report_ocorrencia_id: data.reportOcorrenciaInicial?.trim()
       ? Number.isNaN(Number(data.reportOcorrenciaInicial))
         ? null

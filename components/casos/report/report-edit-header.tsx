@@ -155,7 +155,7 @@ export function ReportEditHeader({
       : []),
     { value: "clientes", label: "Clientes", count: countClientes },
     { value: "relacoes", label: "Relações", count: countRelacoes },
-    { value: "historico", label: "Histórico", count: countHistorico },
+    { value: "historico", label: "Histórico" },
   ];
 
   return (
@@ -173,7 +173,7 @@ export function ReportEditHeader({
       <div
         ref={headerRef}
         className={cn(
-          "flex shrink-0 flex-col gap-6 lg:flex-row",
+          "flex shrink-0 flex-col gap-2 lg:flex-row",
           isPinned &&
             "fixed z-20 bg-white px-6 py-2 shadow-sm border-b border-border/40 transition-[left,width] duration-300",
         )}

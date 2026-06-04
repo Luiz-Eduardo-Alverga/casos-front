@@ -32,6 +32,11 @@ import {
 import { buildCasoEditSnapshot } from "@/components/casos/edicao/save/edit-snapshot";
 import { computeCasoEditSave } from "@/components/casos/edicao/save/compute-caso-edit-save";
 import { getUser } from "@/lib/auth";
+import {
+  applyDev631ToReportEditForm,
+  deveAplicarDev631PorStatus,
+  type Dev631SetValue,
+} from "@/lib/report/apply-dev-631-form";
 
 import { ReportEditHeader } from "./report-edit-header";
 import { ReportEditRodapeAcoes } from "./report-edit-rodape-acoes";
@@ -95,11 +100,11 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
     previousAnaliseStatusValueRef.current = String(values.analiseStatus ?? "");
   }, [item, methods]);
 
-  const statusValue = useWatch({ control: methods.control, name: "status" });
-  const analiseStatusValue = useWatch({
-    control: methods.control,
-    name: "analiseStatus",
-  });
+  // const statusValue = useWatch({ control: methods.control, name: "status" });
+  // const analiseStatusValue = useWatch({
+  //   control: methods.control,
+  //   name: "analiseStatus",
+  // });
   const versaoValue = useWatch({ control: methods.control, name: "versao" });
   const produtoWatch = methods.watch("produto");
 
@@ -113,71 +118,99 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
   }, [queryClient, casoId]);
 
   const getReportStatusFromCasoStatus = useCallback(
-    (status: number) =>
-      resolveReportStatusFromCaso(statusList, status, versaoValue),
-    [statusList, versaoValue],
+    (status: number) => resolveReportStatusFromCaso(status),
+    [],
   );
 
-  useEffect(() => {
-    const statusAtual = String(statusValue ?? "").trim();
-    const analiseStatusAtual = String(analiseStatusValue ?? "").trim();
+  // useEffect(() => {
+  //   const statusAtual = String(statusValue ?? "").trim();
+  //   const analiseStatusAtual = String(analiseStatusValue ?? "").trim();
 
-    const statusAlterado = statusAtual !== previousStatusValueRef.current;
-    const analiseStatusAlterado =
-      analiseStatusAtual !== previousAnaliseStatusValueRef.current;
+  //   const statusAlterado = statusAtual !== previousStatusValueRef.current;
+  //   const analiseStatusAlterado =
+  //     analiseStatusAtual !== previousAnaliseStatusValueRef.current;
 
-    if (analiseStatusAlterado && !statusAlterado) {
-      const statusCasoEquivalente = resolveCasoStatusFromReport(
-        statusList,
-        analiseStatusAtual,
-      );
-      if (
-        statusCasoEquivalente !== undefined &&
-        statusAtual !== String(statusCasoEquivalente)
-      ) {
-        methods.setValue("status", String(statusCasoEquivalente), {
-          shouldDirty: false,
-          shouldValidate: true,
-        });
-        previousStatusValueRef.current = String(statusCasoEquivalente);
-        previousAnaliseStatusValueRef.current = analiseStatusAtual;
-        return;
-      }
-    }
+  //   if (analiseStatusAlterado && !statusAlterado) {
+  //     if (
+  //       deveAplicarDev631PorStatus({
+  //         statusReport: analiseStatusAtual,
+  //       })
+  //     ) {
+  //       applyDev631ToReportEditForm(methods.setValue as Dev631SetValue);
+  //     }
 
-    if (statusAlterado && !analiseStatusAlterado) {
-      if (analiseStatusAtual === "21") {
-        methods.setValue("analiseStatus", "", {
-          shouldDirty: false,
-          shouldValidate: true,
-        });
-        previousStatusValueRef.current = statusAtual;
-        previousAnaliseStatusValueRef.current = "";
-        return;
-      }
+  //     const statusCasoEquivalente = resolveCasoStatusFromReport(
+  //       statusList,
+  //       analiseStatusAtual,
+  //     );
+  //     if (
+  //       statusCasoEquivalente !== undefined &&
+  //       statusAtual !== String(statusCasoEquivalente)
+  //     ) {
+  //       methods.setValue("status", String(statusCasoEquivalente), {
+  //         shouldDirty: false,
+  //         shouldValidate: true,
+  //       });
+  //       if (deveAplicarDev631PorStatus({ statusCaso: statusCasoEquivalente })) {
+  //         applyDev631ToReportEditForm(methods.setValue as Dev631SetValue);
+  //       }
+  //       previousStatusValueRef.current = String(statusCasoEquivalente);
+  //       previousAnaliseStatusValueRef.current = analiseStatusAtual;
+  //       return;
+  //     }
+  //   }
 
-      const statusReportEquivalente = resolveReportStatusFromCaso(
-        statusList,
-        statusAtual,
-        versaoValue,
-      );
-      if (
-        statusReportEquivalente !== undefined &&
-        analiseStatusAtual !== statusReportEquivalente
-      ) {
-        methods.setValue("analiseStatus", statusReportEquivalente, {
-          shouldDirty: false,
-          shouldValidate: true,
-        });
-        previousStatusValueRef.current = statusAtual;
-        previousAnaliseStatusValueRef.current = statusReportEquivalente;
-        return;
-      }
-    }
+  //   if (statusAlterado && !analiseStatusAlterado) {
+  //     const statusReportEquivalente = resolveReportStatusFromCaso(
+  //       statusList,
+  //       statusAtual,
+  //       versaoValue,
+  //     );
 
-    previousStatusValueRef.current = statusAtual;
-    previousAnaliseStatusValueRef.current = analiseStatusAtual;
-  }, [analiseStatusValue, methods, statusList, statusValue, versaoValue]);
+  //     if (analiseStatusAtual === "21") {
+  //       methods.setValue("analiseStatus", "", {
+  //         shouldDirty: false,
+  //         shouldValidate: true,
+  //       });
+  //       previousStatusValueRef.current = statusAtual;
+  //       previousAnaliseStatusValueRef.current = "";
+  //       return;
+  //     }
+
+  //     if (
+  //       statusReportEquivalente !== undefined &&
+  //       analiseStatusAtual !== statusReportEquivalente
+  //     ) {
+  //       methods.setValue("analiseStatus", statusReportEquivalente, {
+  //         shouldDirty: false,
+  //         shouldValidate: true,
+  //       });
+  //       if (
+  //         deveAplicarDev631PorStatus({
+  //           statusCaso: statusAtual,
+  //           statusReport: statusReportEquivalente,
+  //         })
+  //       ) {
+  //         applyDev631ToReportEditForm(methods.setValue as Dev631SetValue);
+  //       }
+  //       previousStatusValueRef.current = statusAtual;
+  //       previousAnaliseStatusValueRef.current = statusReportEquivalente;
+  //       return;
+  //     }
+
+  //     if (
+  //       deveAplicarDev631PorStatus({
+  //         statusCaso: statusAtual,
+  //         statusReport: statusReportEquivalente ?? analiseStatusAtual,
+  //       })
+  //     ) {
+  //       applyDev631ToReportEditForm(methods.setValue as Dev631SetValue);
+  //     }
+  //   }
+
+  //   previousStatusValueRef.current = statusAtual;
+  //   previousAnaliseStatusValueRef.current = analiseStatusAtual;
+  // }, [analiseStatusValue, methods, statusList, statusValue, versaoValue]);
 
   const handleSalvar = methods.handleSubmit(
     async (formData: ReportEditFormData) => {
@@ -197,8 +230,8 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
           dirtyFields: {
             status: dirtyFields.status,
             analiseStatus: dirtyFields.analiseStatus,
+            versao: dirtyFields.versao,
           },
-          statusList,
           defaultCasoStatusId: Number(caso?.status?.status_id ?? 1),
           userId,
         });
@@ -323,7 +356,7 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
           <CasoFormProvider value={providerValue}>
             <FormProvider {...methods}>
               <div className="flex-1 pb-12">
-                <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
+                <div className="flex min-h-0 flex-1 flex-col gap-2 lg:flex-row">
                   <div className="flex min-h-0 flex-1 min-w-0 flex-col gap-6">
                     <TabsContent
                       value="inicial"

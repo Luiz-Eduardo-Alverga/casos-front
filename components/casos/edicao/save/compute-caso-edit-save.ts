@@ -1,9 +1,10 @@
-import type { StatusItem } from "@/services/auxiliar/status";
 import type { CasoUpdateReportFields } from "@/components/casos/shared/payload";
 import {
   buildAnaliseConclusaoByStatus,
   resolveCasoStatusFromReport,
   resolveReportStatusFromCaso,
+  resolveStatusFromVersaoChange,
+  shouldClearReportAnaliseForCasoStatus,
 } from "../report-analise-modal/utils";
 import {
   type CasoEditSnapshot,
@@ -22,8 +23,8 @@ export interface ComputeCasoEditSaveArgs {
   dirtyFields: {
     status?: boolean;
     analiseStatus?: boolean;
+    versao?: boolean;
   };
-  statusList: readonly StatusItem[] | undefined;
   defaultCasoStatusId: number;
   userId?: string | number | null;
 }
@@ -37,15 +38,14 @@ export interface CasoEditSaveResult {
 
 /**
  * Resolve status final do caso, dev atribuído e campos de report para o PATCH.
- * Só inclui report quando status ou analiseStatus foram alterados pelo usuário
- * e o valor efetivo difere do persistido na API.
+ * Inclui report quando status/analiseStatus foram alterados pelo usuário,
+ * ou quando a versão mudou e induz status caso 1 + report 20/22 (não BUG/MELHORIA).
  */
 export function computeCasoEditSave({
   isReport,
   snapshot,
   formData,
   dirtyFields,
-  statusList,
   defaultCasoStatusId,
   userId,
 }: ComputeCasoEditSaveArgs): CasoEditSaveResult {
@@ -58,8 +58,19 @@ export function computeCasoEditSave({
 
   const statusDirty = Boolean(dirtyFields.status);
   const analiseDirty = Boolean(dirtyFields.analiseStatus);
+  const versaoDirty = Boolean(dirtyFields.versao);
 
-  if (!statusDirty && !analiseDirty) {
+  const statusPorVersaoAlterada = versaoDirty
+    ? resolveStatusFromVersaoChange(formData.versao)
+    : null;
+
+  const persistirReportPorVersao =
+    versaoDirty &&
+    !statusDirty &&
+    !analiseDirty &&
+    statusPorVersaoAlterada != null;
+
+  if (!statusDirty && !analiseDirty && !persistirReportPorVersao) {
     return { statusCasoFinal, devAtribuido, reportFields: undefined };
   }
 
@@ -74,51 +85,75 @@ export function computeCasoEditSave({
   const reportFoiLimpadoDe21 =
     statusReportAtual === "21" && statusReportSelecionado === "";
 
-  if (reportFoiLimpadoDe21) {
+  if (persistirReportPorVersao && statusPorVersaoAlterada) {
+    statusCasoFinal = statusPorVersaoAlterada.casoStatus;
+    statusReportFinal = statusPorVersaoAlterada.reportStatus;
+  } else if (reportFoiLimpadoDe21) {
     statusReportFinal = "0";
   } else if (analiseDirty && statusReportSelecionadoAlterado) {
     const statusCasoPorReport = resolveCasoStatusFromReport(
-      statusList,
       statusReportSelecionado,
+      statusCasoFinal,
     );
     if (statusCasoPorReport !== undefined) {
       statusCasoFinal = statusCasoPorReport;
     }
   } else if (statusDirty && !analiseDirty) {
-    if (statusReportSelecionado === "" && statusReportAtual === "21") {
+    if (
+      shouldClearReportAnaliseForCasoStatus(statusCasoFinal) ||
+      (statusReportSelecionado === "" && statusReportAtual === "21")
+    ) {
       statusReportFinal = "0";
     } else if (statusReportSelecionado === "") {
-      const synced = resolveReportStatusFromCaso(
-        statusList,
-        statusCasoFinal,
-        formData.versao,
-      );
+      const synced = resolveReportStatusFromCaso(statusCasoFinal);
       if (synced !== undefined) {
         statusReportFinal = synced;
       }
     }
   }
 
-  const forceStatusEDevPorAnalise =
+  const forceDev631PorReport21 =
+    !persistirReportPorVersao &&
     analiseDirty &&
     statusReportSelecionadoAlterado &&
     statusReportSelecionado === "21";
 
-  if (forceStatusEDevPorAnalise) {
+  const forceDev631PorCaso8 =
+    !persistirReportPorVersao && statusDirty && statusCasoFinal === 8;
+
+  if (forceDev631PorReport21) {
     devAtribuido = "631";
     statusCasoFinal = 8;
+  } else if (forceDev631PorCaso8) {
+    devAtribuido = "631";
   }
+
+  const usuarioSelecionouCaso8 =
+    !persistirReportPorVersao && statusDirty && statusCasoFinal === 8;
 
   if (
     !reportFoiLimpadoDe21 &&
     !reportStatusChangedVsApi(statusReportFinal, snapshot.analiseStatusApi)
   ) {
+    if (usuarioSelecionouCaso8) {
+      return {
+        statusCasoFinal,
+        devAtribuido: "631",
+        reportFields: { dataLimite: null },
+      };
+    }
     return { statusCasoFinal, devAtribuido, reportFields: undefined };
   }
 
   const statusReportAprovado =
     statusReportFinal !== "21" && statusReportFinal !== "0";
   const analiseDataConclusao = buildAnaliseConclusaoByStatus(statusReportFinal);
+
+  const deveLimparDataLimite =
+    forceDev631PorReport21 ||
+    forceDev631PorCaso8 ||
+    statusReportFinal === "21" ||
+    statusCasoFinal === 8;
 
   return {
     statusCasoFinal,
@@ -127,7 +162,7 @@ export function computeCasoEditSave({
       aprovado: statusReportAprovado,
       analiseStatus: statusReportFinal,
       analiseDataConclusao,
-      dataLimite: forceStatusEDevPorAnalise ? null : analiseDataConclusao,
+      ...(deveLimparDataLimite ? { dataLimite: null } : {}),
       reportAnaliseUsuarioId:
         userId != null && String(userId).trim() !== ""
           ? String(userId)

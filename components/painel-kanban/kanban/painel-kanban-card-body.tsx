@@ -45,7 +45,7 @@ export function PainelKanbanCardBody({ item }: PainelKanbanCardBodyProps) {
               <span className="text-xs font-semibold text-text-primary">
                 #{item.numero}
               </span>
-              <p className="w-full max-w-full text-[10px] font-semibold leading-5 text-text-secondary [overflow-wrap:anywhere] whitespace-normal">
+              <p className="w-full max-w-full text-[10px] font-semibold leading-5 text-text-primary [overflow-wrap:anywhere] whitespace-normal">
                 {item.descricao || item.name}
               </p>
             </div>

@@ -43,6 +43,8 @@ interface ComboboxFieldProps {
   controlHeightClassName?: string;
   /** Prefixo exibido apenas no gatilho quando há valor selecionado. */
   valueLabelPrefix?: string;
+  /** Chamado após o react-hook-form atualizar o valor (modo `name`). */
+  onAfterValueChange?: (value: string) => void;
 }
 
 export function ComboboxField({
@@ -66,6 +68,7 @@ export function ComboboxField({
   wrapperClassName,
   controlHeightClassName = "h-9",
   valueLabelPrefix,
+  onAfterValueChange,
 }: ComboboxFieldProps) {
   const isControlled = typeof onValueChange === "function";
 
@@ -144,6 +147,7 @@ export function ComboboxField({
           onLoadMore={onLoadMore}
           controlHeightClassName={controlHeightClassName}
           valueLabelPrefix={valueLabelPrefix}
+          onAfterValueChange={onAfterValueChange}
         />
       ) : null}
     </div>
@@ -167,6 +171,7 @@ function RHFComboboxField({
   onLoadMore,
   controlHeightClassName = "h-9",
   valueLabelPrefix,
+  onAfterValueChange,
 }: Omit<
   ComboboxFieldProps,
   "icon" | "value" | "onValueChange" | "wrapperClassName"
@@ -200,7 +205,11 @@ function RHFComboboxField({
           <Combobox
             options={options}
             value={field.value != null ? String(field.value) : ""}
-            onValueChange={(v) => field.onChange(v ?? "")}
+            onValueChange={(v) => {
+              const next = v ?? "";
+              field.onChange(next);
+              onAfterValueChange?.(next);
+            }}
             placeholder={placeholder}
             emptyText={emptyText}
             onSearchChange={onSearchChange}

@@ -7,6 +7,10 @@ import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useUsuariosProjetos } from "@/hooks/catalogos/use-usuarios";
 import { getUser } from "@/lib/auth";
+import {
+  REPORT_DEV_631_DISPLAY_NAME,
+  REPORT_DEV_631_ID,
+} from "@/lib/report/apply-dev-631-form";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 
 export interface CasoFormDevAtribuidoProps {
@@ -74,6 +78,12 @@ export function CasoFormDevAtribuido({
     if (hasValue) setOptionsRequested(true);
   }, [devAtribuido, lazyLoadComboboxOptions, optionsRequested]);
 
+  useEffect(() => {
+    if (String(devAtribuido ?? "").trim() === REPORT_DEV_631_ID) {
+      setOptionsRequested(true);
+    }
+  }, [devAtribuido]);
+
   const devOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
     const valuesAdded = new Set<string>();
@@ -82,7 +92,10 @@ export function CasoFormDevAtribuido({
     if (devAtribuidoValue) {
       const seedValue = devAtribuidoValue;
       const seedLabel =
-        String(devAtribuidoLabel ?? "").trim() || seedValue;
+        String(devAtribuidoLabel ?? "").trim() ||
+        (seedValue === REPORT_DEV_631_ID
+          ? REPORT_DEV_631_DISPLAY_NAME
+          : seedValue);
       if (!valuesAdded.has(seedValue)) {
         options.unshift({
           value: seedValue,
@@ -134,11 +147,17 @@ export function CasoFormDevAtribuido({
       }
     }
 
-    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.desenvolvimento && devAtribuido && !valuesAdded.has(String(devAtribuido))) {
-      const u = editCaseItem.caso.usuarios.desenvolvimento;
+    const editDev = editCaseItem?.caso?.usuarios?.desenvolvimento;
+    if (
+      lazyLoadComboboxOptions &&
+      editDev &&
+      devAtribuido &&
+      String(editDev.id) === String(devAtribuido) &&
+      !valuesAdded.has(String(devAtribuido))
+    ) {
       options.unshift({
-        value: String(u.id),
-        label: String(u.nome ?? String(u.id)),
+        value: String(editDev.id),
+        label: String(editDev.nome ?? String(editDev.id)),
       });
     }
 
@@ -156,17 +175,27 @@ export function CasoFormDevAtribuido({
   
   // Quando dev é selecionado, buscar e salvar os dados completos
   useEffect(() => {
-    if (devAtribuido && usuarios && Array.isArray(usuarios)) {
-      const devEncontrado = usuarios.find(
-        (u) => String(u.id) === String(devAtribuido),
-      );
-      if (devEncontrado) {
-        setDevSelecionado(devEncontrado);
+    if (!devAtribuido) {
+      setDevSelecionado(null);
+      return;
+    }
+
+    if (!usuarios || !Array.isArray(usuarios)) {
+      if (String(devSelecionado?.id) !== String(devAtribuido)) {
+        setDevSelecionado(null);
       }
-    } else if (!devAtribuido) {
+      return;
+    }
+
+    const devEncontrado = usuarios.find(
+      (u) => String(u.id) === String(devAtribuido),
+    );
+    if (devEncontrado) {
+      setDevSelecionado(devEncontrado);
+    } else if (String(devSelecionado?.id) !== String(devAtribuido)) {
       setDevSelecionado(null);
     }
-  }, [devAtribuido, usuarios]);
+  }, [devAtribuido, devSelecionado?.id, usuarios]);
 
   // Mantém o setor do usuário sincronizado no form (quando solicitado).
   useEffect(() => {
@@ -245,18 +274,19 @@ export function CasoFormDevAtribuido({
     };
 
     const currentLabel = String(getValues(labelName as any) ?? "").trim();
+    const editDev = editCaseItem?.caso?.usuarios?.desenvolvimento;
 
-    // Preserva label persistido até a API resolver (F5 + lazy load).
+    // Preserva label do caso carregado apenas quando o id ainda é o mesmo.
     if (
       currentLabel &&
       user &&
       String(user.id) !== String(currentId) &&
-      !devSelecionado
+      !devSelecionado &&
+      editDev &&
+      String(editDev.id) === String(currentId)
     ) {
-      const editDev = editCaseItem?.caso?.usuarios?.desenvolvimento;
-      if (!editDev || String(editDev.id) !== String(currentId)) {
-        return;
-      }
+      setLabelIfChanged(String(editDev.nome ?? ""));
+      return;
     }
 
     // 1) Se é o usuário logado.
@@ -271,8 +301,7 @@ export function CasoFormDevAtribuido({
       return;
     }
 
-    // 3) Se veio do editCaseItem (tela de edição).
-    const editDev = editCaseItem?.caso?.usuarios?.desenvolvimento;
+    // 3) Se veio do editCaseItem (tela de edição) e o id coincide.
     if (editDev && String(editDev.id) === String(currentId)) {
       setLabelIfChanged(String(editDev.nome ?? ""));
     }

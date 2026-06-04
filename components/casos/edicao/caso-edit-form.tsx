@@ -33,13 +33,17 @@ import { buildCasoUpdatePayload } from "@/components/casos/shared/payload";
 import { useStatus } from "@/hooks/catalogos/use-status";
 import {
   normalizeAnaliseStatusForForm,
-  resolveCasoStatusFromReport,
   resolveReportStatusFromCaso,
 } from "./report-analise-modal/utils";
 import { buildCasoEditSnapshot } from "./save/edit-snapshot";
 import { computeCasoEditSave } from "./save/compute-caso-edit-save";
+import { computeCasoEditSync } from "./save/compute-caso-edit-sync";
 import { AbaHistorico } from "./historico/index";
 import { getUser } from "@/lib/auth";
+import {
+  applyDev631ToCasoEditForm,
+  type Dev631SetValue,
+} from "@/lib/report/apply-dev-631-form";
 
 const editFormSchema = z.object({
   produto: z.string().min(1, "Produto é obrigatório"),
@@ -58,6 +62,7 @@ const editFormSchema = z.object({
   status: z.string().min(1, "Status é obrigatório"),
   analiseStatus: z.string().optional(),
   reportPrioridade: z.string().optional(),
+  devAtribuidoLabel: z.string().optional(),
 });
 
 type EditFormData = z.infer<typeof editFormSchema>;
@@ -161,6 +166,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   const previousAnaliseStatusValueRef = useRef(
     String(defaultValues.analiseStatus ?? ""),
   );
+  const previousVersaoRef = useRef(String(defaultValues.versao ?? ""));
 
   useEffect(() => {
     const values = getDefaultValues(item);
@@ -168,6 +174,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     methods.reset(values);
     previousStatusValueRef.current = String(values.status ?? "");
     previousAnaliseStatusValueRef.current = String(values.analiseStatus ?? "");
+    previousVersaoRef.current = String(values.versao ?? "");
   }, [item, methods]);
   const statusValue = useWatch({ control: methods.control, name: "status" });
   const analiseStatusValue = useWatch({
@@ -189,83 +196,48 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   }, [queryClient, casoId]);
 
   const getReportStatusFromCasoStatus = useCallback(
-    (status: number) =>
-      resolveReportStatusFromCaso(statusList, status, versaoValue),
-    [statusList, versaoValue],
+    (status: number) => resolveReportStatusFromCaso(status),
+    [],
   );
 
   useEffect(() => {
     const statusAtual = String(statusValue ?? "").trim();
     const analiseStatusAtual = String(analiseStatusValue ?? "").trim();
+    const versaoAtual = String(versaoValue ?? "").trim();
 
-    if (!isReport) {
-      previousStatusValueRef.current = statusAtual;
-      previousAnaliseStatusValueRef.current = analiseStatusAtual;
-      return;
+    const result = computeCasoEditSync({
+      statusCaso: statusAtual,
+      analiseStatus: analiseStatusAtual,
+      versao: versaoAtual,
+      previousStatusCaso: previousStatusValueRef.current,
+      previousAnaliseStatus: previousAnaliseStatusValueRef.current,
+      previousVersao: previousVersaoRef.current,
+      isReport,
+    });
+
+    if (result.nextStatusCaso !== undefined) {
+      methods.setValue("status", result.nextStatusCaso, {
+        shouldDirty: false,
+        shouldValidate: true,
+      });
+    }
+    if (result.nextAnaliseStatus !== undefined) {
+      methods.setValue("analiseStatus", result.nextAnaliseStatus, {
+        shouldDirty: false,
+        shouldValidate: true,
+      });
+    }
+    if (result.nextDev631) {
+      applyDev631ToCasoEditForm(methods.setValue as Dev631SetValue);
     }
 
-    const statusAlterado = statusAtual !== previousStatusValueRef.current;
-    const analiseStatusAlterado =
-      analiseStatusAtual !== previousAnaliseStatusValueRef.current;
-
-    if (analiseStatusAlterado && !statusAlterado) {
-      const statusCasoEquivalente = resolveCasoStatusFromReport(
-        statusList,
-        analiseStatusAtual,
-      );
-      if (
-        statusCasoEquivalente !== undefined &&
-        statusAtual !== String(statusCasoEquivalente)
-      ) {
-        methods.setValue("status", String(statusCasoEquivalente), {
-          shouldDirty: false,
-          shouldValidate: true,
-        });
-        previousStatusValueRef.current = String(statusCasoEquivalente);
-        previousAnaliseStatusValueRef.current = analiseStatusAtual;
-        return;
-      }
-    }
-
-    if (statusAlterado && !analiseStatusAlterado) {
-      // Regra especial: se o report atual é "21" (Incompleto) e o usuário
-      // altera o status do caso, o report é limpo (será enviado como "0").
-      if (analiseStatusAtual === "21") {
-        methods.setValue("analiseStatus", "", {
-          shouldDirty: false,
-          shouldValidate: true,
-        });
-        previousStatusValueRef.current = statusAtual;
-        previousAnaliseStatusValueRef.current = "";
-        return;
-      }
-
-      const statusReportEquivalente = resolveReportStatusFromCaso(
-        statusList,
-        statusAtual,
-        versaoValue,
-      );
-      if (
-        statusReportEquivalente !== undefined &&
-        analiseStatusAtual !== statusReportEquivalente
-      ) {
-        methods.setValue("analiseStatus", statusReportEquivalente, {
-          shouldDirty: false,
-          shouldValidate: true,
-        });
-        previousStatusValueRef.current = statusAtual;
-        previousAnaliseStatusValueRef.current = statusReportEquivalente;
-        return;
-      }
-    }
-
-    previousStatusValueRef.current = statusAtual;
-    previousAnaliseStatusValueRef.current = analiseStatusAtual;
+    previousStatusValueRef.current = result.nextPrevStatusCaso;
+    previousAnaliseStatusValueRef.current = result.nextPrevAnaliseStatus;
+    previousVersaoRef.current = result.nextPrevVersao;
   }, [
     analiseStatusValue,
     isReport,
     methods,
-    statusList,
     statusValue,
     versaoValue,
   ]);
@@ -287,8 +259,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         dirtyFields: {
           status: dirtyFields.status,
           analiseStatus: dirtyFields.analiseStatus,
+          versao: dirtyFields.versao,
         },
-        statusList,
         defaultCasoStatusId: Number(caso?.status?.status_id ?? 1),
         userId,
       });

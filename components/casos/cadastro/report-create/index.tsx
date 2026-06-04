@@ -15,7 +15,9 @@ import { importanceOptions } from "@/mocks/teste";
 import { getUser } from "@/lib/auth";
 import { useAssistant } from "@/hooks/assistant/use-assistant";
 import { useCreateCaso } from "@/hooks/casos/use-create-caso";
+import { useImportancias } from "@/hooks/catalogos/use-importancias";
 import { useRelatores } from "@/hooks/catalogos/use-usuarios";
+import { resolveReportImportancia } from "@/lib/report/resolve-sla-hours";
 import { ReportCreateLeftColumn } from "./report-create-left-column";
 import { ReportCreateRightColumn } from "./report-create-right-column";
 import { reportCreateFormSchema, type ReportCreateFormData } from "./schema";
@@ -57,6 +59,7 @@ export function ReportCreateForm() {
   const { mutateAsync: createCasoAsync, isPending: isCreating } =
     useCreateCaso();
   const { data: relatores } = useRelatores({ enabled: true });
+  const { data: importancias } = useImportancias({ tipo: "REPORT" });
 
   const isSubmitting = methods.formState.isSubmitting;
   const produto = methods.watch("produto");
@@ -170,9 +173,23 @@ export function ReportCreateForm() {
         return;
       }
 
+      const importanciaReport = resolveReportImportancia(
+        importancias,
+        data.importancia,
+        data.categoriaTipoLabel,
+      );
+      if (!importanciaReport) {
+        toast.error(
+          "Não foi possível obter a prioridade/SLA selecionados. Tente novamente.",
+        );
+        return;
+      }
+
       const payload = buildReportCreatePayload({
         data,
         userId: user?.id,
+        reportPrioridadeNivel: importanciaReport.nivel,
+        slaHours: importanciaReport.slaHours,
       });
       const response = await createCasoAsync(payload);
       const registro = response?.data?.registro;
