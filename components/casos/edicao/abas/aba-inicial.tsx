@@ -5,7 +5,7 @@ import { CasoEditCardHeader } from "../caso-edit-card-header";
 import { CasoFormDescricaoResumo } from "@/components/fields/caso-form-descricao-resumo";
 import { CasoFormDescricaoCompleta } from "@/components/fields/caso-form-descricao-completa";
 import { CasoFormInformacoesAdicionais } from "@/components/fields/caso-form-informacoes-adicionais";
-import { FileText } from "lucide-react";
+import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
 import { CasoEditCardClassificacao } from "../caso-edit-card-classificacao";
 import { useCasoEdit } from "../caso-edit-context";
 
@@ -15,13 +15,15 @@ import { useCasoEdit } from "../caso-edit-context";
  */
 export function AbaInicial() {
   const { numeroCaso } = useCasoEdit();
+  const informacoesPreset = CARD_HEADER_PRESETS.informacoes;
 
   return (
     <div className="flex flex-col gap-2 h-full">
       <Card className="bg-card shadow-card rounded-lg h-full">
         <CasoEditCardHeader
           title="Informações"
-          icon={FileText}
+          icon={informacoesPreset.icon}
+          iconClassName={informacoesPreset.iconClassName}
           badge={numeroCaso}
           shrink={false}
         />

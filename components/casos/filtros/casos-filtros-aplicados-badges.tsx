@@ -7,6 +7,7 @@ import { useProdutos } from "@/hooks/catalogos/use-produtos";
 import { useStatus } from "@/hooks/catalogos/use-status";
 import { useCategorias } from "@/hooks/catalogos/use-categorias";
 import { useUsuarios } from "@/hooks/catalogos/use-usuarios";
+import { useVersoes } from "@/hooks/catalogos/use-versoes";
 import { cn } from "@/lib/utils";
 import type { CasosFiltrosAplicados } from "@/components/casos/filtros/casos-filtros.types";
 import {
@@ -32,6 +33,13 @@ export function CasosFiltrosAplicadosBadges({
   const { data: statusList = [] } = useStatus();
   const { data: categorias = [] } = useCategorias();
   const { data: usuarios = [] } = useUsuarios();
+  const produtoFiltro = filtrosAplicados.produto?.trim() ?? "";
+  const { data: versoes = [] } = useVersoes({
+    produto_id: produtoFiltro,
+    enabled:
+      Boolean(produtoFiltro) && Boolean(filtrosAplicados.versao?.trim()),
+    todas: false,
+  });
 
   const allItems = useMemo(
     () =>
@@ -40,8 +48,9 @@ export function CasosFiltrosAplicadosBadges({
         statusList,
         categorias,
         usuarios,
+        versoes,
       }),
-    [filtrosAplicados, produtos, statusList, categorias, usuarios],
+    [filtrosAplicados, produtos, statusList, categorias, usuarios, versoes],
   );
 
   const visibleItems = allItems.slice(0, MAX_CASOS_FILTROS_BADGES_VISIVEIS);

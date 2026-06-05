@@ -1,17 +1,14 @@
 import type { BulkUpdateCasosRequest } from "@/services/projeto-casos/bulk-update";
+import type { Versao } from "@/services/auxiliar/versoes";
+import { resolveVersaoProdutoForApi } from "@/components/casos/shared/versao-combobox";
 import type { CasosTransferenciaFormValues } from "./types";
 
-export function parseVersaoSelecionada(value?: string): string | undefined {
-  const trimmed = String(value ?? "").trim();
-  if (!trimmed) return undefined;
-
-  const parts = trimmed.split("-");
-  if (parts.length >= 2) {
-    const maybeVersao = parts[1]?.trim();
-    if (maybeVersao) return maybeVersao;
-  }
-
-  return trimmed;
+export function parseVersaoSelecionada(
+  value?: string,
+  versoes?: Versao[] | null,
+): string | undefined {
+  const resolved = resolveVersaoProdutoForApi(String(value ?? ""), versoes);
+  return resolved || undefined;
 }
 
 function toOptionalNumber(value?: string): number | undefined {
@@ -25,12 +22,13 @@ function toOptionalNumber(value?: string): number | undefined {
 export function buildBulkTransferPayload(
   ids: string[],
   formValues: CasosTransferenciaFormValues,
+  versoes?: Versao[] | null,
 ): BulkUpdateCasosRequest | null {
   const AtribuidoPara = toOptionalNumber(formValues.devAtribuido);
   const atribuido_qa = toOptionalNumber(formValues.qaAtribuido);
   const Prioridade = toOptionalNumber(formValues.importancia);
   const cronograma_id = toOptionalNumber(formValues.projeto);
-  const VersaoProduto = parseVersaoSelecionada(formValues.versao);
+  const VersaoProduto = parseVersaoSelecionada(formValues.versao, versoes);
 
   const payload: BulkUpdateCasosRequest = {
     ids,

@@ -8,5 +8,7 @@ export interface AbaProducaoSavePayload {
 
 export interface AbaProducaoProps {
   item: ProjetoMemoriaItem;
+  /** Quando true, exibe apenas leitura (sem formulários nem ações). */
+  readOnly?: boolean;
 }
 

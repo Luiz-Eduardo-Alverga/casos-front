@@ -1,7 +1,9 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 
 export interface CasoEditCardHeaderProps {
@@ -9,8 +11,12 @@ export interface CasoEditCardHeaderProps {
   title: string;
   /** Ícone exibido ao lado do título (ex: FileText, Users) */
   icon: LucideIcon;
+  /** Classe de cor do ícone (ex.: text-sky-600). Padrão: text-text-primary */
+  iconClassName?: string;
   /** Valor opcional exibido como badge à direita (ex: casoId para "#123") */
   badge?: string | number;
+  /** Conteúdo extra à direita do título (ex.: badge modo rápido na criação) */
+  trailing?: ReactNode;
   /** Se true, aplica shrink-0 no header (padrão para cards com conteúdo scrollável) */
   shrink?: boolean;
 }
@@ -22,7 +28,9 @@ export interface CasoEditCardHeaderProps {
 export function CasoEditCardHeader({
   title,
   icon: Icon,
+  iconClassName = "text-text-primary",
   badge,
+  trailing,
   shrink = true,
 }: CasoEditCardHeaderProps) {
   return (
@@ -30,7 +38,7 @@ export function CasoEditCardHeader({
       className={`p-4 pb-2 border-b border-border-divider ${shrink ? "shrink-0" : ""}`}
     >
       <div className="flex w-full items-center gap-2">
-        <Icon className="h-3.5 w-3.5 shrink-0 text-text-primary" />
+        <Icon className={cn("h-3.5 w-3.5 shrink-0", iconClassName)} />
         <CardTitle className="min-w-0 flex-1 text-sm font-semibold text-text-primary">
           {title}
         </CardTitle>
@@ -42,6 +50,7 @@ export function CasoEditCardHeader({
             #{badge}
           </Badge>
         )}
+        {trailing}
       </div>
     </CardHeader>
   );

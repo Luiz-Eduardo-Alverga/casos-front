@@ -1,4 +1,6 @@
 import type { UpdateCasoRequest } from "@/services/projeto-casos/update";
+import type { Versao } from "@/services/auxiliar/versoes";
+import { resolveVersaoProdutoForApi } from "@/components/casos/shared/versao-combobox";
 
 /**
  * Campos comuns enviados em criação e atualização de caso/report.
@@ -37,11 +39,19 @@ export function extractVersaoProduto(
   return raw;
 }
 
+export interface BuildCasoBasePayloadOptions {
+  /** Catálogo de versões do produto — resolve sequencia → texto para a API. */
+  versoes?: Versao[] | null;
+}
+
 /**
  * Monta os campos comuns CASO/REPORT (sem status, sem flags de criação
  * e sem campos de report). É a base reaproveitada por create e update.
  */
-export function buildCasoBasePayload(data: CasoBaseFormInput) {
+export function buildCasoBasePayload(
+  data: CasoBaseFormInput,
+  options?: BuildCasoBasePayloadOptions,
+) {
   return {
     Prioridade: Number(data.importancia),
     Categoria: Number(data.categoria),
@@ -49,7 +59,7 @@ export function buildCasoBasePayload(data: CasoBaseFormInput) {
     AtribuidoPara: Number(data.devAtribuido),
     atribuido_qa: Number(data.qaAtribuido),
     Modulo: data.modulo || "",
-    VersaoProduto: extractVersaoProduto(data.versao),
+    VersaoProduto: resolveVersaoProdutoForApi(data.versao, options?.versoes),
     Cronograma_id: Number(data.projeto),
     Id_Origem: Number(data.origem),
     DescricaoResumo: data.DescricaoResumo || "",
@@ -62,6 +72,7 @@ export interface BuildCasoCreatePayloadArgs {
   data: CasoBaseFormInput;
   naoPlanejado: boolean;
   userId?: string | number | null;
+  versoes?: Versao[] | null;
 }
 
 /**
@@ -72,8 +83,9 @@ export function buildCasoCreatePayload({
   data,
   naoPlanejado,
   userId,
+  versoes,
 }: BuildCasoCreatePayloadArgs) {
-  const base = buildCasoBasePayload(data);
+  const base = buildCasoBasePayload(data, { versoes });
   return {
     Projeto: Number(data.produto),
     VersaoProduto: base.VersaoProduto,
@@ -112,6 +124,7 @@ export interface BuildCasoUpdatePayloadArgs {
   isReport: boolean;
   statusCasoFinal: number;
   reportFields?: CasoUpdateReportFields;
+  versoes?: Versao[] | null;
 }
 
 /**
@@ -125,8 +138,9 @@ export function buildCasoUpdatePayload({
   isReport,
   statusCasoFinal,
   reportFields,
+  versoes,
 }: BuildCasoUpdatePayloadArgs): UpdateCasoRequest {
-  const base = buildCasoBasePayload(data);
+  const base = buildCasoBasePayload(data, { versoes });
 
   const payload: UpdateCasoRequest = {
     Projeto: Number(data.produto),

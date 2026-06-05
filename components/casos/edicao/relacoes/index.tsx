@@ -5,7 +5,7 @@ import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { CasoEditCardHeader } from "../caso-edit-card-header";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
-import { GitBranch } from "lucide-react";
+import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
 import { RelacoesForm } from "./relacoes-form";
 import { RelacoesTable } from "./relacoes-table";
 import { isTipoRelacaoCaso } from "./utils";
@@ -94,7 +94,8 @@ export function AbaRelacoes({ relacoes }: AbaRelacoesProps) {
         <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
           <CasoEditCardHeader
             title="Relacionamentos do caso"
-            icon={GitBranch}
+            icon={CARD_HEADER_PRESETS.relacoes.icon}
+            iconClassName={CARD_HEADER_PRESETS.relacoes.iconClassName}
             badge={numeroCaso}
           />
 

@@ -155,6 +155,7 @@ export function ReportEditHeader({
       : []),
     { value: "clientes", label: "Clientes", count: countClientes },
     { value: "relacoes", label: "Relações", count: countRelacoes },
+    { value: "producao", label: "Produção" },
     { value: "historico", label: "Histórico" },
   ];
 

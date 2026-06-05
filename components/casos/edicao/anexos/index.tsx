@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Paperclip } from "lucide-react";
 import toast from "react-hot-toast";
+import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CasoEditCardHeader } from "../caso-edit-card-header";
@@ -66,7 +66,8 @@ export function AbaAnexos({ casoRegistro }: AbaAnexosProps) {
     <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
       <CasoEditCardHeader
         title="Anexos do caso"
-        icon={Paperclip}
+        icon={CARD_HEADER_PRESETS.anexos.icon}
+        iconClassName={CARD_HEADER_PRESETS.anexos.iconClassName}
         badge={numeroCaso}
       />
 

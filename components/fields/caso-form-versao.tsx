@@ -1,44 +1,20 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useLayoutEffect } from "react";
 import { Rocket } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
-import { extractVersaoProduto } from "@/components/casos/shared/payload";
+import {
+  buildVersaoComboboxOptions,
+  findSequenciaByVersaoProduto,
+  isSequenciaNoCatalogo,
+} from "@/components/casos/shared/versao-combobox";
 
 interface CasoFormVersaoProps {
   required?: boolean;
   todas?: boolean;
-}
-
-function versaoJaExisteNaLista(
-  list: Array<{ value: string; label: string }>,
-  candidate: string,
-): boolean {
-  const cand = candidate.trim();
-  if (!cand) return true;
-
-  const normCandidate = extractVersaoProduto(cand);
-  return list.some((o) => {
-    if (o.value === cand) return true;
-    return extractVersaoProduto(o.value) === normCandidate;
-  });
-}
-
-/** Alinha value curto do form (ex.: "7.1.1.0") ao value da opção (ex.: "42-7.1.1.0"). */
-function findVersaoValueCanonica(
-  list: Array<{ value: string; label: string }>,
-  candidate: string,
-): string | undefined {
-  const cand = candidate.trim();
-  if (!cand || !list.length) return undefined;
-
-  if (list.some((o) => o.value === cand)) return undefined;
-
-  const normCandidate = extractVersaoProduto(cand);
-  return list.find((o) => extractVersaoProduto(o.value) === normCandidate)?.value;
 }
 
 export function CasoFormVersao({
@@ -50,9 +26,17 @@ export function CasoFormVersao({
   const { watch, setValue } = useFormContext();
   const produtoValue = watch("produto");
   const versaoValue = watch("versao");
+  const versaoValueTrimmed = String(versaoValue ?? "").trim();
   const [optionsRequested, setOptionsRequested] = useState(
-    !lazyLoadComboboxOptions,
+    !lazyLoadComboboxOptions || Boolean(versaoValueTrimmed),
   );
+
+  useEffect(() => {
+    if (!lazyLoadComboboxOptions) return;
+    if (optionsRequested) return;
+
+    if (versaoValueTrimmed) setOptionsRequested(true);
+  }, [lazyLoadComboboxOptions, optionsRequested, versaoValueTrimmed]);
 
   const produtoAtual = produtoValue || produto;
 
@@ -62,56 +46,86 @@ export function CasoFormVersao({
     todas,
   });
 
-  const versoesOptions = useMemo(() => {
-    const list = (versoes ?? []).map((v) => {
-      const seq = String(v.sequencia ?? "").trim();
-      const ver = String(v.versao ?? "").trim();
-      const value =
-        seq && ver ? `${seq}-${ver}` : ver || seq || String(v.id ?? "").trim();
-      return {
-        value,
-        label: ver || seq || value,
-      };
-    });
+  const versoesOptions = useMemo(
+    () => buildVersaoComboboxOptions(versoes ?? []),
+    [versoes],
+  );
+
+  // Rede de segurança: alinha texto → sequencia antes da pintura (após reset do pai).
+  useLayoutEffect(() => {
+    if (!versoes?.length || !versaoValueTrimmed) return;
+    if (isSequenciaNoCatalogo(versaoValueTrimmed, versoes)) return;
 
     const produtoAlinhadoComItem =
       editCaseItem?.produto?.id != null &&
       String(produtoAtual) === String(editCaseItem.produto.id);
 
-    const formVersao = String(versaoValue ?? "").trim();
-    const fallbackVersao =
-      formVersao ||
-      (produtoAlinhadoComItem && editCaseItem?.produto?.versao
+    const candidatos = [
+      versaoValueTrimmed,
+      produtoAlinhadoComItem && editCaseItem?.produto?.versao
         ? String(editCaseItem.produto.versao).trim()
-        : "");
+        : "",
+    ].filter(Boolean);
 
-    if (
-      fallbackVersao &&
-      !versaoJaExisteNaLista(list, fallbackVersao)
-    ) {
-      const label = extractVersaoProduto(fallbackVersao) || fallbackVersao;
-      list.unshift({ value: fallbackVersao, label });
+    for (const candidato of candidatos) {
+      const sequencia = findSequenciaByVersaoProduto(versoes, candidato);
+      if (sequencia && sequencia !== versaoValueTrimmed) {
+        setValue("versao", sequencia, { shouldDirty: false });
+        break;
+      }
     }
-
-    return list;
   }, [
     versoes,
-    versaoValue,
+    versaoValueTrimmed,
+    setValue,
     produtoAtual,
     editCaseItem?.produto?.id,
     editCaseItem?.produto?.versao,
   ]);
 
-  // Sincroniza "7.1.1.0" (memória) com "seq-7.1.1.0" (opções) para o Combobox resolver selectedOption.
+  // Diagnóstico em produção: form tem valor mas Combobox não resolve selectedOption.
   useEffect(() => {
-    const atual = String(versaoValue ?? "").trim();
-    if (!atual || !versoes?.length) return;
+    if (!versaoValueTrimmed || !produtoAtual || isVersoesLoading) return;
 
-    const canonico = findVersaoValueCanonica(versoesOptions, atual);
-    if (canonico && canonico !== atual) {
-      setValue("versao", canonico, { shouldDirty: false });
-    }
-  }, [versoesOptions, versaoValue, versoes, setValue]);
+    const hasExactMatch = versoesOptions.some(
+      (o) => o.value === versaoValueTrimmed,
+    );
+    if (hasExactMatch) return;
+
+    console.log("[CasoFormVersao] sequência sem opção correspondente", {
+      versaoForm: versaoValue,
+      versaoFormTrimmed: versaoValueTrimmed,
+      produtoAtual,
+      optionsRequested,
+      versoesCarregadas: versoes?.length ?? 0,
+      optionsCount: versoesOptions.length,
+      optionsValues: versoesOptions.map((o) => o.value),
+      editCaseItemVersao: editCaseItem?.produto?.versao,
+      casoId: editCaseItem?.caso?.id,
+      lazyLoadComboboxOptions,
+      isVersoesLoading,
+      versoesRaw: versoes?.map((v) => ({
+        sequencia: v.sequencia,
+        versao: v.versao,
+      })),
+      optionsLabels: versoesOptions.map((o) => o.label),
+      sequenciaResolvida: findSequenciaByVersaoProduto(
+        versoes ?? [],
+        versaoValueTrimmed,
+      ),
+    });
+  }, [
+    versaoValue,
+    versaoValueTrimmed,
+    versoesOptions,
+    produtoAtual,
+    optionsRequested,
+    versoes,
+    editCaseItem?.produto?.versao,
+    editCaseItem?.caso?.id,
+    lazyLoadComboboxOptions,
+    isVersoesLoading,
+  ]);
 
   return (
     <div className="space-y-2">
@@ -132,7 +146,6 @@ export function CasoFormVersao({
               ? "Carregando versões..."
               : "Nenhuma versão encontrada."
         }
-        // onSearchChange={setVersoesSearch}
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
         required={required}

@@ -16,14 +16,23 @@ import { AbaRelacoes } from "@/components/casos/edicao/relacoes";
 import { AbaClientes } from "@/components/casos/edicao/clientes";
 import { AbaAnexos } from "@/components/casos/edicao/anexos";
 import { AbaHistorico } from "@/components/casos/edicao/historico";
+import { AbaProducao } from "@/components/casos/edicao/producao";
 import { CasoEditCardClassificacao } from "@/components/casos/edicao/caso-edit-card-classificacao";
 import { useCaseAttachments } from "@/hooks/casos/use-case-attachments";
 import { useCasoHistorico } from "@/hooks/casos/use-caso-historico";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import { buildCasoUpdatePayload } from "@/components/casos/shared/payload";
+import {
+  getVersoesQueryKey,
+  isSequenciaNoCatalogo,
+  resolveVersaoSequenciaForForm,
+} from "@/components/casos/shared/versao-combobox";
+import { useVersoes } from "@/hooks/catalogos/use-versoes";
+import type { Versao } from "@/services/auxiliar/versoes";
 import { useStatus } from "@/hooks/catalogos/use-status";
 import {
+  getReportEditRodapeVisibility,
   normalizeAnaliseStatusForForm,
   resolveCasoStatusFromReport,
   resolveReportStatusFromCaso,
@@ -90,21 +99,65 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
     String(defaultValues.analiseStatus ?? ""),
   );
 
+  const produtoWatch = methods.watch("produto");
+
+  const { data: versoesCatalogo } = useVersoes({
+    produto_id: produtoWatch,
+    enabled: Boolean(String(produtoWatch ?? "").trim()),
+    todas: false,
+  });
+
+  const getVersoesForProduto = useCallback(
+    (produtoId: string): Versao[] | undefined => {
+      const id = String(produtoId ?? "").trim();
+      if (!id) return undefined;
+      if (versoesCatalogo?.length && String(produtoWatch) === id) {
+        return versoesCatalogo;
+      }
+      return queryClient.getQueryData<Versao[]>(
+        getVersoesQueryKey(id, "", false),
+      );
+    },
+    [queryClient, versoesCatalogo, produtoWatch],
+  );
+
   useEffect(() => {
     const values = getReportEditDefaultValues(item);
+    const versoes = getVersoesForProduto(values.produto);
+    values.versao = resolveVersaoSequenciaForForm(values.versao, versoes);
+
     snapshotRef.current = buildCasoEditSnapshot(item);
     methods.reset(values);
     previousStatusValueRef.current = String(values.status ?? "");
     previousAnaliseStatusValueRef.current = String(values.analiseStatus ?? "");
-  }, [item, methods]);
+  }, [item, methods, getVersoesForProduto]);
 
-  // const statusValue = useWatch({ control: methods.control, name: "status" });
-  // const analiseStatusValue = useWatch({
-  //   control: methods.control,
-  //   name: "analiseStatus",
-  // });
+  useEffect(() => {
+    if (!versoesCatalogo?.length) return;
+
+    const atual = String(methods.getValues("versao") ?? "").trim();
+    if (!atual || isSequenciaNoCatalogo(atual, versoesCatalogo)) return;
+
+    const sequencia = resolveVersaoSequenciaForForm(atual, versoesCatalogo);
+    if (!sequencia || sequencia === atual) return;
+
+    methods.setValue("versao", sequencia, { shouldDirty: false });
+  }, [versoesCatalogo, methods]);
+
   const versaoValue = useWatch({ control: methods.control, name: "versao" });
-  const produtoWatch = methods.watch("produto");
+  const analiseStatusValue = useWatch({
+    control: methods.control,
+    name: "analiseStatus",
+  });
+
+  const exibirRodape = getReportEditRodapeVisibility(
+    String(
+      analiseStatusValue ??
+        defaultValues.analiseStatus ??
+        item.report?.analise_status ??
+        "",
+    ),
+  ).exibirRodape;
 
   const { data: statusList } = useStatus();
   const updateCaso = useUpdateCaso(casoId);
@@ -210,7 +263,7 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
         <div className="mt-4 flex-1 flex flex-col min-h-0 overflow-auto">
           <CasoFormProvider value={providerValue}>
             <FormProvider {...methods}>
-              <div className="flex-1 pb-24">
+              <div className={`flex-1${exibirRodape ? " pb-24" : ""}`}>
                 <div className="flex min-h-0 flex-1 flex-col gap-2 lg:flex-row">
                   <div className="flex min-h-0 flex-1 min-w-0 flex-col gap-6">
                     <TabsContent
@@ -276,6 +329,15 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
                           <CasoEditCardClassificacao />
                         </div>
                       </fieldset>
+                    </TabsContent>
+
+                    <TabsContent
+                      value="producao"
+                      className="mt-0 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
+                    >
+                      <div className="flex flex-1 flex-col gap-6 min-w-0">
+                        <AbaProducao item={item} readOnly />
+                      </div>
                     </TabsContent>
 
                     <TabsContent

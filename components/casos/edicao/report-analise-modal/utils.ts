@@ -153,6 +153,25 @@ export const REPORT_STATUS_INCOMPLETO_ID = "21";
 /** Status REPORT "Suspenso" — equivale ao caso 10. */
 export const REPORT_STATUS_SUSPENSO_ID = "23";
 
+/** Status REPORT não selecionado (caso aberto). */
+export const REPORT_STATUS_NAO_SELECIONADO_ID = "0";
+
+export function getReportEditRodapeVisibility(
+  analiseStatus: string | null | undefined,
+) {
+  const status = String(analiseStatus ?? "").trim();
+  const exibirConcluir = status === REPORT_STATUS_INCOMPLETO_ID;
+  const exibirSuspender =
+    status === REPORT_STATUS_INCOMPLETO_ID ||
+    status === REPORT_STATUS_NAO_SELECIONADO_ID;
+
+  return {
+    exibirConcluir,
+    exibirSuspender,
+    exibirRodape: exibirConcluir || exibirSuspender,
+  };
+}
+
 export function shouldClearReportAnaliseForCasoStatus(
   casoStatus: number | string | null | undefined,
 ): boolean {

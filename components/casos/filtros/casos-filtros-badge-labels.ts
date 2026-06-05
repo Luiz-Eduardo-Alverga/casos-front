@@ -2,7 +2,12 @@ import type { Categoria } from "@/services/auxiliar/categorias";
 import type { Produto } from "@/services/auxiliar/produtos";
 import type { StatusItem } from "@/services/auxiliar/status";
 import type { Usuario } from "@/services/auxiliar/usuarios";
+import type { Versao } from "@/services/auxiliar/versoes";
 import type { CasosFiltrosAplicados } from "@/components/casos/filtros/casos-filtros.types";
+import {
+  buildVersaoComboboxOptions,
+  resolveVersaoProdutoForApi,
+} from "@/components/casos/shared/versao-combobox";
 import { formatDateYmdToBr } from "@/components/painel-kanban/horas-analiticas-modal/utils";
 
 export const MAX_CASOS_FILTROS_BADGES_VISIVEIS = 3;
@@ -32,6 +37,7 @@ export interface CasosFiltrosBadgeCatalogs {
   statusList: StatusItem[];
   categorias: Categoria[];
   usuarios: Usuario[];
+  versoes?: Versao[];
 }
 
 function resolveProdutoLabel(id: string, produtos: Produto[]): string {
@@ -39,10 +45,20 @@ function resolveProdutoLabel(id: string, produtos: Produto[]): string {
   return p?.nome_projeto?.trim() || id;
 }
 
-function resolveVersaoLabel(versao: string): string {
+function resolveVersaoLabel(versao: string, versoes?: Versao[]): string {
   const v = versao.trim();
   if (!v) return "";
-  const part = v.split("-")[1]?.trim();
+
+  if (versoes?.length) {
+    const options = buildVersaoComboboxOptions(versoes);
+    const bySequencia = options.find((o) => o.value === v);
+    if (bySequencia) return bySequencia.label;
+
+    const texto = resolveVersaoProdutoForApi(v, versoes);
+    if (texto) return texto;
+  }
+
+  const part = v.split("-").slice(1).join("-").trim();
   return part || v;
 }
 
@@ -123,7 +139,7 @@ export function buildCasosFiltrosBadgeItems(
   if (filtros.versao?.trim()) {
     items.push({
       key: "versao",
-      label: `Versão: ${resolveVersaoLabel(filtros.versao)}`,
+      label: `Versão: ${resolveVersaoLabel(filtros.versao, catalogs.versoes)}`,
     });
   }
 

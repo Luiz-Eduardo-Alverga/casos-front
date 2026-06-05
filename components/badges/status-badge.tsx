@@ -1,44 +1,75 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
+export interface StatusBadgeStyle {
+  container: string;
+  dot: string;
+  text: string;
+}
 
 /**
  * Configuração de cores do badge por status.
  * Cada item define um conjunto de valores (palavras-chave) que, ao serem
- * encontrados no status (case-insensitive), aplicam a classe de cor.
+ * encontrados no status (case-insensitive), aplicam o estilo.
  * A ordem importa: o primeiro match é usado.
  * Use `values: []` no último item como fallback (cor padrão).
  */
 export interface StatusBadgeConfigItem {
-  /** Valores que, se contidos no status, aplicam esta cor */
+  /** Valores que, se contidos no status, aplicam este estilo */
   values: string[];
-  /** Classes Tailwind para background e texto (ex: "bg-green-100 text-green-700") */
-  className: string;
+  style: StatusBadgeStyle;
 }
+
+const DEFAULT_STATUS_BADGE_STYLE: StatusBadgeStyle = {
+  container: "bg-gray-50 border-gray-200",
+  dot: "bg-gray-500",
+  text: "text-gray-700",
+};
 
 /** Configuração padrão de status para casos (reutilizável e customizável) */
 export const STATUS_BADGE_CONFIG: StatusBadgeConfigItem[] = [
   {
     values: ["CONCLUÍDO", "CONCLUIDO"],
-    className: "bg-green-100 text-green-700 hover:bg-green-100",
+    style: {
+      container: "bg-green-50 border-green-200",
+      dot: "bg-green-500",
+      text: "text-green-700",
+    },
   },
   {
     values: ["EM DESENVOLVIMENTO"],
-    className: "bg-blue-100 text-blue-700 hover:bg-blue-100",
+    style: {
+      container: "bg-blue-50 border-blue-200",
+      dot: "bg-blue-500",
+      text: "text-blue-700",
+    },
   },
   {
     values: ["AGUARDANDO TESTE"],
-    className: "bg-red-100 text-red-700 hover:bg-red-100",
+    style: {
+      container: "bg-red-50 border-red-200",
+      dot: "bg-red-500",
+      text: "text-red-700",
+    },
   },
   {
     values: ["SUSPENSO"],
-    className: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
+    style: {
+      container: "bg-yellow-50 border-yellow-200",
+      dot: "bg-yellow-500",
+      text: "text-yellow-700",
+    },
   },
-  { values: [], className: "bg-gray-100 text-gray-700 hover:bg-gray-100" },
   {
     values: ["REABERTO"],
-    className: "bg-orange-100 text-orange-700 hover:bg-orange-100",
+    style: {
+      container: "bg-orange-50 border-orange-200",
+      dot: "bg-orange-500",
+      text: "text-orange-700",
+    },
   },
+  { values: [], style: DEFAULT_STATUS_BADGE_STYLE },
 ];
 
 /** Exibe o status com primeira letra maiúscula e o resto minúsculo */
@@ -48,20 +79,17 @@ function formatStatusLabel(status: string): string {
   return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
 
-function getStatusBadgeClassName(
+function getStatusBadgeStyle(
   status: string,
   config: StatusBadgeConfigItem[],
-): string {
+): StatusBadgeStyle {
   const statusUpper = (status ?? "").trim().toUpperCase();
   for (const item of config) {
-    if (item.values.length === 0) return item.className;
+    if (item.values.length === 0) return item.style;
     const match = item.values.some((v) => statusUpper.includes(v));
-    if (match) return item.className;
+    if (match) return item.style;
   }
-  return (
-    config[config.length - 1]?.className ??
-    "bg-gray-100 text-gray-700 hover:bg-gray-100"
-  );
+  return config[config.length - 1]?.style ?? DEFAULT_STATUS_BADGE_STYLE;
 }
 
 interface StatusBadgeProps {
@@ -69,7 +97,7 @@ interface StatusBadgeProps {
   status: string;
   /** Configuração de cores por valor (opcional; usa STATUS_BADGE_CONFIG se não informado) */
   config?: StatusBadgeConfigItem[];
-  /** Classes adicionais no Badge */
+  /** Classes adicionais no container */
   className?: string;
 }
 
@@ -82,14 +110,22 @@ export function StatusBadge({
   config = STATUS_BADGE_CONFIG,
   className = "",
 }: StatusBadgeProps) {
-  const colorClass = getStatusBadgeClassName(status, config);
+  const style = getStatusBadgeStyle(status, config);
+
   return (
-    <Badge
-      className={`${colorClass} border-transparent rounded-full h-7 px-2.5 flex items-center justify-center whitespace-nowrap ${className}`.trim()}
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 whitespace-nowrap",
+        style.container,
+        className,
+      )}
     >
-      <span className="text-xs font-semibold whitespace-nowrap">
+      <span className={cn("size-1 shrink-0 rounded-full", style.dot)} />
+      <span
+        className={cn("text-xs font-semibold whitespace-nowrap", style.text)}
+      >
         {formatStatusLabel(status)}
       </span>
-    </Badge>
+    </span>
   );
 }

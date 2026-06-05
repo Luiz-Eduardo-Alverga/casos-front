@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { AxiosError } from "axios";
@@ -31,11 +32,14 @@ import { CasoCreateLeftColumn } from "./caso-create-left-column";
 import { CasoCreateModals } from "./caso-create-modals";
 import { CasoCreateRightColumn } from "./caso-create-right-column";
 import { buildCasoCreatePayload, clearTextOnlyFields } from "./utils";
+import { getVersoesQueryKey } from "@/components/casos/shared/versao-combobox";
+import type { Versao } from "@/services/auxiliar/versoes";
 
 export type { AssistantFormData, CasoCreateFormData } from "./schema";
 
 export function CasoCreateForm() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [numeroCaso, setNumeroCaso] = useState<number | null>(null);
   const [isAssistantModalOpen, setIsAssistantModalOpen] = useState(false);
@@ -196,10 +200,18 @@ export function CasoCreateForm() {
 
     try {
       const currentUser = getUser();
+      const produtoId = String(data.produto ?? "").trim();
+      const versoes = produtoId
+        ? queryClient.getQueryData<Versao[]>(
+            getVersoesQueryKey(produtoId, "", false),
+          )
+        : undefined;
+
       const casoData = buildCasoCreatePayload({
         data,
         naoPlanejado,
         userId: currentUser?.id,
+        versoes,
       });
 
       const response = await createCasoAsync(casoData);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useEffect, useState, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { AnimatePresence } from "framer-motion";
 import { LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layout";
@@ -12,6 +13,13 @@ import { CasoFormVersao } from "@/components/fields/caso-form-versao";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { importanceOptions } from "@/mocks/teste";
 import { useCategorias } from "@/hooks/catalogos/use-categorias";
+import { useVersoes } from "@/hooks/catalogos/use-versoes";
+import {
+  getVersoesQueryKey,
+  isSequenciaNoCatalogo,
+  resolveVersaoProdutoForApi,
+} from "@/components/casos/shared/versao-combobox";
+import type { Versao } from "@/services/auxiliar/versoes";
 import { ChevronUp, Filter, Search, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CasosFiltrosAplicados } from "@/components/casos/filtros/casos-filtros.types";
@@ -41,8 +49,16 @@ export function CasosFiltros({
   onAplicar,
   onLimparSheet,
 }: CasosFiltrosProps) {
+  const queryClient = useQueryClient();
   const { data: categorias } = useCategorias();
   const filtrosAtivos = hasFiltersApplied(filtrosAplicados);
+  const produtoFiltro = filtrosAplicados.produto?.trim() ?? "";
+  const versaoFiltro = filtrosAplicados.versao?.trim() ?? "";
+  const { data: versoesCatalogo = [] } = useVersoes({
+    produto_id: produtoFiltro,
+    enabled: Boolean(produtoFiltro) && Boolean(versaoFiltro),
+    todas: true,
+  });
 
   const [camposExpandidos, setCamposExpandidos] = useState(false);
   const [modoResumo, setModoResumo] = useState(filtrosAtivos);
@@ -54,6 +70,11 @@ export function CasosFiltros({
     [categorias],
   );
 
+  const versoesSyncKey = useMemo(
+    () => versoesCatalogo.map((v) => String(v.sequencia ?? "")).join(","),
+    [versoesCatalogo],
+  );
+
   const methods = useForm<CasosFiltersForm>({
     defaultValues: EMPTY_CASOS_FILTERS_FORM,
   });
@@ -61,12 +82,38 @@ export function CasosFiltros({
   const lastFormSyncKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const syncKey = `${appliedQueryKey}|${categoriasSyncKey}`;
+    const syncKey = `${appliedQueryKey}|${categoriasSyncKey}|${versoesSyncKey}`;
     if (lastFormSyncKeyRef.current === syncKey) return;
     lastFormSyncKeyRef.current = syncKey;
-    methods.reset(filtrosToFormDefaults(filtrosAplicados, categorias ?? []));
+    methods.reset(
+      filtrosToFormDefaults(filtrosAplicados, categorias ?? [], versoesCatalogo),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- syncKey agrega deps; `methods` é estável
-  }, [appliedQueryKey, categoriasSyncKey, filtrosAplicados, categorias]);
+  }, [
+    appliedQueryKey,
+    categoriasSyncKey,
+    versoesSyncKey,
+    filtrosAplicados,
+    categorias,
+    versoesCatalogo,
+  ]);
+
+  // URLs recentes podem ter sequencia; normaliza para texto (comportamento anterior).
+  useEffect(() => {
+    if (!produtoFiltro || !versaoFiltro || !versoesCatalogo.length) return;
+    if (!isSequenciaNoCatalogo(versaoFiltro, versoesCatalogo)) return;
+
+    const texto = resolveVersaoProdutoForApi(versaoFiltro, versoesCatalogo);
+    if (!texto || texto === versaoFiltro) return;
+
+    onAplicar({ ...filtrosAplicados, versao: texto });
+  }, [
+    produtoFiltro,
+    versaoFiltro,
+    versoesCatalogo,
+    filtrosAplicados,
+    onAplicar,
+  ]);
 
   useEffect(() => {
     if (!filtrosAtivos) {
@@ -77,14 +124,29 @@ export function CasosFiltros({
 
   const produto = methods.watch("produto");
 
+  const resolveVersoesParaAplicar = useCallback((): Versao[] | undefined => {
+    const produtoId = String(methods.getValues("produto") ?? "").trim();
+    if (!produtoId) return undefined;
+    if (versoesCatalogo.length && produtoId === produtoFiltro) {
+      return versoesCatalogo;
+    }
+    return queryClient.getQueryData<Versao[]>(
+      getVersoesQueryKey(produtoId, "", true),
+    );
+  }, [methods, versoesCatalogo, produtoFiltro, queryClient]);
+
   const handleFiltrar = useCallback(() => {
-    const next = formToFiltrosAplicados(methods.getValues(), categorias ?? []);
+    const next = formToFiltrosAplicados(
+      methods.getValues(),
+      categorias ?? [],
+      resolveVersoesParaAplicar(),
+    );
     onAplicar(next);
     setCamposExpandidos(false);
     if (hasFiltersApplied(next)) {
       setModoResumo(true);
     }
-  }, [methods, onAplicar, categorias]);
+  }, [methods, onAplicar, categorias, resolveVersoesParaAplicar]);
 
   const handleAplicarFromBadges = useCallback(
     (filtros: CasosFiltrosAplicados) => {

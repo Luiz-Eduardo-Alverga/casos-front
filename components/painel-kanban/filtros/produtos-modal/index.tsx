@@ -27,6 +27,8 @@ import { useDeleteProdutosOrdem } from "@/hooks/painel/produtos-ordem/use-delete
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
 import type { ProdutoOrdem } from "@/services/projeto-dev/get-produtos-ordem";
 import type { PainelKanbanProdutosModalProps } from "./types";
+import { getVersoesQueryKey } from "@/components/casos/shared/versao-combobox";
+import type { Versao } from "@/services/auxiliar/versoes";
 import {
   getColaboradorLabelFromKanbanFiltros,
   parseVersaoFieldValue,
@@ -105,7 +107,13 @@ export function PainelKanbanProdutosModal({
 
   const handleAdicionar = form.handleSubmit(async (values) => {
     try {
-      const versao = parseVersaoFieldValue(values.versao);
+      const produtoId = String(values.produto ?? "").trim();
+      const versoes = produtoId
+        ? queryClient.getQueryData<Versao[]>(
+            getVersoesQueryKey(produtoId, "", false),
+          )
+        : undefined;
+      const versao = parseVersaoFieldValue(values.versao, versoes);
       if (!values.produto?.trim() || !versao) {
         toast.error("Selecione produto e versão para adicionar.");
         return;

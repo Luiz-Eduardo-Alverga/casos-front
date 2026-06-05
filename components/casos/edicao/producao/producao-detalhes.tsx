@@ -51,6 +51,7 @@ export interface ProducaoDetalhesProps {
   onCancelarEdicao: () => void;
   onSalvarEdicao: () => void | Promise<void>;
   onAskDelete: (sequencia: number) => void;
+  readOnly?: boolean;
 }
 
 export function ProducaoDetalhes({
@@ -68,6 +69,7 @@ export function ProducaoDetalhes({
   onCancelarEdicao,
   onSalvarEdicao,
   onAskDelete,
+  readOnly = false,
 }: ProducaoDetalhesProps) {
   if (producaoList.length === 0) {
     return (
@@ -114,9 +116,11 @@ export function ProducaoDetalhes({
           <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
             Usuário
           </TableHead>
-          <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5 w-[120px]">
-            Ações
-          </TableHead>
+          {!readOnly ? (
+            <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5 w-[120px]">
+              Ações
+            </TableHead>
+          ) : null}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -199,55 +203,57 @@ export function ProducaoDetalhes({
             <TableCell className="py-3 px-2.5 text-sm text-text-primary">
               {row.usuario_nome ?? "—"}
             </TableCell>
-            <TableCell className="py-3 px-2.5">
-              {editandoSequencia === row.sequencia ? (
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={onCancelarEdicao}
-                    className="rounded-lg"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={onSalvarEdicao}
-                    disabled={isSalvandoEdicao}
-                    className="rounded-lg"
-                  >
-                    {isSalvandoEdicao ? "Salvando..." : "Salvar"}
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="size-9 rounded-lg"
-                    onClick={() => onIniciarEdicao(row)}
-                    aria-label="Editar produção"
-                    disabled={row.datas?.fechamento === null}
-                  >
-                    <Pencil className="size-4 text-foreground" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="size-9 rounded-lg text-destructive hover:text-destructive"
-                    onClick={() => onAskDelete(row.sequencia)}
-                    aria-label="Excluir produção"
-                    disabled={row.datas?.fechamento === null}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              )}
-            </TableCell>
+            {!readOnly ? (
+              <TableCell className="py-3 px-2.5">
+                {editandoSequencia === row.sequencia ? (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={onCancelarEdicao}
+                      className="rounded-lg"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={onSalvarEdicao}
+                      disabled={isSalvandoEdicao}
+                      className="rounded-lg"
+                    >
+                      {isSalvandoEdicao ? "Salvando..." : "Salvar"}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-9 rounded-lg"
+                      onClick={() => onIniciarEdicao(row)}
+                      aria-label="Editar produção"
+                      disabled={row.datas?.fechamento === null}
+                    >
+                      <Pencil className="size-4 text-foreground" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-9 rounded-lg text-destructive hover:text-destructive"
+                      onClick={() => onAskDelete(row.sequencia)}
+                      aria-label="Excluir produção"
+                      disabled={row.datas?.fechamento === null}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                )}
+              </TableCell>
+            ) : null}
           </TableRow>
         ))}
       </TableBody>

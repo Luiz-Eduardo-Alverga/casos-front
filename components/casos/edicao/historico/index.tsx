@@ -5,7 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CasoEditCardHeader } from "../caso-edit-card-header";
-import { CalendarDays, ChevronUp, FileText, Pencil, User } from "lucide-react";
+import { CalendarDays, ChevronUp, Pencil, User } from "lucide-react";
+import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
 import { cn } from "@/lib/utils";
 import type { CasoHistoricoItem } from "@/services/projeto-casos/get-historico";
 import { HistoricoTimelineSkeleton } from "./historico-skeleton";
@@ -46,7 +47,8 @@ export function AbaHistorico({
     <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
       <CasoEditCardHeader
         title="Histórico de alterações"
-        icon={FileText}
+        icon={CARD_HEADER_PRESETS.historico.icon}
+        iconClassName={CARD_HEADER_PRESETS.historico.iconClassName}
         badge={numeroCaso}
       />
 

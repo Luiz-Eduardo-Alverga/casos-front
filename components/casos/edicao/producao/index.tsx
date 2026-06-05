@@ -13,7 +13,7 @@ import {
 import { useAtualizarProducao } from "@/hooks/producao/use-atualizar-producao";
 import { useExcluirProducao } from "@/hooks/producao/use-excluir-producao";
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
-import { Package } from "lucide-react";
+import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
 import type { AbaProducaoProps, AbaProducaoSavePayload } from "./types";
 import { useCasoEdit } from "../caso-edit-context";
 import toast from "react-hot-toast";
@@ -30,7 +30,7 @@ import { ProducaoDetalhes } from "./producao-detalhes";
 /** Intervalo para atualizar duração e métricas de produções em aberto (ms). */
 const PRODUCAO_TEMPO_ATUALIZACAO_MS = 1000;
 
-export function AbaProducao({ item }: AbaProducaoProps) {
+export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
   const {
     numeroCaso,
     invalidate: onProducaoAlterada,
@@ -220,26 +220,29 @@ export function AbaProducao({ item }: AbaProducaoProps) {
       <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
         <CasoEditCardHeader
           title="Produção"
-          icon={Package}
+          icon={CARD_HEADER_PRESETS.producao.icon}
+          iconClassName={CARD_HEADER_PRESETS.producao.iconClassName}
           badge={numeroCaso}
         />
         <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 ">
-          <ProducaoEstimativa
-            showForm={showForm}
-            setShowForm={setShowForm}
-            isSaving={isSavingEstimativa}
-            naoPlanejado={naoPlanejado}
-            setNaoPlanejado={setNaoPlanejado}
-            naoPlanejadoFlag={naoPlanejadoFlag}
-            tamanhoId={tamanhoId}
-            setTamanhoId={setTamanhoId}
-            tempoEstimado={tempoEstimado}
-            setTempoEstimado={setTempoEstimado}
-            estimadoMin={estimadoMin}
-            onSaveProducao={handleSaveProducao}
-          />
+          {!readOnly ? (
+            <ProducaoEstimativa
+              showForm={showForm}
+              setShowForm={setShowForm}
+              isSaving={isSavingEstimativa}
+              naoPlanejado={naoPlanejado}
+              setNaoPlanejado={setNaoPlanejado}
+              naoPlanejadoFlag={naoPlanejadoFlag}
+              tamanhoId={tamanhoId}
+              setTamanhoId={setTamanhoId}
+              tempoEstimado={tempoEstimado}
+              setTempoEstimado={setTempoEstimado}
+              estimadoMin={estimadoMin}
+              onSaveProducao={handleSaveProducao}
+            />
+          ) : null}
 
-          <div className="space-y-6 pt-4 ">
+          <div className={readOnly ? "space-y-6" : "space-y-6 pt-4 "}>
             <ProducaoControle
               naoPlanejadoFlag={naoPlanejadoFlag}
               estimadoMin={estimadoMin}
@@ -270,15 +273,20 @@ export function AbaProducao({ item }: AbaProducaoProps) {
                   onAskDelete={(sequencia) =>
                     setExcluirModal({ open: true, sequencia })
                   }
+                  readOnly={readOnly}
                 />
               </div>
             ) : (
               <div className="flex min-h-0 flex-1 flex-col">
                 <EmptyState
-                  icon={Package}
+                  icon={CARD_HEADER_PRESETS.producao.icon}
                   imageAlt="Nenhuma produção lançada"
                   title="Nenhuma produção lançada"
-                  description="Clique em novo lançamento para lançar uma produção."
+                  description={
+                    readOnly
+                      ? "Não há registros de produção para este caso."
+                      : "Clique em novo lançamento para lançar uma produção."
+                  }
                 />
               </div>
             )}
@@ -286,19 +294,21 @@ export function AbaProducao({ item }: AbaProducaoProps) {
         </CardContent>
       </Card>
 
-      <ConfirmacaoModal
-        open={excluirModal.open}
-        onOpenChange={(open) =>
-          !open && setExcluirModal({ open: false, sequencia: 0 })
-        }
-        titulo="Excluir produção"
-        descricao="Tem certeza que deseja excluir esta produção? Esta ação não pode ser desfeita."
-        confirmarLabel="Excluir"
-        cancelarLabel="Cancelar"
-        onConfirm={handleExcluirConfirm}
-        variant="danger"
-        isLoading={excluirProducao.isPending}
-      />
+      {!readOnly ? (
+        <ConfirmacaoModal
+          open={excluirModal.open}
+          onOpenChange={(open) =>
+            !open && setExcluirModal({ open: false, sequencia: 0 })
+          }
+          titulo="Excluir produção"
+          descricao="Tem certeza que deseja excluir esta produção? Esta ação não pode ser desfeita."
+          confirmarLabel="Excluir"
+          cancelarLabel="Cancelar"
+          onConfirm={handleExcluirConfirm}
+          variant="danger"
+          isLoading={excluirProducao.isPending}
+        />
+      ) : null}
     </>
   );
 }

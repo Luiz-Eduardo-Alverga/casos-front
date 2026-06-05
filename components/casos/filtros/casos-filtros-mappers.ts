@@ -1,4 +1,10 @@
 import type { Categoria } from "@/services/auxiliar/categorias";
+import type { Versao } from "@/services/auxiliar/versoes";
+import {
+  isSequenciaNoCatalogo,
+  resolveVersaoProdutoForApi,
+  resolveVersaoSequenciaForForm,
+} from "@/components/casos/shared/versao-combobox";
 import type { ProjetoMemoriaQueryParams } from "@/hooks/casos/use-projeto-memoria";
 import { MAX_STATUS_IDS_FILTRO_CASOS } from "@/components/casos/filtros/constants";
 import type {
@@ -129,9 +135,20 @@ export function resolveCategoriaIdFromTipo(
   return byId ? byId.id : t;
 }
 
+/** Valor persistido na URL / API: texto da versão (não sequencia). */
+export function normalizeVersaoForFiltrosAplicados(
+  versao: string,
+  versoes?: Versao[] | null,
+): string {
+  const trimmed = String(versao ?? "").trim();
+  if (!trimmed) return "";
+  return resolveVersaoProdutoForApi(trimmed, versoes) || trimmed;
+}
+
 export function formToFiltrosAplicados(
   values: CasosFiltersForm,
   categorias: Categoria[],
+  versoes?: Versao[] | null,
 ): CasosFiltrosAplicados {
   let tipo_categoria = "";
   if (values.categoria?.trim()) {
@@ -146,7 +163,10 @@ export function formToFiltrosAplicados(
 
   return {
     produto: values.produto?.trim() ?? "",
-    versao: values.versao?.trim() ?? "",
+    versao: normalizeVersaoForFiltrosAplicados(
+      values.versao?.trim() ?? "",
+      versoes,
+    ),
     modulo: values.modulo?.trim() ?? "",
     tipo_categoria,
     tipo_abertura,
@@ -167,6 +187,7 @@ export function formToFiltrosAplicados(
 export function filtrosToFormDefaults(
   filtros: CasosFiltrosAplicados,
   categorias: Categoria[],
+  versoes?: Versao[] | null,
 ): CasosFiltersForm {
   const categoriaId = resolveCategoriaIdFromTipo(
     filtros.tipo_categoria,
@@ -175,7 +196,7 @@ export function filtrosToFormDefaults(
 
   return {
     produto: filtros.produto,
-    versao: filtros.versao,
+    versao: resolveVersaoSequenciaForForm(filtros.versao, versoes),
     modulo: filtros.modulo,
     categoria: categoriaId || filtros.tipo_categoria,
     tipo_abertura:
@@ -211,16 +232,41 @@ export function hasFiltersApplied(filtros: CasosFiltrosAplicados): boolean {
   );
 }
 
-function parseVersaoProduto(versao: string): string | undefined {
-  if (!versao) return undefined;
-  const part = versao.split("-")[1]?.trim();
-  return part || versao;
+function parseVersaoProduto(
+  versao: string,
+  versoes?: Versao[] | null,
+): string | undefined {
+  const trimmed = String(versao ?? "").trim();
+  if (!trimmed) return undefined;
+
+  const resolved = resolveVersaoProdutoForApi(trimmed, versoes);
+  if (!resolved) return undefined;
+
+  if (
+    versoes?.length &&
+    isSequenciaNoCatalogo(trimmed, versoes) &&
+    resolved === trimmed
+  ) {
+    return undefined;
+  }
+
+  return resolved;
+}
+
+export function needsVersaoCatalogToResolve(
+  versao: string,
+  versoes?: Versao[] | null,
+): boolean {
+  const trimmed = String(versao ?? "").trim();
+  if (!trimmed || versoes?.length) return false;
+  return !trimmed.includes("-") && /^\d+$/.test(trimmed);
 }
 
 export function filtrosToProjetoMemoriaParams(
   filtros: CasosFiltrosAplicados,
+  versoes?: Versao[] | null,
 ): ProjetoMemoriaQueryParams {
-  const versaoProduto = parseVersaoProduto(filtros.versao);
+  const versaoProduto = parseVersaoProduto(filtros.versao, versoes);
 
   return {
     per_page: 15,

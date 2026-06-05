@@ -30,7 +30,15 @@ import { useCasoHistorico } from "@/hooks/casos/use-caso-historico";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import { buildCasoUpdatePayload } from "@/components/casos/shared/payload";
+import {
+  getVersoesQueryKey,
+  isSequenciaNoCatalogo,
+  resolveVersaoProdutoForApi,
+  resolveVersaoSequenciaForForm,
+} from "@/components/casos/shared/versao-combobox";
+import { useVersoes } from "@/hooks/catalogos/use-versoes";
 import { useStatus } from "@/hooks/catalogos/use-status";
+import type { Versao } from "@/services/auxiliar/versoes";
 import {
   normalizeAnaliseStatusForForm,
   resolveReportStatusFromCaso,
@@ -166,16 +174,63 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   const previousAnaliseStatusValueRef = useRef(
     String(defaultValues.analiseStatus ?? ""),
   );
-  const previousVersaoRef = useRef(String(defaultValues.versao ?? ""));
+  const previousVersaoRef = useRef(
+    String(defaultValues.versao ?? "").trim(),
+  );
+
+  const produtoWatch = methods.watch("produto");
+
+  const { data: versoesCatalogo } = useVersoes({
+    produto_id: produtoWatch,
+    enabled: Boolean(String(produtoWatch ?? "").trim()),
+    todas: false,
+  });
+
+  const getVersoesForProduto = useCallback(
+    (produtoId: string): Versao[] | undefined => {
+      const id = String(produtoId ?? "").trim();
+      if (!id) return undefined;
+      if (versoesCatalogo?.length && String(produtoWatch) === id) {
+        return versoesCatalogo;
+      }
+      return queryClient.getQueryData<Versao[]>(
+        getVersoesQueryKey(id, "", false),
+      );
+    },
+    [queryClient, versoesCatalogo, produtoWatch],
+  );
 
   useEffect(() => {
     const values = getDefaultValues(item);
+    const versoes = getVersoesForProduto(values.produto);
+    values.versao = resolveVersaoSequenciaForForm(values.versao, versoes);
+
     snapshotRef.current = buildCasoEditSnapshot(item);
     methods.reset(values);
     previousStatusValueRef.current = String(values.status ?? "");
     previousAnaliseStatusValueRef.current = String(values.analiseStatus ?? "");
-    previousVersaoRef.current = String(values.versao ?? "");
-  }, [item, methods]);
+    previousVersaoRef.current =
+      resolveVersaoProdutoForApi(values.versao, versoes) ||
+      String(values.versao ?? "").trim();
+  }, [item, methods, getVersoesForProduto]);
+
+  // Catálogo pode chegar após o reset: alinha texto → sequencia sem novo reset completo.
+  useEffect(() => {
+    if (!versoesCatalogo?.length) return;
+
+    const atual = String(methods.getValues("versao") ?? "").trim();
+    if (!atual || isSequenciaNoCatalogo(atual, versoesCatalogo)) return;
+
+    const sequencia = resolveVersaoSequenciaForForm(atual, versoesCatalogo);
+    if (!sequencia || sequencia === atual) return;
+
+    methods.setValue("versao", sequencia, { shouldDirty: false });
+    previousVersaoRef.current = resolveVersaoProdutoForApi(
+      sequencia,
+      versoesCatalogo,
+    );
+  }, [versoesCatalogo, methods]);
+
   const statusValue = useWatch({ control: methods.control, name: "status" });
   const analiseStatusValue = useWatch({
     control: methods.control,
@@ -183,7 +238,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   });
   const versaoValue = useWatch({ control: methods.control, name: "versao" });
 
-  const produtoWatch = methods.watch("produto");
+  const resolveVersoesParaPayload = useCallback((): Versao[] | undefined => {
+    if (versoesCatalogo?.length) return versoesCatalogo;
+    const produtoId = String(produtoWatch ?? "").trim();
+    if (!produtoId) return undefined;
+    return queryClient.getQueryData<Versao[]>(
+      getVersoesQueryKey(produtoId, "", false),
+    );
+  }, [versoesCatalogo, produtoWatch, queryClient]);
 
   const { data: statusList } = useStatus();
 
@@ -203,12 +265,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   useEffect(() => {
     const statusAtual = String(statusValue ?? "").trim();
     const analiseStatusAtual = String(analiseStatusValue ?? "").trim();
-    const versaoAtual = String(versaoValue ?? "").trim();
+    const versaoSequencia = String(versaoValue ?? "").trim();
+    const versoes = resolveVersoesParaPayload();
+    const versaoLabel = resolveVersaoProdutoForApi(versaoSequencia, versoes);
 
     const result = computeCasoEditSync({
       statusCaso: statusAtual,
       analiseStatus: analiseStatusAtual,
-      versao: versaoAtual,
+      versao: versaoLabel,
       previousStatusCaso: previousStatusValueRef.current,
       previousAnaliseStatus: previousAnaliseStatusValueRef.current,
       previousVersao: previousVersaoRef.current,
@@ -240,6 +304,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     methods,
     statusValue,
     versaoValue,
+    resolveVersoesParaPayload,
   ]);
 
   const handleSalvar = methods.handleSubmit(async (formData: EditFormData) => {
@@ -247,13 +312,16 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       const userId = getUser()?.id;
       const { dirtyFields } = methods.formState;
 
+      const versoes = resolveVersoesParaPayload();
+      const versaoLabel = resolveVersaoProdutoForApi(formData.versao, versoes);
+
       const saveResult = computeCasoEditSave({
         isReport,
         snapshot: snapshotRef.current,
         formData: {
           status: formData.status,
           analiseStatus: formData.analiseStatus,
-          versao: formData.versao,
+          versao: versaoLabel,
           devAtribuido: formData.devAtribuido,
         },
         dirtyFields: {
@@ -273,6 +341,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         isReport,
         statusCasoFinal: saveResult.statusCasoFinal,
         reportFields: saveResult.reportFields,
+        versoes,
       });
 
       await updateCaso.mutateAsync({ id: casoId, data: payload });

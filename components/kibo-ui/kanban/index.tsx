@@ -32,6 +32,7 @@ import tunnel from "tunnel-rat";
 import { Card } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import router from "next/router";
 
 const t = tunnel();
 
@@ -163,6 +164,7 @@ export const KanbanCard = <T extends KanbanItemProps = KanbanItemProps>({
 
   const cardElement = (
     <Card
+      // onDoubleClickCapture={() => router.push(`/casos/${id}`)}
       className={cardClassName}
       onClick={dragHandle ? onCardClick : undefined}
       role={dragHandle && onCardClick ? "button" : undefined}

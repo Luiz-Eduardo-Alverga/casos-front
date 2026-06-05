@@ -10,7 +10,8 @@ import { CasoFormModulo } from "@/components/fields/caso-form-modulo";
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
 import { CasoFormQaAtribuido } from "@/components/fields/caso-form-qa-atribuido";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
-import { Package, Sparkles, Users } from "lucide-react";
+import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
+import { Sparkles } from "lucide-react";
 import { CasoResumoStatusActions } from "@/components/caso-resumo-modal/caso-resumo-status-actions";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -38,6 +39,8 @@ export function CasoEditColunaDireita() {
   const openingType = report.tipo_abertura ?? "CASO";
   const isReport = openingType === "REPORT";
   const disabled = isSaving || !canEditCase;
+  const dadosProdutoPreset = CARD_HEADER_PRESETS.dadosProduto;
+  const atribuicaoPreset = CARD_HEADER_PRESETS.atribuicao;
 
   return (
     <>
@@ -73,7 +76,8 @@ export function CasoEditColunaDireita() {
         <Card className="bg-card  shadow-card rounded-lg">
           <CasoEditCardHeader
             title="Dados do Produto"
-            icon={Package}
+            icon={dadosProdutoPreset.icon}
+            iconClassName={dadosProdutoPreset.iconClassName}
             shrink={false}
           />
           <CardContent className="p-6 pt-2 space-y-2">
@@ -85,7 +89,12 @@ export function CasoEditColunaDireita() {
         </Card>
 
         <Card className="bg-card shadow-card rounded-lg">
-          <CasoEditCardHeader title="Atribuição" icon={Users} shrink={false} />
+          <CasoEditCardHeader
+            title="Atribuição"
+            icon={atribuicaoPreset.icon}
+            iconClassName={atribuicaoPreset.iconClassName}
+            shrink={false}
+          />
           <CardContent className="p-6 pt-2 space-y-2">
             <CasoFormDevAtribuido />
             <CasoFormQaAtribuido />

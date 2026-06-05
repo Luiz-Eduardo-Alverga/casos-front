@@ -7,9 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Check } from "lucide-react";
 import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { useCasoEdit } from "@/components/casos/edicao/caso-edit-context";
+import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 import { useProdutos } from "@/hooks/catalogos/use-produtos";
-import { nowSaoPauloToApiDateTime } from "@/components/casos/edicao/report-analise-modal/utils";
+import {
+  getReportEditRodapeVisibility,
+  nowSaoPauloToApiDateTime,
+} from "@/components/casos/edicao/report-analise-modal/utils";
 import { resolveReportPoQaAtribuidoPara } from "@/lib/report/resolve-report-po-qa-atribuido";
 import { getUser } from "@/lib/auth";
 import type { UpdateCasoRequest } from "@/services/projeto-casos/update";
@@ -17,16 +21,23 @@ import type { ReportEditFormData } from "./schema";
 
 export function ReportEditRodapeAcoes() {
   const { memoriaQueryId, invalidate, canEditCase } = useCasoEdit();
+  const { editCaseItem } = useCasoForm();
   const { watch, setValue } = useFormContext<ReportEditFormData>();
   const updateCaso = useUpdateCaso(memoriaQueryId);
 
-  const produtoId = String(watch("produto") ?? "").trim();
-  const categoriaTipoLabel = watch("categoriaTipoLabel");
-  const reportAnaliseUsuarioId = String(
-    watch("reportAnaliseUsuarioId") ?? "",
+  const analiseStatusAtual = String(
+    watch("analiseStatus") || editCaseItem?.report?.analise_status || "",
   ).trim();
+  const { exibirConcluir, exibirSuspender, exibirRodape } =
+    getReportEditRodapeVisibility(analiseStatusAtual);
 
-  const { data: produtos } = useProdutos({
+  const produtoId = String(watch("produto") ?? "").trim();
+  const categoriaTipoLabel =
+    watch("categoriaTipoLabel") ||
+    editCaseItem?.caso?.caracteristicas?.tipo_categoria ||
+    "";
+
+  const { data: produtos, isLoading: isProdutosLoading } = useProdutos({
     enabled: Boolean(produtoId),
   });
 
@@ -41,26 +52,22 @@ export function ReportEditRodapeAcoes() {
   }, []);
 
   const resolveAtribuidoPara = useCallback((): number | null => {
-    const fromForm = Number(reportAnaliseUsuarioId);
-    if (Number.isFinite(fromForm) && fromForm > 0) {
-      return fromForm;
-    }
-
     const produto = (produtos ?? []).find(
       (item) => String(item.id) === produtoId,
     );
     return resolveReportPoQaAtribuidoPara(produto, categoriaTipoLabel);
-  }, [
-    reportAnaliseUsuarioId,
-    produtos,
-    produtoId,
-    categoriaTipoLabel,
-  ]);
+  }, [produtos, produtoId, categoriaTipoLabel]);
 
   const pending = updateCaso.isPending;
   const disabled = pending || !canEditCase;
+  const concluirDisabled = disabled || isProdutosLoading || !produtoId;
 
   const handleConcluirRequisitoPendente = async () => {
+    if (isProdutosLoading) {
+      toast.error("Carregando dados do produto. Aguarde e tente novamente.");
+      return;
+    }
+
     const atribuidoPara = resolveAtribuidoPara();
     if (atribuidoPara == null) {
       toast.error(
@@ -119,6 +126,10 @@ export function ReportEditRodapeAcoes() {
     }
   };
 
+  if (!exibirRodape) {
+    return null;
+  }
+
   return (
     <footer
       className="fixed bottom-0 z-30 flex flex-row items-center justify-end gap-1 border-t border-border-divider bg-card px-2 py-4 shadow-card transition-all duration-300"
@@ -130,32 +141,36 @@ export function ReportEditRodapeAcoes() {
           : `calc(100% - ${isCollapsed ? "64px" : "256px"})`,
       }}
     >
-      <Button
-        type="button"
-        variant="outline"
-        disabled={disabled}
-        onClick={handleSuspender}
-        className="h-[42px] shrink-0 rounded-lg border-[#fed7aa] bg-[#fff7ed] px-6 text-sm font-semibold text-[#ea580c] hover:bg-[#fff7ed]/90 hover:text-[#ea580c]"
-      >
-        {pending ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        ) : (
-          "Suspender"
-        )}
-      </Button>
-      <Button
-        type="button"
-        disabled={disabled}
-        onClick={handleConcluirRequisitoPendente}
-        className="h-[42px] shrink-0 rounded-lg bg-[#50d283] px-6 text-sm font-semibold text-white hover:bg-[#50d283]/90"
-      >
-        {pending ? (
-          <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-        ) : (
-          <Check className="mr-2 h-3.5 w-3.5" />
-        )}
-        Concluir Requisito Pendente
-      </Button>
+      {exibirSuspender ? (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={disabled}
+          onClick={handleSuspender}
+          className="h-[42px] shrink-0 rounded-lg border-[#fed7aa] bg-[#fff7ed] px-6 text-sm font-semibold text-[#ea580c] hover:bg-[#fff7ed]/90 hover:text-[#ea580c]"
+        >
+          {pending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            "Suspender"
+          )}
+        </Button>
+      ) : null}
+      {exibirConcluir ? (
+        <Button
+          type="button"
+          disabled={concluirDisabled}
+          onClick={handleConcluirRequisitoPendente}
+          className="h-[42px] shrink-0 rounded-lg bg-[#50d283] px-6 text-sm font-semibold text-white hover:bg-[#50d283]/90"
+        >
+          {pending ? (
+            <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Check className="mr-2 h-3.5 w-3.5" />
+          )}
+          Concluir Requisito Pendente
+        </Button>
+      ) : null}
     </footer>
   );
 }

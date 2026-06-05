@@ -108,6 +108,11 @@ export function findVersaoDoItem(
   const alvo = String(versaoProduto ?? "").trim();
   if (!alvo || !versoes?.length) return undefined;
 
+  const bySequencia = versoes.find(
+    (v) => String(v.sequencia ?? "").trim() === alvo,
+  );
+  if (bySequencia) return bySequencia;
+
   const normAlvo = extractVersaoProduto(alvo);
   return versoes.find((v) => {
     const ver = String(v.versao ?? "").trim();

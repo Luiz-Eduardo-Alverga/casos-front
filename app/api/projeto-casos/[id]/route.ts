@@ -4,9 +4,9 @@ import { withPermission } from "@/lib/api-db/with-permission";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  return withPermission("edit-case", async () => {
+  return withPermission(["edit-case", "edit-report"], async () => {
     try {
       const authHeaders = await getAuthorizationHeader();
       if (!authHeaders.Authorization) {
@@ -58,7 +58,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   return withPermission("delete-case", async () => {
     try {

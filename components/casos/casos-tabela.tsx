@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
 import { getUser } from "@/lib/auth";
@@ -19,7 +20,11 @@ import type { CasosFiltrosAplicados } from "@/components/casos/filtros/casos-fil
 import {
   filtrosToProjetoMemoriaParams,
   hasFiltersApplied,
+  needsVersaoCatalogToResolve,
 } from "@/components/casos/filtros/casos-filtros-mappers";
+import { useVersoes } from "@/hooks/catalogos/use-versoes";
+import { getVersoesQueryKey } from "@/components/casos/shared/versao-combobox";
+import type { Versao } from "@/services/auxiliar/versoes";
 import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
 
 interface CasosTabelaProps {
@@ -28,19 +33,39 @@ interface CasosTabelaProps {
 
 export function CasosTabela({ filtros }: CasosTabelaProps) {
   const user = getUser();
+  const queryClient = useQueryClient();
   const bulkUpdateCasos = useBulkUpdateCasos();
 
+  const hasFilters = useMemo(() => hasFiltersApplied(filtros), [filtros]);
+  const produtoFiltro = filtros.produto?.trim() ?? "";
+  const versaoFiltro = filtros.versao?.trim() ?? "";
+
+  const { data: versoesCatalogo, isLoading: isVersoesCatalogoLoading } =
+    useVersoes({
+      produto_id: produtoFiltro,
+      enabled: hasFilters && Boolean(produtoFiltro) && Boolean(versaoFiltro),
+      todas: true,
+    });
+
   const projetoMemoriaParams = useMemo(
-    () => filtrosToProjetoMemoriaParams(filtros),
-    [filtros],
+    () => filtrosToProjetoMemoriaParams(filtros, versoesCatalogo),
+    [filtros, versoesCatalogo],
   );
 
-  const hasFilters = useMemo(() => hasFiltersApplied(filtros), [filtros]);
+  const aguardandoVersaoCatalogo =
+    hasFilters &&
+    Boolean(produtoFiltro) &&
+    Boolean(versaoFiltro) &&
+    needsVersaoCatalogToResolve(versaoFiltro, versoesCatalogo) &&
+    (isVersoesCatalogoLoading || !versoesCatalogo?.length);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useProjetoMemoria(projetoMemoriaParams, {
-      enabled: hasFilters,
-      refetchInterval: hasFilters ? AUTO_REFETCH_INTERVAL_MS : false,
+      enabled: hasFilters && !aguardandoVersaoCatalogo,
+      refetchInterval:
+        hasFilters && !aguardandoVersaoCatalogo
+          ? AUTO_REFETCH_INTERVAL_MS
+          : false,
     });
 
   const itens = useMemo(
@@ -87,7 +112,13 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
       return;
     }
 
-    const payload = buildBulkTransferPayload(idsSelecionados, values);
+    const produtoId = String(filtros.produto ?? "").trim();
+    const versoes = produtoId
+      ? queryClient.getQueryData<Versao[]>(
+          getVersoesQueryKey(produtoId, "", false),
+        )
+      : undefined;
+    const payload = buildBulkTransferPayload(idsSelecionados, values, versoes);
     if (!payload) {
       toast.error("Preencha ao menos um campo para transferir.");
       return;
@@ -162,7 +193,7 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
             description="Selecione os filtros e clique em 'Filtrar' para visualizar os casos."
             className="w-42 h-42"
           />
-        ) : isLoading ? (
+        ) : isLoading || aguardandoVersaoCatalogo ? (
           <CasosTabelaSkeleton />
         ) : itens.length === 0 ? (
           <EmptyState
