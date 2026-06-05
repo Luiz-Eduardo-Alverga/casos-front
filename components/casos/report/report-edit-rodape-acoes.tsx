@@ -9,7 +9,10 @@ import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { useCasoEdit } from "@/components/casos/edicao/caso-edit-context";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
+import { useImportancias } from "@/hooks/catalogos/use-importancias";
 import { useProdutos } from "@/hooks/catalogos/use-produtos";
+import { computeReportDataLimite } from "@/lib/report/compute-report-data-limite";
+import { resolveReportImportancia } from "@/lib/report/resolve-sla-hours";
 import {
   getReportEditRodapeVisibility,
   nowSaoPauloToApiDateTime,
@@ -28,10 +31,16 @@ export function ReportEditRodapeAcoes() {
   const analiseStatusAtual = String(
     watch("analiseStatus") || editCaseItem?.report?.analise_status || "",
   ).trim();
-  const { exibirConcluir, exibirSuspender, exibirRodape } =
-    getReportEditRodapeVisibility(analiseStatusAtual);
+  const statusCasoAtual = Number(
+    watch("status") ?? editCaseItem?.caso?.status?.status_id ?? 0,
+  );
+  const { exibirConcluir, exibirSuspender, exibirConcluirCaso, exibirRodape } =
+    getReportEditRodapeVisibility(analiseStatusAtual, statusCasoAtual);
 
   const produtoId = String(watch("produto") ?? "").trim();
+  const prioridadeMemoria = String(
+    editCaseItem?.caso?.caracteristicas?.prioridade ?? "",
+  ).trim();
   const categoriaTipoLabel =
     watch("categoriaTipoLabel") ||
     editCaseItem?.caso?.caracteristicas?.tipo_categoria ||
@@ -40,6 +49,8 @@ export function ReportEditRodapeAcoes() {
   const { data: produtos, isLoading: isProdutosLoading } = useProdutos({
     enabled: Boolean(produtoId),
   });
+  const { data: importancias, isLoading: isImportanciasLoading } =
+    useImportancias({ tipo: "REPORT" });
 
   const { isCollapsed } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
@@ -60,11 +71,19 @@ export function ReportEditRodapeAcoes() {
 
   const pending = updateCaso.isPending;
   const disabled = pending || !canEditCase;
-  const concluirDisabled = disabled || isProdutosLoading || !produtoId;
+  const concluirDisabled =
+    disabled || isProdutosLoading || isImportanciasLoading || !produtoId;
 
   const handleConcluirRequisitoPendente = async () => {
     if (isProdutosLoading) {
       toast.error("Carregando dados do produto. Aguarde e tente novamente.");
+      return;
+    }
+
+    if (isImportanciasLoading) {
+      toast.error(
+        "Carregando prioridades do report. Aguarde e tente novamente.",
+      );
       return;
     }
 
@@ -76,10 +95,29 @@ export function ReportEditRodapeAcoes() {
       return;
     }
 
+    if (!prioridadeMemoria) {
+      toast.error("Prioridade do report não informada.");
+      return;
+    }
+
+    const importanciaReport = resolveReportImportancia(
+      importancias,
+      prioridadeMemoria,
+      categoriaTipoLabel,
+    );
+
+    if (!importanciaReport) {
+      toast.error(
+        "Não foi possível obter o SLA da prioridade selecionada. Tente novamente.",
+      );
+      return;
+    }
+
     const payload: UpdateCasoRequest = {
       status: 1,
       report_analise_status: "0",
       AtribuidoPara: atribuidoPara,
+      report_data_limite: computeReportDataLimite(importanciaReport.slaHours),
     };
 
     try {
@@ -98,6 +136,35 @@ export function ReportEditRodapeAcoes() {
     }
   };
 
+  const handleConcluirCaso = async () => {
+    const userId = getUser()?.id;
+    if (userId == null || String(userId).trim() === "") {
+      toast.error("Usuário não identificado. Faça login novamente.");
+      return;
+    }
+
+    const payload: UpdateCasoRequest = {
+      status: 9,
+      report_analise_status: "0",
+      report_analise_aprovado: true,
+      report_analise_data_conclusao: nowSaoPauloToApiDateTime(),
+      report_analise_usuario_id: String(userId),
+    };
+
+    try {
+      await updateCaso.mutateAsync({
+        id: memoriaQueryId,
+        data: payload,
+      });
+      setValue("status", "9", { shouldDirty: false });
+      setValue("analiseStatus", "", { shouldDirty: false });
+      toast.success("Caso concluído com sucesso.");
+      invalidate();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao concluir caso.");
+    }
+  };
+
   const handleSuspender = async () => {
     const userId = getUser()?.id;
     if (userId == null || String(userId).trim() === "") {
@@ -108,6 +175,7 @@ export function ReportEditRodapeAcoes() {
     const payload: UpdateCasoRequest = {
       status: 10,
       report_analise_status: "23",
+      report_analise_aprovado: true,
       report_analise_data_conclusao: nowSaoPauloToApiDateTime(),
       report_analise_usuario_id: String(userId),
     };
@@ -154,6 +222,21 @@ export function ReportEditRodapeAcoes() {
           ) : (
             "Suspender"
           )}
+        </Button>
+      ) : null}
+      {exibirSuspender ? (
+        <Button
+          type="button"
+          disabled={disabled}
+          onClick={handleConcluirCaso}
+          className="h-[42px] shrink-0 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+        >
+          {pending ? (
+            <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Check className="mr-2 h-3.5 w-3.5" />
+          )}
+          Concluir Caso
         </Button>
       ) : null}
       {exibirConcluir ? (

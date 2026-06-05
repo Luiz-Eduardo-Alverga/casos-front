@@ -12,19 +12,22 @@ import {
 import successAnimation from "@/public/animations/SuccessCheck.json";
 import alertAnimation from "@/public/animations/BlueAlert.json";
 import dangerAlertAnimation from "@/public/animations/RedAlert.json";
+import questionAnimation from "@/public/animations/questionMarkBlue.json";
 
-export type ModalLottieVariant = "success" | "alert" | "danger";
+export type ModalLottieVariant = "success" | "alert" | "danger" | "question";
 
 const ANIMATIONS = {
   success: successAnimation,
   alert: alertAnimation,
   danger: dangerAlertAnimation,
+  question: questionAnimation,
 } as const;
 
 const DEFAULT_SIZES: Record<ModalLottieVariant, string> = {
   success: "h-[120px] w-[120px]",
   alert: "h-[120px] w-[107px]",
   danger: "h-[120px] w-[107px]",
+  question: "h-[120px] w-[120px]",
 };
 
 interface ModalLottieIconProps {

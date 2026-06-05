@@ -149,6 +149,7 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
     control: methods.control,
     name: "analiseStatus",
   });
+  const statusValue = useWatch({ control: methods.control, name: "status" });
 
   const exibirRodape = getReportEditRodapeVisibility(
     String(
@@ -157,6 +158,7 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
         item.report?.analise_status ??
         "",
     ),
+    statusValue ?? defaultValues.status ?? statusIdApi,
   ).exibirRodape;
 
   const { data: statusList } = useStatus();

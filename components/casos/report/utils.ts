@@ -18,9 +18,7 @@ export function getReportEditDefaultValues(
     produto: String(produto?.id ?? ""),
     categoria: String(caso?.caracteristicas?.categoria ?? ""),
     categoriaTipoLabel: caso?.caracteristicas?.tipo_categoria ?? "",
-    importancia: String(
-      item.report?.prioridade ?? caso?.caracteristicas?.prioridade ?? "3",
-    ),
+    importancia: String(caso?.caracteristicas?.prioridade ?? "3"),
     reportOcorrenciaInicial: "",
     DescricaoResumo: caso?.textos?.descricao_resumo ?? "",
     DescricaoCompleta: caso?.textos?.descricao_completa ?? "",
