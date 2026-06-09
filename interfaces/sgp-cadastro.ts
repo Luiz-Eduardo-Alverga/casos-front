@@ -162,3 +162,9 @@ export interface UpdateSgpCadastroApiResponse {
   message: string;
   data: SgpCadastroData;
 }
+
+/** Resposta DELETE /sgp-cadastros/{id} */
+export interface DeleteSgpCadastroApiResponse {
+  success: boolean;
+  message: string;
+}

@@ -128,3 +128,45 @@ export async function PUT(
     }
   });
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  return withPermission("edit-project", async () => {
+    try {
+      const authHeaders = await getAuthorizationHeader();
+      if (!authHeaders.Authorization) {
+        return Response.json({ error: "Não autorizado" }, { status: 401 });
+      }
+
+      const { id } = await params;
+      if (!id) {
+        return Response.json(
+          { error: "ID do cadastro é obrigatório" },
+          { status: 400 },
+        );
+      }
+
+      const response = await api.delete(`/sgp-cadastros/${id}`, {
+        headers: authHeaders,
+      });
+
+      if (response.status === 204) {
+        return new Response(null, { status: 204 });
+      }
+
+      return Response.json(response.data ?? { success: true }, {
+        status: response.status,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error: unknown) {
+      console.error("Erro na API Route ao excluir sgp-cadastros:", error);
+      const { status, message } = extractApiError(
+        error,
+        "Erro ao excluir cadastro SGP",
+      );
+      return Response.json({ error: message }, { status });
+    }
+  });
+}

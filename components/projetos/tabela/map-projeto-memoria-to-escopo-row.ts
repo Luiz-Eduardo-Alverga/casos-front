@@ -23,6 +23,7 @@ export function mapProjetoMemoriaToTabelaRow(
     descricao: item.caso.textos.descricao_resumo ?? "",
     categoria: item.caso.caracteristicas.tipo_categoria ?? "",
     produto: item.produto.nome ?? "",
+    produtoId: String(item.produto.id),
     versao: item.produto.versao ?? "",
     tipo_abertura: item.report?.tipo_abertura ?? "CASO",
     estimado_minutos: item.caso.tempos.estimado_minutos ?? 0,

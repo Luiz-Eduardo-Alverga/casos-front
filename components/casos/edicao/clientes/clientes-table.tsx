@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -11,7 +12,8 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/painel/empty-state";
 import type { ClienteCasoItem } from "@/interfaces/projeto-memoria";
-import { Trash2 } from "lucide-react";
+import { Check, Copy, Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
 import { ClientesTableSkeleton } from "./clientes-table-skeleton";
 
 function toAbsoluteUrl(url: string): string {
@@ -19,11 +21,46 @@ function toAbsoluteUrl(url: string): string {
   return `https://${url}`;
 }
 
-export interface ClientesTableProps {
-  clientes: ClienteCasoItem[];
-  urlPorCliente: Map<number, string>;
-  isLoadingUrls?: boolean;
-  onAskDelete: (sequencia: number) => void;
+function CopyUrlButton({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("URL copiada!");
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Erro ao copiar:", error);
+      toast.error("Erro ao copiar URL");
+    }
+  };
+
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      className="h-8 shrink-0 px-2"
+      onClick={handleCopy}
+      aria-label={copied ? "URL copiada" : "Copiar URL"}
+    >
+      {copied ? (
+        <>
+          <Check className="h-4 w-4" />
+
+        </>
+      ) : (
+        <>
+          <Copy className="h-4 w-4 mr-2" />
+
+        </>
+      )}
+    </Button>
+  );
 }
 
 function UrlCell({
@@ -46,34 +83,46 @@ function UrlCell({
   if (urls.length === 1) {
     const href = toAbsoluteUrl(urls[0]);
     return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={urls[0]}
-        className="text-sm text-blue-500 hover:underline  block max-w-[240px]"
-      >
-        {urls[0]}
-      </a>
+      <div className="flex items-center gap-2 max-w-[360px]">
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={urls[0]}
+          className="text-sm text-blue-500 hover:underline block min-w-0 flex-1 truncate"
+        >
+          {urls[0]}
+        </a>
+        <CopyUrlButton url={urls[0]} />
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-0.5 max-w-[240px]">
+    <div className="flex flex-col gap-1 max-w-[360px]">
       {urls.map((url) => (
-        <a
-          key={url}
-          href={toAbsoluteUrl(url)}
-          target="_blank"
-          rel="noopener noreferrer"
-          title={url}
-          className="text-sm text-primary hover:underline truncate block"
-        >
-          {url}
-        </a>
+        <div key={url} className="flex items-center gap-2 min-w-0">
+          <a
+            href={toAbsoluteUrl(url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={url}
+            className="text-sm text-primary hover:underline truncate block min-w-0 flex-1"
+          >
+            {url}
+          </a>
+          <CopyUrlButton url={url} />
+        </div>
       ))}
     </div>
   );
+}
+
+export interface ClientesTableProps {
+  clientes: ClienteCasoItem[];
+  urlPorCliente: Map<number, string>;
+  isLoadingUrls?: boolean;
+  onAskDelete: (sequencia: number) => void;
 }
 
 export function ClientesTable({

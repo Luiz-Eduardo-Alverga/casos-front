@@ -8,6 +8,7 @@ export interface ProjetosTabelaEscopoRow {
   descricao: string;
   categoria: string;
   produto: string;
+  produtoId?: string;
   versao: string;
   tipo_abertura?: string;
   estimado_minutos: number;

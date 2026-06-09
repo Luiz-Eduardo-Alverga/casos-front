@@ -33,6 +33,7 @@ const EMPTY_ESCOPO_FILTROS: EscopoFiltrosFormValues = {
 export interface EscopoFiltrosBarProps {
   statusIds: string[];
   onStatusIdsChange: (value: string[]) => void;
+  usuarioDevId: string;
   onDevChange: (devId: string) => void;
   naoPlanejadoFiltro: EscopoNaoPlanejadoFiltro;
   onNaoPlanejadoFiltroChange: (value: EscopoNaoPlanejadoFiltro) => void;
@@ -43,6 +44,7 @@ export interface EscopoFiltrosBarProps {
 export function EscopoFiltrosBar({
   statusIds,
   onStatusIdsChange,
+  usuarioDevId,
   onDevChange,
   naoPlanejadoFiltro,
   onNaoPlanejadoFiltroChange,
@@ -50,14 +52,27 @@ export function EscopoFiltrosBar({
   isAtualizando = false,
 }: EscopoFiltrosBarProps) {
   const form = useForm<EscopoFiltrosFormValues>({
-    defaultValues: EMPTY_ESCOPO_FILTROS,
+    defaultValues: {
+      ...EMPTY_ESCOPO_FILTROS,
+      devAtribuido: usuarioDevId ?? "",
+    },
   });
 
   const devAtribuido = form.watch("devAtribuido");
 
   useEffect(() => {
-    onDevChange(devAtribuido ?? "");
-  }, [devAtribuido, onDevChange]);
+    const nextDevId = usuarioDevId ?? "";
+    if ((devAtribuido ?? "") !== nextDevId) {
+      form.setValue("devAtribuido", nextDevId, { shouldDirty: false });
+    }
+  }, [usuarioDevId, devAtribuido, form]);
+
+  useEffect(() => {
+    const value = devAtribuido ?? "";
+    if (value !== (usuarioDevId ?? "")) {
+      onDevChange(value);
+    }
+  }, [devAtribuido, onDevChange, usuarioDevId]);
 
   const providerValue = useMemo(
     () => ({
