@@ -183,10 +183,8 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
     !escopoQuery.data &&
     !hasFiltrosAplicados;
 
-  const isRefetchingComFiltros =
-    hasFiltrosAplicados &&
-    (escopoQuery.isFetching || escopoQuery.isLoading) &&
-    !escopoQuery.isFetchingNextPage;
+  const isContentLoading =
+    enabled && escopoQuery.isLoading && !escopoQuery.data;
 
   if (isInitialLoading) {
     return <AbaEscopoSkeleton />;
@@ -206,17 +204,19 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
               </CardTitle>
             </div>
 
+            <EscopoFiltrosBar
+              statusIds={statusIds}
+              onStatusIdsChange={setStatusIds}
+              usuarioDevId={usuarioDevId}
+              onDevChange={handleDevChange}
+              naoPlanejadoFiltro={naoPlanejadoFiltro}
+              onNaoPlanejadoFiltroChange={setNaoPlanejadoFiltro}
+              onAtualizar={() => void refetchEscopo()}
+              isAtualizando={isAtualizandoEscopo}
+            />
+
           </div>
-          <EscopoFiltrosBar
-            statusIds={statusIds}
-            onStatusIdsChange={setStatusIds}
-            usuarioDevId={usuarioDevId}
-            onDevChange={handleDevChange}
-            naoPlanejadoFiltro={naoPlanejadoFiltro}
-            onNaoPlanejadoFiltroChange={setNaoPlanejadoFiltro}
-            onAtualizar={() => void refetchEscopo()}
-            isAtualizando={isAtualizandoEscopo}
-          />
+
         </div>
       </CardHeader>
 
@@ -227,7 +227,7 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
               ? escopoQuery.error.message
               : "Erro ao carregar escopo do projeto."}
           </p>
-        ) : isRefetchingComFiltros ? (
+        ) : isContentLoading ? (
           <EscopoContentSkeleton />
         ) : (
           <>

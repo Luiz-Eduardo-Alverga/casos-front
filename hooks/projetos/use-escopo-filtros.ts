@@ -39,23 +39,31 @@ export function useEscopoFiltros() {
 
   const setStatusIds = useCallback(
     (statusIds: string[]) => {
-      aplicarFiltros({ ...filtrosAplicados, statusIds });
+      const ids = statusIds.map((s) => s.trim()).filter(Boolean);
+      void setNuqsState({
+        escopo_status_id: ids.length > 0 ? ids : null,
+      });
     },
-    [aplicarFiltros, filtrosAplicados],
+    [setNuqsState],
   );
 
   const setUsuarioDevId = useCallback(
     (usuarioDevId: string) => {
-      aplicarFiltros({ ...filtrosAplicados, usuarioDevId });
+      void setNuqsState({
+        escopo_usuario_dev_id: usuarioDevId.trim() || null,
+      });
     },
-    [aplicarFiltros, filtrosAplicados],
+    [setNuqsState],
   );
 
   const setNaoPlanejadoFiltro = useCallback(
     (naoPlanejadoFiltro: EscopoNaoPlanejadoFiltro) => {
-      aplicarFiltros({ ...filtrosAplicados, naoPlanejadoFiltro });
+      void setNuqsState({
+        escopo_nao_planejado:
+          naoPlanejadoFiltro === "todos" ? null : naoPlanejadoFiltro,
+      });
     },
-    [aplicarFiltros, filtrosAplicados],
+    [setNuqsState],
   );
 
   const limparFiltros = useCallback(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { RefreshCcw } from "lucide-react";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
@@ -58,21 +58,39 @@ export function EscopoFiltrosBar({
     },
   });
 
-  const devAtribuido = form.watch("devAtribuido");
+  const isUserDevChangeRef = useRef(false);
+  const lastUsuarioDevIdRef = useRef(usuarioDevId);
 
   useEffect(() => {
+    if (isUserDevChangeRef.current) {
+      isUserDevChangeRef.current = false;
+      lastUsuarioDevIdRef.current = usuarioDevId;
+      return;
+    }
+
+    if (lastUsuarioDevIdRef.current === usuarioDevId) return;
+
+    lastUsuarioDevIdRef.current = usuarioDevId;
     const nextDevId = usuarioDevId ?? "";
-    if ((devAtribuido ?? "") !== nextDevId) {
+    const currentDevId = form.getValues("devAtribuido") ?? "";
+    if (currentDevId !== nextDevId) {
       form.setValue("devAtribuido", nextDevId, { shouldDirty: false });
     }
-  }, [usuarioDevId, devAtribuido, form]);
+  }, [usuarioDevId, form]);
 
   useEffect(() => {
-    const value = devAtribuido ?? "";
-    if (value !== (usuarioDevId ?? "")) {
+    const subscription = form.watch((_values, { name }) => {
+      if (name !== "devAtribuido") return;
+
+      const value = form.getValues("devAtribuido") ?? "";
+      if (value === (usuarioDevId ?? "")) return;
+
+      isUserDevChangeRef.current = true;
       onDevChange(value);
-    }
-  }, [devAtribuido, onDevChange, usuarioDevId]);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, onDevChange, usuarioDevId]);
 
   const providerValue = useMemo(
     () => ({
