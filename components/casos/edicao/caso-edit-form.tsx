@@ -200,9 +200,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     [queryClient, versoesCatalogo, produtoWatch],
   );
 
+  const getVersoesForProdutoRef = useRef(getVersoesForProduto);
+  useEffect(() => {
+    getVersoesForProdutoRef.current = getVersoesForProduto;
+  }, [getVersoesForProduto]);
+
   useEffect(() => {
     const values = getDefaultValues(item);
-    const versoes = getVersoesForProduto(values.produto);
+    const versoes = getVersoesForProdutoRef.current(values.produto);
     values.versao = resolveVersaoSequenciaForForm(values.versao, versoes);
 
     snapshotRef.current = buildCasoEditSnapshot(item);
@@ -212,7 +217,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     previousVersaoRef.current =
       resolveVersaoProdutoForApi(values.versao, versoes) ||
       String(values.versao ?? "").trim();
-  }, [item, methods, getVersoesForProduto]);
+  }, [item, methods]);
 
   // Catálogo pode chegar após o reset: alinha texto → sequencia sem novo reset completo.
   useEffect(() => {
