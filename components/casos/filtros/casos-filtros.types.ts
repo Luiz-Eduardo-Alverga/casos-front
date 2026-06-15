@@ -1,3 +1,29 @@
+import type { CasoFiltroField, FiltroResumoItem } from "@/lib/types/filtros-resumo";
+import { DEFAULT_FILTROS_RESUMO } from "@/lib/types/filtros-resumo";
+
+export type { CasoFiltroField, FiltroResumoItem };
+export { DEFAULT_FILTROS_RESUMO };
+
+export const FILTROS_RESUMO_CATALOGO: Array<{
+  field: CasoFiltroField;
+  label: string;
+  defaultColSpan: 1 | 2;
+}> = [
+  { field: "produto",              label: "Produto",           defaultColSpan: 1 },
+  { field: "versao",               label: "Versão",            defaultColSpan: 1 },
+  { field: "status_ids",           label: "Status",            defaultColSpan: 2 },
+  { field: "modulo",               label: "Módulo",            defaultColSpan: 1 },
+  { field: "categoria",            label: "Categoria",         defaultColSpan: 1 },
+  { field: "projeto_id",           label: "Projeto",           defaultColSpan: 1 },
+  { field: "tipo_abertura",        label: "Tipo de Abertura",  defaultColSpan: 1 },
+  { field: "descricao_resumo",     label: "Descrição/Resumo",  defaultColSpan: 2 },
+  { field: "usuario_abertura_id",  label: "Quem abriu",        defaultColSpan: 1 },
+  { field: "devAtribuido",         label: "Desenvolvedor",     defaultColSpan: 1 },
+  { field: "qaAtribuido",          label: "QA",                defaultColSpan: 1 },
+  { field: "data_producao_inicio", label: "Produção (início)", defaultColSpan: 1 },
+  { field: "data_producao_fim",    label: "Produção (fim)",    defaultColSpan: 1 },
+];
+
 export interface CasosFiltrosAplicados {
   produto: string;
   versao: string;

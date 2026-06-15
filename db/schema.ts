@@ -4,6 +4,7 @@ import {
   date,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   primaryKey,
@@ -11,6 +12,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { FiltroResumoItem } from "@/lib/types/filtros-resumo";
 
 /** Valores além de `not_started` devem espelhar o `CREATE TYPE ... AS ENUM` do banco. */
 export const statusTypeEnum = pgEnum("status_type", [
@@ -156,6 +158,26 @@ export const userRoles = pgTable(
       name: "user_roles_pkey",
     }),
   ],
+);
+
+/** Preferências de filtros resumidos por usuário (visão colapsada do card de filtros de casos). */
+export const userCasesFiltersPreferences = pgTable(
+  "user_cases_filters_preferences",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .primaryKey()
+      .references(() => appUsers.id, { onDelete: "cascade" }),
+    filtrosResumo: jsonb("filtros_resumo")
+      .$type<FiltroResumoItem[]>()
+      .notNull()
+      .default([
+        { field: "produto", colSpan: 1 },
+        { field: "versao", colSpan: 1 },
+        { field: "status_ids", colSpan: 2 },
+      ]),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
 );
 
 /** Metadados de anexos de caso (arquivos no Supabase Storage; `caso_registro` = ID na API externa). */

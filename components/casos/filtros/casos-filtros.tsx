@@ -1,16 +1,28 @@
 "use client";
 
 import { useCallback, useMemo, useEffect, useState, useRef } from "react";
+import type { ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { useForm, FormProvider, Controller, useFormContext } from "react-hook-form";
 import { AnimatePresence } from "framer-motion";
+import { CircleDot, ChevronUp, Filter, Search } from "lucide-react";
 import { LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormProduto } from "@/components/fields/caso-form-produto";
 import { CasoFormVersao } from "@/components/fields/caso-form-versao";
+import { CasoFormModulo } from "@/components/fields/caso-form-modulo";
+import { CasoFormCategoria } from "@/components/fields/caso-form-categoria";
+import { CasoFormUsuarioAbertura } from "@/components/fields/caso-form-usuario-abertura";
+import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
+import { CasoFormQaAtribuido } from "@/components/fields/caso-form-qa-atribuido";
+import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
+import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { importanceOptions } from "@/mocks/teste";
 import { useCategorias } from "@/hooks/catalogos/use-categorias";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
@@ -20,11 +32,14 @@ import {
   resolveVersaoProdutoForApi,
 } from "@/components/casos/shared/versao-combobox";
 import type { Versao } from "@/services/auxiliar/versoes";
-import { ChevronUp, Filter, Search, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CasosFiltrosAplicados } from "@/components/casos/filtros/casos-filtros.types";
 import type { CasosFiltersForm } from "@/components/casos/filtros/casos-filtros.types";
-import { EMPTY_CASOS_FILTERS_FORM } from "@/components/casos/filtros/casos-filtros.types";
+import {
+  EMPTY_CASOS_FILTERS_FORM,
+  DEFAULT_FILTROS_RESUMO,
+} from "@/components/casos/filtros/casos-filtros.types";
+import type { CasoFiltroField } from "@/components/casos/filtros/casos-filtros.types";
 import {
   filtrosQueryKey,
   filtrosToFormDefaults,
@@ -37,12 +52,129 @@ import {
 } from "@/components/casos/filtros/casos-filtros-animated-content";
 import { CasosFiltrosCamposExpandidos } from "@/components/casos/filtros/casos-filtros-campos-expandidos";
 import { CasosFiltrosAplicadosBadges } from "@/components/casos/filtros/casos-filtros-aplicados-badges";
+import { CasosFiltrosPersonalizar } from "@/components/casos/filtros/casos-filtros-personalizar";
+import { useUserFiltrosPreferencias } from "@/hooks/configuracoes/use-user-filtros-preferencias";
 
 interface CasosFiltrosProps {
   filtrosAplicados: CasosFiltrosAplicados;
   onAplicar: (filtros: CasosFiltrosAplicados) => void;
   onLimparSheet: () => void;
 }
+
+/** Componentes internos dos campos que precisam de Controller devem ser definidos
+ *  como funções separadas para que possam ser chamados dentro do mapa. */
+function StatusField() {
+  const { control } = useFormContext<CasosFiltersForm>();
+  return (
+    <Controller
+      name="status_ids"
+      control={control}
+      render={({ field }) => (
+        <StatusMultiSelect value={field.value ?? []} onChange={field.onChange} />
+      )}
+    />
+  );
+}
+
+function TipoAberturaField() {
+  const tipoAberturaOptions = useMemo(
+    () => [
+      { value: "CASO", label: "CASO" },
+      { value: "REPORT", label: "REPORT" },
+    ],
+    [],
+  );
+  return (
+    <ComboboxField
+      name="tipo_abertura"
+      label="Tipo de abertura"
+      icon={CircleDot}
+      options={tipoAberturaOptions}
+      placeholder="Todos"
+      emptyText="Nenhuma opção encontrada."
+    />
+  );
+}
+
+function DescricaoResumoField() {
+  const { register } = useFormContext<CasosFiltersForm>();
+  return (
+    <div className="space-y-2 min-w-0">
+      <Label className="text-sm font-medium text-text-label">
+        Descrição / Resumo
+      </Label>
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+        <Input
+          placeholder="Buscar por descrição ou resumo..."
+          className="pl-9 h-9 rounded-lg border-border-input"
+          {...register("descricao_resumo")}
+        />
+      </div>
+    </div>
+  );
+}
+
+function DataProducaoInicioField() {
+  const { control } = useFormContext<CasosFiltersForm>();
+  return (
+    <Controller
+      name="data_producao_inicio"
+      control={control}
+      render={({ field }) => (
+        <DatePickerInput
+          label="Produção (início)"
+          value={field.value}
+          onChange={field.onChange}
+          placeholder="Selecionar data"
+          controlHeightClassName="h-9"
+        />
+      )}
+    />
+  );
+}
+
+function DataProducaoFimField() {
+  const { control } = useFormContext<CasosFiltersForm>();
+  return (
+    <Controller
+      name="data_producao_fim"
+      control={control}
+      render={({ field }) => (
+        <DatePickerInput
+          label="Produção (fim)"
+          value={field.value}
+          onChange={field.onChange}
+          placeholder="Selecionar data"
+          controlHeightClassName="h-9"
+        />
+      )}
+    />
+  );
+}
+
+/** Mapa de campo → componente JSX para a visão reduzida. */
+const FILTRO_CAMPO_RENDER: Record<CasoFiltroField, () => ReactNode> = {
+  produto: () => <CasoFormProduto required={false} />,
+  versao: () => <CasoFormVersao required={false} todas />,
+  status_ids: () => <StatusField />,
+  modulo: () => <CasoFormModulo required={false} />,
+  categoria: () => <CasoFormCategoria required={false} />,
+  projeto_id: () => (
+    <CasoFormProjeto requireProduto={false} name="projeto_id" required={false} autoSelectProjeto="never" />
+  ),
+  tipo_abertura: () => <TipoAberturaField />,
+  descricao_resumo: () => <DescricaoResumoField />,
+  usuario_abertura_id: () => <CasoFormUsuarioAbertura required={false} />,
+  devAtribuido: () => (
+    <CasoFormDevAtribuido required={false} requireProduto={false} label="Desenvolvedor" />
+  ),
+  qaAtribuido: () => (
+    <CasoFormQaAtribuido required={false} requireProduto={false} label="QA" />
+  ),
+  data_producao_inicio: () => <DataProducaoInicioField />,
+  data_producao_fim: () => <DataProducaoFimField />,
+};
 
 export function CasosFiltros({
   filtrosAplicados,
@@ -59,6 +191,9 @@ export function CasosFiltros({
     enabled: Boolean(produtoFiltro) && Boolean(versaoFiltro),
     todas: true,
   });
+
+  const { data: filtrosResumo = DEFAULT_FILTROS_RESUMO } =
+    useUserFiltrosPreferencias();
 
   const [camposExpandidos, setCamposExpandidos] = useState(false);
   const [modoResumo, setModoResumo] = useState(filtrosAtivos);
@@ -243,23 +378,27 @@ export function CasosFiltros({
                     </CardTitle>
                   </div>
 
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    type="button"
-                    onClick={handleToggleExpandido}
-                  >
-                    <ChevronUp
-                      className={cn(
-                        "h-3.5 w-3.5 text-text-primary transition-transform duration-200",
-                        !camposExpandidos && "rotate-180",
-                      )}
-                    />
-                    {/* <SlidersHorizontal className="h-3.5 w-3.5 text-text-primary" /> */}
-                    <span>
-                      {camposExpandidos ? "Colapsar Filtros" : "Mais Filtros"}
-                    </span>
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {!camposExpandidos && (
+                      <CasosFiltrosPersonalizar filtrosAtuais={filtrosResumo} />
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      type="button"
+                      onClick={handleToggleExpandido}
+                    >
+                      <ChevronUp
+                        className={cn(
+                          "h-3.5 w-3.5 text-text-primary transition-transform duration-200",
+                          !camposExpandidos && "rotate-180",
+                        )}
+                      />
+                      <span>
+                        {camposExpandidos ? "Colapsar Filtros" : "Mais Filtros"}
+                      </span>
+                    </Button>
+                  </div>
                 </CardHeader>
 
                 <CardContent className="overflow-hidden p-6 pt-3">
@@ -277,20 +416,17 @@ export function CasosFiltros({
                         />
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-[18px] mb-1 items-end">
-                          <CasoFormProduto required={false} />
-                          <CasoFormVersao required={false} todas />
-                          <div className="min-w-0 col-span-2">
-                            <Controller
-                              name="status_ids"
-                              control={methods.control}
-                              render={({ field }) => (
-                                <StatusMultiSelect
-                                  value={field.value ?? []}
-                                  onChange={field.onChange}
-                                />
+                          {filtrosResumo.map((item) => (
+                            <div
+                              key={item.field}
+                              className={cn(
+                                "min-w-0",
+                                item.colSpan === 2 && "col-span-2",
                               )}
-                            />
-                          </div>
+                            >
+                              {FILTRO_CAMPO_RENDER[item.field]?.()}
+                            </div>
+                          ))}
                           <Button
                             type="button"
                             onClick={handleFiltrar}

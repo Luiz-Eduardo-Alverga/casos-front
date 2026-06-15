@@ -110,8 +110,8 @@ export function PainelKanbanProdutosModal({
       const produtoId = String(values.produto ?? "").trim();
       const versoes = produtoId
         ? queryClient.getQueryData<Versao[]>(
-            getVersoesQueryKey(produtoId, "", false),
-          )
+          getVersoesQueryKey(produtoId, "", false),
+        )
         : undefined;
       const versao = parseVersaoFieldValue(values.versao, versoes);
       if (!values.produto?.trim() || !versao) {
