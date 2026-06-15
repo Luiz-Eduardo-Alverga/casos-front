@@ -41,7 +41,7 @@ export function CasoAbertoCronometro({
     >
       <div className="min-w-0">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Cronômetro geral
+          Produção Atual
         </p>
         <p className="mt-1 font-mono text-3xl font-bold tabular-nums text-slate-900">
           {formatElapsedHms(elapsedSeconds)}
