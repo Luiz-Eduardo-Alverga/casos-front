@@ -12,6 +12,7 @@ import { ProjetosTabelaSkeletonRows } from "@/components/projetos/layout/projeto
 import { ProjetosTabelaEscopoSkeletonRows } from "@/components/projetos/layout/projetos-tabela-escopo-skeleton-rows";
 import { ProjetosTabelaRowListagem } from "@/components/projetos/tabela/projetos-tabela-row-listagem";
 import { ProjetosTabelaRowEscopo } from "@/components/projetos/tabela/projetos-tabela-row-escopo";
+import { ProjetosTabelaSortableHeader } from "@/components/projetos/tabela/projetos-tabela-sortable-header";
 import type {
   ProjetosTabelaTableEscopoProps,
   ProjetosTabelaTableListagemProps,
@@ -28,6 +29,8 @@ function ProjetosTabelaTableEscopo({
   selectedIds = [],
   onToggleItem,
   onToggleAll,
+  sort,
+  onSortChange,
 }: ProjetosTabelaTableEscopoProps) {
   const selectedIdsSet = new Set(selectedIds);
   const allChecked =
@@ -47,18 +50,22 @@ function ProjetosTabelaTableEscopo({
         />
       </TableHead>
     ) : null,
-    <TableHead
+    <ProjetosTabelaSortableHeader
       key="id"
-      className="min-w-[95px] font-medium text-sm text-text-primary h-auto py-4 px-5"
-    >
-      ID / Categoria
-    </TableHead>,
-    <TableHead
+      label="ID / Categoria"
+      sortField="numero_caso"
+      sort={sort}
+      onSortChange={onSortChange}
+      className="min-w-[95px]"
+    />,
+    <ProjetosTabelaSortableHeader
       key="detalhes"
-      className="min-w-0 flex-1 font-medium text-sm text-text-primary h-auto py-4 px-5"
-    >
-      Detalhes do caso
-    </TableHead>,
+      label="Detalhes do caso"
+      sortField="produto_nome"
+      sort={sort}
+      onSortChange={onSortChange}
+      className="min-w-0 flex-1"
+    />,
     <TableHead
       key="estimativas"
       className="w-[88px] text-center font-medium text-sm text-text-primary h-auto py-4 px-5"
@@ -71,12 +78,14 @@ function ProjetosTabelaTableEscopo({
     >
       Desenvolvedor
     </TableHead>,
-    <TableHead
+    <ProjetosTabelaSortableHeader
       key="status"
-      className="w-[123px] font-medium text-sm text-text-primary h-auto py-4 px-5"
-    >
-      Status
-    </TableHead>,
+      label="Status"
+      sortField="data_conclusao_dev"
+      sort={sort}
+      onSortChange={onSortChange}
+      className="w-[123px]"
+    />,
     <TableHead
       key="acoes"
       className="w-[66px] text-right font-medium text-sm text-text-primary h-auto py-4 px-5"

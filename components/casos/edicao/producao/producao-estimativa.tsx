@@ -1,52 +1,81 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
+
 import { Label } from "@/components/ui/label";
+
 import { TamanhoCombobox } from "../fields/tamanho-combobox";
+
 import { buildTempoEstimadoParaApi, maskHHMM } from "./utils";
+
 import type { AbaProducaoSavePayload } from "./types";
+
 import { NaoPlanejadoField } from "./nao-planejado-field";
 
 export interface ProducaoEstimativaProps {
   showForm: boolean;
+
   setShowForm: (open: boolean) => void;
+
   isSaving: boolean;
 
   naoPlanejado: boolean;
+
   setNaoPlanejado: (v: boolean) => void;
+
   naoPlanejadoFlag: boolean;
 
   tamanhoId: string;
+
   setTamanhoId: (v: string) => void;
+
   tempoEstimado: string;
+
   setTempoEstimado: (v: string) => void;
 
   estimadoMin: number;
+
   onSaveProducao: (payload: AbaProducaoSavePayload) => Promise<void>;
 }
 
 export function ProducaoEstimativa({
   showForm,
+
   setShowForm,
+
   isSaving,
+
   naoPlanejado,
+
   setNaoPlanejado,
+
   naoPlanejadoFlag,
+
   tamanhoId,
+
   setTamanhoId,
+
   tempoEstimado,
+
   setTempoEstimado,
+
   estimadoMin,
+
   onSaveProducao,
 }: ProducaoEstimativaProps) {
   const handleSalvar = async () => {
     const payload: AbaProducaoSavePayload = {
       NaoPlanejado: naoPlanejado ? 1 : 0,
+
       TempoEstimado: buildTempoEstimadoParaApi(tempoEstimado),
+
       tamanho: tamanhoId ? Number(tamanhoId) : null,
     };
+
     await onSaveProducao(payload);
+
     setShowForm(false);
   };
 
@@ -57,10 +86,12 @@ export function ProducaoEstimativa({
           <h3 className="text-sm font-semibold text-text-primary">
             Lançar estimativa
           </h3>
+
           <p className="text-sm text-text-secondary">
             Registre uma estimativa de tempo para o caso
           </p>
         </div>
+
         {!showForm ? (
           <Button
             type="button"
@@ -87,6 +118,7 @@ export function ProducaoEstimativa({
               onTamanhoSelect={(_id, tempoHHMM) => setTempoEstimado(tempoHHMM)}
               disabled={isSaving}
             />
+
             <div className="space-y-2">
               <div className="flex justify-between">
                 <Label
@@ -96,13 +128,14 @@ export function ProducaoEstimativa({
                   Tempo estimado
                 </Label>
               </div>
+
               <Input
                 id="tempo-estimado"
                 type="text"
                 placeholder="HH:MM (ex: 01:30)"
                 value={tempoEstimado}
                 onChange={(e) => setTempoEstimado(maskHHMM(e.target.value))}
-                disabled={isSaving}
+                disabled={isSaving || !tamanhoId}
                 maxLength={5}
                 className="h-9 rounded-lg border-border-input px-[17px] py-3"
               />
@@ -115,12 +148,14 @@ export function ProducaoEstimativa({
               variant="outline"
               onClick={() => {
                 setNaoPlanejado(naoPlanejadoFlag);
+
                 setShowForm(false);
               }}
               disabled={isSaving}
             >
               Cancelar
             </Button>
+
             <Button type="button" onClick={handleSalvar} disabled={isSaving}>
               {isSaving ? "Salvando..." : "Salvar"}
             </Button>

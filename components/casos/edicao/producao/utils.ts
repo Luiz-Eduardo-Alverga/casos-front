@@ -19,7 +19,10 @@ export function formatMinutosHoraEMinutos(minutos: number): string {
   return `${parteHoras} e ${parteMin}`;
 }
 
-export function formatTempoExcedido(estimado: number, realizado: number): string {
+export function formatTempoExcedido(
+  estimado: number,
+  realizado: number,
+): string {
   const diff = realizado - estimado;
   const sign = diff >= 0 ? "" : "-";
   const absMin = Math.abs(diff);
@@ -29,7 +32,9 @@ export function formatTempoExcedido(estimado: number, realizado: number): string
 }
 
 /** Formata data/hora da API (YYYY-MM-DD HH:mm:ss) para exibição (DD/MM/YYYY HH:mm) */
-export function formatDataHoraProducao(value: string | null | undefined): string {
+export function formatDataHoraProducao(
+  value: string | null | undefined,
+): string {
   if (!value?.trim()) return "—";
   const s = value.trim();
   const match = s.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
@@ -54,7 +59,7 @@ export function isProducaoTipoTeste(tipo: string | null | undefined): boolean {
  * O `apiStringToDate` do date-picker zera os segundos e distorce os minutos de duração.
  */
 export function parseDataHoraProducaoApi(
-  value: string | null | undefined
+  value: string | null | undefined,
 ): Date | undefined {
   if (!value?.trim()) return undefined;
   const s = value.trim();
@@ -131,7 +136,7 @@ export function maskHHMM(value: string): string {
  * YYYY-MM-DD HH:mm:ss (usa a data atual para a parte da data).
  */
 export function buildTempoEstimadoParaApi(
-  hhmm: string | null | undefined
+  hhmm: string | null | undefined,
 ): string | null {
   if (!hhmm?.trim()) return null;
   const trimmed = hhmm.trim();
@@ -152,4 +157,3 @@ export function hasProducaoAberta(producaoList: ProducaoDetalheItem[]) {
       Boolean(row.datas?.abertura?.trim()) && !row.datas?.fechamento?.trim(),
   );
 }
-

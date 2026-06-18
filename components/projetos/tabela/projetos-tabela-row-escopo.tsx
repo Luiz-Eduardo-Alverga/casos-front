@@ -8,9 +8,16 @@ import { StatusBadge } from "@/components/badges/status-badge";
 import { CategoriaBadge } from "@/components/casos/tabela/categoria-badge";
 import { ProjetosTabelaEscopoBadges } from "@/components/projetos/tabela/projetos-tabela-escopo-badges";
 import type { ProjetosTabelaEscopoRow } from "@/components/projetos/tabela/projetos-tabela-types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { CasoRelacoes } from "@/interfaces/projeto-memoria";
 import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
 import { formatMinutesToHHMM } from "@/lib/utils";
-import { Box, ExternalLink, SquarePen } from "lucide-react";
+import { Box, ExternalLink, Paperclip, SquarePen } from "lucide-react";
 
 export interface ProjetosTabelaRowEscopoProps {
   row: ProjetosTabelaEscopoRow;
@@ -34,6 +41,7 @@ export function ProjetosTabelaRowEscopo({
     String(row.tipo_abertura ?? "")
       .trim()
       .toUpperCase() === "REPORT";
+  const relacoes = Array.isArray(row.relacoes) ? row.relacoes : [];
 
   return (
     <TableRow className="bg-background border-t border-border-strong hover:bg-muted/30">
@@ -77,6 +85,25 @@ export function ProjetosTabelaRowEscopo({
               <span className="shrink-0 whitespace-nowrap font-semibold">
                 {versaoLabel}
               </span>
+
+              <div className="flex flex-wrap items-center gap-1">
+                {/* <CategoriaBadge categoria={row.categoria} /> */}
+                <span
+                  className="inline-flex w-fit items-center rounded-full border border-border-divider bg-muted/90 px-1.5 py-0 text-[10px] font-semibold text-text-secondary"
+                  title={`${row.dias_no_backlog} dias no backlog`}
+                >
+                  Aberto há {row.dias_no_backlog} dias
+                </span>
+              </div>
+
+              {relacoes.length > 0 ? (
+                <>
+                  <span className="text-text-secondary" aria-hidden>
+                    •
+                  </span>
+                  <CasosRelacionadosTooltip relacoes={relacoes} />
+                </>
+              ) : null}
               {isReport ? (
                 <>
                   <span className="text-text-secondary" aria-hidden>
@@ -100,15 +127,12 @@ export function ProjetosTabelaRowEscopo({
         key="estimativas"
         className="w-[88px] py-3 px-5 text-center align-top"
       >
-        <div className="flex flex-col gap-0.5 text-xs font-normal text-text-secondary">
+        <div className="flex items-center  flex-col gap-0.5 text-xs font-normal text-text-secondary">
           <span>E: {formatMinutesToHHMM(row.estimado_minutos)}</span>
           <span>R: {formatMinutesToHHMM(row.realizado_minutos)}</span>
         </div>
       </TableCell>
-      <TableCell
-        key="desenvolvedor"
-        className="w-[120px] py-3 px-5 align-top"
-      >
+      <TableCell key="desenvolvedor" className="w-[120px] py-3 px-5 align-top">
         <span className="text-sm font-light text-text-primary line-clamp-2">
           {row.desenvolvedor?.trim() ? row.desenvolvedor : "—"}
         </span>
@@ -134,5 +158,53 @@ export function ProjetosTabelaRowEscopo({
         </div>
       </TableCell>
     </TableRow>
+  );
+}
+
+function formatRelacaoTipo(relacao: CasoRelacoes): string {
+  return relacao.tipo_relacao_nome?.trim() || `Tipo ${relacao.tipo_relacao}`;
+}
+
+function CasosRelacionadosTooltip({ relacoes }: { relacoes: CasoRelacoes[] }) {
+  return (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="inline-flex shrink-0 items-center text-text-secondary transition-colors hover:text-text-primary"
+            aria-label={`${relacoes.length} caso(s) relacionado(s)`}
+          >
+            <Paperclip className="h-3.5 w-3.5" aria-hidden />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          align="start"
+          className="max-w-xs space-y-2 p-3"
+        >
+          <p className="text-xs font-semibold text-popover-foreground">
+            Casos relacionados
+          </p>
+          <ul className="space-y-1.5">
+            {relacoes.map((relacao) => (
+              <li
+                key={relacao.sequencia}
+                className="text-xs leading-snug text-popover-foreground/90"
+              >
+                <span className="font-semibold">
+                  {formatRelacaoTipo(relacao)} • #{relacao.caso_relacionado}
+                </span>
+                {relacao.descricao_resumo?.trim() ? (
+                  <span className="block text-popover-foreground/75">
+                    {relacao.descricao_resumo.trim()}
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

@@ -62,6 +62,58 @@ export interface ComboboxProps {
   valueLabelPrefix?: string;
 }
 
+function normalizeForSearch(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .trim();
+}
+
+/** Menor score = maior relevância na busca. */
+function getSearchRelevanceScore(label: string, search: string): number {
+  const labelNorm = normalizeForSearch(label);
+  const searchNorm = normalizeForSearch(search);
+  if (!searchNorm) return 0;
+
+  if (labelNorm === searchNorm) return 0;
+  if (labelNorm.startsWith(searchNorm)) return 1;
+
+  const boundaryPatterns = [
+    ` ${searchNorm}`,
+    `-${searchNorm}`,
+    `_${searchNorm}`,
+    `(${searchNorm}`,
+  ];
+  if (boundaryPatterns.some((pattern) => labelNorm.includes(pattern))) {
+    return 2;
+  }
+
+  const index = labelNorm.indexOf(searchNorm);
+  if (index === -1) return Number.POSITIVE_INFINITY;
+
+  return 10 + index;
+}
+
+function filterAndSortComboboxOptions(
+  options: ComboboxOption[],
+  searchValue: string,
+): ComboboxOption[] {
+  const searchNorm = normalizeForSearch(searchValue);
+  if (!searchNorm) return options;
+
+  return options
+    .filter((option) =>
+      normalizeForSearch(option.label ?? "").includes(searchNorm),
+    )
+    .sort((a, b) => {
+      const scoreA = getSearchRelevanceScore(a.label ?? "", searchValue);
+      const scoreB = getSearchRelevanceScore(b.label ?? "", searchValue);
+      if (scoreA !== scoreB) return scoreA - scoreB;
+      return (a.label?.length ?? 0) - (b.label?.length ?? 0);
+    });
+}
+
 export function Combobox({
   options,
   value,
@@ -83,10 +135,12 @@ export function Combobox({
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const listRef = useRef<HTMLDivElement | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
+    if (!next) setSearchValue("");
     onOpenChange?.(next);
   };
 
@@ -94,13 +148,14 @@ export function Combobox({
     (option) => String(option.value) === String(value),
   );
 
-  const filteredOptions = useMemo(() => {
-    if (!searchValue) return options;
-    const searchLower = searchValue.toLowerCase();
-    return options.filter((option) =>
-      (option.label ?? "").toLowerCase().includes(searchLower),
-    );
-  }, [options, searchValue]);
+  const filteredOptions = useMemo(
+    () => filterAndSortComboboxOptions(options, searchValue),
+    [options, searchValue],
+  );
+
+  useEffect(() => {
+    listRef.current?.scrollTo({ top: 0 });
+  }, [searchValue]);
 
   useEffect(() => {
     if (!onSearchChange) return;
@@ -195,13 +250,13 @@ export function Combobox({
               }
             }}
           />
-          <CommandList>
+          <CommandList ref={listRef}>
             <CommandEmpty>{emptyText}</CommandEmpty>
-            <CommandGroup>
+            <CommandGroup key={searchValue || "all"}>
               {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={option.value}
+                  value={option.label ?? ""}
                   onSelect={() => handleSelect(option.value)}
                 >
                   <Check

@@ -22,6 +22,8 @@ export function mapProjetoMemoriaToTabelaRow(
     numero: String(item.caso.id),
     descricao: item.caso.textos.descricao_resumo ?? "",
     categoria: item.caso.caracteristicas.tipo_categoria ?? "",
+    dias_no_backlog: item.caso.dias_no_backlog ?? 0,
+    relacoes: item.caso.relacoes ?? [],
     produto: item.produto.nome ?? "",
     produtoId: String(item.produto.id),
     versao: item.produto.versao ?? "",

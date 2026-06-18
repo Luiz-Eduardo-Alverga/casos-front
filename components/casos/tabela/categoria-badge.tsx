@@ -82,12 +82,11 @@ export function CategoriaBadge({
   return (
     <span
       className={cn(
-        "inline-flex w-fit max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 whitespace-nowrap",
+        "inline-flex w-fit max-w-full items-center gap-1.5 rounded-full border px-1.5 py-0.5 whitespace-nowrap",
         style.container,
         className,
       )}
     >
-      <span className={cn("size-1 shrink-0 rounded-full", style.dot)} />
       <span
         className={cn("text-xs font-semibold whitespace-nowrap", style.text)}
       >

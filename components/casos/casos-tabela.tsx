@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/painel/empty-state";
 import { CasosTabelaSkeleton } from "@/components/casos/layout/casos-tabela-skeleton";
 import { Button } from "@/components/ui/button";
 import { ProjetosTabelaTable } from "@/components/projetos/tabela/projetos-tabela-table";
+import type { ProjetoMemoriaSortState } from "@/components/projetos/tabela/projeto-memoria-sort";
 import { mapProjetoMemoriaToTabelaRow } from "@/components/projetos/tabela/map-projeto-memoria-to-escopo-row";
 import { useBulkUpdateCasos } from "@/hooks/casos/use-bulk-update-casos";
 import { CasosTransferenciaModal } from "@/components/casos/transferencia/casos-transferencia-modal";
@@ -47,9 +48,16 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
       todas: true,
     });
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] = useState(false);
+  const [sort, setSort] = useState<ProjetoMemoriaSortState>({});
+
   const projetoMemoriaParams = useMemo(
-    () => filtrosToProjetoMemoriaParams(filtros, versoesCatalogo),
-    [filtros, versoesCatalogo],
+    () => ({
+      ...filtrosToProjetoMemoriaParams(filtros, versoesCatalogo),
+      ...sort,
+    }),
+    [filtros, versoesCatalogo, sort],
   );
 
   const aguardandoVersaoCatalogo =
@@ -72,8 +80,6 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
     () => data?.pages.flatMap((p) => p.data.map(mapProjetoMemoriaToTabelaRow)) ?? [],
     [data],
   );
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] = useState(false);
 
   useEffect(() => {
     if (itens.length === 0) {
@@ -214,6 +220,8 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
               selectedIds={selectedIds}
               onToggleItem={handleToggleItem}
               onToggleAll={handleToggleAll}
+              sort={sort}
+              onSortChange={setSort}
             />
             {hasNextPage && itens.length > 0 && (
               <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />

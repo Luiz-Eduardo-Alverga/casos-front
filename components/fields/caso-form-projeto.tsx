@@ -158,7 +158,7 @@ export function CasoFormProjeto({
     if (!loadingFieldName || useExternalProjetos) return;
     const next = Boolean(
       (autoSelectProjeto === "always" && !optionsRequested) ||
-        isProjetosLoading,
+      isProjetosLoading,
     );
     const current = Boolean(getValues(loadingFieldName as any));
     if (current !== next) {
@@ -201,13 +201,13 @@ export function CasoFormProjeto({
 
     // Filtrar projetos: apenas do mês atual e próximos meses
     // Um projeto é válido se data_final >= primeiro dia do mês atual
-    const projetosFiltrados = projetos.filter((p: Projeto) => {
-      if (!p.data_final) return false;
-      const dataFinal = new Date(p.data_final);
-      return dataFinal >= primeiroDiaMesAtual;
-    });
+    // const projetosFiltrados = projetos.filter((p: Projeto) => {
+    //   if (!p.data_final) return false;
+    //   const dataFinal = new Date(p.data_final);
+    //   return dataFinal >= primeiroDiaMesAtual;
+    // });
 
-    const options = projetosFiltrados.map((p) => ({
+    const options = projetos.map((p) => ({
       value: String(p.id),
       label: p.id + " | " + p.nome_projeto,
     }));

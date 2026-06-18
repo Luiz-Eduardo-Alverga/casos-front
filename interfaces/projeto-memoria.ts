@@ -163,6 +163,7 @@ export interface ProducaoDetalheItem {
 export interface CasoItem {
   id: number;
   datas: CasoDatas;
+  dias_no_backlog: number;
   usuarios: CasoUsuarios;
   tempos: CasoTempos;
   quantidades_apontadas: CasoQuantidadesApontadas;
@@ -259,6 +260,8 @@ export interface ProjetoMemoriaResponse {
 export interface ProjetoMemoriaParams {
   per_page?: number;
   page?: number;
+  sort_by?: string;
+  sort_order?: "ASC" | "DESC";
   /** Cursor para paginação infinita (next_cursor retornado pela API) */
   cursor?: string | null;
   descricao_resumo?: string;

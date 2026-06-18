@@ -11,6 +11,7 @@ import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
 import { useEscopoFiltros } from "@/hooks/projetos/use-escopo-filtros";
 import { useBulkUpdateCasos } from "@/hooks/casos/use-bulk-update-casos";
 import { ProjetosTabelaTable } from "@/components/projetos/tabela/projetos-tabela-table";
+import type { ProjetoMemoriaSortState } from "@/components/projetos/tabela/projeto-memoria-sort";
 import { EscopoSummaryCards } from "@/components/projetos/edicao/escopo/escopo-summary-cards";
 import { EscopoFiltrosBar } from "@/components/projetos/edicao/escopo/escopo-filtros-bar";
 import { AbaEscopoSkeleton } from "@/components/projetos/edicao/escopo/aba-escopo-skeleton";
@@ -44,16 +45,20 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
 
   const { statusIds, usuarioDevId, naoPlanejadoFiltro } = filtrosAplicados;
 
+  const [sort, setSort] = useState<ProjetoMemoriaSortState>({});
+
   const memoriaParams = useMemo(
-    () =>
-      buildEscopoMemoriaParams(
+    () => ({
+      ...buildEscopoMemoriaParams(
         projetoId,
         statusIds,
         usuarioDevId,
         naoPlanejadoFiltro,
         "TODOS",
       ),
-    [projetoId, statusIds, usuarioDevId, naoPlanejadoFiltro],
+      ...sort,
+    }),
+    [projetoId, statusIds, usuarioDevId, naoPlanejadoFiltro, sort],
   );
 
   const escopoQuery = useProjetoMemoria(memoriaParams, { enabled });
@@ -270,6 +275,8 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
                   selectedIds={selectedIds}
                   onToggleItem={handleToggleItem}
                   onToggleAll={handleToggleAll}
+                  sort={sort}
+                  onSortChange={setSort}
                 />
                 {escopoQuery.hasNextPage && (
                   <div ref={loadMoreRef} className="min-h-[24px]" aria-hidden />
