@@ -47,6 +47,40 @@ interface ComboboxFieldProps {
   onAfterValueChange?: (value: string) => void;
 }
 
+/**
+ * Botão de limpar exibido dentro do mesmo container do gatilho do Combobox.
+ * É "naked" (ghost, sem borda/sombra/ring): hover e foco ficam unificados no
+ * container do Combobox, então gatilho + X parecem um único controle.
+ */
+function ClearButton({
+  onClear,
+  disabled,
+}: {
+  onClear: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <Button
+      tabIndex={-1}
+      type="button"
+      variant="ghost"
+      size="icon"
+      className={cn(
+        // h-full: estica para a altura do container (definida via anchorClassName),
+        // evitando somar a borda do container e aumentar o controle.
+        "h-full w-9 shrink-0 rounded-none border-0 bg-transparent shadow-none hover:bg-transparent focus-visible:ring-0 dark:bg-transparent",
+      )}
+      // Evita roubar o foco (e o ring) ao clicar; o foco fica no gatilho.
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={onClear}
+      disabled={disabled}
+      aria-label="Remover seleção"
+    >
+      <X className="h-4 w-4 opacity-50" />
+    </Button>
+  );
+}
+
 export function ComboboxField({
   name,
   label,
@@ -99,32 +133,13 @@ export function ComboboxField({
             isLoadingMore={isLoadingMore}
             onLoadMore={onLoadMore}
             valueLabelPrefix={valueLabelPrefix}
-            anchorClassName={cn("group", "[&_button]:border-border-input")}
-            className={cn(
-              controlHeightClassName,
-              value &&
-                "rounded-l-lg rounded-r-none border-r-0 dark:border-input",
-              !value && "rounded-lg",
-            )}
+            className={controlHeightClassName}
             suffix={
               value ? (
-                <Button
-                  tabIndex={-1}
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className={cn(
-                    "w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input dark:border-input focus:ring-0",
-                    controlHeightClassName,
-                    "group-hover:bg-accent group-hover:text-accent-foreground",
-                    "group-focus-within:ring-1 group-focus-within:ring-ring",
-                  )}
-                  onClick={() => onValueChange("")}
+                <ClearButton
+                  onClear={() => onValueChange("")}
                   disabled={disabled}
-                  aria-label="Remover seleção"
-                >
-                  <X className="h-4 w-4 opacity-50" />
-                </Button>
+                />
               ) : null
             }
           />
@@ -220,32 +235,13 @@ function RHFComboboxField({
             isLoadingMore={isLoadingMore}
             onLoadMore={onLoadMore}
             valueLabelPrefix={valueLabelPrefix}
-            anchorClassName={cn("group", "[&_button]:border-border-input")}
-            className={cn(
-              controlHeightClassName,
-              field.value &&
-                "rounded-l-lg rounded-r-none border-r-0 dark:border-input",
-              !field.value && "rounded-lg",
-            )}
+            className={controlHeightClassName}
             suffix={
               field.value ? (
-                <Button
-                  tabIndex={-1}
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className={cn(
-                    "w-9 shrink-0 rounded-l-none border-l-0 -ml-px rounded-r-lg border-border-input dark:border-input",
-                    controlHeightClassName,
-                    "group-hover:bg-accent group-hover:text-accent-foreground",
-                    "group-focus-within:ring-1 group-focus-within:ring-ring",
-                  )}
-                  onClick={() => field.onChange("")}
+                <ClearButton
+                  onClear={() => field.onChange("")}
                   disabled={disabled}
-                  aria-label="Remover seleção"
-                >
-                  <X className="h-4 w-4 opacity-50" />
-                </Button>
+                />
               ) : null
             }
           />

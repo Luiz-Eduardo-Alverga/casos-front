@@ -197,13 +197,19 @@ export function Combobox({
       disabled={disabled}
       className={cn(
         "w-full justify-between h-9",
-        useAnchorLayout &&
-          value &&
-          "rounded-l-lg rounded-r-none border-r-0 pr-0",
-        useAnchorLayout && !value && "rounded-lg",
-        !useAnchorLayout && value && "pr-0",
+        useAnchorLayout
+          ? // Em modo âncora o "chrome" (borda/sombra/hover/ring/altura) fica no
+            // container para que gatilho + suffix pareçam um único controle.
+            // O gatilho estica (h-full) em vez de impor a própria altura, senão
+            // somaria a borda do container e o controle ficaria mais alto.
+            "h-full rounded-none border-0 bg-transparent pr-0 shadow-none hover:bg-transparent focus-visible:ring-0 dark:bg-transparent"
+          : value
+            ? "pr-0"
+            : "rounded-lg",
         !value && "text-muted-foreground",
-        className,
+        // No modo âncora, className (altura/borda/etc.) é aplicado ao container,
+        // não ao gatilho — assim a altura não soma com a borda do container.
+        !useAnchorLayout && className,
       )}
     >
       <span className="truncate">
@@ -224,7 +230,14 @@ export function Combobox({
       {useAnchorLayout ? (
         <PopoverAnchor asChild>
           <div
-            className={cn("flex w-full min-w-0 items-stretch", anchorClassName)}
+            className={cn(
+              "flex w-full min-w-0 items-stretch overflow-hidden rounded-lg border border-input bg-background shadow-sm transition-colors",
+              disabled
+                ? "opacity-50"
+                : "hover:bg-accent/50 focus-within:ring-1 focus-within:ring-ring dark:hover:bg-accent/10",
+              className,
+              anchorClassName,
+            )}
           >
             <div className="min-w-0 flex-1">
               <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
