@@ -7,6 +7,7 @@ import {
   SyncAppUserValidationError,
 } from "@/lib/auth/sync-app-user";
 import { LegacyAuthMeError } from "@/lib/legacy-auth/me";
+import { getUserFiltrosPreferencias } from "@/lib/db/user-filtros-preferencias";
 
 export async function POST(request: Request) {
   try {
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
     store.set(AUTH_COOKIE_NAME, token, AUTH_COOKIE_OPTIONS);
 
     const { permissions, appUser } = syncResult;
+    const filtrosResumo = await getUserFiltrosPreferencias(appUser.id);
 
     // Não expor o token no body — apenas user, permissões locais e success
     return Response.json(
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
         user,
         permissions,
         appUser: appUserToSummary(appUser),
+        filtrosResumo,
       },
       {
         status: response.status,

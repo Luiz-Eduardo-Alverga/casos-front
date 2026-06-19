@@ -21,16 +21,37 @@ export const filtroResumoItemSchema = z.object({
   colSpan: z.union([z.literal(1), z.literal(2)]),
 });
 
+const filtrosResumoLayoutRefinements = [
+  {
+    check: (items: { colSpan: number }[]) =>
+      items.reduce((acc, i) => acc + i.colSpan, 0) === 4,
+    message: "A soma dos colSpans deve ser exatamente 4",
+  },
+  {
+    check: (items: { field: string }[]) =>
+      new Set(items.map((i) => i.field)).size === items.length,
+    message: "Não é permitido adicionar o mesmo filtro mais de uma vez",
+  },
+] as const;
+
+export const filtrosResumoReadSchema = z
+  .array(filtroResumoItemSchema)
+  .min(1)
+  .refine(filtrosResumoLayoutRefinements[0].check, {
+    message: filtrosResumoLayoutRefinements[0].message,
+  })
+  .refine(filtrosResumoLayoutRefinements[1].check, {
+    message: filtrosResumoLayoutRefinements[1].message,
+  });
+
 export const upsertFiltrosResumoSchema = z
   .array(filtroResumoItemSchema)
   .min(1, "É necessário ao menos um filtro")
-  .refine(
-    (items) => items.reduce((acc, i) => acc + i.colSpan, 0) === 4,
-    "A soma dos colSpans deve ser exatamente 4",
-  )
-  .refine(
-    (items) => new Set(items.map((i) => i.field)).size === items.length,
-    "Não é permitido adicionar o mesmo filtro mais de uma vez",
-  );
+  .refine(filtrosResumoLayoutRefinements[0].check, {
+    message: filtrosResumoLayoutRefinements[0].message,
+  })
+  .refine(filtrosResumoLayoutRefinements[1].check, {
+    message: filtrosResumoLayoutRefinements[1].message,
+  });
 
 export type UpsertFiltrosResumoInput = z.infer<typeof upsertFiltrosResumoSchema>;

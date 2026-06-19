@@ -121,8 +121,8 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
     const produtoId = String(filtros.produto ?? "").trim();
     const versoes = produtoId
       ? queryClient.getQueryData<Versao[]>(
-          getVersoesQueryKey(produtoId, "", false),
-        )
+        getVersoesQueryKey(produtoId, "", false),
+      )
       : undefined;
     const payload = buildBulkTransferPayload(idsSelecionados, values, versoes);
     if (!payload) {

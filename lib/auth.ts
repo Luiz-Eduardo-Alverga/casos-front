@@ -1,3 +1,5 @@
+import { clearCasosFiltrosPreferencias } from "@/lib/casos-filtros-preferencias-storage";
+
 export interface User {
   id: number;
   nome: string;
@@ -109,6 +111,15 @@ export function getAuthData(): { user: User } | null {
 /** Limpa dados locais e deve ser seguido de chamada a POST /api/auth/logout para limpar o cookie. */
 export function clearAuthData() {
   if (typeof window !== "undefined") {
+    const appUserRaw = localStorage.getItem(APP_USER_KEY);
+    if (appUserRaw) {
+      try {
+        const appUser = JSON.parse(appUserRaw) as AppUserSummary;
+        clearCasosFiltrosPreferencias(appUser.id);
+      } catch {
+        // Ignora JSON inválido.
+      }
+    }
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(PERMISSIONS_KEY);
     localStorage.removeItem(APP_USER_KEY);

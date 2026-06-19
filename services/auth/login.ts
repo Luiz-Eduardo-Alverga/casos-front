@@ -1,4 +1,5 @@
 import type { AppUserSummary } from "@/lib/auth";
+import type { FiltroResumoItem } from "@/lib/types/filtros-resumo";
 
 interface LoginParams {
   usuario: string;
@@ -20,6 +21,8 @@ export interface LoginResponse {
   permissions?: string[];
   /** Espelho local em `app_users`. */
   appUser?: AppUserSummary;
+  /** Preferências de filtros resumidos da listagem de casos. */
+  filtrosResumo?: FiltroResumoItem[];
   error?: string;
 }
 

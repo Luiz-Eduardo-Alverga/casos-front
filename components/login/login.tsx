@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import Image from "next/image";
 import { useLogin } from "@/hooks/auth/use-login";
 import { saveAuthData } from "@/lib/auth";
+import { writeCasosFiltrosPreferencias } from "@/lib/casos-filtros-preferencias-storage";
 import { getSafeInternalReturnPath } from "@/lib/safe-callback-url";
 import { LoginBanner } from "./login-banner";
 import { LoginForm, type LoginFormData } from "./login-form";
@@ -65,6 +66,13 @@ export function Login({ callbackUrl }: LoginProps) {
           permissions: response.permissions,
           appUser: response.appUser,
         });
+
+        if (response.appUser?.id && response.filtrosResumo?.length) {
+          writeCasosFiltrosPreferencias(
+            response.appUser.id,
+            response.filtrosResumo,
+          );
+        }
 
         if (rememberMe) {
           localStorage.setItem(REMEMBER_ME_KEY, "true");
