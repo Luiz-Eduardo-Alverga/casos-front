@@ -11,6 +11,8 @@ interface PermissionMatrixProps {
   selected: Set<string>;
   onToggleModule: (module: PermissionModuleWithPerms, active: boolean) => void;
   onTogglePermission: (permissionId: string, active: boolean) => void;
+  canGrantPermission?: (permissionId: string) => boolean;
+  readOnly?: boolean;
 }
 
 /** Card "Matriz de Permissões" com a lista de `PermissionModuleCard`. */
@@ -19,6 +21,8 @@ export function PermissionMatrix({
   selected,
   onToggleModule,
   onTogglePermission,
+  canGrantPermission,
+  readOnly = false,
 }: PermissionMatrixProps) {
   return (
     <Card className="bg-card shadow-card rounded-lg flex flex-col lg:min-h-0 lg:flex-1">
@@ -51,6 +55,8 @@ export function PermissionMatrix({
                 selected={selected}
                 onToggleModule={(active) => onToggleModule(module, active)}
                 onTogglePermission={onTogglePermission}
+                canGrantPermission={canGrantPermission}
+                readOnly={readOnly}
               />
             ))}
           </div>

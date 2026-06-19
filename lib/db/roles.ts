@@ -34,11 +34,12 @@ export async function listRolesWithPermissionCount(
       id: roles.id,
       name: roles.name,
       description: roles.description,
+      hierarchyLevel: roles.hierarchyLevel,
       permissionsCount: count(rolePermissions.permissionId),
     })
     .from(roles)
     .leftJoin(rolePermissions, eq(rolePermissions.roleId, roles.id))
-    .groupBy(roles.id);
+    .groupBy(roles.id, roles.hierarchyLevel);
 
   const rows = term
     ? await base
@@ -48,13 +49,14 @@ export async function listRolesWithPermissionCount(
             ilikeContains(roles.description, term),
           ),
         )
-        .orderBy(asc(roles.name))
-    : await base.orderBy(asc(roles.name));
+        .orderBy(asc(roles.hierarchyLevel), asc(roles.name))
+    : await base.orderBy(asc(roles.hierarchyLevel), asc(roles.name));
 
   return rows.map((r) => ({
     id: r.id,
     name: r.name,
     description: r.description,
+    hierarchyLevel: r.hierarchyLevel,
     permissionsCount: Number(r.permissionsCount),
   }));
 }

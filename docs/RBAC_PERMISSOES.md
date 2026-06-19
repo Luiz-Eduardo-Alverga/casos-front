@@ -199,3 +199,64 @@ Exemplo já implementado:
 
 Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql), [`db/scripts/seed-list-project-rbac.sql`](../db/scripts/seed-list-project-rbac.sql), [`db/scripts/seed-create-project-rbac.sql`](../db/scripts/seed-create-project-rbac.sql), [`db/scripts/seed-edit-project-rbac.sql`](../db/scripts/seed-edit-project-rbac.sql).
 
+---
+
+## Hierarquia de perfis (`hierarchyLevel`)
+
+Além das permissões individuais, cada **perfil (role)** possui um campo numérico `hierarchyLevel` na tabela `roles`:
+
+- **Menor número = mais autoridade** (1 = topo da hierarquia).
+- Usuário no nível **N** só pode **gerenciar** perfis e usuários cujo nível relevante seja **estritamente maior que N** (`targetLevel > assignerLevel`).
+- O nível efetivo do usuário logado é o **menor** `hierarchyLevel` entre os perfis que ele possui (`Math.min` — o perfil mais sênior prevalece).
+- Perfis sem seed explícito permanecem com default `999` (mínimo poder).
+
+### Regras de delegação
+
+| Operação | Permissão exigida | Validações adicionais |
+| -------- | ----------------- | --------------------- |
+| Atribuir/remover perfil a usuário | `assign-user-role` | Bloqueio total de auto-alteração (`assignerId === targetUserId` → 403); `targetUserLevel > assignerLevel`; `newRoleLevel > assignerLevel` |
+| Criar/editar/excluir perfil | `assign-user-role` | `role.hierarchyLevel > assignerLevel`; ao criar, `body.hierarchyLevel > assignerLevel` |
+| Sincronizar matriz de permissões (PUT) / vincular (POST) | `assign-user-role` | Hierarquia do perfil alvo **e** matriz híbrida: só é possível **conceder** permissões que o editor **já possui** |
+| Desvincular permissão (DELETE) | `assign-user-role` | Apenas hierarquia do perfil alvo |
+
+Usuário **sem perfil atribuído** (`assignerHierarchyLevel === null`) recebe **403** em todas as ações de delegação acima.
+
+O **sync automático no login** (`lib/auth/sync-app-user.ts`) permanece isento — é operação de sistema.
+
+### Matriz híbrida (frontend + backend)
+
+Na tela **Perfis de acesso**:
+
+- A sidebar lista apenas perfis **gerenciáveis** (`GET /api/db/roles?manageable=true`); perfis nível 1 só aparecem para editores nível 1.
+- Toggles de permissão ficam desabilitados para códigos que o editor não possui (`getPermissions()` no client; `canGrantPermissions` no server), **exceto quando o editor está no nível 1**, que pode vincular qualquer permissão.
+- Salvar, criar e excluir ficam bloqueados quando o perfil selecionado não é gerenciável.
+
+Na tela **Usuários**:
+
+- A sidebar e o modal listam perfis gerenciáveis (`?manageable=true` / `?assignable=true`); **perfis nível 1 só aparecem para editores nível 1**.
+- A listagem com `?manageable=true` filtra por hierarquia; **usuários nível 1 só aparecem para editores nível 1**; o **próprio usuário logado** permanece visível (auto-alteração de perfil continua bloqueada no backend).
+
+### Helpers e arquivos de referência
+
+- `lib/rbac-hierarchy.ts` — funções puras (`canManageRoleLevel`, `canAssignRole`, `canGrantPermissions`, etc.)
+- `lib/api-db/assert-role-hierarchy.ts` — asserts reutilizáveis nos route handlers (403 padronizado)
+- `lib/api-db/with-permission.ts` — expõe `appUserId` e `assignerHierarchyLevel` após sync
+- `lib/db/app-users.ts` — `getMinHierarchyLevelForUserId`, `roleHierarchyLevel` na listagem
+- `GET /api/db/app-users/me/hierarchy` — nível do usuário logado para a UI
+
+### Seed dos níveis iniciais
+
+Migration: [`db/migrations/0006_role_hierarchy_level.sql`](../db/migrations/0006_role_hierarchy_level.sql)
+
+Script de seed: [`db/scripts/seed-role-hierarchy.sql`](../db/scripts/seed-role-hierarchy.sql)
+
+| Nível | Significado |
+| ----- | ----------- |
+| 1 | Topo (ex.: administradores) |
+| 2 | Gerência / coordenação |
+| 3 | Supervisão |
+| 4 | Operacional sênior |
+| 999 | Default — perfis não mapeados no seed |
+
+Execute a migration e o seed SQL no ambiente antes de validar a hierarquia em produção.
+

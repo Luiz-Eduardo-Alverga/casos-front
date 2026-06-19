@@ -18,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface UsuariosTableProps {
   rows: UsuarioListItem[];
   onManageProfile?: (row: UsuarioListItem) => void;
+  currentAppUserId?: string | null;
   isFetchingNextPage?: boolean;
 }
 
@@ -37,6 +38,7 @@ function LoadingMoreRow() {
 export function UsuariosTable({
   rows,
   onManageProfile,
+  currentAppUserId = null,
   isFetchingNextPage = false,
 }: UsuariosTableProps) {
   if (rows.length === 0) {
@@ -44,7 +46,11 @@ export function UsuariosTable({
       <EmptyState
         icon={UserRound}
         title="Nenhum usuário encontrado"
-        description="Ajuste a busca para localizar usuários por nome ou e-mail."
+        description={
+          onManageProfile
+            ? "Não há usuários abaixo da sua hierarquia para gerenciar perfil."
+            : "Ajuste a busca para localizar usuários por nome ou e-mail."
+        }
         className="min-h-[260px]"
       />
     );
@@ -81,7 +87,9 @@ export function UsuariosTable({
               )}
             </TableCell>
             <TableCell className="py-3 text-right">
-              {onManageProfile ? (
+              {row.id === currentAppUserId ? (
+                <span className="text-xs text-text-secondary">Seu usuário</span>
+              ) : onManageProfile ? (
                 <Button
                   type="button"
                   variant="outline"
@@ -91,7 +99,7 @@ export function UsuariosTable({
                   Gerenciar Perfil
                 </Button>
               ) : (
-                <span className="text-xs text-text-secondary">Sem permissão</span>
+                <span className="text-xs text-text-secondary">—</span>
               )}
             </TableCell>
           </TableRow>
@@ -106,4 +114,3 @@ export function UsuariosTable({
     </Table>
   );
 }
-

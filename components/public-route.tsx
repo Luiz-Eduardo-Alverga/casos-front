@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { isAuthenticated } from "@/lib/auth";
-import { getSafeInternalReturnPath } from "@/lib/safe-callback-url";
+import { getPermissions, isAuthenticated } from "@/lib/auth";
+import { resolvePostLoginPath } from "@/lib/post-login-redirect";
 
 interface PublicRouteProps {
   children: React.ReactNode;
@@ -18,8 +18,7 @@ export function PublicRoute({ children, callbackUrl }: PublicRouteProps) {
   useEffect(() => {
     const checkAuth = () => {
       if (isAuthenticated()) {
-        const dest =
-          getSafeInternalReturnPath(callbackUrl) ?? "/painel";
+        const dest = resolvePostLoginPath(callbackUrl, getPermissions());
         router.push(dest);
       } else {
         setIsLoading(false);

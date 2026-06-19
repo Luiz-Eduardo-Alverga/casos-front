@@ -7,13 +7,12 @@ const STALE_MS = 60_000;
 const GC_MS = 5 * 60_000;
 
 /**
- * Lista de papéis para selects (ex.: modal de gerenciar perfil).
- * Encapsula o padrão Componente -> Hook -> Service.
+ * Lista de papéis para o modal de gerenciar perfil (filtrados por hierarquia no backend).
  */
 export function useDbRolesSelectList() {
   return useQuery({
-    queryKey: ["db-roles", "select-list"] as const,
-    queryFn: () => listRolesClient(),
+    queryKey: ["db-roles", "select-list", "assignable"] as const,
+    queryFn: () => listRolesClient(undefined, { assignable: true }),
     staleTime: STALE_MS,
     gcTime: GC_MS,
     refetchOnWindowFocus: false,

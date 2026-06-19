@@ -9,6 +9,7 @@ interface PermissionCheckCardProps {
   description?: string | null;
   checked: boolean;
   onToggle: (next: boolean) => void;
+  disabled?: boolean;
 }
 
 /**
@@ -21,21 +22,27 @@ export function PermissionCheckCard({
   description,
   checked,
   onToggle,
+  disabled = false,
 }: PermissionCheckCardProps) {
   const checkboxId = `perm-${id}`;
   return (
     <label
       htmlFor={checkboxId}
       className={cn(
-        "flex items-start gap-3 min-h-20 rounded-lg border p-3 cursor-pointer transition-colors",
-        checked
-          ? "bg-papeis-perm-selected-bg border-papeis-perm-selected-border"
-          : "bg-card border-border-divider hover:bg-page-background/40",
+        "flex items-start gap-3 min-h-20 rounded-lg border p-3 transition-colors",
+        disabled
+          ? "cursor-not-allowed opacity-60 bg-muted/30 border-border-divider"
+          : "cursor-pointer",
+        !disabled &&
+          (checked
+            ? "bg-papeis-perm-selected-bg border-papeis-perm-selected-border"
+            : "bg-card border-border-divider hover:bg-page-background/40"),
       )}
     >
       <Checkbox
         id={checkboxId}
         checked={checked}
+        disabled={disabled}
         onCheckedChange={(value) => onToggle(value === true)}
         className="mt-0.5 h-5 w-5 rounded-[4px]"
       />

@@ -32,6 +32,7 @@ export function Header() {
   const { resolvedTheme, setTheme } = useTheme();
   const rbacReady = permissionsLoaded();
   const canCreateCase = !rbacReady || hasPermission("create-case");
+  const canCreateReport = !rbacReady || hasPermission("create-report");
 
   useEffect(() => setThemeMounted(true), []);
   const handleToggleFullScreen = () => {
@@ -118,7 +119,7 @@ export function Header() {
               <Menu className="h-[18px] w-[15.75px] text-foreground" />
             </Button>
 
-            {canCreateCase ? (
+            {canCreateCase && (
               <Button
                 onClick={() => {
                   router.push("/casos/novo");
@@ -129,7 +130,9 @@ export function Header() {
                 <Plus className="h-3.5 w-3.5" />
                 Adicionar Caso
               </Button>
-            ) : (
+            )}
+
+            {canCreateReport && (
               <Button
                 onClick={() => {
                   router.push("/reports/novo");

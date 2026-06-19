@@ -5,6 +5,7 @@ import {
   jsonOk,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
+import { validateUserRoleAssignment } from "@/lib/api-db/assert-role-hierarchy";
 import { withPermission } from "@/lib/api-db/with-permission";
 import {
   getAppUserById,
@@ -36,7 +37,7 @@ export async function GET(_request: Request, context: RouteCtx) {
 }
 
 export async function POST(request: Request, context: RouteCtx) {
-  return withPermission("assign-user-role", async () => {
+  return withPermission("assign-user-role", async (session) => {
     const { id } = await context.params;
     const idParsed = uuidSchema.safeParse(id);
     if (!idParsed.success) return badRequestFromZod(idParsed.error);
@@ -55,9 +56,14 @@ export async function POST(request: Request, context: RouteCtx) {
       if (!(await getAppUserById(userId))) {
         return jsonError("Usuário não encontrado", 404);
       }
-      if (!(await getRoleById(parsed.data.roleId))) {
-        return jsonError("Papel não encontrado", 404);
-      }
+
+      const denied = await validateUserRoleAssignment(
+        session,
+        userId,
+        parsed.data.roleId,
+      );
+      if (denied) return denied;
+
       if (await userRoleLinkExists(userId, parsed.data.roleId)) {
         return jsonError("Papel já atribuído a este usuário", 409);
       }
@@ -72,7 +78,7 @@ export async function POST(request: Request, context: RouteCtx) {
 }
 
 export async function PUT(request: Request, context: RouteCtx) {
-  return withPermission("assign-user-role", async () => {
+  return withPermission("assign-user-role", async (session) => {
     const { id } = await context.params;
     const idParsed = uuidSchema.safeParse(id);
     if (!idParsed.success) return badRequestFromZod(idParsed.error);
@@ -91,9 +97,13 @@ export async function PUT(request: Request, context: RouteCtx) {
       if (!(await getAppUserById(userId))) {
         return jsonError("Usuário não encontrado", 404);
       }
-      if (!(await getRoleById(parsed.data.roleId))) {
-        return jsonError("Papel não encontrado", 404);
-      }
+
+      const denied = await validateUserRoleAssignment(
+        session,
+        userId,
+        parsed.data.roleId,
+      );
+      if (denied) return denied;
 
       const row = await replaceUserRole(userId, parsed.data.roleId);
       return jsonOk(row);
