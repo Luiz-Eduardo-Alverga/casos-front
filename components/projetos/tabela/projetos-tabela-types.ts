@@ -5,6 +5,8 @@ import type { SgpCadastroData } from "@/interfaces/sgp-cadastro";
 export type ProjetosTabelaVariant = "listagem" | "escopo";
 
 export interface ProjetosTabelaEscopoRow {
+  dataConclusao: string | null;
+  projetoId: string;
   id: string;
   numero: string;
   descricao: string;

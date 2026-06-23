@@ -3,7 +3,11 @@
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function EscopoSkeletonRow({ showCheckbox = false }: { showCheckbox?: boolean }) {
+function EscopoSkeletonRow({
+  showCheckbox = false,
+}: {
+  showCheckbox?: boolean;
+}) {
   const cells = [
     showCheckbox ? (
       <TableCell key="checkbox" className="w-[48px] py-3 px-2 text-center">

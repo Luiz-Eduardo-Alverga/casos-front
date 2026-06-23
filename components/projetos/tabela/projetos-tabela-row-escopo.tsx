@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { CasoRelacoes } from "@/interfaces/projeto-memoria";
 import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
+import { formatDatePt } from "@/components/cadastros/format-display";
 import { formatMinutesToHHMM } from "@/lib/utils";
 import { Box, ExternalLink, Paperclip, SquarePen } from "lucide-react";
 
@@ -59,7 +60,7 @@ export function ProjetosTabelaRowEscopo({
       ) : null}
       <TableCell
         key="id"
-        className="min-w-[95px] max-w-[120px] py-3 px-5 align-top"
+        className="min-w-[95px] max-w-[120px] py-3 px-2 align-top"
       >
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-semibold text-text-primary whitespace-nowrap">
@@ -68,7 +69,7 @@ export function ProjetosTabelaRowEscopo({
           <CategoriaBadge categoria={row.categoria} />
         </div>
       </TableCell>
-      <TableCell key="detalhes" className="min-w-0 flex-1 py-3 px-5 align-top">
+      <TableCell key="detalhes" className="min-w-0 flex-1 py-3 px-2 align-top">
         <div className="flex min-w-0 flex-col gap-1">
           <p className="text-sm font-semibold leading-snug text-text-primary break-words">
             {row.descricao?.trim() ? row.descricao : "—"}
@@ -84,6 +85,12 @@ export function ProjetosTabelaRowEscopo({
               </span>
               <span className="shrink-0 whitespace-nowrap font-semibold">
                 {versaoLabel}
+              </span>
+              <span className="text-text-secondary" aria-hidden>
+                •
+              </span>
+              <span className="shrink-0 whitespace-nowrap font-semibold">
+                Projeto {row.projetoId}
               </span>
 
               <div className="flex flex-wrap items-center gap-1">
@@ -138,7 +145,14 @@ export function ProjetosTabelaRowEscopo({
         </span>
       </TableCell>
       <TableCell key="status" className="w-[123px] py-3 px-5 align-top">
-        <StatusBadge status={row.status} />
+        <div className="flex flex-col items-start gap-1">
+          <StatusBadge status={row.status} />
+          {row.dataConclusao ? (
+            <span className="text-xs font-semibold text-text-secondary">
+              Finalizado em {formatDatePt(row.dataConclusao)}
+            </span>
+          ) : null}
+        </div>
       </TableCell>
       <TableCell key="acoes" className="w-[66px] py-3 px-5 align-top">
         <div className="flex items-center justify-end gap-2">
@@ -146,14 +160,14 @@ export function ProjetosTabelaRowEscopo({
             href={`/casos/${row.id}`}
             aria-label={`Editar caso ${row.numero}`}
           >
-            <SquarePen className="h-4 w-4 text-emerald-500" />
+            <SquarePen className="h-4 w-4 text-primary" />
           </Link>
           <Link
             target="_blank"
             href={buildCasoHrefForNewTab(row.id)}
             aria-label={`Abrir caso ${row.numero} em nova aba`}
           >
-            <ExternalLink className="h-4 w-4 text-blue-500" />
+            <ExternalLink className="h-4 w-4 text-primary" />
           </Link>
         </div>
       </TableCell>

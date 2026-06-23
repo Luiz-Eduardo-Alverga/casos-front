@@ -35,5 +35,7 @@ export function mapProjetoMemoriaToTabelaRow(
     showNaoPlanejado: isNaoPlanejado(item),
     showViavel: isViavel(item),
     showDuplicado: isDuplicado(item),
+    projetoId: String(item.projeto.id),
+    dataConclusao: item.caso.datas.conclusao_dev,
   };
 }

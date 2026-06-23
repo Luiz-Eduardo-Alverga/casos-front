@@ -49,7 +49,8 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
     });
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] = useState(false);
+  const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] =
+    useState(false);
   const [sort, setSort] = useState<ProjetoMemoriaSortState>({});
 
   const projetoMemoriaParams = useMemo(
@@ -77,7 +78,9 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
     });
 
   const itens = useMemo(
-    () => data?.pages.flatMap((p) => p.data.map(mapProjetoMemoriaToTabelaRow)) ?? [],
+    () =>
+      data?.pages.flatMap((p) => p.data.map(mapProjetoMemoriaToTabelaRow)) ??
+      [],
     [data],
   );
 
@@ -111,7 +114,9 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
     setSelectedIds(itens.map((item) => item.id));
   };
 
-  const handleTransferirCasos = async (values: CasosTransferenciaFormValues) => {
+  const handleTransferirCasos = async (
+    values: CasosTransferenciaFormValues,
+  ) => {
     const idsSelecionados = selectedIds;
     if (idsSelecionados.length === 0) {
       toast.error("Selecione ao menos um caso para transferir.");
@@ -121,8 +126,8 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
     const produtoId = String(filtros.produto ?? "").trim();
     const versoes = produtoId
       ? queryClient.getQueryData<Versao[]>(
-        getVersoesQueryKey(produtoId, "", false),
-      )
+          getVersoesQueryKey(produtoId, "", false),
+        )
       : undefined;
     const payload = buildBulkTransferPayload(idsSelecionados, values, versoes);
     if (!payload) {
