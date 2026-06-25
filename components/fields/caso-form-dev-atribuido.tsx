@@ -5,7 +5,7 @@ import { User } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
-import { useUsuariosProjetos } from "@/hooks/catalogos/use-usuarios";
+import { useUsuarios } from "@/hooks/catalogos/use-usuarios";
 import { getUser } from "@/lib/auth";
 import {
   REPORT_DEV_631_DISPLAY_NAME,
@@ -51,7 +51,8 @@ export function CasoFormDevAtribuido({
   valueLabelPrefix,
   disabled,
 }: CasoFormDevAtribuidoProps = {}) {
-  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
+  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } =
+    useCasoForm();
   const { watch, setValue, getValues } = useFormContext();
   const devAtribuido = watch(name);
   const devAtribuidoLabel = watch(labelName);
@@ -66,7 +67,7 @@ export function CasoFormDevAtribuido({
 
   const produtoAtual = produtoValue || produto;
 
-  const { data: usuarios, isLoading: isUsuariosLoading } = useUsuariosProjetos({
+  const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios({
     enabled: optionsRequested,
   });
 
@@ -135,7 +136,7 @@ export function CasoFormDevAtribuido({
         }
       });
     }
-    
+
     if (devAtribuido && devSelecionado) {
       const devValue = String(devSelecionado.id);
       if (!valuesAdded.has(devValue)) {
@@ -172,7 +173,7 @@ export function CasoFormDevAtribuido({
     lazyLoadComboboxOptions,
     editCaseItem,
   ]);
-  
+
   // Quando dev é selecionado, buscar e salvar os dados completos
   useEffect(() => {
     if (!devAtribuido) {
@@ -240,12 +241,22 @@ export function CasoFormDevAtribuido({
 
     // Se não achou ainda, tenta inferir via lista carregada.
     if (usuarios && Array.isArray(usuarios)) {
-      const devEncontrado = usuarios.find((u) => String(u.id) === String(currentId));
+      const devEncontrado = usuarios.find(
+        (u) => String(u.id) === String(currentId),
+      );
       if (devEncontrado) {
         setSetorIfChanged(String(devEncontrado.setor ?? ""));
       }
     }
-  }, [devAtribuido, devSelecionado, editCaseItem, getValues, setValue, setorName, usuarios]);
+  }, [
+    devAtribuido,
+    devSelecionado,
+    editCaseItem,
+    getValues,
+    setValue,
+    setorName,
+    usuarios,
+  ]);
 
   // Mantém o label sincronizado no form (para persistência/restauração).
   useEffect(() => {
@@ -305,8 +316,16 @@ export function CasoFormDevAtribuido({
     if (editDev && String(editDev.id) === String(currentId)) {
       setLabelIfChanged(String(editDev.nome ?? ""));
     }
-  }, [devAtribuido, devSelecionado, editCaseItem, getValues, labelName, setValue, user]);
-  
+  }, [
+    devAtribuido,
+    devSelecionado,
+    editCaseItem,
+    getValues,
+    labelName,
+    setValue,
+    user,
+  ]);
+
   return (
     <div className="space-y-2">
       <ComboboxField
@@ -315,14 +334,22 @@ export function CasoFormDevAtribuido({
         icon={User}
         options={devOptions}
         placeholder={placeholder}
-        emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
+        emptyText={
+          isUsuariosLoading
+            ? "Carregando usuários..."
+            : "Nenhum usuário encontrado."
+        }
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
         disabled={
           isDisabled || Boolean(disabled) || (requireProduto && !produtoAtual)
         }
         required={required}
-        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
+        onOpenChange={
+          lazyLoadComboboxOptions
+            ? (open) => open && setOptionsRequested(true)
+            : undefined
+        }
         hideLabel={hideLabel}
         wrapperClassName={wrapperClassName}
         controlHeightClassName={controlHeightClassName}
