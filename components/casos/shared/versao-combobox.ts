@@ -20,6 +20,73 @@ function formatVersaoAberturaLabel(abertura: string): string {
   return raw;
 }
 
+export interface EditVersaoFallbackParams {
+  /** Texto da versão vinda do caso carregado (`produto.versao`). */
+  versaoProduto?: string | null;
+  /** Valor atual do campo `versao` no form. */
+  formVersaoValue?: string | null;
+  /** Produto do item carregado; fallback só aplica quando coincide com `formProdutoId`. */
+  produtoId?: string | null;
+  formProdutoId?: string | null;
+}
+
+function isVersaoRepresentadaNoCatalogo(
+  value: string,
+  catalog: Versao[],
+): boolean {
+  const trimmed = String(value ?? "").trim();
+  if (!trimmed || !catalog.length) return false;
+  if (isSequenciaNoCatalogo(trimmed, catalog)) return true;
+  if (catalog.some((v) => String(v.versao ?? "").trim() === trimmed)) {
+    return true;
+  }
+  return Boolean(findSequenciaByVersaoProduto(catalog, trimmed));
+}
+
+/**
+ * Inclui a versão do caso em edição no catálogo quando ela não está entre
+ * as versões abertas (ex.: versão já fechada).
+ */
+export function mergeEditVersaoIntoCatalog(
+  versoes: Versao[],
+  params?: EditVersaoFallbackParams,
+): Versao[] {
+  const catalog = versoes ?? [];
+  if (!params) return catalog;
+
+  const formProduto = String(params.formProdutoId ?? "").trim();
+  const expectedProduto = String(params.produtoId ?? "").trim();
+  if (expectedProduto && formProduto && formProduto !== expectedProduto) {
+    return catalog;
+  }
+
+  const formVal = String(params.formVersaoValue ?? "").trim();
+  const editVer = String(params.versaoProduto ?? "").trim();
+
+  if (formVal && isVersaoRepresentadaNoCatalogo(formVal, catalog)) {
+    return catalog;
+  }
+  if (editVer && isVersaoRepresentadaNoCatalogo(editVer, catalog)) {
+    return catalog;
+  }
+
+  const versaoText =
+    editVer || (formVal ? extractVersaoProduto(formVal) : "") || formVal;
+  if (!versaoText) return catalog;
+
+  const sequencia = formVal || versaoText;
+  const stub: Versao = {
+    id: sequencia,
+    sequencia,
+    versao: versaoText,
+    abertura: "",
+    fechamento: "",
+    testador_id: 0,
+  };
+
+  return [...catalog, stub];
+}
+
 /** Opções do combobox: value = sequencia (PK), label = versão (+ sufixo se duplicada). */
 export function buildVersaoComboboxOptions(versoes: Versao[]): ComboboxOption[] {
   const rows = versoes
@@ -48,6 +115,13 @@ export function buildVersaoComboboxOptions(versoes: Versao[]): ComboboxOption[] 
     }
     return { value: seq, label };
   });
+}
+
+export function buildVersaoComboboxOptionsWithEditFallback(
+  versoes: Versao[],
+  params?: EditVersaoFallbackParams,
+): ComboboxOption[] {
+  return buildVersaoComboboxOptions(mergeEditVersaoIntoCatalog(versoes, params));
 }
 
 export function isSequenciaNoCatalogo(

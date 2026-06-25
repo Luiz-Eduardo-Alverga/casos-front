@@ -26,6 +26,7 @@ import { buildCasoUpdatePayload } from "@/components/casos/shared/payload";
 import {
   getVersoesQueryKey,
   isSequenciaNoCatalogo,
+  mergeEditVersaoIntoCatalog,
   resolveVersaoSequenciaForForm,
 } from "@/components/casos/shared/versao-combobox";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
@@ -101,6 +102,24 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
 
   const produtoWatch = methods.watch("produto");
 
+  const editVersaoFallbackBase = useMemo(
+    () => ({
+      versaoProduto: item.produto?.versao,
+      produtoId: String(item.produto?.id ?? ""),
+    }),
+    [item.produto?.id, item.produto?.versao],
+  );
+
+  const mergeEditVersaoCatalog = useCallback(
+    (versoes: Versao[] | undefined, formVersaoValue?: string) =>
+      mergeEditVersaoIntoCatalog(versoes ?? [], {
+        ...editVersaoFallbackBase,
+        formVersaoValue,
+        formProdutoId: String(produtoWatch ?? ""),
+      }),
+    [editVersaoFallbackBase, produtoWatch],
+  );
+
   const { data: versoesCatalogo } = useVersoes({
     produto_id: produtoWatch,
     enabled: Boolean(String(produtoWatch ?? "").trim()),
@@ -108,22 +127,29 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
   });
 
   const getVersoesForProduto = useCallback(
-    (produtoId: string): Versao[] | undefined => {
+    (produtoId: string, formVersaoValue?: string): Versao[] | undefined => {
       const id = String(produtoId ?? "").trim();
       if (!id) return undefined;
+      let base: Versao[] | undefined;
       if (versoesCatalogo?.length && String(produtoWatch) === id) {
-        return versoesCatalogo;
+        base = versoesCatalogo;
+      } else {
+        base = queryClient.getQueryData<Versao[]>(
+          getVersoesQueryKey(id, "", false),
+        );
       }
-      return queryClient.getQueryData<Versao[]>(
-        getVersoesQueryKey(id, "", false),
-      );
+      return mergeEditVersaoIntoCatalog(base ?? [], {
+        ...editVersaoFallbackBase,
+        formVersaoValue,
+        formProdutoId: id,
+      });
     },
-    [queryClient, versoesCatalogo, produtoWatch],
+    [queryClient, versoesCatalogo, produtoWatch, editVersaoFallbackBase],
   );
 
   useEffect(() => {
     const values = getReportEditDefaultValues(item);
-    const versoes = getVersoesForProduto(values.produto);
+    const versoes = getVersoesForProduto(values.produto, values.versao);
     values.versao = resolveVersaoSequenciaForForm(values.versao, versoes);
 
     snapshotRef.current = buildCasoEditSnapshot(item);
@@ -133,16 +159,19 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
   }, [item, methods, getVersoesForProduto]);
 
   useEffect(() => {
-    if (!versoesCatalogo?.length) return;
-
     const atual = String(methods.getValues("versao") ?? "").trim();
-    if (!atual || isSequenciaNoCatalogo(atual, versoesCatalogo)) return;
+    const versoesMerged = mergeEditVersaoCatalog(
+      versoesCatalogo,
+      atual,
+    );
+    if (!versoesMerged.length || !atual) return;
+    if (isSequenciaNoCatalogo(atual, versoesMerged)) return;
 
-    const sequencia = resolveVersaoSequenciaForForm(atual, versoesCatalogo);
+    const sequencia = resolveVersaoSequenciaForForm(atual, versoesMerged);
     if (!sequencia || sequencia === atual) return;
 
     methods.setValue("versao", sequencia, { shouldDirty: false });
-  }, [versoesCatalogo, methods]);
+  }, [versoesCatalogo, methods, mergeEditVersaoCatalog]);
 
   const versaoValue = useWatch({ control: methods.control, name: "versao" });
   const analiseStatusValue = useWatch({

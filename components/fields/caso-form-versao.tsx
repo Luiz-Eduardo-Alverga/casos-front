@@ -7,9 +7,10 @@ import { useCasoForm } from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
 import {
-  buildVersaoComboboxOptions,
+  buildVersaoComboboxOptionsWithEditFallback,
   findSequenciaByVersaoProduto,
   isSequenciaNoCatalogo,
+  mergeEditVersaoIntoCatalog,
 } from "@/components/casos/shared/versao-combobox";
 
 interface CasoFormVersaoProps {
@@ -40,21 +41,49 @@ export function CasoFormVersao({
 
   const produtoAtual = produtoValue || produto;
 
+  const editVersaoFallback = useMemo(() => {
+    const produtoAlinhado =
+      editCaseItem?.produto?.id != null &&
+      String(produtoAtual) === String(editCaseItem.produto.id);
+    if (!produtoAlinhado) return undefined;
+
+    return {
+      versaoProduto: editCaseItem.produto.versao,
+      formVersaoValue: versaoValueTrimmed,
+      produtoId: String(editCaseItem.produto.id),
+      formProdutoId: String(produtoAtual),
+    };
+  }, [
+    editCaseItem?.produto?.id,
+    editCaseItem?.produto?.versao,
+    produtoAtual,
+    versaoValueTrimmed,
+  ]);
+
   const { data: versoes, isLoading: isVersoesLoading } = useVersoes({
     produto_id: produtoAtual,
     enabled: optionsRequested,
     todas,
   });
 
+  const versoesComFallback = useMemo(
+    () => mergeEditVersaoIntoCatalog(versoes ?? [], editVersaoFallback),
+    [versoes, editVersaoFallback],
+  );
+
   const versoesOptions = useMemo(
-    () => buildVersaoComboboxOptions(versoes ?? []),
-    [versoes],
+    () =>
+      buildVersaoComboboxOptionsWithEditFallback(
+        versoes ?? [],
+        editVersaoFallback,
+      ),
+    [versoes, editVersaoFallback],
   );
 
   // Rede de segurança: alinha texto → sequencia antes da pintura (após reset do pai).
   useLayoutEffect(() => {
-    if (!versoes?.length || !versaoValueTrimmed) return;
-    if (isSequenciaNoCatalogo(versaoValueTrimmed, versoes)) return;
+    if (!versoesComFallback.length || !versaoValueTrimmed) return;
+    if (isSequenciaNoCatalogo(versaoValueTrimmed, versoesComFallback)) return;
 
     const produtoAlinhadoComItem =
       editCaseItem?.produto?.id != null &&
@@ -68,63 +97,22 @@ export function CasoFormVersao({
     ].filter(Boolean);
 
     for (const candidato of candidatos) {
-      const sequencia = findSequenciaByVersaoProduto(versoes, candidato);
+      const sequencia = findSequenciaByVersaoProduto(
+        versoesComFallback,
+        candidato,
+      );
       if (sequencia && sequencia !== versaoValueTrimmed) {
         setValue("versao", sequencia, { shouldDirty: false });
         break;
       }
     }
   }, [
-    versoes,
+    versoesComFallback,
     versaoValueTrimmed,
     setValue,
     produtoAtual,
     editCaseItem?.produto?.id,
     editCaseItem?.produto?.versao,
-  ]);
-
-  // Diagnóstico em produção: form tem valor mas Combobox não resolve selectedOption.
-  useEffect(() => {
-    if (!versaoValueTrimmed || !produtoAtual || isVersoesLoading) return;
-
-    const hasExactMatch = versoesOptions.some(
-      (o) => o.value === versaoValueTrimmed,
-    );
-    if (hasExactMatch) return;
-
-    console.log("[CasoFormVersao] sequência sem opção correspondente", {
-      versaoForm: versaoValue,
-      versaoFormTrimmed: versaoValueTrimmed,
-      produtoAtual,
-      optionsRequested,
-      versoesCarregadas: versoes?.length ?? 0,
-      optionsCount: versoesOptions.length,
-      optionsValues: versoesOptions.map((o) => o.value),
-      editCaseItemVersao: editCaseItem?.produto?.versao,
-      casoId: editCaseItem?.caso?.id,
-      lazyLoadComboboxOptions,
-      isVersoesLoading,
-      versoesRaw: versoes?.map((v) => ({
-        sequencia: v.sequencia,
-        versao: v.versao,
-      })),
-      optionsLabels: versoesOptions.map((o) => o.label),
-      sequenciaResolvida: findSequenciaByVersaoProduto(
-        versoes ?? [],
-        versaoValueTrimmed,
-      ),
-    });
-  }, [
-    versaoValue,
-    versaoValueTrimmed,
-    versoesOptions,
-    produtoAtual,
-    optionsRequested,
-    versoes,
-    editCaseItem?.produto?.versao,
-    editCaseItem?.caso?.id,
-    lazyLoadComboboxOptions,
-    isVersoesLoading,
   ]);
 
   return (
