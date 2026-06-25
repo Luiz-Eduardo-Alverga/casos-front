@@ -78,8 +78,6 @@ export function usePublicCadastroList<T>({
         trimmed || undefined,
         statusFilter && statusTrimmed ? { status: statusTrimmed } : undefined,
       ),
-    staleTime: 60_000,
-    gcTime: 5 * 60_000,
     refetchOnWindowFocus: true,
     retry: 1,
   });
