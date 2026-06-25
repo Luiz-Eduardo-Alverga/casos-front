@@ -7,6 +7,7 @@ export interface UseUsuariosParams {
   search?: string;
   enabled?: boolean;
   somente_projetos?: boolean;
+  projeto?: number;
 }
 
 export function useUsuarios(params?: UseUsuariosParams) {
@@ -16,6 +17,7 @@ export function useUsuarios(params?: UseUsuariosParams) {
       "usuarios",
       params?.search ?? "",
       params?.somente_projetos ?? true,
+      params?.projeto ?? "",
     ],
     queryFn: () => getUsuarios(params),
     enabled,
@@ -23,17 +25,21 @@ export function useUsuarios(params?: UseUsuariosParams) {
 }
 
 /** Usuários filtrados (somente projetos). QueryKey separada para evitar colisão com "todos". */
-export function useUsuariosProjetos(params?: Omit<UseUsuariosParams, "somente_projetos">) {
+export function useUsuariosProjetos(
+  params?: Omit<UseUsuariosParams, "somente_projetos">,
+) {
   const enabled = params?.enabled ?? true;
   return useQuery({
-    queryKey: ["usuarios_projetos", params?.search ?? ""],
-    queryFn: () => getUsuarios({ ...params, somente_projetos: true }),
+    queryKey: ["usuarios_projetos", params?.search ?? "", params?.projeto ?? ""],
+    queryFn: () => getUsuarios({ ...params, somente_projetos: false }),
     enabled,
   });
 }
 
 /** Lista de usuários sem filtro de projetos (relatores). QueryKey separada para evitar colisão com "projetos". */
-export function useRelatores(params?: Omit<UseUsuariosParams, "somente_projetos">) {
+export function useRelatores(
+  params?: Omit<UseUsuariosParams, "somente_projetos">,
+) {
   const enabled = params?.enabled ?? true;
   return useQuery({
     queryKey: ["relatores", params?.search ?? ""],

@@ -9,6 +9,13 @@ export async function GET(request: Request) {
     // Converte para boolean para evitar tratar "false" (string) como truthy no backend.
     const somente_projetos =
       somenteProjetosRaw === null ? undefined : somenteProjetosRaw === "true";
+    const projetoRaw = url.searchParams.get("projeto");
+    const projeto =
+      projetoRaw != null && projetoRaw.trim() !== ""
+        ? Number(projetoRaw)
+        : undefined;
+    const projetoId =
+      projeto !== undefined && Number.isFinite(projeto) ? projeto : undefined;
     const authHeaders = await getAuthorizationHeader();
     if (!authHeaders.Authorization) {
       return Response.json({ error: "Não autorizado" }, { status: 401 });
@@ -18,6 +25,7 @@ export async function GET(request: Request) {
       params: {
         ...(search ? { search } : {}),
         ...(somente_projetos !== undefined ? { somente_projetos } : {}),
+        ...(projetoId !== undefined ? { projeto: projetoId } : {}),
       },
       headers: authHeaders,
     });

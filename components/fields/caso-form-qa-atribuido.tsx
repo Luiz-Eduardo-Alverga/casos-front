@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { User } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
@@ -16,6 +16,10 @@ export interface CasoFormQaAtribuidoProps {
   required?: boolean;
   /** Se false, o campo permanece habilitado sem produto selecionado (filtros). */
   requireProduto?: boolean;
+  /** Se true, exige projeto selecionado para habilitar e filtra usuários pelo projeto. */
+  requireProjeto?: boolean;
+  /** Nome do campo de projeto no react-hook-form. Padrão: `projeto`. */
+  projetoFieldName?: string;
 }
 
 export function CasoFormQaAtribuido({
@@ -24,19 +28,47 @@ export function CasoFormQaAtribuido({
   placeholder = "Selecione o QA atribuído...",
   required = false,
   requireProduto = true,
+  requireProjeto = false,
+  projetoFieldName = "projeto",
 }: CasoFormQaAtribuidoProps = {}) {
   const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
-  const { watch } = useFormContext();
+  const { watch, setValue } = useFormContext();
   const qaAtribuido = watch(name);
   const produtoValue = watch("produto");
+  const projetoValue = watch(projetoFieldName);
   const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
   const [qaSelecionado, setQaSelecionado] = useState<Usuario | null>(null);
+  const prevProjetoRef = useRef<string | undefined>(undefined);
 
   const produtoAtual = produtoValue || produto;
+  const projetoAtual = String(projetoValue ?? "").trim();
+  const projetoId = useMemo(() => {
+    if (!projetoAtual) return undefined;
+    const n = Number(projetoAtual);
+    return Number.isFinite(n) ? n : undefined;
+  }, [projetoAtual]);
 
   const { data: usuarios, isLoading: isUsuariosLoading } = useUsuariosProjetos({
-    enabled: optionsRequested,
+    projeto: projetoId,
+    enabled:
+      optionsRequested && (!requireProjeto || Boolean(projetoId)),
   });
+
+  useEffect(() => {
+    if (!requireProjeto) return;
+
+    const prev = prevProjetoRef.current;
+    prevProjetoRef.current = projetoAtual;
+
+    if (prev === undefined || prev === projetoAtual) return;
+
+    setValue(name as any, "", {
+      shouldDirty: false,
+      shouldTouch: false,
+      shouldValidate: false,
+    });
+    setQaSelecionado(null);
+  }, [projetoAtual, requireProjeto, name, setValue]);
 
   const qasOptions = useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
@@ -93,11 +125,19 @@ export function CasoFormQaAtribuido({
         label={label}
         icon={User}
         options={qasOptions}
-        placeholder={placeholder}
+        placeholder={
+          requireProjeto && !projetoAtual
+            ? "Selecione o projeto primeiro."
+            : placeholder
+        }
         emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
-        disabled={isDisabled || (requireProduto && !produtoAtual)}
+        disabled={
+          isDisabled ||
+          (requireProduto && !produtoAtual) ||
+          (requireProjeto && !projetoAtual)
+        }
         required={required}
         onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
       />

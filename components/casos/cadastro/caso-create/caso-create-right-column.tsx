@@ -56,8 +56,8 @@ export function CasoCreateRightColumn({
           shrink={false}
         />
         <CardContent className="space-y-2 p-6 pt-2">
-          <CasoFormDevAtribuido />
-          <CasoFormQaAtribuido />
+          <CasoFormDevAtribuido requireProjeto />
+          <CasoFormQaAtribuido requireProjeto />
         </CardContent>
       </Card>
 
