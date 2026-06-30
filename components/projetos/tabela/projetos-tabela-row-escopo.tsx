@@ -144,7 +144,7 @@ export function ProjetosTabelaRowEscopo({
           {row.desenvolvedor?.trim() ? row.desenvolvedor : "—"}
         </span>
       </TableCell>
-      <TableCell key="status" className="w-[123px] py-3 px-5 align-top">
+      <TableCell key="status" className="min-w-[185px] py-3 px-5 align-top">
         <div className="flex flex-col items-start gap-1">
           <StatusBadge status={row.status} />
           {row.dataConclusao ? (

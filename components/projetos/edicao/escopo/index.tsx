@@ -214,6 +214,7 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
             </div>
 
             <EscopoFiltrosBar
+              projetoId={projetoId}
               statusIds={statusIds}
               onStatusIdsChange={setStatusIds}
               usuarioDevId={usuarioDevId}
