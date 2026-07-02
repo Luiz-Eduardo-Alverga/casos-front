@@ -11,12 +11,16 @@ export interface Usuario {
 export async function getUsuarios(params?: {
   search?: string;
   somente_projetos?: boolean;
+  projeto?: number;
 }): Promise<Usuario[]> {
   const somente_projetos = params?.somente_projetos ?? true;
   const url = new URL("/api/auxiliar/usuarios", window.location.origin);
   if (params?.search) url.searchParams.set("search", params.search);
   if (params?.somente_projetos !== undefined) {
     url.searchParams.set("somente_projetos", somente_projetos.toString());
+  }
+  if (params?.projeto !== undefined) {
+    url.searchParams.set("projeto", String(params.projeto));
   }
 
   const response = await fetchWithAuth(url.toString(), { method: "GET" });

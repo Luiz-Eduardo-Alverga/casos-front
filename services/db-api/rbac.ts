@@ -181,24 +181,46 @@ function withSearch(path: string, search?: string): string {
   return q ? `${path}?search=${encodeURIComponent(q)}` : path;
 }
 
-function buildRolesUrl(search?: string, expand?: "permissionsCount"): string {
+function buildRolesUrl(
+  search?: string,
+  expand?: "permissionsCount",
+  options?: { assignable?: boolean; manageable?: boolean },
+): string {
   const params = new URLSearchParams();
   if (search?.trim()) params.set("search", search.trim());
   if (expand) params.set("expand", expand);
+  if (options?.assignable) params.set("assignable", "true");
+  if (options?.manageable) params.set("manageable", "true");
   const qs = params.toString();
   return qs ? `/api/db/roles?${qs}` : "/api/db/roles";
 }
 
-export async function listRolesClient(search?: string): Promise<RoleRow[]> {
-  const res = await fetchWithAuth(buildRolesUrl(search));
+export async function listRolesClient(
+  search?: string,
+  options?: { assignable?: boolean; manageable?: boolean },
+): Promise<RoleRow[]> {
+  const res = await fetchWithAuth(buildRolesUrl(search, undefined, options));
   return parseSuccessWithData<RoleRow[]>(res);
 }
 
 export async function listRolesWithCountClient(
   search?: string,
+  options?: { assignable?: boolean; manageable?: boolean },
 ): Promise<RoleWithPermissionCountRow[]> {
-  const res = await fetchWithAuth(buildRolesUrl(search, "permissionsCount"));
+  const res = await fetchWithAuth(
+    buildRolesUrl(search, "permissionsCount", options),
+  );
   return parseSuccessWithData<RoleWithPermissionCountRow[]>(res);
+}
+
+export type AssignerHierarchy = {
+  appUserId: string;
+  hierarchyLevel: number | null;
+};
+
+export async function getAssignerHierarchyClient(): Promise<AssignerHierarchy> {
+  const res = await fetchWithAuth("/api/db/app-users/me/hierarchy");
+  return parseSuccessWithData<AssignerHierarchy>(res);
 }
 
 export async function createRoleClient(
@@ -308,6 +330,7 @@ export async function listAppUsersInfiniteClient(params: {
   search?: string;
   cursor?: number;
   limit?: number;
+  manageable?: boolean;
 }): Promise<ListAppUsersPageResult> {
   const url = new URL("/api/db/app-users", window.location.origin);
   if (params.search?.trim())
@@ -315,6 +338,7 @@ export async function listAppUsersInfiniteClient(params: {
   if (params.cursor != null)
     url.searchParams.set("cursor", String(params.cursor));
   if (params.limit != null) url.searchParams.set("limit", String(params.limit));
+  if (params.manageable) url.searchParams.set("manageable", "true");
 
   const res = await fetchWithAuth(url.toString(), { method: "GET" });
   return parseSuccessWithData<ListAppUsersPageResult>(res);

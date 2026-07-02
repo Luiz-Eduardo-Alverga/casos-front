@@ -207,10 +207,12 @@ export function AppSidebar({
   const pathname = usePathname();
   const rbacReady = permissionsLoaded();
   const canListAcquirer = rbacReady && hasPermission("list-acquirer");
+  const canListPainelDev = rbacReady && hasPermission("list-painel-dev");
   const canListCase =
     rbacReady && hasAnyPermission(["list-case", "list-report"]);
   const canListReport = rbacReady && hasPermission("list-report");
   const canListProject = rbacReady && hasPermission("list-project");
+  const canAudit = rbacReady && hasAnyPermission(["audit-all-users", "audit-user"]);
   const canAssignUserRole = rbacReady && hasPermission("assign-user-role");
   const canListUser = rbacReady && hasPermission("list-user");
   const configuracoesSubitemsSorted = CONFIGURACOES_SUBITEMS_SORTED.filter(
@@ -240,6 +242,15 @@ export function AppSidebar({
 
     if (
       rbacReady &&
+      !canListPainelDev &&
+      entry.type === "link" &&
+      entry.href === "/painel"
+    ) {
+      return false;
+    }
+
+    if (
+      rbacReady &&
       !canListCase &&
       entry.type === "link" &&
       entry.href === "/casos"
@@ -261,6 +272,15 @@ export function AppSidebar({
       !canListProject &&
       entry.type === "link" &&
       entry.href === "/projetos"
+    ) {
+      return false;
+    }
+
+    if (
+      rbacReady &&
+      !canAudit &&
+      entry.type === "link" &&
+      entry.href === "/auditoria/horas-colaboradores"
     ) {
       return false;
     }

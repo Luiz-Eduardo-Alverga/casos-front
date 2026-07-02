@@ -62,8 +62,11 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
   );
 
   const escopoQuery = useProjetoMemoria(memoriaParams, { enabled });
-  const { refetch: refetchEscopo, isFetching, isFetchingNextPage } =
-    escopoQuery;
+  const {
+    refetch: refetchEscopo,
+    isFetching,
+    isFetchingNextPage,
+  } = escopoQuery;
 
   const itens = useMemo(
     () =>
@@ -76,7 +79,8 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
   const totalizadores = escopoQuery.data?.pages[0]?.totalizadores;
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] = useState(false);
+  const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] =
+    useState(false);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -124,8 +128,8 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
       const produtoId = String(produtoIdPadrao ?? "").trim();
       const versoes = produtoId
         ? queryClient.getQueryData<Versao[]>(
-          getVersoesQueryKey(produtoId, "", false),
-        )
+            getVersoesQueryKey(produtoId, "", false),
+          )
         : undefined;
       const payload = buildBulkTransferPayload(
         idsSelecionados,
@@ -210,6 +214,7 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
             </div>
 
             <EscopoFiltrosBar
+              projetoId={projetoId}
               statusIds={statusIds}
               onStatusIdsChange={setStatusIds}
               usuarioDevId={usuarioDevId}
@@ -219,9 +224,7 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
               onAtualizar={() => void refetchEscopo()}
               isAtualizando={isAtualizandoEscopo}
             />
-
           </div>
-
         </div>
       </CardHeader>
 
@@ -260,7 +263,6 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
                   onClick={() => setIsTransferenciaModalOpen(true)}
                   disabled={selectedIds.length === 0}
                   className=""
-
                 >
                   <ArrowLeftRight className="h-3.5 w-3.5 text-text-primary" />
                   {selectedIds.length > 0
@@ -295,6 +297,6 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
         isSubmitting={bulkUpdateCasos.isPending}
         onSubmit={handleTransferirCasos}
       />
-    </Card >
+    </Card>
   );
 }

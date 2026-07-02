@@ -34,21 +34,32 @@ export function RoleSidebarCard({
       <div className="flex items-center justify-between gap-2">
         <span
           className={cn(
-            "text-sm font-semibold truncate",
+            "text-sm font-semibold truncate min-w-0",
             isActive ? "text-papeis-role-active-text " : "text-text-primary",
           )}
         >
           {role.name}
         </span>
-        <span
-          className={cn(
-            "text-[11px] font-medium px-2 py-0.5 rounded-lg shrink-0",
-            "bg-papeis-badge-count-bg text-papeis-badge-count-text",
-            isActive ? "bg-black text-white" : "",
-          )}
-        >
-          {role.permissionsCount} perm.
-        </span>
+        <div className="flex items-center gap-1 shrink-0">
+          <span
+            className={cn(
+              "text-[11px] font-medium px-2 py-0.5 rounded-lg",
+              "bg-papeis-badge-count-bg text-papeis-badge-count-text",
+              isActive ? "bg-black text-white" : "",
+            )}
+          >
+            Nív. {role.hierarchyLevel}
+          </span>
+          <span
+            className={cn(
+              "text-[11px] font-medium px-2 py-0.5 rounded-lg",
+              "bg-papeis-badge-count-bg text-papeis-badge-count-text",
+              isActive ? "bg-black text-white" : "",
+            )}
+          >
+            {role.permissionsCount} perm.
+          </span>
+        </div>
       </div>
       {role.description && (
         <p className="text-xs text-text-secondary line-clamp-2">

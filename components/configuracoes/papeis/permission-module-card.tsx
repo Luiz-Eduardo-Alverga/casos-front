@@ -15,6 +15,8 @@ interface PermissionModuleCardProps {
   selected: Set<string>;
   onToggleModule: (active: boolean) => void;
   onTogglePermission: (permissionId: string, active: boolean) => void;
+  canGrantPermission?: (permissionId: string) => boolean;
+  readOnly?: boolean;
 }
 
 /**
@@ -26,11 +28,17 @@ export function PermissionModuleCard({
   selected,
   onToggleModule,
   onTogglePermission,
+  canGrantPermission,
+  readOnly = false,
 }: PermissionModuleCardProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const Icon = getModuleIcon(module.slug);
   const coverage = computeModuleCoverage(module, selected);
   const hasAny = coverage.state !== "none";
+
+  const grantableCount = canGrantPermission
+    ? module.permissions.filter((p) => canGrantPermission(p.id)).length
+    : module.permissions.length;
 
   return (
     <div className="rounded-xl border border-border-divider bg-card overflow-hidden">
@@ -74,7 +82,7 @@ export function PermissionModuleCard({
               aria-label="Ativar/desativar todas as permissões do módulo"
               checked={coverage.state === "full"}
               onCheckedChange={(value) => onToggleModule(value === true)}
-              disabled={coverage.total === 0}
+              disabled={readOnly || coverage.total === 0 || grantableCount === 0}
             />
             <span
               className={cn(
@@ -122,16 +130,23 @@ export function PermissionModuleCard({
             ) : (
               <div className="p-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                  {module.permissions.map((perm) => (
-                    <PermissionCheckCard
-                      key={perm.id}
-                      id={perm.id}
-                      label={perm.label}
-                      description={perm.description}
-                      checked={selected.has(perm.id)}
-                      onToggle={(active) => onTogglePermission(perm.id, active)}
-                    />
-                  ))}
+                  {module.permissions.map((perm) => {
+                    const canGrant =
+                      !canGrantPermission || canGrantPermission(perm.id);
+                    return (
+                      <PermissionCheckCard
+                        key={perm.id}
+                        id={perm.id}
+                        label={perm.label}
+                        description={perm.description}
+                        checked={selected.has(perm.id)}
+                        disabled={readOnly || !canGrant}
+                        onToggle={(active) =>
+                          onTogglePermission(perm.id, active)
+                        }
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}

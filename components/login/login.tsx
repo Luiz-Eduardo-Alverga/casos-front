@@ -10,7 +10,7 @@ import Image from "next/image";
 import { useLogin } from "@/hooks/auth/use-login";
 import { saveAuthData } from "@/lib/auth";
 import { writeCasosFiltrosPreferencias } from "@/lib/casos-filtros-preferencias-storage";
-import { getSafeInternalReturnPath } from "@/lib/safe-callback-url";
+import { resolvePostLoginPath } from "@/lib/post-login-redirect";
 import { LoginBanner } from "./login-banner";
 import { LoginForm, type LoginFormData } from "./login-form";
 
@@ -82,8 +82,7 @@ export function Login({ callbackUrl }: LoginProps) {
           localStorage.removeItem(REMEMBERED_EMAIL_KEY);
         }
 
-        const dest =
-          getSafeInternalReturnPath(callbackUrl) ?? "/painel";
+        const dest = resolvePostLoginPath(callbackUrl, response.permissions);
         router.push(dest);
       }
     } catch (error) {

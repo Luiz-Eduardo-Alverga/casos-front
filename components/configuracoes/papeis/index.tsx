@@ -30,6 +30,10 @@ import type {
   RoleInfoFormValues,
   RoleWithCount,
 } from "./types";
+import { useAssignerHierarchy } from "@/hooks/configuracoes/use-assigner-hierarchy";
+import { getPermissions } from "@/lib/auth";
+import { permissionsLoaded } from "@/lib/rbac-client";
+import { canManageRoleLevel, isHybridPermissionRuleExempt } from "@/lib/rbac-hierarchy";
 import { arePermissionSetsEqual } from "./utils";
 
 interface PapeisEAcessosProps {
@@ -55,12 +59,61 @@ export function PapeisEAcessos({
   );
   const [creatingNew, setCreatingNew] = useState(false);
 
+  const assignerQuery = useAssignerHierarchy();
+  const assignerLevel = assignerQuery.data?.hierarchyLevel ?? null;
+  const minNewHierarchyLevel =
+    assignerLevel !== null ? assignerLevel + 1 : 1;
+
   const rolesQuery = useDbRolesWithCount(debouncedSearch);
   const modulesQuery = useDbPermissionModulesWithPermissions();
   const rolePermissionsQuery = useDbRolePermissions(selectedRoleId);
 
   const rolesList = rolesQuery.data ?? EMPTY_ROLES;
   const modulesList = modulesQuery.data ?? EMPTY_MODULES;
+
+  const permissionCodeById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const mod of modulesList) {
+      for (const p of mod.permissions) {
+        map.set(p.id, p.code);
+      }
+    }
+    return map;
+  }, [modulesList]);
+
+  const editorPermissions = useMemo(() => {
+    if (!permissionsLoaded()) return null;
+    return getPermissions() ?? [];
+  }, []);
+
+  const currentRole = useMemo(
+    () => rolesList.find((role) => role.id === selectedRoleId) ?? null,
+    [rolesList, selectedRoleId],
+  );
+
+  const isHybridPermissionExempt =
+    assignerLevel !== null && isHybridPermissionRuleExempt(assignerLevel);
+
+  const canGrantPermission = useCallback(
+    (permissionId: string) => {
+      if (isHybridPermissionExempt) return true;
+      if (editorPermissions === null) return true;
+      const code = permissionCodeById.get(permissionId);
+      if (!code) return false;
+      return editorPermissions.includes(code);
+    },
+    [editorPermissions, permissionCodeById, isHybridPermissionExempt],
+  );
+
+  const isSelectedRoleManageable =
+    creatingNew ||
+    (currentRole !== null &&
+      assignerLevel !== null &&
+      canManageRoleLevel(assignerLevel, currentRole.hierarchyLevel));
+
+  const isFormEditable = creatingNew
+    ? assignerLevel !== null
+    : isSelectedRoleManageable;
 
   const syncMutation = useSyncRolePermissions();
   const createMutation = useCreateRole();
@@ -69,7 +122,11 @@ export function PapeisEAcessos({
 
   const form = useForm<RoleInfoFormValues>({
     mode: "onSubmit",
-    defaultValues: { name: "", description: "" },
+    defaultValues: {
+      name: "",
+      description: "",
+      hierarchyLevel: minNewHierarchyLevel,
+    },
   });
   const { reset: resetForm, formState, getValues, trigger } = form;
 
@@ -88,7 +145,11 @@ export function PapeisEAcessos({
       const key = "__new__";
       if (lastSyncedKeyRef.current !== key) {
         setMatrix(new Set());
-        resetForm({ name: "", description: "" });
+        resetForm({
+          name: "",
+          description: "",
+          hierarchyLevel: minNewHierarchyLevel,
+        });
         lastSyncedKeyRef.current = key;
       }
       return;
@@ -100,13 +161,24 @@ export function PapeisEAcessos({
     if (!serverPermissionIds) return;
     const role = rolesList.find((r) => r.id === selectedRoleId);
     if (!role) return;
-    const key = `${selectedRoleId}:${role.name}:${role.description ?? ""}:${[...serverPermissionIds].sort().join(",")}`;
+    const key = `${selectedRoleId}:${role.name}:${role.description ?? ""}:${role.hierarchyLevel}:${[...serverPermissionIds].sort().join(",")}`;
     if (lastSyncedKeyRef.current !== key) {
       setMatrix(new Set(serverPermissionIds));
-      resetForm({ name: role.name, description: role.description ?? "" });
+      resetForm({
+        name: role.name,
+        description: role.description ?? "",
+        hierarchyLevel: role.hierarchyLevel,
+      });
       lastSyncedKeyRef.current = key;
     }
-  }, [creatingNew, selectedRoleId, rolesList, serverPermissionIds, resetForm]);
+  }, [
+    creatingNew,
+    selectedRoleId,
+    rolesList,
+    serverPermissionIds,
+    resetForm,
+    minNewHierarchyLevel,
+  ]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -159,6 +231,10 @@ export function PapeisEAcessos({
   };
 
   const handleCreateNew = () => {
+    if (assignerLevel === null) {
+      toast.error("Você precisa de um perfil atribuído para criar papéis.");
+      return;
+    }
     if (isDirty) {
       setPendingAction({ type: "create-new" });
       return;
@@ -177,13 +253,22 @@ export function PapeisEAcessos({
   const handleDiscard = () => {
     if (creatingNew) {
       setMatrix(new Set());
-      resetForm({ name: "", description: "" });
+      resetForm({
+        name: "",
+        description: "",
+        hierarchyLevel: minNewHierarchyLevel,
+      });
       return;
     }
     if (!selectedRoleId) return;
     const role = rolesList.find((r) => r.id === selectedRoleId);
-    if (role)
-      resetForm({ name: role.name, description: role.description ?? "" });
+    if (role) {
+      resetForm({
+        name: role.name,
+        description: role.description ?? "",
+        hierarchyLevel: role.hierarchyLevel,
+      });
+    }
     if (serverPermissionIds) setMatrix(new Set(serverPermissionIds));
   };
 
@@ -191,17 +276,23 @@ export function PapeisEAcessos({
     module: PermissionModuleWithPerms,
     active: boolean,
   ) => {
+    if (!isFormEditable) return;
     setMatrix((prev) => {
       const next = new Set(prev);
       for (const p of module.permissions) {
-        if (active) next.add(p.id);
-        else next.delete(p.id);
+        if (active) {
+          if (canGrantPermission(p.id)) next.add(p.id);
+        } else {
+          next.delete(p.id);
+        }
       }
       return next;
     });
   };
 
   const handleTogglePermission = (permissionId: string, active: boolean) => {
+    if (!isFormEditable) return;
+    if (active && !canGrantPermission(permissionId)) return;
     setMatrix((prev) => {
       const next = new Set(prev);
       if (active) next.add(permissionId);
@@ -211,9 +302,13 @@ export function PapeisEAcessos({
   };
 
   const handleSave = async () => {
+    if (!isFormEditable) {
+      toast.error("Você não tem permissão para gerenciar este perfil.");
+      return;
+    }
     const valid = await trigger();
     if (!valid) return;
-    const { name, description } = getValues();
+    const { name, description, hierarchyLevel } = getValues();
     const cleanDescription = description.trim() ? description.trim() : null;
 
     try {
@@ -221,6 +316,7 @@ export function PapeisEAcessos({
         const created = await createMutation.mutateAsync({
           name: name.trim(),
           description: cleanDescription,
+          hierarchyLevel,
         });
         if (matrix.size > 0) {
           await syncMutation.mutateAsync({
@@ -240,7 +336,11 @@ export function PapeisEAcessos({
       if (infoDirty) {
         await updateMutation.mutateAsync({
           id: selectedRoleId,
-          input: { name: name.trim(), description: cleanDescription },
+          input: {
+            name: name.trim(),
+            description: cleanDescription,
+            hierarchyLevel,
+          },
         });
       }
       if (matrixDirty) {
@@ -256,11 +356,6 @@ export function PapeisEAcessos({
       toast.error(message);
     }
   };
-
-  const currentRole = useMemo(
-    () => rolesList.find((role) => role.id === selectedRoleId) ?? null,
-    [rolesList, selectedRoleId],
-  );
 
   const handleOpenDeleteModal = () => {
     if (creatingNew || !selectedRoleId) return;
@@ -279,7 +374,11 @@ export function PapeisEAcessos({
       setSelectedRoleId(null);
       setCreatingNew(false);
       setMatrix(new Set());
-      resetForm({ name: "", description: "" });
+      resetForm({
+        name: "",
+        description: "",
+        hierarchyLevel: minNewHierarchyLevel,
+      });
       lastSyncedKeyRef.current = null;
     } catch (error) {
       const message =
@@ -355,10 +454,14 @@ export function PapeisEAcessos({
                   mode={creatingNew ? "create" : "edit"}
                   isDirty={isDirty}
                   isSaving={isSaving}
+                  saveDisabled={!isFormEditable}
                   onDiscard={handleDiscard}
                   onSave={handleSave}
                 />
-                <RoleInfoCard />
+                <RoleInfoCard
+                  minHierarchyLevel={minNewHierarchyLevel}
+                  disabled={!isFormEditable}
+                />
                 {showMatrixSkeleton ? (
                   <PermissionMatrixSkeleton />
                 ) : (
@@ -367,12 +470,14 @@ export function PapeisEAcessos({
                     selected={matrix}
                     onToggleModule={handleToggleModule}
                     onTogglePermission={handleTogglePermission}
+                    canGrantPermission={canGrantPermission}
+                    readOnly={!isFormEditable}
                   />
                 )}
                 {!creatingNew && selectedRoleId ? (
                   <PapeisDangerZoneCard
                     onDelete={handleOpenDeleteModal}
-                    disabled={isSaving}
+                    disabled={isSaving || !isFormEditable}
                   />
                 ) : null}
               </>

@@ -5,7 +5,13 @@ import {
   jsonOk,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
+import {
+  assertCanGrantPermissionCodes,
+  assertCanManageRoleById,
+} from "@/lib/api-db/assert-role-hierarchy";
+import { withPermission } from "@/lib/api-db/with-permission";
 import { withSession } from "@/lib/api-db/with-session";
+import { getPermissionCodesByIds } from "@/lib/db/permissions";
 import {
   linkRolePermission,
   linkRolePermissionsBatch,
@@ -42,7 +48,7 @@ export async function GET(_request: Request, context: RouteCtx) {
 }
 
 export async function POST(request: Request, context: RouteCtx) {
-  return withSession(async () => {
+  return withPermission("assign-user-role", async (session) => {
     const { id } = await context.params;
     const idParsed = uuidSchema.safeParse(id);
     if (!idParsed.success) return badRequestFromZod(idParsed.error);
@@ -58,9 +64,24 @@ export async function POST(request: Request, context: RouteCtx) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
 
     try {
-      if (!(await roleExists(roleId))) {
-        return jsonError("Papel não encontrado", 404);
-      }
+      const hierarchyDenied = await assertCanManageRoleById(
+        session.assignerHierarchyLevel,
+        roleId,
+      );
+      if (hierarchyDenied) return hierarchyDenied;
+
+      const permissionIds =
+        parsed.data.permissionId !== undefined
+          ? [parsed.data.permissionId]
+          : parsed.data.permissionIds!;
+
+      const codes = await getPermissionCodesByIds(permissionIds);
+      const grantDenied = assertCanGrantPermissionCodes(
+        session.permissions,
+        codes,
+        session.assignerHierarchyLevel ?? undefined,
+      );
+      if (grantDenied) return grantDenied;
 
       if (parsed.data.permissionId !== undefined) {
         if (!(await permissionExists(parsed.data.permissionId))) {
@@ -93,7 +114,7 @@ export async function POST(request: Request, context: RouteCtx) {
 }
 
 export async function PUT(request: Request, context: RouteCtx) {
-  return withSession(async () => {
+  return withPermission("assign-user-role", async (session) => {
     const { id } = await context.params;
     const idParsed = uuidSchema.safeParse(id);
     if (!idParsed.success) return badRequestFromZod(idParsed.error);
@@ -109,9 +130,20 @@ export async function PUT(request: Request, context: RouteCtx) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
 
     try {
-      if (!(await roleExists(roleId))) {
-        return jsonError("Papel não encontrado", 404);
-      }
+      const hierarchyDenied = await assertCanManageRoleById(
+        session.assignerHierarchyLevel,
+        roleId,
+      );
+      if (hierarchyDenied) return hierarchyDenied;
+
+      const codes = await getPermissionCodesByIds(parsed.data.permissionIds);
+      const grantDenied = assertCanGrantPermissionCodes(
+        session.permissions,
+        codes,
+        session.assignerHierarchyLevel ?? undefined,
+      );
+      if (grantDenied) return grantDenied;
+
       const result = await syncRolePermissions(roleId, parsed.data.permissionIds);
       return jsonOk(result);
     } catch (e) {

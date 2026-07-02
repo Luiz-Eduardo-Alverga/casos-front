@@ -3,7 +3,8 @@ import {
   jsonError,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { withSession } from "@/lib/api-db/with-session";
+import { assertCanManageRoleById } from "@/lib/api-db/assert-role-hierarchy";
+import { withPermission } from "@/lib/api-db/with-permission";
 import { unlinkRolePermission } from "@/lib/db/role-permissions";
 import { uuidSchema } from "@/lib/validators/db/shared";
 
@@ -12,7 +13,7 @@ type RouteCtx = {
 };
 
 export async function DELETE(_request: Request, context: RouteCtx) {
-  return withSession(async () => {
+  return withPermission("assign-user-role", async (session) => {
     const { id, permissionId } = await context.params;
     const roleIdParsed = uuidSchema.safeParse(id);
     if (!roleIdParsed.success) return badRequestFromZod(roleIdParsed.error);
@@ -20,6 +21,12 @@ export async function DELETE(_request: Request, context: RouteCtx) {
     if (!permParsed.success) return badRequestFromZod(permParsed.error);
 
     try {
+      const hierarchyDenied = await assertCanManageRoleById(
+        session.assignerHierarchyLevel,
+        roleIdParsed.data,
+      );
+      if (hierarchyDenied) return hierarchyDenied;
+
       const removed = await unlinkRolePermission(
         roleIdParsed.data,
         permParsed.data,

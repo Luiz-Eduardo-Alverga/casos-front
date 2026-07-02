@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Eye,
-  Info,
-  Package,
-} from "lucide-react";
+import { Eye, Info, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/badges/status-badge";
@@ -192,7 +188,7 @@ export function CasoResumoModalContent({
             </CardContent>
           </Card>
 
-          {memoriaQueryId && (
+          {/* {memoriaQueryId && (
             <div>
               <CasoResumoStatusActions
                 statusIdApi={statusIdApi}
@@ -200,7 +196,7 @@ export function CasoResumoModalContent({
                 onStatusUpdated={onStatusUpdated}
               />
             </div>
-          )}
+          )} */}
 
           {hasAnotations && (
             <div className="bg-blue-100 border border-blue-200 flex items-center justify-center h-[55px] px-2 py-0.5 rounded-lg w-full">

@@ -122,6 +122,8 @@ export const roles = pgTable("roles", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
   description: text("description"),
+  /** Menor valor = mais autoridade (1 = topo). Usado na delegação de perfis. */
+  hierarchyLevel: integer("hierarchy_level").notNull().default(999),
 });
 
 export const rolePermissions = pgTable(

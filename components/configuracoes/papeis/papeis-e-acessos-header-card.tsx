@@ -7,6 +7,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 interface PapeisEAcessosHeaderCardProps {
   isDirty: boolean;
   isSaving: boolean;
+  saveDisabled?: boolean;
   onDiscard: () => void;
   onSave: () => void;
   mode?: "edit" | "create";
@@ -15,6 +16,7 @@ interface PapeisEAcessosHeaderCardProps {
 export const PapeisEAcessosHeaderCard = ({
   isDirty,
   isSaving,
+  saveDisabled = false,
   onDiscard,
   onSave,
   mode = "edit",
@@ -50,7 +52,7 @@ export const PapeisEAcessosHeaderCard = ({
             <Button
               type="button"
               className="w-full sm:w-auto px-4"
-              disabled={!isDirty || isSaving}
+              disabled={!isDirty || isSaving || saveDisabled}
               onClick={onSave}
             >
               <Save className="h-3.5 w-3.5" />

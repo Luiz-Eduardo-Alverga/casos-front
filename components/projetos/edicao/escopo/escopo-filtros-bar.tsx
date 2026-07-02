@@ -23,14 +23,17 @@ import {
 export interface EscopoFiltrosFormValues {
   devAtribuido: string;
   devAtribuidoLabel: string;
+  projeto: string;
 }
 
 const EMPTY_ESCOPO_FILTROS: EscopoFiltrosFormValues = {
   devAtribuido: "",
   devAtribuidoLabel: "",
+  projeto: "",
 };
 
 export interface EscopoFiltrosBarProps {
+  projetoId: number | string;
   statusIds: string[];
   onStatusIdsChange: (value: string[]) => void;
   usuarioDevId: string;
@@ -42,6 +45,7 @@ export interface EscopoFiltrosBarProps {
 }
 
 export function EscopoFiltrosBar({
+  projetoId,
   statusIds,
   onStatusIdsChange,
   usuarioDevId,
@@ -55,8 +59,13 @@ export function EscopoFiltrosBar({
     defaultValues: {
       ...EMPTY_ESCOPO_FILTROS,
       devAtribuido: usuarioDevId ?? "",
+      projeto: String(projetoId ?? ""),
     },
   });
+
+  useEffect(() => {
+    form.setValue("projeto", String(projetoId ?? ""), { shouldDirty: false });
+  }, [projetoId, form]);
 
   const isUserDevChangeRef = useRef(false);
   const lastUsuarioDevIdRef = useRef(usuarioDevId);
@@ -145,6 +154,7 @@ export function EscopoFiltrosBar({
               hideLabel
               placeholder="Desenvolvedor: Todos"
               valueLabelPrefix="Desenvolvedor: "
+              requireProjeto
             />
           </div>
         </FormProvider>

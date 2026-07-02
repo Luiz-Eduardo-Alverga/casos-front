@@ -1,4 +1,4 @@
-import { and, asc, eq, or } from "drizzle-orm";
+import { and, asc, eq, inArray, or } from "drizzle-orm";
 import { db } from "@/db";
 import { permissionModules, permissions } from "@/db/schema";
 import { ilikeContains } from "@/lib/db/search-ilike";
@@ -64,6 +64,19 @@ export async function getPermissionById(
     .where(eq(permissions.id, id))
     .limit(1);
   return rows[0];
+}
+
+/** Códigos das permissões pelos IDs (para validação híbrida na matriz). */
+export async function getPermissionCodesByIds(
+  ids: string[],
+): Promise<string[]> {
+  const unique = [...new Set(ids)];
+  if (unique.length === 0) return [];
+  const rows = await db
+    .select({ code: permissions.code })
+    .from(permissions)
+    .where(inArray(permissions.id, unique));
+  return rows.map((r) => r.code);
 }
 
 export async function getPermissionByIdWithModule(

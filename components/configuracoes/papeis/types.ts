@@ -7,6 +7,7 @@ export type PermissionModuleWithPerms = PermissionModuleWithPermissions;
 export interface RoleInfoFormValues {
   name: string;
   description: string;
+  hierarchyLevel: number;
 }
 
 export interface ModuleCoverage {

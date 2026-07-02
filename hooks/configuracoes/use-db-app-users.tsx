@@ -28,16 +28,21 @@ export function useDbAppUsers(search?: string) {
   });
 }
 
-export function useDbAppUsersInfinite(search?: string) {
+export function useDbAppUsersInfinite(
+  search?: string,
+  options?: { manageable?: boolean },
+) {
   const trimmed = search?.trim() ?? "";
+  const manageable = options?.manageable ?? false;
   return useInfiniteQuery({
-    queryKey: ["db-app-users", "infinite", trimmed] as const,
+    queryKey: ["db-app-users", "infinite", trimmed, manageable] as const,
     initialPageParam: 0 as number,
     queryFn: ({ pageParam }) =>
       listAppUsersInfiniteClient({
         search: trimmed || undefined,
         cursor: pageParam,
         limit: USERS_PAGE_SIZE,
+        manageable,
       }),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     staleTime: STALE_MS,

@@ -94,11 +94,11 @@ export function ProjetosTabelaSortableHeader({
   return (
     <TableHead
       className={cn(
-        "font-medium text-sm text-text-primary h-auto py-4 px-5",
+        "font-medium text-sm text-text-primary h-auto py-4 px-2",
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2 justify-between">
         <span
           className={cn(
             "min-w-0 truncate font-medium",

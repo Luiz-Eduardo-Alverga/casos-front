@@ -7,11 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { RoleInfoFormValues } from "./types";
 
+interface RoleInfoCardProps {
+  minHierarchyLevel?: number;
+  disabled?: boolean;
+}
+
 /**
- * Card "Informações Gerais" com `Nome do Papel` e `Descrição / Objetivo`.
- * Usa `useFormContext` — o `FormProvider` é fornecido pelo entrypoint.
+ * Card "Informações Gerais" com `Nome do Papel`, `Nível de hierarquia` e `Descrição`.
  */
-export function RoleInfoCard() {
+export function RoleInfoCard({
+  minHierarchyLevel = 1,
+  disabled = false,
+}: RoleInfoCardProps) {
   const { control } = useFormContext<RoleInfoFormValues>();
   return (
     <Card className="bg-card shadow-card rounded-lg">
@@ -43,8 +50,53 @@ export function RoleInfoCard() {
                 <Input
                   id="role-info-name"
                   {...field}
+                  disabled={disabled}
                   placeholder="Ex.: Administrador"
                 />
+                {fieldState.error && (
+                  <p className="text-xs text-text-error">
+                    {fieldState.error.message}
+                  </p>
+                )}
+              </>
+            )}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label
+            htmlFor="role-info-hierarchy"
+            className="text-xs font-medium text-text-label"
+          >
+            Nível de hierarquia
+          </label>
+          <Controller
+            control={control}
+            name="hierarchyLevel"
+            rules={{
+              required: "Informe o nível de hierarquia",
+              min: {
+                value: minHierarchyLevel,
+                message: `O nível mínimo permitido é ${minHierarchyLevel}`,
+              },
+            }}
+            render={({ field, fieldState }) => (
+              <>
+                <Input
+                  id="role-info-hierarchy"
+                  type="number"
+                  min={minHierarchyLevel}
+                  disabled={disabled}
+                  value={field.value}
+                  onChange={(e) =>
+                    field.onChange(Number.parseInt(e.target.value, 10) || 0)
+                  }
+                />
+                <p className="text-xs text-text-secondary">
+                  Quanto menor o número, maior a autoridade (1 = topo). Você só
+                  pode definir níveis acima do seu ({minHierarchyLevel} ou
+                  maior).
+                </p>
                 {fieldState.error && (
                   <p className="text-xs text-text-error">
                     {fieldState.error.message}
@@ -69,6 +121,7 @@ export function RoleInfoCard() {
               <Textarea
                 id="role-info-description"
                 {...field}
+                disabled={disabled}
                 placeholder="Descreva o propósito deste papel"
                 rows={3}
               />

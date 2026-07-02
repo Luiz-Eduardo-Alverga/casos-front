@@ -14,6 +14,7 @@ import {
   useReplaceAppUserRole,
 } from "@/hooks/configuracoes/use-db-app-users";
 import { useDbRolesSelectList } from "@/hooks/configuracoes/use-db-roles-select-list";
+import { useAssignerHierarchy } from "@/hooks/configuracoes/use-assigner-hierarchy";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 import { GerenciarPerfilModal } from "./gerenciar-perfil-modal";
 import type { PapelItem, UsuarioListItem } from "./types";
@@ -35,7 +36,18 @@ export function ConfiguracoesUsuarios({
   const [searchInput, setSearchInput] = useState(initialSearch);
   const debouncedSearch = useDebouncedValue(searchInput, DEBOUNCE_MS);
 
-  const usersQuery = useDbAppUsersInfinite(debouncedSearch);
+  const assignerQuery = useAssignerHierarchy();
+  const assignerLevel = assignerQuery.data?.hierarchyLevel ?? null;
+  const currentAppUserId = assignerQuery.data?.appUserId ?? null;
+
+  const rbacReady = permissionsLoaded();
+  const canAssign = !rbacReady || hasPermission("assign-user-role");
+  const filterManageableUsers =
+    canAssign && assignerQuery.isSuccess && assignerLevel !== null;
+
+  const usersQuery = useDbAppUsersInfinite(debouncedSearch, {
+    manageable: filterManageableUsers,
+  });
   const rolesQuery = useDbRolesSelectList();
   const replaceRoleMutation = useReplaceAppUserRole();
 
@@ -43,9 +55,6 @@ export function ConfiguracoesUsuarios({
     null,
   );
   const [modalOpen, setModalOpen] = useState(false);
-
-  const rbacReady = permissionsLoaded();
-  const canAssign = !rbacReady || hasPermission("assign-user-role");
 
   const rows = useMemo<UsuarioListItem[]>(
     () => usersQuery.data?.pages.flatMap((p) => p.items) ?? [],
@@ -102,7 +111,6 @@ export function ConfiguracoesUsuarios({
   }, [rolesQuery.isError, rolesQuery.error]);
 
   const handleOpenManageProfile = (row: UsuarioListItem) => {
-    if (!canAssign) return;
     setSelectedUser(row);
     setModalOpen(true);
   };
@@ -173,7 +181,10 @@ export function ConfiguracoesUsuarios({
           <>
             <UsuariosTable
               rows={rows}
-              onManageProfile={canAssign ? handleOpenManageProfile : undefined}
+              onManageProfile={
+                filterManageableUsers ? handleOpenManageProfile : undefined
+              }
+              currentAppUserId={currentAppUserId}
               isFetchingNextPage={isFetchingNextPage}
             />
             {hasNextPage && rows.length > 0 ? (
@@ -183,7 +194,7 @@ export function ConfiguracoesUsuarios({
         )}
       </CadastroListagemCard>
 
-      {canAssign && (
+      {filterManageableUsers && (
         <GerenciarPerfilModal
           open={modalOpen}
           onOpenChange={(open) => {

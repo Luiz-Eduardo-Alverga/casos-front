@@ -1,14 +1,20 @@
 import { requireSessionAuth } from "@/lib/auth-server";
 import { jsonError } from "@/lib/api-db/responses";
 import { syncAppUserAndPermissions } from "@/lib/auth/sync-app-user";
+import { getMinHierarchyLevelForUserId } from "@/lib/db/app-users";
 
 export type PermissionRequirement = string | string[];
 
-type PermittedHandler = (session: {
+export type PermittedSession = {
   token: string;
   authorizationHeader: { Authorization: string };
   permissions: string[];
-}) => Promise<Response>;
+  appUserId: string;
+  /** Menor hierarchyLevel entre os perfis do usuário; null se sem perfil. */
+  assignerHierarchyLevel: number | null;
+};
+
+type PermittedHandler = (session: PermittedSession) => Promise<Response>;
 
 function hasAny(perms: string[], required: PermissionRequirement): boolean {
   if (Array.isArray(required)) {
@@ -38,6 +44,10 @@ export async function withPermission(
     token: auth.token,
     authorizationHeader: auth.authorizationHeader,
     permissions: sync.permissions,
+    appUserId: sync.appUser.id,
+    assignerHierarchyLevel: await getMinHierarchyLevelForUserId(
+      sync.appUser.id,
+    ),
   });
 }
 

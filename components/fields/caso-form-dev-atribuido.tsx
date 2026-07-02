@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { User } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useCasoForm } from "@/components/fields/caso-form-provider";
@@ -25,6 +25,10 @@ export interface CasoFormDevAtribuidoProps {
   required?: boolean;
   /** Se false, o campo permanece habilitado sem produto selecionado (filtros). */
   requireProduto?: boolean;
+  /** Se true, exige projeto selecionado para habilitar e filtra usuários pelo projeto. */
+  requireProjeto?: boolean;
+  /** Nome do campo de projeto no react-hook-form. Padrão: `projeto`. */
+  projetoFieldName?: string;
   /** Esconde o label externo do campo (uso em headers compactos). */
   hideLabel?: boolean;
   /** Classe opcional para o container do campo. */
@@ -45,30 +49,78 @@ export function CasoFormDevAtribuido({
   placeholder = "Selecione o dev atribuído...",
   required = true,
   requireProduto = true,
+  requireProjeto = false,
+  projetoFieldName = "projeto",
   hideLabel = false,
   wrapperClassName,
   controlHeightClassName,
   valueLabelPrefix,
   disabled,
 }: CasoFormDevAtribuidoProps = {}) {
-  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
+  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } =
+    useCasoForm();
   const { watch, setValue, getValues } = useFormContext();
   const devAtribuido = watch(name);
   const devAtribuidoLabel = watch(labelName);
   const produtoValue = watch("produto");
+  const projetoValue = watch(projetoFieldName);
   const devAtribuidoValue = String(devAtribuido ?? "").trim();
   const [optionsRequested, setOptionsRequested] = useState(
     !lazyLoadComboboxOptions || Boolean(devAtribuidoValue),
   );
   const [devSelecionado, setDevSelecionado] = useState<Usuario | null>(null);
+  const prevProjetoRef = useRef<string | undefined>(undefined);
 
   const user = getUser();
 
   const produtoAtual = produtoValue || produto;
+  const projetoAtual = String(projetoValue ?? "").trim();
+  const projetoId = useMemo(() => {
+    if (!projetoAtual) return undefined;
+    const n = Number(projetoAtual);
+    return Number.isFinite(n) ? n : undefined;
+  }, [projetoAtual]);
 
   const { data: usuarios, isLoading: isUsuariosLoading } = useUsuariosProjetos({
-    enabled: optionsRequested,
+    projeto: projetoId,
+    enabled:
+      optionsRequested && (!requireProjeto || Boolean(projetoId)),
   });
+
+  useEffect(() => {
+    if (!requireProjeto) return;
+
+    const prev = prevProjetoRef.current;
+    prevProjetoRef.current = projetoAtual;
+
+    if (prev === undefined || prev === projetoAtual) return;
+
+    setValue(name as any, "", {
+      shouldDirty: false,
+      shouldTouch: false,
+      shouldValidate: false,
+    });
+    setValue(labelName as any, "", {
+      shouldDirty: false,
+      shouldTouch: false,
+      shouldValidate: false,
+    });
+    if (setorName) {
+      setValue(setorName as any, "", {
+        shouldDirty: false,
+        shouldTouch: false,
+        shouldValidate: false,
+      });
+    }
+    setDevSelecionado(null);
+  }, [
+    projetoAtual,
+    requireProjeto,
+    name,
+    labelName,
+    setorName,
+    setValue,
+  ]);
 
   useEffect(() => {
     if (!lazyLoadComboboxOptions) return;
@@ -135,7 +187,7 @@ export function CasoFormDevAtribuido({
         }
       });
     }
-    
+
     if (devAtribuido && devSelecionado) {
       const devValue = String(devSelecionado.id);
       if (!valuesAdded.has(devValue)) {
@@ -172,7 +224,7 @@ export function CasoFormDevAtribuido({
     lazyLoadComboboxOptions,
     editCaseItem,
   ]);
-  
+
   // Quando dev é selecionado, buscar e salvar os dados completos
   useEffect(() => {
     if (!devAtribuido) {
@@ -240,12 +292,22 @@ export function CasoFormDevAtribuido({
 
     // Se não achou ainda, tenta inferir via lista carregada.
     if (usuarios && Array.isArray(usuarios)) {
-      const devEncontrado = usuarios.find((u) => String(u.id) === String(currentId));
+      const devEncontrado = usuarios.find(
+        (u) => String(u.id) === String(currentId),
+      );
       if (devEncontrado) {
         setSetorIfChanged(String(devEncontrado.setor ?? ""));
       }
     }
-  }, [devAtribuido, devSelecionado, editCaseItem, getValues, setValue, setorName, usuarios]);
+  }, [
+    devAtribuido,
+    devSelecionado,
+    editCaseItem,
+    getValues,
+    setValue,
+    setorName,
+    usuarios,
+  ]);
 
   // Mantém o label sincronizado no form (para persistência/restauração).
   useEffect(() => {
@@ -305,8 +367,16 @@ export function CasoFormDevAtribuido({
     if (editDev && String(editDev.id) === String(currentId)) {
       setLabelIfChanged(String(editDev.nome ?? ""));
     }
-  }, [devAtribuido, devSelecionado, editCaseItem, getValues, labelName, setValue, user]);
-  
+  }, [
+    devAtribuido,
+    devSelecionado,
+    editCaseItem,
+    getValues,
+    labelName,
+    setValue,
+    user,
+  ]);
+
   return (
     <div className="space-y-2">
       <ComboboxField
@@ -314,15 +384,30 @@ export function CasoFormDevAtribuido({
         label={label}
         icon={User}
         options={devOptions}
-        placeholder={placeholder}
-        emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
+        placeholder={
+          requireProjeto && !projetoAtual
+            ? "Selecione o projeto primeiro."
+            : placeholder
+        }
+        emptyText={
+          isUsuariosLoading
+            ? "Carregando usuários..."
+            : "Nenhum usuário encontrado."
+        }
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
         disabled={
-          isDisabled || Boolean(disabled) || (requireProduto && !produtoAtual)
+          isDisabled ||
+          Boolean(disabled) ||
+          (requireProduto && !produtoAtual) ||
+          (requireProjeto && !projetoAtual)
         }
         required={required}
-        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
+        onOpenChange={
+          lazyLoadComboboxOptions
+            ? (open) => open && setOptionsRequested(true)
+            : undefined
+        }
         hideLabel={hideLabel}
         wrapperClassName={wrapperClassName}
         controlHeightClassName={controlHeightClassName}

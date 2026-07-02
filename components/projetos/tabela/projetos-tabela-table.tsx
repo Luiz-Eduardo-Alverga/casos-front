@@ -52,7 +52,7 @@ function ProjetosTabelaTableEscopo({
     ) : null,
     <ProjetosTabelaSortableHeader
       key="id"
-      label="ID / Categoria"
+      label="Id/Categoria"
       sortField="numero_caso"
       sort={sort}
       onSortChange={onSortChange}

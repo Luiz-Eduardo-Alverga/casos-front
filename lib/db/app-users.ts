@@ -10,11 +10,39 @@ import {
 import type { RoleRow } from "@/lib/db/roles";
 import { ilikeContains, ilikeContainsAsText } from "@/lib/db/search-ilike";
 import type { LegacyUserInput } from "@/lib/validators/db/legacy-user";
+import { TOP_HIERARCHY_LEVEL } from "@/lib/rbac-hierarchy";
 
 export type AppUserRow = typeof appUsers.$inferSelect;
-export type AppUserListRow = AppUserRow & { roleName: string | null };
+export type AppUserListRow = AppUserRow & {
+  roleName: string | null;
+  /** Menor hierarchyLevel entre os perfis do usuário; null se sem perfil. */
+  roleHierarchyLevel: number | null;
+};
 
 export type AppUserWithRoles = AppUserRow & { roles: RoleRow[] };
+
+export type ManageableUsersFilter = {
+  assignerUserId: string;
+  assignerLevel: number;
+};
+
+const APP_USER_GROUP_BY = [
+  appUsers.id,
+  appUsers.legacyUserId,
+  appUsers.email,
+  appUsers.nome,
+  appUsers.setor,
+  appUsers.usuarioGrupoId,
+  appUsers.createdAt,
+  appUsers.updatedAt,
+] as const;
+
+function manageableUsersHaving(
+  assignerLevel: number,
+  assignerUserId: string,
+) {
+  return sql`(${appUsers.id} = ${assignerUserId}) or min(${roles.hierarchyLevel}) is null or min(${roles.hierarchyLevel}) > ${assignerLevel} or (${assignerLevel} = ${TOP_HIERARCHY_LEVEL} and min(${roles.hierarchyLevel}) = ${TOP_HIERARCHY_LEVEL})`;
+}
 
 function normalizeEmail(usuario: string): string {
   return usuario.trim().toLowerCase();
@@ -77,6 +105,9 @@ export async function listAppUsers(search?: string): Promise<AppUserListRow[]> {
     .select({
       user: appUsers,
       roleName: sql<string | null>`min(${roles.name})`.as("role_name"),
+      roleHierarchyLevel: sql<
+        number | null
+      >`min(${roles.hierarchyLevel})`.as("role_hierarchy_level"),
     })
     .from(appUsers)
     .leftJoin(userRoles, eq(userRoles.userId, appUsers.id))
@@ -107,6 +138,7 @@ export async function listAppUsers(search?: string): Promise<AppUserListRow[]> {
   return rows.map((row) => ({
     ...row.user,
     roleName: row.roleName ?? null,
+    roleHierarchyLevel: row.roleHierarchyLevel ?? null,
   }));
 }
 
@@ -116,21 +148,56 @@ export interface ListAppUsersPageResult {
   total: number;
 }
 
-async function countAppUsers(search?: string): Promise<number> {
+async function countAppUsers(
+  search?: string,
+  manageableBy?: ManageableUsersFilter,
+): Promise<number> {
   const term = search?.trim();
-  const base = db
-    .select({ count: sql<number>`cast(count(*) as int)` })
-    .from(appUsers);
 
-  const rows = term
-    ? await base.where(
-        or(
-          ilikeContains(appUsers.email, term),
-          ilikeContains(appUsers.nome, term),
-          ilikeContainsAsText(appUsers.legacyUserId, term),
-        ),
+  if (!manageableBy) {
+    const base = db
+      .select({ count: sql<number>`cast(count(*) as int)` })
+      .from(appUsers);
+
+    const rows = term
+      ? await base.where(
+          or(
+            ilikeContains(appUsers.email, term),
+            ilikeContains(appUsers.nome, term),
+            ilikeContainsAsText(appUsers.legacyUserId, term),
+          ),
+        )
+      : await base;
+
+    return rows[0]?.count ?? 0;
+  }
+
+  const searchCondition = term
+    ? or(
+        ilikeContains(appUsers.email, term),
+        ilikeContains(appUsers.nome, term),
+        ilikeContainsAsText(appUsers.legacyUserId, term),
       )
-    : await base;
+    : undefined;
+
+  const manageableSubquery = db
+    .select({ id: appUsers.id })
+    .from(appUsers)
+    .leftJoin(userRoles, eq(userRoles.userId, appUsers.id))
+    .leftJoin(roles, eq(userRoles.roleId, roles.id))
+    .where(searchCondition ?? undefined)
+    .groupBy(...APP_USER_GROUP_BY)
+    .having(
+      manageableUsersHaving(
+        manageableBy.assignerLevel,
+        manageableBy.assignerUserId,
+      ),
+    )
+    .as("manageable_users");
+
+  const rows = await db
+    .select({ count: sql<number>`cast(count(*) as int)` })
+    .from(manageableSubquery);
 
   return rows[0]?.count ?? 0;
 }
@@ -139,6 +206,7 @@ export async function listAppUsersPage(params: {
   search?: string;
   limit: number;
   cursor?: number;
+  manageableBy?: ManageableUsersFilter;
 }): Promise<ListAppUsersPageResult> {
   const term = params.search?.trim();
   const limit =
@@ -154,41 +222,55 @@ export async function listAppUsersPage(params: {
     .select({
       user: appUsers,
       roleName: sql<string | null>`min(${roles.name})`.as("role_name"),
+      roleHierarchyLevel: sql<
+        number | null
+      >`min(${roles.hierarchyLevel})`.as("role_hierarchy_level"),
     })
     .from(appUsers)
     .leftJoin(userRoles, eq(userRoles.userId, appUsers.id))
     .leftJoin(roles, eq(userRoles.roleId, roles.id))
-    .groupBy(
-      appUsers.id,
-      appUsers.legacyUserId,
-      appUsers.email,
-      appUsers.nome,
-      appUsers.setor,
-      appUsers.usuarioGrupoId,
-      appUsers.createdAt,
-      appUsers.updatedAt,
-    );
+    .groupBy(...APP_USER_GROUP_BY);
 
-  const query = term
-    ? base
-        .where(
-          or(
-            ilikeContains(appUsers.email, term),
-            ilikeContains(appUsers.nome, term),
-            ilikeContainsAsText(appUsers.legacyUserId, term),
-          ),
-        )
-        .orderBy(asc(appUsers.nome), asc(appUsers.email))
-    : base.orderBy(asc(appUsers.nome), asc(appUsers.email));
+  const searchCondition = term
+    ? or(
+        ilikeContains(appUsers.email, term),
+        ilikeContains(appUsers.nome, term),
+        ilikeContainsAsText(appUsers.legacyUserId, term),
+      )
+    : undefined;
+
+  let query = base;
+
+  if (params.manageableBy) {
+    query = query
+      .where(searchCondition ?? undefined)
+      .having(
+        manageableUsersHaving(
+          params.manageableBy.assignerLevel,
+          params.manageableBy.assignerUserId,
+        ),
+      )
+      .orderBy(asc(appUsers.nome), asc(appUsers.email)) as typeof base;
+  } else if (searchCondition) {
+    query = query
+      .where(searchCondition)
+      .orderBy(asc(appUsers.nome), asc(appUsers.email)) as typeof base;
+  } else {
+    query = query.orderBy(
+      asc(appUsers.nome),
+      asc(appUsers.email),
+    ) as typeof base;
+  }
 
   const [rows, total] = await Promise.all([
     query.limit(limit).offset(cursor),
-    countAppUsers(term),
+    countAppUsers(term, params.manageableBy),
   ]);
 
   const items = rows.map((row) => ({
     ...row.user,
     roleName: row.roleName ?? null,
+    roleHierarchyLevel: row.roleHierarchyLevel ?? null,
   }));
 
   return {
@@ -230,6 +312,20 @@ export async function listRolesForAppUserId(
     .where(eq(userRoles.userId, userId))
     .orderBy(asc(roles.name))
     .then((rows) => rows.map((r) => r.role));
+}
+
+/** Menor hierarchyLevel entre os perfis do usuário (mais senior); null se sem perfil. */
+export async function getMinHierarchyLevelForUserId(
+  userId: string,
+): Promise<number | null> {
+  const rows = await db
+    .select({ level: roles.hierarchyLevel })
+    .from(userRoles)
+    .innerJoin(roles, eq(userRoles.roleId, roles.id))
+    .where(eq(userRoles.userId, userId));
+
+  if (rows.length === 0) return null;
+  return Math.min(...rows.map((r) => r.level));
 }
 
 export async function getAppUserByIdWithRoles(
