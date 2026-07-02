@@ -1,5 +1,6 @@
 "use client";
 
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   Check,
   AlertTriangle,
@@ -8,6 +9,8 @@ import {
   Box,
   Loader2,
   ExternalLink,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -16,6 +19,7 @@ import type { ReportCardData } from "./types";
 import {
   getPrioridadeStyle,
   getReportSlaInfo,
+  getSlaSeverityStyle,
   formatCapitalize,
   formatDataAbertura,
 } from "./utils";
@@ -61,6 +65,17 @@ export function ReportCard({
 }: ReportCardProps) {
   const prioridadeStyle = getPrioridadeStyle(data.prioridade);
   const sla = getReportSlaInfo(data.dataLimite);
+
+  const descricaoRef = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [isClamped, setIsClamped] = useState(false);
+
+  useLayoutEffect(() => {
+    const el = descricaoRef.current;
+    if (!el) return;
+    if (expanded) return;
+    setIsClamped(el.scrollHeight > el.clientHeight + 1);
+  }, [expanded, data.descricaoCompleta]);
 
   return (
     <div className="relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-border-divider bg-card shadow-card">
@@ -117,9 +132,7 @@ export function ReportCard({
               <span
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium",
-                  sla.overdue
-                    ? "border-red-100 bg-red-50 text-red-600"
-                    : "border-border-divider bg-muted/40 text-text-secondary",
+                  getSlaSeverityStyle(sla.severity),
                 )}
               >
                 <Clock className="h-3 w-3 shrink-0" />
@@ -137,9 +150,36 @@ export function ReportCard({
         </h3>
 
         {data.descricaoCompleta ? (
-          <p className="line-clamp-2 text-sm text-text-secondary">
-            {data.descricaoCompleta}
-          </p>
+          <div className="flex flex-col items-start gap-1">
+            <p
+              ref={descricaoRef}
+              className={cn(
+                "text-sm text-text-secondary",
+                !expanded && "line-clamp-2",
+              )}
+            >
+              {data.descricaoCompleta}
+            </p>
+            {isClamped || expanded ? (
+              <button
+                type="button"
+                onClick={() => setExpanded((prev) => !prev)}
+                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              >
+                {expanded ? (
+                  <>
+                    Ver menos
+                    <ChevronUp className="h-3 w-3" />
+                  </>
+                ) : (
+                  <>
+                    Ver mais
+                    <ChevronDown className="h-3 w-3" />
+                  </>
+                )}
+              </button>
+            ) : null}
+          </div>
         ) : null}
 
         <div className="grid grid-cols-2 gap-4 rounded-lg border border-border-divider bg-muted/30 p-3 sm:grid-cols-4">

@@ -103,6 +103,20 @@ export function formatDataAbertura(value: string | null | undefined): string {
   )}:${pad2(date.getMinutes())}`;
 }
 
+/**
+ * Nível de severidade do prazo:
+ * - `overdue`: já venceu
+ * - `close`: falta <= 24h para vencer
+ * - `medium`: falta <= 72h (3 dias)
+ * - `far`: falta mais de 72h
+ * - `none`: sem prazo definido
+ */
+export type ReportSlaSeverity = "overdue" | "close" | "medium" | "far" | "none";
+
+/** Limiares (em horas) de proximidade do vencimento. */
+const SLA_CLOSE_HOURS = 24;
+const SLA_MEDIUM_HOURS = 72;
+
 export interface ReportSlaInfo {
   /** Texto exibido no indicador (ex.: "Vencido há 2h", "Vence em 3h"). */
   label: string;
@@ -110,6 +124,8 @@ export interface ReportSlaInfo {
   overdue: boolean;
   /** Se há prazo definido. */
   hasLimite: boolean;
+  /** Nível de proximidade do vencimento. */
+  severity: ReportSlaSeverity;
 }
 
 /** Calcula o status de vencimento (SLA) a partir da data limite do report. */
@@ -118,7 +134,12 @@ export function getReportSlaInfo(
 ): ReportSlaInfo {
   const limite = parseApiDateTime(dataLimite);
   if (!limite) {
-    return { label: "Sem prazo", overdue: false, hasLimite: false };
+    return {
+      label: "Sem prazo",
+      overdue: false,
+      hasLimite: false,
+      severity: "none",
+    };
   }
 
   const diffMs = limite.getTime() - Date.now();
@@ -134,11 +155,34 @@ export function getReportSlaInfo(
   else if (hours > 0) duracao = `${hours}h`;
   else duracao = `${minutes}min`;
 
+  const hoursRemaining = diffMs / 3600000;
+  let severity: ReportSlaSeverity;
+  if (overdue) severity = "overdue";
+  else if (hoursRemaining <= SLA_CLOSE_HOURS) severity = "close";
+  else if (hoursRemaining <= SLA_MEDIUM_HOURS) severity = "medium";
+  else severity = "far";
+
   return {
     label: overdue ? `Vencido há ${duracao}` : `Vence em ${duracao}`,
     overdue,
     hasLimite: true,
+    severity,
   };
+}
+
+/** Classes do badge de SLA conforme a severidade. */
+export function getSlaSeverityStyle(severity: ReportSlaSeverity): string {
+  switch (severity) {
+    case "overdue":
+    case "close":
+      return "border-red-100 bg-red-50 text-red-600";
+    case "medium":
+      return "border-amber-100 bg-amber-50 text-amber-700";
+    case "far":
+      return "border-emerald-100 bg-emerald-50 text-emerald-700";
+    default:
+      return "border-border-divider bg-muted/40 text-text-secondary";
+  }
 }
 
 /** Normaliza um item de projeto-memória para os dados do card de report. */

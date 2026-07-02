@@ -34,6 +34,7 @@ export function ReportsLista({ filtros }: ReportsListaProps) {
     return {
       analise_aprovado: false,
       tipo_abertura: "REPORT" as const,
+      status_id: ["1", "8"],
       ...(setorFiltro ? { setor: setorFiltro } : {}),
       ...(produtoId ? { produto_id: produtoId } : {}),
     };
