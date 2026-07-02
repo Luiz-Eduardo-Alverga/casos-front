@@ -286,4 +286,6 @@ export interface ProjetoMemoriaParams {
   data_producao_fim?: string;
   tipo_abertura?: "CASO" | "REPORT";
   duplicado?: "TRUE" | "FALSE" | "TODOS";
+  /** Filtra reports pela conclusão da análise (ex.: `false` para reports abertos). */
+  analise_aprovado?: boolean;
 }

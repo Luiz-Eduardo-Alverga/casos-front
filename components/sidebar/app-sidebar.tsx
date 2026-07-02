@@ -13,6 +13,7 @@ import {
   type LucideIcon,
   Shield,
   Clock3,
+  Flag,
 } from "lucide-react";
 import {
   Sidebar,
@@ -59,7 +60,7 @@ interface SidebarSubitem {
 }
 
 const STANDALONE_NAV_ORDERS = new Set([20]);
-const GERENCIAR_NAV_ORDERS = new Set([10, 30, 35, 37, 40]);
+const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 35, 37, 40]);
 const RECURSOS_NAV_ORDERS = new Set([50, 60]);
 
 const CADASTROS_SUBITEMS: SidebarSubitem[] = [
@@ -121,6 +122,13 @@ const MAIN_NAV: MainNavEntry[] = [
     label: "Listagem de Casos",
     href: "/casos",
     icon: FileText,
+  },
+  {
+    type: "link",
+    order: 32,
+    label: "Reports",
+    href: "/reports",
+    icon: Flag,
   },
   {
     type: "link",
@@ -201,6 +209,7 @@ export function AppSidebar({
   const canListAcquirer = rbacReady && hasPermission("list-acquirer");
   const canListCase =
     rbacReady && hasAnyPermission(["list-case", "list-report"]);
+  const canListReport = rbacReady && hasPermission("list-report");
   const canListProject = rbacReady && hasPermission("list-project");
   const canAssignUserRole = rbacReady && hasPermission("assign-user-role");
   const canListUser = rbacReady && hasPermission("list-user");
@@ -234,6 +243,15 @@ export function AppSidebar({
       !canListCase &&
       entry.type === "link" &&
       entry.href === "/casos"
+    ) {
+      return false;
+    }
+
+    if (
+      rbacReady &&
+      !canListReport &&
+      entry.type === "link" &&
+      entry.href === "/reports"
     ) {
       return false;
     }

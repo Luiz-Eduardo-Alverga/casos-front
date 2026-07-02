@@ -59,6 +59,10 @@ export async function getProjetoMemoria(
     ["data_producao_inicio", params.data_producao_inicio],
     ["data_producao_fim", params.data_producao_fim],
     ["tipo_abertura", params.tipo_abertura],
+    [
+      "analise_aprovado",
+      params.analise_aprovado != null ? String(params.analise_aprovado) : undefined,
+    ],
     ["duplicado", params.duplicado],
     ["sort_by", params.sort_by],
     ["sort_order", params.sort_order],
