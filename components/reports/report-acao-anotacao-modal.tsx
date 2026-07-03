@@ -9,11 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { ReportCardData } from "./types";
-import {
-  ReportCategoriaBadge,
-  ReportIdBadge,
-  ReportPrioridadeBadge,
-} from "./report-badges";
+import { ReportModalInfoBlock } from "./report-modal-info-block";
 
 export type ReportAcaoAnotacaoTipo = "incompleto" | "suspender";
 
@@ -62,22 +58,6 @@ const MODAL_CONFIG: Record<
       "bg-red-400 text-white hover:bg-red-400/90 disabled:opacity-50",
   },
 };
-
-function ReportAcaoInfoBlock({ data }: { data: ReportCardData }) {
-  return (
-    <div className="rounded-md border border-border-divider bg-muted/30 px-4 py-3.5">
-      <div className="flex flex-wrap items-center gap-2">
-        <ReportIdBadge id={data.id} />
-        <ReportCategoriaBadge categoria={data.categoria} />
-        <ReportPrioridadeBadge prioridade={data.prioridade} />
-      </div>
-
-      <p className="mt-2.5 text-sm font-semibold leading-snug text-text-primary">
-        {data.descricaoResumo}
-      </p>
-    </div>
-  );
-}
 
 export function ReportAcaoAnotacaoModal({
   open,
@@ -137,7 +117,7 @@ export function ReportAcaoAnotacaoModal({
 
           {reportData ? (
             <div className="mt-5">
-              <ReportAcaoInfoBlock data={reportData} />
+              <ReportModalInfoBlock data={reportData} />
             </div>
           ) : null}
 
@@ -175,16 +155,16 @@ export function ReportAcaoAnotacaoModal({
               type="button"
               onClick={handleConfirmar}
               disabled={!canSubmit}
-              className={cn("px-5 flex-1", config.confirmButtonClass)}
+              className={cn("px-5 flex-1")}
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className=" h-3.5 w-3.5 animate-spin" />
                   {config.loadingLabel}
                 </>
               ) : (
                 <>
-                  <Check className="mr-2 h-3.5 w-3.5" />
+                  <Check className=" h-3.5 w-3.5" />
                   {tipo === "incompleto"
                     ? "Marcar como incompleto"
                     : "Suspender report"}

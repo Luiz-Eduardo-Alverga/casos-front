@@ -1,11 +1,13 @@
 import { apiAssistant } from "@/lib/axios";
+import { fetchWithAuth } from "@/lib/fetch";
 
 interface AssistantParams {
   description?: string;
   audio?: Blob;
+  squadSetor?: string | null;
 }
 
-interface AssistantResponse {
+export interface AssistantResponse {
   success: boolean;
   data: {
     title: string;
@@ -26,6 +28,8 @@ interface AssistantResponse {
       },
     ];
   };
+  confidence?: number;
+  processedIn?: string;
 }
 
 interface HealthResponse {
@@ -57,18 +61,22 @@ export async function checkAssistantHealth(): Promise<HealthResponse> {
   }
 }
 
-export async function assistant({ description, audio }: AssistantParams) {
-  // Se houver áudio, enviar como FormData
+export async function assistant({
+  description,
+  audio,
+  squadSetor,
+}: AssistantParams): Promise<AssistantResponse> {
   if (audio) {
     const formData = new FormData();
 
-    // Adicionar description se existir
     if (description) {
       formData.append("description", description);
     }
 
-    // Adicionar áudio
-    // Determinar extensão baseada no tipo MIME
+    if (squadSetor) {
+      formData.append("squadSetor", squadSetor);
+    }
+
     const extension = audio.type.includes("webm")
       ? "webm"
       : audio.type.includes("mp3")
@@ -78,28 +86,38 @@ export async function assistant({ description, audio }: AssistantParams) {
           : "mp3";
     formData.append("audio", audio, `audio.${extension}`);
 
-    const response = await apiAssistant.post<AssistantResponse>(
-      "/api/assistant",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      },
-    );
+    const response = await fetchWithAuth("/api/assistant", {
+      method: "POST",
+      body: formData,
+    });
 
-    return response.data;
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(
+        error?.error || error?.message || "Erro ao processar assistente",
+      );
+    }
+
+    return (await response.json()) as AssistantResponse;
   }
 
-  // Se não houver áudio, enviar como JSON
-  const response = await apiAssistant.post<AssistantResponse>(
-    "/api/assistant",
-    {
+  const response = await fetchWithAuth("/api/assistant", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
       description: description || "",
-    },
-  );
+      ...(squadSetor ? { squadSetor } : {}),
+    }),
+  });
 
-  return response.data;
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(
+      error?.error || error?.message || "Erro ao processar assistente",
+    );
+  }
+
+  return (await response.json()) as AssistantResponse;
 }
 
 export async function reportAnalysis(
@@ -120,10 +138,16 @@ export async function reportAnalysis(
     );
 
     return response.data;
-  } catch (error: any) {
-    const status = error?.response?.status;
+  } catch (error: unknown) {
+    const err = error as {
+      response?: {
+        status?: number;
+        data?: { message?: string; error?: string };
+      };
+    };
+    const status = err?.response?.status;
     const apiMessage =
-      error?.response?.data?.message || error?.response?.data?.error;
+      err?.response?.data?.message || err?.response?.data?.error;
     const message =
       apiMessage ||
       (status

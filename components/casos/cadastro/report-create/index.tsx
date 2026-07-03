@@ -103,10 +103,15 @@ export function ReportCreateForm() {
   async function onAssistantSubmit(
     data: AssistantFormData & {
       audio?: { blob: Blob; url: string; duration: number } | null;
+      squadSetor?: string | null;
     },
   ) {
     try {
-      const submitData: { description?: string; audio?: Blob } = {};
+      const submitData: {
+        description?: string;
+        audio?: Blob;
+        squadSetor?: string | null;
+      } = {};
 
       if (data.description && data.description.trim()) {
         submitData.description = data.description;
@@ -115,6 +120,8 @@ export function ReportCreateForm() {
       if (data.audio?.blob) {
         submitData.audio = data.audio.blob;
       }
+
+      submitData.squadSetor = data.squadSetor ?? null;
 
       if (!submitData.description && !submitData.audio) {
         toast.error(

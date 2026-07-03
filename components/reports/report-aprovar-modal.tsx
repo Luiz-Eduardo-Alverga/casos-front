@@ -2,12 +2,11 @@
 
 import { useEffect, useMemo } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { Sparkles, X, Save, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Check } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
-import { CasoFormProduto } from "@/components/fields/caso-form-produto";
 import { CasoFormVersao } from "@/components/fields/caso-form-versao";
 import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
@@ -15,8 +14,11 @@ import { CasoFormModulo } from "@/components/fields/caso-form-modulo";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
 import { resolveVersaoProdutoForApi } from "@/components/casos/shared/versao-combobox";
 import { importanceOptions } from "@/mocks/teste";
+import { cn } from "@/lib/utils";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import type { AprovarReportParams } from "./use-report-acoes";
+import { mapProjetoMemoriaToReportCard } from "./utils";
+import { ReportModalInfoBlock } from "./report-modal-info-block";
 
 interface ReportAprovarModalForm {
   produto: string;
@@ -54,6 +56,10 @@ export function ReportAprovarModal({
   });
 
   const produtoId = String(item?.produto?.id ?? "");
+  const reportData = useMemo(
+    () => (item ? mapProjetoMemoriaToReportCard(item) : null),
+    [item],
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -118,18 +124,32 @@ export function ReportAprovarModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTitle className="sr-only">Aprovar report</DialogTitle>
-      <DialogContent className="max-h-[90vh] w-[min(96vw,560px)] max-w-[560px] min-w-0 overflow-y-auto overflow-x-hidden p-0">
-        <div className="min-w-0 rounded-lg border border-border-divider bg-card p-6 shadow-card">
-          <div className="flex items-center gap-2 border-b border-border-divider pb-4">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <h3 className="text-xl font-semibold text-text-primary">
-              Aprovar Report
-            </h3>
+      <DialogContent className="max-h-[90vh] w-[min(96vw,560px)] max-w-[560px] min-w-0 gap-0 overflow-y-auto overflow-x-hidden border-border-divider p-0 sm:rounded-2xl">
+        <div className="min-w-0 bg-card p-6">
+          <div className="flex items-start gap-3 pr-6">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
+              <Sparkles className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div className="min-w-0 flex-1 space-y-1">
+              <h3 className="text-lg font-semibold leading-tight text-text-primary">
+                Aprovar report
+              </h3>
+              <p className="text-sm leading-relaxed text-text-secondary">
+                Informe a versão, projeto e desenvolvedor para aprovar este
+                report.
+              </p>
+            </div>
           </div>
+
+          {reportData ? (
+            <div className="mt-5">
+              <ReportModalInfoBlock data={reportData} />
+            </div>
+          ) : null}
 
           <FormProvider {...methods}>
             <CasoFormProvider value={providerValue}>
-              <div className="min-w-0 space-y-4 py-5">
+              <div className="mt-5 min-w-0 space-y-4">
                 <CasoFormVersao todas={false} />
                 <CasoFormProjeto />
                 <CasoFormDevAtribuido />
@@ -138,7 +158,7 @@ export function ReportAprovarModal({
             </CasoFormProvider>
           </FormProvider>
 
-          <div className="flex min-w-0 w-full gap-4">
+          <div className="mt-2 flex items-center justify-end gap-3 pt-5">
             <Button
               type="button"
               variant="outline"
@@ -146,24 +166,23 @@ export function ReportAprovarModal({
               disabled={isLoading}
               className="flex-1"
             >
-              <X className="h-3.5 w-3.5" />
               Cancelar
             </Button>
             <Button
               type="button"
               onClick={handleConfirmar}
               disabled={isLoading}
-              className="flex-1"
+              className={cn("flex-1")}
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className=" h-3.5 w-3.5 animate-spin" />
                   Aprovando...
                 </>
               ) : (
                 <>
-                  <Save className="mr-2 h-3.5 w-3.5" />
-                  Aprovar
+                  <Check className=" h-3.5 w-3.5" />
+                  Aprovar report
                 </>
               )}
             </Button>

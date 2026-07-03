@@ -190,26 +190,29 @@ export function ReportCard({
                 <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
                 Marcar Incompleto
               </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onSuspender}
+                disabled={disabled}
+                className=" border-red-200 text-red-600 hover:bg-red-50 hover:text-red-600"
+              >
+                <X className="h-3.5 w-3.5" />
+                Suspender
+              </Button>
             </>
           ) : null}
 
-          <Button type="button" variant="outline" onClick={onVerCaso}>
-            <ExternalLink className="h-3.5 w-3.5" />
+          <Button
+            type="button"
+            variant="outline"
+            className="ml-auto"
+            onClick={onVerCaso}
+          >
+            <ExternalLink className="h-3.5 w-3.5 " />
             Ver caso completo
           </Button>
-
-          {!acoesDesabilitadas ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onSuspender}
-              disabled={disabled}
-              className="ml-auto border-red-200 text-red-600 hover:bg-red-50 hover:text-red-600"
-            >
-              <X className="h-3.5 w-3.5" />
-              Suspender
-            </Button>
-          ) : null}
         </div>
       </div>
     </div>

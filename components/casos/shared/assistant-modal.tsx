@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Sparkles,
   Mic,
@@ -22,6 +30,26 @@ import {
 } from "lucide-react";
 import { UseFormRegister, UseFormHandleSubmit } from "react-hook-form";
 import { useAudioRecorder } from "@/hooks/assistant/use-audio-recorder";
+import { useFormAssistantPrompts } from "@/hooks/assistant/use-form-assistant-prompts";
+import { getUser } from "@/lib/auth";
+import type { FormAssistantPrompt } from "@/lib/types/form-assistant-prompts";
+
+const DEFAULT_PROMPT_KEY = "__default__";
+
+function promptOptionKey(prompt: FormAssistantPrompt): string {
+  return prompt.squadSetor ?? DEFAULT_PROMPT_KEY;
+}
+
+function squadSetorFromOptionKey(key: string): string | null {
+  return key === DEFAULT_PROMPT_KEY ? null : key;
+}
+
+function promptOptionLabel(prompt: FormAssistantPrompt): string {
+  if (prompt.squadSetor === null) {
+    return prompt.name;
+  }
+  return `${prompt.squadSetor} — ${prompt.name}`;
+}
 
 interface AssistantModalProps {
   isOpen: boolean;
@@ -60,6 +88,30 @@ export function AssistantModal({
 
   // Controle do valor da descrição para validação
   const [description, setDescription] = useState("");
+  const [selectedPromptKey, setSelectedPromptKey] =
+    useState<string>(DEFAULT_PROMPT_KEY);
+
+  const user = getUser();
+  const { data: prompts, isLoading: isLoadingPrompts } =
+    useFormAssistantPrompts();
+
+  const activePrompts = useMemo(
+    () => (prompts ?? []).filter((prompt) => prompt.isActive),
+    [prompts],
+  );
+
+  useEffect(() => {
+    if (!isOpen || activePrompts.length === 0) return;
+
+    const userSetor = user?.setor?.trim();
+    const squadPrompt = userSetor
+      ? activePrompts.find((prompt) => prompt.squadSetor === userSetor)
+      : undefined;
+
+    setSelectedPromptKey(
+      squadPrompt ? promptOptionKey(squadPrompt) : DEFAULT_PROMPT_KEY,
+    );
+  }, [isOpen, activePrompts, user?.setor]);
 
   // Controle de reprodução de áudio
   const [isPlaying, setIsPlaying] = useState(false);
@@ -132,6 +184,7 @@ export function AssistantModal({
     // Se houver áudio gravado, incluir no envio
     const submitData = {
       ...data,
+      squadSetor: squadSetorFromOptionKey(selectedPromptKey),
       audio: finalAudioBlob
         ? {
             blob: finalAudioBlob,
@@ -165,6 +218,7 @@ export function AssistantModal({
         }
         await deleteRecording();
         setDescription("");
+        setSelectedPromptKey(DEFAULT_PROMPT_KEY);
       };
       cleanup();
     }
@@ -201,6 +255,41 @@ export function AssistantModal({
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="flex flex-col gap-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-text-label">
+                Prompt do assistente
+              </Label>
+              <Select
+                value={selectedPromptKey}
+                onValueChange={setSelectedPromptKey}
+                disabled={
+                  isLoadingPrompts ||
+                  isAssistantSubmitting ||
+                  activePrompts.length === 0
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={
+                      isLoadingPrompts
+                        ? "Carregando prompts..."
+                        : "Selecione um prompt"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {activePrompts.map((prompt) => (
+                    <SelectItem
+                      key={prompt.id}
+                      value={promptOptionKey(prompt)}
+                    >
+                      {promptOptionLabel(prompt)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Recording Bar (aparece quando está gravando ou tem áudio) */}
             {hasRecording && (
               <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">

@@ -85,6 +85,7 @@ const CADASTROS_COLLAPSED_HREF =
 const CONFIGURACOES_SUBITEMS: SidebarSubitem[] = [
   { order: 20, label: "Perfis de acesso", href: "/configuracoes/perfis" },
   { order: 10, label: "Usuários", href: "/configuracoes/usuarios" },
+  { order: 30, label: "Prompts IA", href: "/configuracoes/prompts-ia" },
 ];
 
 const CONFIGURACOES_SUBITEMS_SORTED = [...CONFIGURACOES_SUBITEMS].sort(
