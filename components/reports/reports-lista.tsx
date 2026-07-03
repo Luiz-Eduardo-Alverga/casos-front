@@ -171,7 +171,9 @@ export function ReportsLista({ filtros }: ReportsListaProps) {
           if (!open) setAcaoModal(null);
         }}
         tipo={acaoModal?.tipo ?? "incompleto"}
-        casoId={acaoModal?.item.caso.id ?? null}
+        reportData={
+          acaoModal ? mapProjetoMemoriaToReportCard(acaoModal.item) : null
+        }
         onConfirm={handleConfirmarAcaoComAnotacao}
         isLoading={isPending}
       />

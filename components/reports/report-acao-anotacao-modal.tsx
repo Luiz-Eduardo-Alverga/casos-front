@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertTriangle, Loader2, X, Check } from "lucide-react";
+import { Ban, CircleHelp, Loader2, Check } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PLACEHOLDER_DESCRICAO_COMPLETA } from "@/components/casos/edicao/anotacoes/utils";
+import { cn } from "@/lib/utils";
+import type { ReportCardData } from "./types";
+import {
+  ReportCategoriaBadge,
+  ReportIdBadge,
+  ReportPrioridadeBadge,
+} from "./report-badges";
 
 export type ReportAcaoAnotacaoTipo = "incompleto" | "suspender";
 
@@ -15,32 +21,69 @@ interface ReportAcaoAnotacaoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   tipo: ReportAcaoAnotacaoTipo;
-  casoId: number | null;
+  reportData: ReportCardData | null;
   onConfirm: (anotacao: string) => Promise<boolean>;
   isLoading?: boolean;
 }
 
+const MOTIVO_PLACEHOLDER =
+  "Descreva o motivo com detalhes suficientes para o Suporte entender o que precisa ser feito...";
+
 const MODAL_CONFIG: Record<
   ReportAcaoAnotacaoTipo,
-  { titulo: string; loadingLabel: string; icon: typeof AlertTriangle }
+  {
+    titulo: string;
+    descricao: string;
+    loadingLabel: string;
+    icon: typeof CircleHelp;
+    iconBoxClass: string;
+    iconClass: string;
+    confirmButtonClass: string;
+  }
 > = {
   incompleto: {
     titulo: "Marcar como incompleto",
+    descricao: "Descreva o que falta para o Suporte complementar o report.",
     loadingLabel: "Concluindo...",
-    icon: AlertTriangle,
+    icon: CircleHelp,
+    iconBoxClass: "bg-amber-50",
+    iconClass: "text-amber-600",
+    confirmButtonClass:
+      "bg-amber-500 text-white hover:bg-amber-500/90 disabled:opacity-50",
   },
   suspender: {
     titulo: "Suspender report",
+    descricao: "Explique por que este report está sendo suspenso.",
     loadingLabel: "Concluindo...",
-    icon: X,
+    icon: Ban,
+    iconBoxClass: "bg-red-50",
+    iconClass: "text-red-500",
+    confirmButtonClass:
+      "bg-red-400 text-white hover:bg-red-400/90 disabled:opacity-50",
   },
 };
+
+function ReportAcaoInfoBlock({ data }: { data: ReportCardData }) {
+  return (
+    <div className="rounded-md border border-border-divider bg-muted/30 px-4 py-3.5">
+      <div className="flex flex-wrap items-center gap-2">
+        <ReportIdBadge id={data.id} />
+        <ReportCategoriaBadge categoria={data.categoria} />
+        <ReportPrioridadeBadge prioridade={data.prioridade} />
+      </div>
+
+      <p className="mt-2.5 text-sm font-semibold leading-snug text-text-primary">
+        {data.descricaoResumo}
+      </p>
+    </div>
+  );
+}
 
 export function ReportAcaoAnotacaoModal({
   open,
   onOpenChange,
   tipo,
-  casoId,
+  reportData,
   onConfirm,
   isLoading = false,
 }: ReportAcaoAnotacaoModalProps) {
@@ -71,53 +114,68 @@ export function ReportAcaoAnotacaoModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTitle className="sr-only">{config.titulo}</DialogTitle>
-      <DialogContent className="max-h-[90vh] w-[min(96vw,560px)] max-w-[560px] min-w-0 overflow-y-auto overflow-x-hidden p-0">
-        <div className="min-w-0 rounded-lg border border-border-divider bg-card p-6 shadow-card">
-          <div className="flex items-center gap-2 border-b border-border-divider pb-4">
-            <Icon className="h-4 w-4 text-primary" />
-            <h3 className="text-xl font-semibold text-text-primary">
-              {config.titulo}
-              {casoId != null ? (
-                <span className="ml-2 text-base font-normal text-text-secondary">
-                  #{casoId}
-                </span>
-              ) : null}
-            </h3>
+      <DialogContent className="max-h-[90vh] w-[min(96vw,560px)] max-w-[560px] min-w-0 gap-0 overflow-y-auto overflow-x-hidden border-border-divider p-0 sm:rounded-2xl">
+        <div className="min-w-0 bg-card p-6">
+          <div className="flex items-start gap-3 pr-6">
+            <div
+              className={cn(
+                "flex size-10 shrink-0 items-center justify-center rounded-xl",
+                config.iconBoxClass,
+              )}
+            >
+              <Icon className={cn("h-5 w-5", config.iconClass)} />
+            </div>
+            <div className="min-w-0 flex-1 space-y-1">
+              <h3 className="text-lg font-semibold leading-tight text-text-primary">
+                {config.titulo}
+              </h3>
+              <p className="text-sm leading-relaxed text-text-secondary">
+                {config.descricao}
+              </p>
+            </div>
           </div>
 
-          <div className="min-w-0 space-y-2 py-5">
+          {reportData ? (
+            <div className="mt-5">
+              <ReportAcaoInfoBlock data={reportData} />
+            </div>
+          ) : null}
+
+          <div className="mt-5 min-w-0 space-y-2">
             <Label
               htmlFor="report-acao-anotacao"
-              className="text-sm font-medium text-text-label"
+              className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary"
             >
-              Anotação
+              Motivo <span className="text-red-500">*</span>
             </Label>
             <Textarea
               id="report-acao-anotacao"
-              placeholder={PLACEHOLDER_DESCRICAO_COMPLETA}
+              placeholder={MOTIVO_PLACEHOLDER}
               value={anotacao}
               onChange={(e) => setAnotacao(e.target.value)}
-              className="min-h-[158px] w-full rounded-lg border-border-input px-4 py-3"
+              className="min-h-[120px] w-full resize-none  border-border-input px-4 py-3 text-sm"
               disabled={isLoading}
             />
+            <p className="text-xs text-text-secondary">
+              {anotacao.length} caracteres
+            </p>
           </div>
 
-          <div className="flex min-w-0 w-full gap-4">
+          <div className="mt-2 flex items-center  justify-end gap-3 pt-5">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
-              className="flex-1"
+              className=" flex-1"
             >
-              <X className="h-3.5 w-3.5" />
               Cancelar
             </Button>
             <Button
               type="button"
               onClick={handleConfirmar}
               disabled={!canSubmit}
-              className="flex-1"
+              className={cn("px-5 flex-1", config.confirmButtonClass)}
             >
               {isLoading ? (
                 <>
@@ -127,7 +185,9 @@ export function ReportAcaoAnotacaoModal({
               ) : (
                 <>
                   <Check className="mr-2 h-3.5 w-3.5" />
-                  Concluir
+                  {tipo === "incompleto"
+                    ? "Marcar como incompleto"
+                    : "Suspender report"}
                 </>
               )}
             </Button>

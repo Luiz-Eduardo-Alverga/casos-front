@@ -20,9 +20,13 @@ import {
   getPrioridadeStyle,
   getReportSlaInfo,
   getSlaSeverityStyle,
-  formatCapitalize,
   formatDataAbertura,
 } from "./utils";
+import {
+  ReportCategoriaBadge,
+  ReportIdBadge,
+  ReportPrioridadeBadge,
+} from "./report-badges";
 
 interface ReportCardProps {
   data: ReportCardData;
@@ -81,49 +85,16 @@ export function ReportCard({
   return (
     <div className="relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-border-divider bg-card shadow-card">
       <span
-        className={cn(
-          "absolute inset-y-0 left-0 w-1",
-          prioridadeStyle.border,
-        )}
+        className={cn("absolute inset-y-0 left-0 w-1", prioridadeStyle.border)}
         aria-hidden
       />
 
       <div className="flex flex-col gap-3 p-5 pl-6">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
-              #{data.id}
-            </span>
-
-            {data.prioridade?.trim() ? (
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1",
-                  prioridadeStyle.badgeContainer,
-                )}
-              >
-                <span
-                  className={cn(
-                    "size-1.5 shrink-0 rounded-full",
-                    prioridadeStyle.badgeDot,
-                  )}
-                />
-                <span
-                  className={cn(
-                    "text-xs font-semibold",
-                    prioridadeStyle.badgeText,
-                  )}
-                >
-                  {formatCapitalize(data.prioridade)}
-                </span>
-              </span>
-            ) : null}
-
-            {data.categoria?.trim() ? (
-              <span className="inline-flex items-center rounded-full border border-pink-100 bg-pink-50 px-2.5 py-1 text-xs font-medium text-pink-700">
-                {formatCapitalize(data.categoria)}
-              </span>
-            ) : null}
+            <ReportIdBadge id={data.id} />
+            <ReportPrioridadeBadge prioridade={data.prioridade} />
+            <ReportCategoriaBadge categoria={data.categoria} />
 
             {data.status?.trim() ? <StatusBadge status={data.status} /> : null}
           </div>
@@ -222,11 +193,7 @@ export function ReportCard({
             </>
           ) : null}
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onVerCaso}
-          >
+          <Button type="button" variant="outline" onClick={onVerCaso}>
             <ExternalLink className="h-3.5 w-3.5" />
             Ver caso completo
           </Button>
