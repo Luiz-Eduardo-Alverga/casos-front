@@ -6,16 +6,22 @@ export interface ReportsFiltrosAplicados {
   setor?: string;
   /** ID do produto, enviado no param `produto_id`. */
   produto?: string;
+  /** IDs de status (Registro), enviados no param `status_id`. */
+  status_ids: string[];
 }
 
 export interface ReportsFiltersForm {
   setor: string;
   produto: string;
+  status_ids: string[];
 }
+
+export const DEFAULT_REPORTS_STATUS_IDS = ["1"] as const;
 
 export const EMPTY_REPORTS_FILTERS: ReportsFiltrosAplicados = {
   setor: "",
   produto: "",
+  status_ids: [...DEFAULT_REPORTS_STATUS_IDS],
 };
 
 /** Estilo visual (borda/badge) aplicado por prioridade do report. */

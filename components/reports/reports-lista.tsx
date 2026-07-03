@@ -8,37 +8,60 @@ import { EmptyState } from "@/components/painel/empty-state";
 import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
 import { buildCasoEditHref } from "@/lib/caso-edit-layout";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
-import { ReportsListaSkeleton } from "./reports-lista-skeleton";
+import {
+  ReportsListaNextPageSkeleton,
+  ReportsListaSkeleton,
+} from "./reports-lista-skeleton";
 import { ReportCard } from "./report-card";
 import { ReportAprovarModal } from "./report-aprovar-modal";
+import {
+  ReportAcaoAnotacaoModal,
+  type ReportAcaoAnotacaoTipo,
+} from "./report-acao-anotacao-modal";
 import { useReportAcoes } from "./use-report-acoes";
 import { mapProjetoMemoriaToReportCard } from "./utils";
-import type { ReportsFiltrosAplicados } from "./types";
+import {
+  DEFAULT_REPORTS_STATUS_IDS,
+  type ReportsFiltrosAplicados,
+} from "./types";
 
 interface ReportsListaProps {
   filtros: ReportsFiltrosAplicados;
 }
 
+type ReportAcaoModalState = {
+  tipo: ReportAcaoAnotacaoTipo;
+  item: ProjetoMemoriaItem;
+} | null;
+
 export function ReportsLista({ filtros }: ReportsListaProps) {
   const router = useRouter();
-  const { aprovar, marcarIncompleto, suspender, isPending } = useReportAcoes();
+  const { aprovar, marcarIncompletoComAnotacao, suspenderComAnotacao, isPending } =
+    useReportAcoes();
   const [itemParaAprovar, setItemParaAprovar] =
     useState<ProjetoMemoriaItem | null>(null);
   const [aprovarModalOpen, setAprovarModalOpen] = useState(false);
+  const [acaoModal, setAcaoModal] = useState<ReportAcaoModalState>(null);
 
   const setorFiltro = filtros.setor?.trim() ?? "";
   const hasSetor = Boolean(setorFiltro);
 
   const params = useMemo(() => {
     const produtoId = filtros.produto?.trim();
+    const statusIds =
+      filtros.status_ids?.length > 0
+        ? filtros.status_ids
+        : [...DEFAULT_REPORTS_STATUS_IDS];
     return {
       analise_aprovado: false,
       tipo_abertura: "REPORT" as const,
-      status_id: ["1", "8"],
+      status_id: statusIds,
       ...(setorFiltro ? { setor: setorFiltro } : {}),
       ...(produtoId ? { produto_id: produtoId } : {}),
+      sort_by: "prioridade",
+      sort_order: "DESC" as const,
     };
-  }, [setorFiltro, filtros.produto]);
+  }, [setorFiltro, filtros.produto, filtros.status_ids]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useProjetoMemoria(params, {
@@ -46,10 +69,7 @@ export function ReportsLista({ filtros }: ReportsListaProps) {
       refetchInterval: hasSetor ? AUTO_REFETCH_INTERVAL_MS : false,
     });
 
-  const itens = useMemo(
-    () => data?.pages.flatMap((p) => p.data) ?? [],
-    [data],
-  );
+  const itens = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -72,6 +92,16 @@ export function ReportsLista({ filtros }: ReportsListaProps) {
   const handleAbrirAprovar = (item: ProjetoMemoriaItem) => {
     setItemParaAprovar(item);
     setAprovarModalOpen(true);
+  };
+
+  const handleConfirmarAcaoComAnotacao = async (anotacao: string) => {
+    if (!acaoModal) return false;
+
+    const casoId = acaoModal.item.caso.id;
+    if (acaoModal.tipo === "incompleto") {
+      return marcarIncompletoComAnotacao(casoId, anotacao);
+    }
+    return suspenderComAnotacao(casoId, anotacao);
   };
 
   if (!hasSetor) {
@@ -109,14 +139,18 @@ export function ReportsLista({ filtros }: ReportsListaProps) {
               data={cardData}
               disabled={isPending}
               onAprovar={() => handleAbrirAprovar(item)}
-              onMarcarIncompleto={() => marcarIncompleto(cardData.id)}
-              onSuspender={() => suspender(cardData.id)}
+              onMarcarIncompleto={() =>
+                setAcaoModal({ tipo: "incompleto", item })
+              }
+              onSuspender={() => setAcaoModal({ tipo: "suspender", item })}
               onVerCaso={() =>
                 router.push(buildCasoEditHref(cardData.id, "case"))
               }
             />
           );
         })}
+
+        {isFetchingNextPage && <ReportsListaNextPageSkeleton count={3} />}
 
         {hasNextPage && itens.length > 0 && (
           <div ref={loadMoreRef} className="min-h-[48px]" />
@@ -128,6 +162,17 @@ export function ReportsLista({ filtros }: ReportsListaProps) {
         onOpenChange={setAprovarModalOpen}
         item={itemParaAprovar}
         onAprovar={aprovar}
+        isLoading={isPending}
+      />
+
+      <ReportAcaoAnotacaoModal
+        open={acaoModal != null}
+        onOpenChange={(open) => {
+          if (!open) setAcaoModal(null);
+        }}
+        tipo={acaoModal?.tipo ?? "incompleto"}
+        casoId={acaoModal?.item.caso.id ?? null}
+        onConfirm={handleConfirmarAcaoComAnotacao}
         isLoading={isPending}
       />
     </>

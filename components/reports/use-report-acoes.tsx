@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { getUser } from "@/lib/auth";
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
+import { useCreateAnotacao } from "@/hooks/casos/anotacoes/use-create-anotacao";
 import type { UpdateCasoRequest } from "@/services/projeto-casos/update";
 import {
   nowSaoPauloToApiDateTime,
@@ -34,6 +35,10 @@ function getUserIdOrToast(): string | null {
   return String(userId);
 }
 
+function normalizeAnotacaoTexto(texto: string): string {
+  return texto.replace(/\r?\n/g, "\r\n");
+}
+
 /**
  * Ações de análise de report para a listagem, reutilizando a mesma lógica e
  * rotinas do fluxo de edição (`report-analise-modal`): aprovar (20/22),
@@ -42,10 +47,51 @@ function getUserIdOrToast(): string | null {
 export function useReportAcoes() {
   const queryClient = useQueryClient();
   const updateCaso = useUpdateCaso();
+  const createAnotacao = useCreateAnotacao();
 
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
   }, [queryClient]);
+
+  const executarMarcarIncompleto = useCallback(
+    async (id: number | string, userId: string) => {
+      const payload: UpdateCasoRequest = {
+        status: CASO_STATUS_INCOMPLETO_ID,
+        report_analise_status: "21",
+        AtribuidoPara: Number(REPORT_DEV_631_ID),
+        report_analise_aprovado: false,
+        report_analise_data_conclusao: null,
+        report_data_limite: null,
+        report_analise_usuario_id: userId,
+      };
+      await updateCaso.mutateAsync({ id, data: payload });
+    },
+    [updateCaso],
+  );
+
+  const executarSuspender = useCallback(
+    async (id: number | string, userId: string) => {
+      const payload: UpdateCasoRequest = {
+        status: CASO_STATUS_SUSPENSO_ID,
+        report_analise_status: "23",
+        report_analise_aprovado: true,
+        report_analise_data_conclusao: nowSaoPauloToApiDateTime(),
+        report_analise_usuario_id: userId,
+      };
+      await updateCaso.mutateAsync({ id, data: payload });
+    },
+    [updateCaso],
+  );
+
+  const criarAnotacaoParaCaso = useCallback(
+    async (id: number | string, anotacao: string) => {
+      await createAnotacao.mutateAsync({
+        registro: Number(id),
+        anotacoes: normalizeAnotacaoTexto(anotacao),
+      });
+    },
+    [createAnotacao],
+  );
 
   const aprovar = useCallback(
     async ({
@@ -86,62 +132,74 @@ export function useReportAcoes() {
     [updateCaso, invalidate],
   );
 
-  const marcarIncompleto = useCallback(
-    async (id: number | string) => {
+  const marcarIncompletoComAnotacao = useCallback(
+    async (id: number | string, anotacao: string): Promise<boolean> => {
       const userId = getUserIdOrToast();
-      if (!userId) return;
-
-      const payload: UpdateCasoRequest = {
-        status: CASO_STATUS_INCOMPLETO_ID,
-        report_analise_status: "21",
-        AtribuidoPara: Number(REPORT_DEV_631_ID),
-        report_analise_aprovado: false,
-        report_analise_data_conclusao: null,
-        report_data_limite: null,
-        report_analise_usuario_id: userId,
-      };
+      if (!userId) return false;
 
       try {
-        await updateCaso.mutateAsync({ id, data: payload });
-        toast.success("Report marcado como incompleto.");
-        invalidate();
+        await executarMarcarIncompleto(id, userId);
       } catch (e) {
         toast.error(
           e instanceof Error ? e.message : "Erro ao marcar report como incompleto.",
         );
+        return false;
       }
-    },
-    [updateCaso, invalidate],
-  );
-
-  const suspender = useCallback(
-    async (id: number | string) => {
-      const userId = getUserIdOrToast();
-      if (!userId) return;
-
-      const payload: UpdateCasoRequest = {
-        status: CASO_STATUS_SUSPENSO_ID,
-        report_analise_status: "23",
-        report_analise_aprovado: true,
-        report_analise_data_conclusao: nowSaoPauloToApiDateTime(),
-        report_analise_usuario_id: userId,
-      };
 
       try {
-        await updateCaso.mutateAsync({ id, data: payload });
-        toast.success("Report suspenso com sucesso.");
+        await criarAnotacaoParaCaso(id, anotacao);
+        toast.success("Report marcado como incompleto e anotação registrada.");
+      } catch (e) {
         invalidate();
+        toast.error(
+          e instanceof Error
+            ? e.message
+            : "Report atualizado, mas houve erro ao registrar a anotação.",
+        );
+        return true;
+      }
+
+      invalidate();
+      return true;
+    },
+    [executarMarcarIncompleto, criarAnotacaoParaCaso, invalidate],
+  );
+
+  const suspenderComAnotacao = useCallback(
+    async (id: number | string, anotacao: string): Promise<boolean> => {
+      const userId = getUserIdOrToast();
+      if (!userId) return false;
+
+      try {
+        await executarSuspender(id, userId);
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Erro ao suspender report.");
+        return false;
       }
+
+      try {
+        await criarAnotacaoParaCaso(id, anotacao);
+        toast.success("Report suspenso e anotação registrada.");
+      } catch (e) {
+        invalidate();
+        toast.error(
+          e instanceof Error
+            ? e.message
+            : "Report atualizado, mas houve erro ao registrar a anotação.",
+        );
+        return true;
+      }
+
+      invalidate();
+      return true;
     },
-    [updateCaso, invalidate],
+    [executarSuspender, criarAnotacaoParaCaso, invalidate],
   );
 
   return {
     aprovar,
-    marcarIncompleto,
-    suspender,
-    isPending: updateCaso.isPending,
+    marcarIncompletoComAnotacao,
+    suspenderComAnotacao,
+    isPending: updateCaso.isPending || createAnotacao.isPending,
   };
 }

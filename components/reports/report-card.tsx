@@ -65,6 +65,7 @@ export function ReportCard({
 }: ReportCardProps) {
   const prioridadeStyle = getPrioridadeStyle(data.prioridade);
   const sla = getReportSlaInfo(data.dataLimite);
+  const acoesDesabilitadas = data.statusId === 8;
 
   const descricaoRef = useRef<HTMLParagraphElement>(null);
   const [expanded, setExpanded] = useState(false);
@@ -193,29 +194,33 @@ export function ReportCard({
         </div>
 
         <div className="flex flex-wrap items-center gap-3 border-t border-border-divider pt-4">
-          <Button
-            type="button"
-            onClick={onAprovar}
-            disabled={disabled}
-            className="bg-emerald-500 text-white hover:bg-emerald-500/90"
-          >
-            {disabled ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Check className="h-3.5 w-3.5" />
-            )}
-            Aprovar
-          </Button>
+          {!acoesDesabilitadas ? (
+            <>
+              <Button
+                type="button"
+                onClick={onAprovar}
+                disabled={disabled}
+                className="bg-emerald-500 text-white hover:bg-emerald-500/90"
+              >
+                {disabled ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Check className="h-3.5 w-3.5" />
+                )}
+                Aprovar
+              </Button>
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onMarcarIncompleto}
-            disabled={disabled}
-          >
-            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
-            Marcar Incompleto
-          </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onMarcarIncompleto}
+                disabled={disabled}
+              >
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                Marcar Incompleto
+              </Button>
+            </>
+          ) : null}
 
           <Button
             type="button"
@@ -226,16 +231,18 @@ export function ReportCard({
             Ver caso completo
           </Button>
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onSuspender}
-            disabled={disabled}
-            className="ml-auto border-red-200 text-red-600 hover:bg-red-50 hover:text-red-600"
-          >
-            <X className="h-3.5 w-3.5" />
-            Suspender
-          </Button>
+          {!acoesDesabilitadas ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onSuspender}
+              disabled={disabled}
+              className="ml-auto border-red-200 text-red-600 hover:bg-red-50 hover:text-red-600"
+            >
+              <X className="h-3.5 w-3.5" />
+              Suspender
+            </Button>
+          ) : null}
         </div>
       </div>
     </div>

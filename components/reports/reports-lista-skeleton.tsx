@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const CARDS = 4;
 
-function ReportCardSkeleton() {
+export function ReportCardSkeleton() {
   return (
     <div className="relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-border-divider bg-card shadow-card">
       <span className="absolute inset-y-0 left-0 w-1 bg-muted" aria-hidden />
@@ -42,12 +42,20 @@ function ReportCardSkeleton() {
   );
 }
 
+export function ReportsListaNextPageSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <ReportCardSkeleton key={i} />
+      ))}
+    </>
+  );
+}
+
 export function ReportsListaSkeleton() {
   return (
     <div className="flex flex-col gap-4">
-      {Array.from({ length: CARDS }).map((_, i) => (
-        <ReportCardSkeleton key={i} />
-      ))}
+      <ReportsListaNextPageSkeleton count={CARDS} />
     </div>
   );
 }

@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { Filter, Search, FilterX } from "lucide-react";
+import { MAX_STATUS_IDS_FILTRO_CASOS } from "@/components/casos/filtros/constants";
+import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layout";
@@ -13,7 +15,7 @@ import { useSetores } from "@/hooks/catalogos/use-setores";
 import { getUser } from "@/lib/auth";
 import { importanceOptions } from "@/mocks/teste";
 import type { ReportsFiltersForm, ReportsFiltrosAplicados } from "./types";
-import { EMPTY_REPORTS_FILTERS } from "./types";
+import { DEFAULT_REPORTS_STATUS_IDS, EMPTY_REPORTS_FILTERS } from "./types";
 
 interface ReportsFiltrosProps {
   onAplicar: (filtros: ReportsFiltrosAplicados) => void;
@@ -21,7 +23,11 @@ interface ReportsFiltrosProps {
 
 export function ReportsFiltros({ onAplicar }: ReportsFiltrosProps) {
   const methods = useForm<ReportsFiltersForm>({
-    defaultValues: { setor: "", produto: "" },
+    defaultValues: {
+      setor: "",
+      produto: "",
+      status_ids: [...DEFAULT_REPORTS_STATUS_IDS],
+    },
   });
 
   const { data: setores } = useSetores();
@@ -49,7 +55,11 @@ export function ReportsFiltros({ onAplicar }: ReportsFiltrosProps) {
 
     defaultSetorAplicadoRef.current = true;
     methods.setValue("setor", String(setorMatch.id));
-    onAplicar({ setor: setorMatch.nome.trim(), produto: "" });
+    onAplicar({
+      setor: setorMatch.nome.trim(),
+      produto: "",
+      status_ids: [...DEFAULT_REPORTS_STATUS_IDS],
+    });
   }, [setores, methods, onAplicar]);
 
   const providerValue = useMemo(
@@ -77,11 +87,19 @@ export function ReportsFiltros({ onAplicar }: ReportsFiltrosProps) {
     onAplicar({
       setor: resolveSetorNome(String(values.setor ?? "")),
       produto: String(values.produto ?? "").trim(),
+      status_ids: (values.status_ids ?? []).slice(
+        0,
+        MAX_STATUS_IDS_FILTRO_CASOS,
+      ),
     });
   }, [methods, onAplicar, resolveSetorNome]);
 
   const handleLimpar = useCallback(() => {
-    methods.reset({ setor: "", produto: "" });
+    methods.reset({
+      setor: "",
+      produto: "",
+      status_ids: [...DEFAULT_REPORTS_STATUS_IDS],
+    });
     onAplicar(EMPTY_REPORTS_FILTERS);
   }, [methods, onAplicar]);
 
@@ -101,32 +119,34 @@ export function ReportsFiltros({ onAplicar }: ReportsFiltrosProps) {
           </CardHeader>
 
           <CardContent className="p-6 pt-3">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-end">
               <div className="min-w-0">
                 <CasoFormSetor />
               </div>
               <div className="min-w-0">
                 <CasoFormProduto required={false} />
               </div>
-              <div className="flex items-end gap-2 lg:col-span-2">
-                <Button
-                  type="button"
-                  onClick={handleFiltrar}
-                  className="h-9 flex-1 sm:flex-initial"
-                >
-                  <Search className="h-3.5 w-3.5 mr-2" />
-                  Filtrar
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleLimpar}
-                  className="h-9 flex-1 sm:flex-initial"
-                >
-                  <FilterX className="h-3.5 w-3.5 mr-2" />
-                  Limpar
-                </Button>
+              <div className="min-w-0 sm:col-span-2 lg:col-span-2">
+                <Controller
+                  name="status_ids"
+                  control={methods.control}
+                  render={({ field }) => (
+                    <StatusMultiSelect
+                      value={field.value ?? []}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
               </div>
+
+              <Button
+                type="button"
+                onClick={handleFiltrar}
+                className="h-9 flex-1 sm:flex-initial sm:col-span-2 lg:col-span-1"
+              >
+                <Search className="h-3.5 w-3.5 mr-2" />
+                Filtrar
+              </Button>
             </div>
           </CardContent>
         </Card>
