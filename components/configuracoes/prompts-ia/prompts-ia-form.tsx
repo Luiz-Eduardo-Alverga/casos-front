@@ -43,6 +43,7 @@ import { ConfirmarExclusaoPapelModal } from "@/components/configuracoes/papeis/c
 import { PromptsIaDicasModal } from "./prompts-ia-dicas-modal";
 import { getAppUser, getUser } from "@/lib/auth";
 import { Skeleton } from "@/components/ui/skeleton";
+import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 
 const formSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -220,6 +221,10 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
 
   const isLoadingEdit = isEdit && isLoadingPrompts && !prompt;
 
+  const rbacReady = permissionsLoaded();
+  const canDelete = !rbacReady || hasPermission("delete-prompts");
+  const canEdit = !rbacReady || hasPermission("edit-prompts");
+
   const { isCollapsed } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -343,13 +348,13 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                 </div>
 
                 {/* Toggle Status (somente edição) */}
-                {isEdit && (
+                {isEdit && canEdit && (
                   <div className="flex items-center justify-between rounded-lg border border-border-divider bg-muted/30 px-4 py-3">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-text-primary">
                         Status de ativação
                       </span>
-                      <TooltipProvider>
+                      {/* <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="flex items-center justify-center w-4 h-4 rounded-full bg-muted cursor-help">
@@ -366,7 +371,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                             padrão. O prompt DEFAULT não pode ser desativado.
                           </TooltipContent>
                         </Tooltip>
-                      </TooltipProvider>
+                      </TooltipProvider> */}
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-semibold text-text-secondary">
@@ -567,7 +572,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
           </CardContent>
         </Card> */}
 
-        {isEdit && !isDefault && !isLoadingEdit && (
+        {isEdit && !isDefault && !isLoadingEdit && canDelete && (
           <Card className="bg-card shadow-card rounded-lg shrink-0 border border-border-divider">
             <CardContent className="p-5">
               <div className="space-y-3">

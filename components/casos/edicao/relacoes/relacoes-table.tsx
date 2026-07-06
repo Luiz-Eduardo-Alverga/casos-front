@@ -41,6 +41,7 @@ export interface RelacoesTableProps {
   onCancelEdit: () => void;
   onSaveEdit: () => void | Promise<void>;
   onAskDelete: (sequencia: number) => void;
+  readOnly?: boolean;
 }
 
 export function RelacoesTable({
@@ -57,6 +58,7 @@ export function RelacoesTable({
   onCancelEdit,
   onSaveEdit,
   onAskDelete,
+  readOnly = false,
 }: RelacoesTableProps) {
   const lista = Array.isArray(relacoes) ? relacoes : [];
   const router = useRouter();
@@ -119,7 +121,7 @@ export function RelacoesTable({
                 </span>
               </TableCell>
               <TableCell className="py-3 px-2.5">
-                {isEditingRow ? (
+                {isEditingRow && !readOnly ? (
                   <Select
                     value={editTipoRelacao}
                     onValueChange={onChangeTipoRelacao}
@@ -147,7 +149,7 @@ export function RelacoesTable({
                 )}
               </TableCell>
               <TableCell className="py-3 px-2.5">
-                {isEditingRow ? (
+                {isEditingRow && !readOnly ? (
                   <Input
                     type="number"
                     min={1}
@@ -164,7 +166,7 @@ export function RelacoesTable({
                 )}
               </TableCell>
               <TableCell className="py-3 px-2.5">
-                {isEditingRow ? (
+                {isEditingRow && !readOnly ? (
                   <Input
                     value={editDescricaoResumo}
                     onChange={(e) => onChangeDescricaoResumo(e.target.value)}
@@ -179,7 +181,7 @@ export function RelacoesTable({
                 )}
               </TableCell>
               <TableCell className="py-3 px-2.5">
-                {isEditingRow ? (
+                {isEditingRow && !readOnly ? (
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"
@@ -212,33 +214,36 @@ export function RelacoesTable({
                         router.push(`/casos/${item.caso_relacionado}`)
                       }
                       disabled={isSaving}
-                      aria-label="Editar relação"
+                      aria-label="Ver caso relacionado"
                     >
                       <Search className="size-4 text-foreground" />
                     </Button>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="size-9 rounded-lg"
-                      onClick={() => onStartEdit(item)}
-                      disabled={isSaving}
-                      aria-label="Editar relação"
-                    >
-                      <Pencil className="size-4 text-foreground" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="size-9 rounded-lg text-destructive hover:text-destructive"
-                      onClick={() => onAskDelete(item.sequencia)}
-                      disabled={isSaving}
-                      aria-label="Excluir relação"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                    {!readOnly ? (
+                      <>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="size-9 rounded-lg"
+                          onClick={() => onStartEdit(item)}
+                          disabled={isSaving}
+                          aria-label="Editar relação"
+                        >
+                          <Pencil className="size-4 text-foreground" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="size-9 rounded-lg text-destructive hover:text-destructive"
+                          onClick={() => onAskDelete(item.sequencia)}
+                          disabled={isSaving}
+                          aria-label="Excluir relação"
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </>
+                    ) : null}
                   </div>
                 )}
               </TableCell>

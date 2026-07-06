@@ -18,6 +18,7 @@ export interface AnotacoesListProps {
   onCancelarEdicao: () => void;
   onSalvarEdicao: () => void | Promise<void>;
   onAskDelete: (sequencia: number) => void;
+  readOnly?: boolean;
 }
 
 export function AnotacoesList({
@@ -29,6 +30,7 @@ export function AnotacoesList({
   onCancelarEdicao,
   onSalvarEdicao,
   onAskDelete,
+  readOnly = false,
 }: AnotacoesListProps) {
   const lista = Array.isArray(anotacoes) ? anotacoes : [];
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -84,55 +86,57 @@ export function AnotacoesList({
               </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-3">
-              {editandoId === item.sequencia ? (
-                <>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={onCancelarEdicao}
-                    className="min-w-[86px] rounded-lg"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={onSalvarEdicao}
-                    className="min-w-[86px]"
-                  >
-                    Salvar
-                  </Button>
-                </>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="size-9 rounded-lg"
-                    onClick={() => onIniciarEdicao(item)}
-                    aria-label="Editar anotação"
-                  >
-                    <Pencil className="size-4 text-foreground" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="size-9 rounded-lg text-destructive hover:text-destructive"
-                    onClick={() => onAskDelete(item.sequencia)}
-                    aria-label="Excluir anotação"
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
+            {!readOnly ? (
+              <div className="flex shrink-0 items-center gap-3">
+                {editandoId === item.sequencia ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={onCancelarEdicao}
+                      className="min-w-[86px] rounded-lg"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={onSalvarEdicao}
+                      className="min-w-[86px]"
+                    >
+                      Salvar
+                    </Button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-9 rounded-lg"
+                      onClick={() => onIniciarEdicao(item)}
+                      aria-label="Editar anotação"
+                    >
+                      <Pencil className="size-4 text-foreground" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-9 rounded-lg text-destructive hover:text-destructive"
+                      onClick={() => onAskDelete(item.sequencia)}
+                      aria-label="Excluir anotação"
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : null}
           </div>
 
-          {editandoId === item.sequencia ? (
+          {editandoId === item.sequencia && !readOnly ? (
             <Textarea
               ref={textareaRef}
               value={editandoTexto}

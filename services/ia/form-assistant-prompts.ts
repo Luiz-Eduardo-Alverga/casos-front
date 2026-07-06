@@ -60,6 +60,20 @@ export async function getFormAssistantPrompts(): Promise<FormAssistantPrompt[]> 
   );
 }
 
+export async function getSelectableFormAssistantPrompts(): Promise<
+  FormAssistantPrompt[]
+> {
+  const response = await fetchWithAuth(
+    "/api/form-assistant-prompts/selectable",
+    { method: "GET" },
+  );
+
+  return parseAssistantApiResponse<FormAssistantPrompt[]>(
+    response,
+    "Erro ao listar prompts selecionáveis do assistente",
+  );
+}
+
 export async function getFormAssistantPromptDefault(): Promise<FormAssistantPrompt> {
   const response = await fetchWithAuth("/api/form-assistant-prompts/default", {
     method: "GET",

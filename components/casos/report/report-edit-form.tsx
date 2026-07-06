@@ -38,6 +38,7 @@ import {
   resolveCasoStatusFromReport,
   resolveReportStatusFromCaso,
 } from "@/components/casos/edicao/report-analise-modal/utils";
+import { isCasoBloqueado } from "@/lib/casos/is-caso-bloqueado";
 import { buildCasoEditSnapshot } from "@/components/casos/edicao/save/edit-snapshot";
 import { computeCasoEditSave } from "@/components/casos/edicao/save/compute-caso-edit-save";
 import { getUser } from "@/lib/auth";
@@ -216,7 +217,9 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
     },
   );
 
-  const canEditCase = !rbacReady || hasPermission("edit-report");
+  const canEditCase =
+    (!rbacReady || hasPermission("edit-report")) &&
+    !isCasoBloqueado(caso?.flags);
 
   const anotacoes = (caso?.anotacoes ??
     []) as ProjetoMemoriaItem["caso"]["anotacoes"];

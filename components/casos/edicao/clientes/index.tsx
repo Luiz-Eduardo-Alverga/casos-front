@@ -17,7 +17,7 @@ import { useClientesProdutosEnderecosUrlPorClientes } from "@/hooks/casos/client
 import toast from "react-hot-toast";
 
 export function AbaClientes({ clientes, isTabActive = false }: AbaClientesProps) {
-  const { numeroCaso, invalidate } = useCasoEdit();
+  const { numeroCaso, invalidate, canEditCase } = useCasoEdit();
   const queryClient = useQueryClient();
   const createClienteCaso = useCreateClienteCaso();
   const deleteClienteCaso = useDeleteClienteCaso();
@@ -106,6 +106,7 @@ export function AbaClientes({ clientes, isTabActive = false }: AbaClientesProps)
             clientes={clientes}
             urlPorCliente={urlPorCliente}
             isLoadingUrls={isLoadingUrls}
+            canDelete={canEditCase}
             onAskDelete={(sequencia) =>
               setExcluirModal({ open: true, sequencia })
             }

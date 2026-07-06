@@ -8,6 +8,7 @@ import z from "zod";
 import { useQueryClient, useIsMutating } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
+import { isCasoBloqueado } from "@/lib/casos/is-caso-bloqueado";
 
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 
@@ -400,7 +401,9 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     }
   });
 
-  const canEditCase = !rbacReady || hasPermission("edit-case");
+  const canEditCase =
+    (!rbacReady || hasPermission("edit-case")) &&
+    !isCasoBloqueado(caso?.flags);
 
   const anotacoes = (caso?.anotacoes ??
     []) as ProjetoMemoriaItem["caso"]["anotacoes"];

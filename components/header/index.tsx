@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import { useTheme } from "next-themes";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
+import Link from "next/link";
 
 export function Header() {
   const { toggleSidebar, isCollapsed } = useSidebar();
@@ -120,29 +121,30 @@ export function Header() {
             </Button>
 
             {canCreateCase && (
-              <Button
-                onClick={() => {
-                  router.push("/casos/novo");
-                }}
-                type="button"
-                className="hidden lg:inline-flex w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-brand-yellow text-black hover:bg-brand-yellow-hover"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Adicionar Caso
-              </Button>
+              <Link href="/casos/novo">
+                <Button
+                  type="button"
+                  className="hidden lg:inline-flex w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-brand-yellow text-black hover:bg-brand-yellow-hover"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Adicionar Caso
+                </Button>
+              </Link>
             )}
 
             {canCreateReport && (
-              <Button
-                onClick={() => {
-                  router.push("/reports/novo");
-                }}
-                type="button"
-                className="hidden lg:inline-flex w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-brand-yellow text-black hover:bg-brand-yellow-hover"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Adicionar Report
-              </Button>
+              <Link href="/reports/novo">
+                <Button
+                  onClick={() => {
+                    router.push("/reports/novo");
+                  }}
+                  type="button"
+                  className="hidden lg:inline-flex w-full sm:w-auto px-4 flex-1 sm:flex-initial bg-brand-yellow text-black hover:bg-brand-yellow-hover"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Adicionar Report
+                </Button>
+              </Link>
             )}
 
             <Separator

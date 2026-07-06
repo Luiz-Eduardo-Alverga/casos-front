@@ -31,15 +31,7 @@ export function Projetos() {
             <FilterX className="h-3.5 w-3.5" />
             Limpar filtros
           </Button>
-          <Button
-            variant="outline"
-            type="button"
-            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
-            onClick={() => router.push("/painel")}
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Voltar ao painel
-          </Button>
+
           {canCreateProject ? (
             <Button
               type="button"

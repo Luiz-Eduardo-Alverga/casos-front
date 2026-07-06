@@ -14,6 +14,7 @@ import {
   Shield,
   Clock3,
   Flag,
+  Building2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -60,7 +61,7 @@ interface SidebarSubitem {
 }
 
 const STANDALONE_NAV_ORDERS = new Set([20]);
-const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 35, 37, 40]);
+const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 35, 36, 37, 40]);
 const RECURSOS_NAV_ORDERS = new Set([50, 60]);
 
 const CADASTROS_SUBITEMS: SidebarSubitem[] = [
@@ -147,6 +148,13 @@ const MAIN_NAV: MainNavEntry[] = [
   },
   {
     type: "link",
+    order: 36,
+    label: "Clientes",
+    href: "/clientes",
+    icon: Building2,
+  },
+  {
+    type: "link",
     order: 40,
     label: "Kanban Adquirentes",
     href: "/cadastros/adquirentes/status",
@@ -216,10 +224,12 @@ export function AppSidebar({
   const canAudit = rbacReady && hasAnyPermission(["audit-all-users", "audit-user"]);
   const canAssignUserRole = rbacReady && hasPermission("assign-user-role");
   const canListUser = rbacReady && hasPermission("list-user");
+  const canListPrompts = rbacReady && hasPermission("list-prompts");
   const configuracoesSubitemsSorted = CONFIGURACOES_SUBITEMS_SORTED.filter(
     (item) => {
       if (item.href === "/configuracoes/perfis") return canAssignUserRole;
       if (item.href === "/configuracoes/usuarios") return canListUser;
+      if (item.href === "/configuracoes/prompts-ia") return canListPrompts;
       return true;
     },
   );

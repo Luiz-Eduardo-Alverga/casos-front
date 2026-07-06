@@ -19,12 +19,14 @@ import type { PromptRow } from "./types";
 interface PromptsIaTableProps {
   rows: PromptRow[];
   togglingId?: string | null;
+  canEdit?: boolean;
   onToggle: (row: PromptRow) => void;
 }
 
 export function PromptsIaTable({
   rows,
   togglingId,
+  canEdit = false,
   onToggle,
 }: PromptsIaTableProps) {
   const router = useRouter();
@@ -45,7 +47,7 @@ export function PromptsIaTable({
       <TableHeader>
         <TableRow>
           <TableHead className="w-[35%]">Nome</TableHead>
-          <TableHead className="w-[30%]">Squad</TableHead>
+          <TableHead className="w-[30%]">Setor</TableHead>
           <TableHead className="w-[15%]">Status</TableHead>
           <TableHead className="w-[20%] text-right">Ações</TableHead>
         </TableRow>
@@ -79,7 +81,7 @@ export function PromptsIaTable({
                   <Switch
                     checked={row.isActive}
                     onCheckedChange={() => onToggle(row)}
-                    disabled={isDefault || isToggling}
+                    disabled={!canEdit || isDefault || isToggling}
                     aria-label={
                       row.isActive
                         ? `Desativar prompt ${row.name}`
@@ -87,22 +89,30 @@ export function PromptsIaTable({
                     }
                   />
                   <span className="text-xs text-text-secondary">
-                    {isToggling ? "Aguarde..." : row.isActive ? "Ativo" : "Inativo"}
+                    {isToggling
+                      ? "Aguarde..."
+                      : row.isActive
+                        ? "Ativo"
+                        : "Inativo"}
                   </span>
                 </div>
               </TableCell>
 
               <TableCell className="py-3 text-right">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    router.push(`/configuracoes/prompts-ia/${row.id}`)
-                  }
-                >
-                  Editar
-                </Button>
+                {canEdit ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      router.push(`/configuracoes/prompts-ia/${row.id}`)
+                    }
+                  >
+                    Editar
+                  </Button>
+                ) : (
+                  <span className="text-xs text-text-secondary">—</span>
+                )}
               </TableCell>
             </TableRow>
           );

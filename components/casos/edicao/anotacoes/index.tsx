@@ -26,6 +26,7 @@ export function AbaAnotacoes({ report, anotacoes }: AbaAnotacoesProps) {
     invalidate,
     novaAnotacaoDraft,
     setNovaAnotacaoDraft,
+    canEditCase,
   } = useCasoEdit();
   const createAnotacao = useCreateAnotacao();
   const updateAnotacao = useUpdateAnotacao();
@@ -123,7 +124,7 @@ export function AbaAnotacoes({ report, anotacoes }: AbaAnotacoesProps) {
             value={novaAnotacaoDraft}
             onChange={setNovaAnotacaoDraft}
             onSave={handleAdicionar}
-            disabled={createAnotacao.isPending}
+            disabled={createAnotacao.isPending || !canEditCase}
             onImproveWithIA={handleMelhorarComIA}
             isImproving={improveReport.isPending}
           />
@@ -139,6 +140,7 @@ export function AbaAnotacoes({ report, anotacoes }: AbaAnotacoesProps) {
             onAskDelete={(sequencia) =>
               setExcluirModal({ open: true, sequencia })
             }
+            readOnly={!canEditCase}
           />
         </CardContent>
       </Card>

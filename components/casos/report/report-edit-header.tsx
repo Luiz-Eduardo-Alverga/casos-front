@@ -59,7 +59,7 @@ export function ReportEditHeader({
   showAnexosTab,
 }: ReportEditHeaderProps) {
   const router = useRouter();
-  const { memoriaQueryId, invalidate } = useCasoEdit();
+  const { memoriaQueryId, invalidate, canEditCase } = useCasoEdit();
   const clonarCaso = useClonarCaso();
   const deleteCaso = useDeleteCaso();
   const [excluirCasoModal, setExcluirCasoModal] = useState(false);
@@ -213,7 +213,9 @@ export function ReportEditHeader({
                   variant="outline"
                   className="w-full border-destructive/30 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
                   onClick={() => setExcluirCasoModal(true)}
-                  disabled={deleteCaso.isPending || !canDeleteCase}
+                  disabled={
+                    deleteCaso.isPending || !canDeleteCase || !canEditCase
+                  }
                 >
                   <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                   Excluir
@@ -231,7 +233,7 @@ export function ReportEditHeader({
             variant="outline"
             className="flex-1 px-3"
             onClick={handleClonar}
-            disabled={clonarCaso.isPending}
+            disabled={clonarCaso.isPending || !canEditCase}
           >
             <Copy className="mr-1.5 h-3.5 w-3.5" />
             {clonarCaso.isPending ? "Clonando..." : "Clonar"}

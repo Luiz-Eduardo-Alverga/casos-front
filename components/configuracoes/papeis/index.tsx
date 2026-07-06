@@ -33,7 +33,10 @@ import type {
 import { useAssignerHierarchy } from "@/hooks/configuracoes/use-assigner-hierarchy";
 import { getPermissions } from "@/lib/auth";
 import { permissionsLoaded } from "@/lib/rbac-client";
-import { canManageRoleLevel, isHybridPermissionRuleExempt } from "@/lib/rbac-hierarchy";
+import {
+  canManageRoleLevel,
+  isHybridPermissionRuleExempt,
+} from "@/lib/rbac-hierarchy";
 import { arePermissionSetsEqual } from "./utils";
 
 interface PapeisEAcessosProps {
@@ -61,8 +64,7 @@ export function PapeisEAcessos({
 
   const assignerQuery = useAssignerHierarchy();
   const assignerLevel = assignerQuery.data?.hierarchyLevel ?? null;
-  const minNewHierarchyLevel =
-    assignerLevel !== null ? assignerLevel + 1 : 1;
+  const minNewHierarchyLevel = assignerLevel !== null ? assignerLevel + 0 : 1;
 
   const rolesQuery = useDbRolesWithCount(debouncedSearch);
   const modulesQuery = useDbPermissionModulesWithPermissions();

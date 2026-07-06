@@ -33,8 +33,9 @@ import {
 } from "lucide-react";
 import { UseFormRegister, UseFormHandleSubmit } from "react-hook-form";
 import { useAudioRecorder } from "@/hooks/assistant/use-audio-recorder";
-import { useFormAssistantPrompts } from "@/hooks/assistant/use-form-assistant-prompts";
+import { useSelectableAssistantPrompts } from "@/hooks/assistant/use-selectable-assistant-prompts";
 import { getUser } from "@/lib/auth";
+import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 import type { FormAssistantPrompt } from "@/lib/types/form-assistant-prompts";
 import { AssistantPromptPreview } from "./assistant-prompt-preview";
 
@@ -102,8 +103,11 @@ export function AssistantModal({
     useState<string>(DEFAULT_PROMPT_KEY);
 
   const user = getUser();
+  const rbacReady = permissionsLoaded();
+  const canEditPrompt = !rbacReady || hasPermission("edit-prompts");
+
   const { data: prompts, isLoading: isLoadingPrompts } =
-    useFormAssistantPrompts();
+    useSelectableAssistantPrompts({ enabled: isOpen });
 
   const activePrompts = useMemo(
     () => (prompts ?? []).filter((prompt) => prompt.isActive),
@@ -458,7 +462,7 @@ export function AssistantModal({
                   <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
                     Estrutura do prompt
                   </span>
-                  {selectedPrompt?.id && !useDefaultPromptOnly && (
+                  {selectedPrompt?.id && !useDefaultPromptOnly && canEditPrompt && (
                     <Link
                       href={`/configuracoes/prompts-ia/${selectedPrompt.id}`}
                       target="_blank"

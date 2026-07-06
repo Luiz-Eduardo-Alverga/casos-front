@@ -67,7 +67,7 @@ export function CasoEditHeader({
   const router = useRouter();
   const searchParams = useSearchParams();
   const standalone = isCasoStandaloneMode(searchParams);
-  const { memoriaQueryId, invalidate } = useCasoEdit();
+  const { memoriaQueryId, invalidate, canEditCase } = useCasoEdit();
   const clonarCaso = useClonarCaso();
   const deleteCaso = useDeleteCaso();
   const [excluirCasoModal, setExcluirCasoModal] = useState(false);
@@ -247,7 +247,7 @@ export function CasoEditHeader({
             variant="outline"
             className=" px-3 flex-1"
             onClick={handleClonar}
-            disabled={clonarCaso.isPending}
+            disabled={clonarCaso.isPending || !canEditCase}
           >
             <Copy className="h-3.5 w-3.5 mr-1.5" />
             {clonarCaso.isPending ? "Clonando..." : "Clonar"}
@@ -260,7 +260,9 @@ export function CasoEditHeader({
                   variant="outline"
                   className="w-full px-3 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
                   onClick={() => setExcluirCasoModal(true)}
-                  disabled={deleteCaso.isPending || !canDeleteCase}
+                  disabled={
+                    deleteCaso.isPending || !canDeleteCase || !canEditCase
+                  }
                 >
                   <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                   Excluir

@@ -21,11 +21,13 @@ export interface AbaAnexosProps {
 }
 
 export function AbaAnexos({ casoRegistro }: AbaAnexosProps) {
-  const { numeroCaso } = useCasoEdit();
+  const { numeroCaso, canEditCase } = useCasoEdit();
   const rbacReady = permissionsLoaded();
   const canList = !rbacReady || hasPermission("list-case-attachment");
-  const canCreate = !rbacReady || hasPermission("create-case-attachment");
-  const canDelete = !rbacReady || hasPermission("delete-case-attachment");
+  const canCreate =
+    canEditCase && (!rbacReady || hasPermission("create-case-attachment"));
+  const canDelete =
+    canEditCase && (!rbacReady || hasPermission("delete-case-attachment"));
 
   const { data: items = [], isLoading, isError, error } = useCaseAttachments({
     casoRegistro,
@@ -86,13 +88,15 @@ export function AbaAnexos({ casoRegistro }: AbaAnexosProps) {
               embedded
               files={stagingFiles}
               onFilesChange={setStagingFiles}
-              disabled={uploadBatch.isPending}
+              disabled={uploadBatch.isPending || !canEditCase}
             />
             <Button
               type="button"
               onClick={() => void handleEnviar()}
               disabled={
-                stagingFiles.length === 0 || uploadBatch.isPending
+                stagingFiles.length === 0 ||
+                uploadBatch.isPending ||
+                !canEditCase
               }
             >
               {uploadBatch.isPending ? "Enviando…" : "Enviar anexos"}

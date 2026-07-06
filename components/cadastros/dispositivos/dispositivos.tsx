@@ -143,15 +143,7 @@ export function Dispositivos({ initialSearch }: DispositivosProps) {
             <FilterX className="h-3.5 w-3.5" />
             Limpar busca
           </Button>
-          <Button
-            variant="outline"
-            type="button"
-            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
-            onClick={() => router.push("/painel")}
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Voltar ao Painel
-          </Button>
+
           {canCreate && (
             <Button
               type="button"

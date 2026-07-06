@@ -8,10 +8,12 @@ import { useFormContext, useWatch } from "react-hook-form";
 
 interface CasoEditClienteComboboxProps {
   onClienteChange: (registro: string | undefined) => void;
+  disabled?: boolean;
 }
 
 export function CasoEditClienteCombobox({
   onClienteChange,
+  disabled = false,
 }: CasoEditClienteComboboxProps) {
   const { control } = useFormContext();
 
@@ -58,6 +60,7 @@ export function CasoEditClienteCombobox({
       label="Cliente"
       icon={Users}
       options={clientesOptions}
+      disabled={disabled}
       placeholder="Pesquisar cliente..."
       emptyText={
         clienteSearch.trim().length < 2

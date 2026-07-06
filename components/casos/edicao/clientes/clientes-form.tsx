@@ -29,7 +29,7 @@ export function ClientesForm({
   clienteSelecionado,
   onAdd,
 }: ClientesFormProps) {
-  const { numeroCaso } = useCasoEdit();
+  const { numeroCaso, canEditCase } = useCasoEdit();
   const { setValue } = methods;
 
   const handleClienteComboboxChange = useCallback(
@@ -58,6 +58,7 @@ export function ClientesForm({
       <div className="space-y-2 min-w-[220px] flex-1">
         <CasoEditClienteCombobox
           onClienteChange={handleClienteComboboxChange}
+          disabled={!canEditCase}
         />
       </div>
 
@@ -74,7 +75,7 @@ export function ClientesForm({
           min={1}
           placeholder="Ex: 68703"
           className="h-9 rounded-lg border-border-input px-[17px] py-3"
-          disabled={isAdding || Boolean(clienteSelecionado)}
+          disabled={isAdding || Boolean(clienteSelecionado) || !canEditCase}
           {...methods.register("clienteId")}
         />
       </div>
@@ -82,7 +83,7 @@ export function ClientesForm({
       <Button
         type="button"
         onClick={handleAdicionar}
-        disabled={!clienteId.trim() || isAdding}
+        disabled={!clienteId.trim() || isAdding || !canEditCase}
         className="shrink-0 h-9"
       >
         <UserPlus className="h-3.5 w-3.5 mr-2" />

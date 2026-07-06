@@ -122,6 +122,7 @@ export interface ClientesTableProps {
   clientes: ClienteCasoItem[];
   urlPorCliente: Map<number, string>;
   isLoadingUrls?: boolean;
+  canDelete?: boolean;
   onAskDelete: (sequencia: number) => void;
 }
 
@@ -129,6 +130,7 @@ export function ClientesTable({
   clientes,
   urlPorCliente,
   isLoadingUrls,
+  canDelete = true,
   onAskDelete,
 }: ClientesTableProps) {
   const lista = Array.isArray(clientes) ? clientes : [];
@@ -195,15 +197,17 @@ export function ClientesTable({
               />
             </TableCell>
             <TableCell className="py-3 px-2.5">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 text-destructive hover:text-destructive"
-                onClick={() => onAskDelete(item.sequencia)}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
+              {canDelete ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-destructive hover:text-destructive"
+                  onClick={() => onAskDelete(item.sequencia)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              ) : null}
             </TableCell>
           </TableRow>
         ))}

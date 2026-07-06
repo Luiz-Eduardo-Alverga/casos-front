@@ -17,7 +17,7 @@ import { useDeleteCasoRelacao } from "@/hooks/casos/relacoes/use-delete-caso-rel
 import toast from "react-hot-toast";
 
 export function AbaRelacoes({ relacoes }: AbaRelacoesProps) {
-  const { numeroCaso, invalidate } = useCasoEdit();
+  const { numeroCaso, invalidate, canEditCase } = useCasoEdit();
   const createCasoRelacao = useCreateCasoRelacao();
   const updateCasoRelacao = useUpdateCasoRelacao();
   const deleteCasoRelacao = useDeleteCasoRelacao();
@@ -103,7 +103,7 @@ export function AbaRelacoes({ relacoes }: AbaRelacoesProps) {
             <RelacoesForm
               methods={methods}
               isSaving={isSaving}
-              disabled={isEditing}
+              disabled={isEditing || !canEditCase}
               canSubmit={canSubmit}
               onSubmit={async () => {
                 if (isEditing) return;
@@ -150,6 +150,7 @@ export function AbaRelacoes({ relacoes }: AbaRelacoesProps) {
               onAskDelete={(sequencia) =>
                 setExcluirModal({ open: true, sequencia })
               }
+              readOnly={!canEditCase}
             />
           </CardContent>
         </Card>
