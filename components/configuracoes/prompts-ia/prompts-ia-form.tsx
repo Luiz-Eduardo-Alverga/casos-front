@@ -15,6 +15,7 @@ import {
   Lock,
   Save,
   ShieldCheck,
+  Trash2,
   Users,
   Package,
 } from "lucide-react";
@@ -37,6 +38,9 @@ import { useFormAssistantPrompts } from "@/hooks/assistant/use-form-assistant-pr
 import { useCreateFormAssistantPrompt } from "@/hooks/assistant/use-create-form-assistant-prompt";
 import { useUpdateFormAssistantPrompt } from "@/hooks/assistant/use-update-form-assistant-prompt";
 import { useToggleFormAssistantPrompt } from "@/hooks/assistant/use-toggle-form-assistant-prompt";
+import { useDeleteFormAssistantPrompt } from "@/hooks/assistant/use-delete-form-assistant-prompt";
+import { ConfirmarExclusaoPapelModal } from "@/components/configuracoes/papeis/confirmar-exclusao-papel-modal";
+import { PromptsIaDicasModal } from "./prompts-ia-dicas-modal";
 import { getAppUser, getUser } from "@/lib/auth";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -126,6 +130,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
   const createMutation = useCreateFormAssistantPrompt();
   const updateMutation = useUpdateFormAssistantPrompt();
   const toggleMutation = useToggleFormAssistantPrompt();
+  const deleteMutation = useDeleteFormAssistantPrompt();
 
   const {
     register,
@@ -217,6 +222,9 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
 
   const { isCollapsed } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmationText, setDeleteConfirmationText] = useState("");
+  const [dicasModalOpen, setDicasModalOpen] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -224,6 +232,28 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  function handleOpenDeleteModal() {
+    if (!prompt || isDefault) return;
+    setDeleteConfirmationText("");
+    setDeleteModalOpen(true);
+  }
+
+  async function handleConfirmDelete() {
+    if (!prompt) return;
+
+    try {
+      await deleteMutation.mutateAsync(prompt.id);
+      toast.success("Prompt excluído com sucesso.");
+      setDeleteModalOpen(false);
+      setDeleteConfirmationText("");
+      router.push("/configuracoes/prompts-ia");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Erro ao excluir prompt.",
+      );
+    }
+  }
 
   return (
     <ListagemPageLayout
@@ -374,42 +404,16 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                   Template do prompt <span className="text-destructive">*</span>
                 </CardTitle>
               </div>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="h-8 gap-1.5 text-xs"
-                    >
-                      <Lightbulb className="h-3.5 w-3.5" />
-                      Dicas
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="left"
-                    className="max-w-[300px] space-y-1"
-                  >
-                    <p className="font-semibold">Variáveis disponíveis:</p>
-                    <p>
-                      <code>{"{{produtos}}"}</code> — lista de produtos injetada
-                      pelo backend
-                    </p>
-                    <p>
-                      <code>{"{{usuarios}}"}</code> — membros do squad
-                    </p>
-                    <p>
-                      <code>{"{{schema_json}}"}</code> — formato de saída
-                      esperado
-                    </p>
-                    <p className="text-muted-foreground pt-1">
-                      Inclua apenas as regras editáveis — o backend injeta os
-                      dados automaticamente.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 text-xs"
+                onClick={() => setDicasModalOpen(true)}
+              >
+                <Lightbulb className="h-3.5 w-3.5" />
+                Dicas
+              </Button>
             </div>
           </CardHeader>
 
@@ -433,7 +437,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                 )}
               />
               <div className="flex items-center justify-between px-4 py-2 border-t border-border-divider text-xs text-text-secondary">
-                <span>
+                {/* <span>
                   Variáveis:{" "}
                   {(() => {
                     const matches = templateValue.match(/\{\{[^}]+\}\}/g);
@@ -442,8 +446,10 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                     const unique = [...new Set(matches)];
                     return unique.join(", ");
                   })()}
+                </span> */}
+                <span className="ml-auto">
+                  {templateValue.length} caracteres
                 </span>
-                <span>{templateValue.length} caracteres</span>
               </div>
             </>
           )}
@@ -455,7 +461,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
         </Card>
 
         {/* Card Dados injetados */}
-        <Card className="bg-card shadow-card rounded-lg shrink-0">
+        {/* <Card className="bg-card shadow-card rounded-lg shrink-0">
           <CardHeader className="p-4 pb-2 border-b border-border-divider">
             <div className="flex items-center gap-2">
               <Lock className="h-3.5 w-3.5 text-text-primary" />
@@ -469,7 +475,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
           </CardHeader>
           <CardContent className="p-6 pt-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Produtos */}
+              
               <div className="space-y-2 p-4 rounded-lg border border-border-divider bg-muted/20">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -480,7 +486,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                   </div>
                   <Badge
                     variant="outline"
-                    className="font-mono text-xs rounded"
+                    className="font-mono text-xs bg-indigo-50 text-indigo-600"
                   >
                     {"{{produtos}}"}
                   </Badge>
@@ -490,7 +496,11 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                   de execução.
                 </p>
                 <div className="flex flex-wrap gap-1 pt-1">
-                  {["API Gateway", "Painel Admin", "Mobile App"].map((p) => (
+                  {[
+                    "Smart (Softcom Smart)",
+                    "SOFTCOMSHOP",
+                    "PDV - Softshop Caixa",
+                  ].map((p) => (
                     <Badge
                       key={p}
                       variant="secondary"
@@ -508,7 +518,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                 </div>
               </div>
 
-              {/* Usuários */}
+             
               <div className="space-y-2 p-4 rounded-lg border border-border-divider bg-muted/20">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -519,7 +529,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                   </div>
                   <Badge
                     variant="outline"
-                    className="font-mono text-xs rounded"
+                    className="font-mono text-xs bg-indigo-50 text-indigo-600"
                   >
                     {"{{usuarios}}"}
                   </Badge>
@@ -530,7 +540,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                 </p>
               </div>
 
-              {/* Schema JSON */}
+              
               <div className="space-y-2 p-4 rounded-lg border border-border-divider bg-muted/20">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -541,7 +551,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
                   </div>
                   <Badge
                     variant="outline"
-                    className="font-mono text-xs rounded"
+                    className="font-mono text-xs bg-indigo-50 text-indigo-600"
                   >
                     {"{{schema_json}}"}
                   </Badge>
@@ -555,8 +565,66 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
+
+        {isEdit && !isDefault && !isLoadingEdit && (
+          <Card className="bg-card shadow-card rounded-lg shrink-0 border border-border-divider">
+            <CardContent className="p-5">
+              <div className="space-y-3">
+                <h3 className="text-sm font-bold text-destructive">
+                  Zona de Perigo
+                </h3>
+                <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-destructive">
+                        Excluir este prompt
+                      </p>
+                      <p className="text-xs text-destructive">
+                        Esta ação não pode ser desfeita. O squad passará a usar
+                        o prompt padrão após a exclusão.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={handleOpenDeleteModal}
+                      disabled={isPending || deleteMutation.isPending}
+                      variant="destructive"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Excluir prompt
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </form>
+
+      <PromptsIaDicasModal
+        open={dicasModalOpen}
+        onOpenChange={setDicasModalOpen}
+      />
+
+      {isEdit && prompt && (
+        <ConfirmarExclusaoPapelModal
+          open={deleteModalOpen}
+          roleName={prompt.name}
+          confirmationText={deleteConfirmationText}
+          onConfirmationTextChange={setDeleteConfirmationText}
+          isDeleting={deleteMutation.isPending}
+          onOpenChange={(next) => {
+            if (deleteMutation.isPending) return;
+            setDeleteModalOpen(next);
+            if (!next) setDeleteConfirmationText("");
+          }}
+          onConfirm={handleConfirmDelete}
+          confirmationInputLabel="Insira o nome do prompt"
+          confirmButtonLabel="Excluir prompt"
+          description={`Deseja mesmo excluir o prompt "${prompt.name}"? Esta ação é irreversível.`}
+        />
+      )}
 
       {/* Footer fixo */}
       <footer

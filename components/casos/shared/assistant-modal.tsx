@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -27,12 +27,16 @@ import {
   Check,
   Play,
   Square,
+  Info,
+  ExternalLink,
+  ShieldCheck,
 } from "lucide-react";
 import { UseFormRegister, UseFormHandleSubmit } from "react-hook-form";
 import { useAudioRecorder } from "@/hooks/assistant/use-audio-recorder";
 import { useFormAssistantPrompts } from "@/hooks/assistant/use-form-assistant-prompts";
 import { getUser } from "@/lib/auth";
 import type { FormAssistantPrompt } from "@/lib/types/form-assistant-prompts";
+import { AssistantPromptPreview } from "./assistant-prompt-preview";
 
 const DEFAULT_PROMPT_KEY = "__default__";
 
@@ -51,6 +55,12 @@ function promptOptionLabel(prompt: FormAssistantPrompt): string {
   return `${prompt.squadSetor} — ${prompt.name}`;
 }
 
+function promptHelperText(prompt: FormAssistantPrompt | null): string {
+  if (!prompt) return "";
+  if (prompt.squadSetor === null) return "Prompt padrão global.";
+  return `Prompt exclusivo do ${prompt.squadSetor}.`;
+}
+
 interface AssistantModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -60,6 +70,8 @@ interface AssistantModalProps {
   isRecording: boolean;
   onToggleRecording: () => void;
   isAssistantSubmitting: boolean;
+  /** Quando true, usa sempre o prompt padrão e oculta o Select de prompts. */
+  useDefaultPromptOnly?: boolean;
 }
 
 export function AssistantModal({
@@ -68,9 +80,8 @@ export function AssistantModal({
   register,
   handleSubmit,
   onSubmit,
-  isRecording: externalIsRecording,
-  onToggleRecording: externalOnToggleRecording,
   isAssistantSubmitting,
+  useDefaultPromptOnly = false,
 }: AssistantModalProps) {
   const {
     isRecording,
@@ -86,7 +97,6 @@ export function AssistantModal({
     error,
   } = useAudioRecorder();
 
-  // Controle do valor da descrição para validação
   const [description, setDescription] = useState("");
   const [selectedPromptKey, setSelectedPromptKey] =
     useState<string>(DEFAULT_PROMPT_KEY);
@@ -100,8 +110,26 @@ export function AssistantModal({
     [prompts],
   );
 
+  const selectedPrompt = useMemo(() => {
+    if (activePrompts.length === 0) return null;
+    return (
+      activePrompts.find(
+        (prompt) => promptOptionKey(prompt) === selectedPromptKey,
+      ) ??
+      activePrompts.find((prompt) => prompt.squadSetor === null) ??
+      activePrompts[0]
+    );
+  }, [activePrompts, selectedPromptKey]);
+
   useEffect(() => {
-    if (!isOpen || activePrompts.length === 0) return;
+    if (!isOpen) return;
+
+    if (useDefaultPromptOnly) {
+      setSelectedPromptKey(DEFAULT_PROMPT_KEY);
+      return;
+    }
+
+    if (activePrompts.length === 0) return;
 
     const userSetor = user?.setor?.trim();
     const squadPrompt = userSetor
@@ -111,15 +139,13 @@ export function AssistantModal({
     setSelectedPromptKey(
       squadPrompt ? promptOptionKey(squadPrompt) : DEFAULT_PROMPT_KEY,
     );
-  }, [isOpen, activePrompts, user?.setor]);
+  }, [isOpen, activePrompts, user?.setor, useDefaultPromptOnly]);
 
-  // Controle de reprodução de áudio
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(
     null,
   );
 
-  // Formatar tempo como MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -145,7 +171,6 @@ export function AssistantModal({
   };
 
   const handleDeleteRecording = async () => {
-    // Parar reprodução se estiver tocando
     if (audioElement) {
       audioElement.pause();
       audioElement.currentTime = 0;
@@ -158,7 +183,6 @@ export function AssistantModal({
     if (!audioUrl) return;
 
     if (!audioElement) {
-      // Criar elemento de áudio
       const audio = new Audio(audioUrl);
       audio.addEventListener("ended", () => {
         setIsPlaying(false);
@@ -166,22 +190,18 @@ export function AssistantModal({
       audio.play();
       setAudioElement(audio);
       setIsPlaying(true);
+    } else if (isPlaying) {
+      audioElement.pause();
+      setIsPlaying(false);
     } else {
-      if (isPlaying) {
-        audioElement.pause();
-        setIsPlaying(false);
-      } else {
-        audioElement.play();
-        setIsPlaying(true);
-      }
+      audioElement.play();
+      setIsPlaying(true);
     }
   };
 
   const handleFormSubmit = async (data: any) => {
-    // Não finaliza automaticamente - usuário deve finalizar manualmente
     const finalAudioBlob = audioBlob;
 
-    // Se houver áudio gravado, incluir no envio
     const submitData = {
       ...data,
       squadSetor: squadSetorFromOptionKey(selectedPromptKey),
@@ -196,20 +216,17 @@ export function AssistantModal({
 
     onSubmit(submitData);
 
-    // Limpar após envio
     if (finalAudioBlob) {
       await deleteRecording();
     }
   };
 
-  // Limpar ao fechar o modal
   useEffect(() => {
     if (!isOpen) {
       const cleanup = async () => {
         if (isRecording) {
           await stopRecording();
         }
-        // Parar e limpar áudio
         if (audioElement) {
           audioElement.pause();
           audioElement.currentTime = 0;
@@ -225,7 +242,6 @@ export function AssistantModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  // Cleanup do elemento de áudio quando o audioUrl mudar
   useEffect(() => {
     if (!audioUrl && audioElement) {
       audioElement.pause();
@@ -235,195 +251,259 @@ export function AssistantModal({
   }, [audioUrl, audioElement]);
 
   const hasRecording = audioBlob !== null || isRecording;
-
-  // Validação: deve ter descrição OU áudio gravado (não em gravação)
   const canSubmit =
     (description.trim() !== "" || audioBlob !== null) && !isAssistantSubmitting;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <DialogTitle>Assistente de Voz/Texto IA</DialogTitle>
-          </div>
-          <DialogDescription>
-            Descreva o bug e nós preencheremos o formulário para você
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          <div className="flex flex-col gap-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-text-label">
-                Prompt do assistente
-              </Label>
-              <Select
-                value={selectedPromptKey}
-                onValueChange={setSelectedPromptKey}
-                disabled={
-                  isLoadingPrompts ||
-                  isAssistantSubmitting ||
-                  activePrompts.length === 0
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue
-                    placeholder={
-                      isLoadingPrompts
-                        ? "Carregando prompts..."
-                        : "Selecione um prompt"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {activePrompts.map((prompt) => (
-                    <SelectItem
-                      key={prompt.id}
-                      value={promptOptionKey(prompt)}
-                    >
-                      {promptOptionLabel(prompt)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+    <Sheet
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <SheetContent
+        side="right"
+        className="flex h-full w-full flex-col gap-0 overflow-hidden border-border-divider p-0 sm:max-w-[960px]"
+      >
+        <div className="shrink-0 border-b border-border-divider px-6 py-4">
+          <div className="flex items-start gap-3 pr-8">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-r from-gradient-start to-gradient-end">
+              <Sparkles className="h-5 w-5 text-white" />
             </div>
+            <div className="space-y-1">
+              <SheetTitle className="text-lg font-bold text-text-primary">
+                Assistente de Voz/Texto IA
+              </SheetTitle>
+              <SheetDescription className="text-sm text-text-secondary">
+                Descreva o caso e nós preencheremos o formulário para você.
+              </SheetDescription>
+            </div>
+          </div>
+        </div>
 
-            {/* Recording Bar (aparece quando está gravando ou tem áudio) */}
-            {hasRecording && (
-              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                {/* Botão de deletar */}
-                <button
-                  type="button"
-                  onClick={handleDeleteRecording}
-                  className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center hover:bg-destructive/20 transition-colors"
-                >
-                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                </button>
+        <form
+          onSubmit={handleSubmit(handleFormSubmit)}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className="flex min-h-0 flex-1 overflow-hidden lg:flex-row lg:divide-x lg:divide-border-divider">
+            {/* Coluna esquerda — relato */}
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden p-6">
+              <Label className="shrink-0 text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                Descreva o problema
+              </Label>
 
-                {/* Bolinha vermelha e timer */}
-                {isRecording && (
-                  <div className="flex items-center gap-2 flex-1">
-                    <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
-                    <span className="text-sm font-mono text-foreground">
-                      {formatTime(recordingTime)}
-                    </span>
-                  </div>
-                )}
+              {hasRecording && (
+                <div className="flex shrink-0 items-center gap-3 rounded-lg bg-muted p-3">
+                  <button
+                    type="button"
+                    onClick={handleDeleteRecording}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-destructive/20"
+                  >
+                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                  </button>
 
-                {/* Botões de controle de gravação */}
-                {isRecording && (
-                  <div className="flex items-center gap-2">
-                    {/* Botão pause/resume */}
-                    <button
-                      type="button"
-                      onClick={handleToggleRecording}
-                      className="flex-shrink-0 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors"
-                    >
-                      {isPaused ? (
-                        <Mic className="h-5 w-5 text-primary-foreground" />
-                      ) : (
-                        <Pause className="h-5 w-5 text-primary-foreground" />
-                      )}
-                    </button>
-
-                    {/* Botão finalizar/salvar (apenas quando pausado) */}
-                    {isPaused && (
-                      <button
-                        type="button"
-                        onClick={handleStopRecording}
-                        className="flex-shrink-0 w-10 h-10 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center transition-colors"
-                        title="Finalizar gravação"
-                      >
-                        <Check className="h-5 w-5 text-white" />
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                {/* Indicador de áudio gravado (quando não está gravando mas tem áudio) */}
-                {!isRecording && audioBlob && (
-                  <>
-                    <div className="flex items-center gap-2 flex-1">
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full" />
-                      <span className="text-sm font-mono text-muted-foreground">
+                  {isRecording && (
+                    <div className="flex flex-1 items-center gap-2">
+                      <div className="h-2 w-2 animate-pulse rounded-full bg-destructive" />
+                      <span className="font-mono text-sm text-foreground">
                         {formatTime(recordingTime)}
                       </span>
-                      <span className="text-xs text-muted-foreground ml-2">
-                        Áudio gravado
-                      </span>
                     </div>
+                  )}
 
-                    {/* Botão para reproduzir áudio */}
-                    <button
-                      type="button"
-                      onClick={handlePlayPause}
-                      className="flex-shrink-0 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors"
-                      title={isPlaying ? "Parar áudio" : "Reproduzir áudio"}
-                    >
-                      {isPlaying ? (
-                        <Square className="h-5 w-5 text-primary-foreground" />
-                      ) : (
-                        <Play className="h-5 w-5 text-primary-foreground" />
+                  {isRecording && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleToggleRecording}
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary transition-colors hover:bg-primary/90"
+                      >
+                        {isPaused ? (
+                          <Mic className="h-5 w-5 text-primary-foreground" />
+                        ) : (
+                          <Pause className="h-5 w-5 text-primary-foreground" />
+                        )}
+                      </button>
+                      {isPaused && (
+                        <button
+                          type="button"
+                          onClick={handleStopRecording}
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-600 transition-colors hover:bg-green-700"
+                          title="Finalizar gravação"
+                        >
+                          <Check className="h-5 w-5 text-white" />
+                        </button>
                       )}
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
+                    </div>
+                  )}
 
-            {/* Text Input with Microphone Button inside */}
-            <div className="space-y-2">
-              <div className="relative">
+                  {!isRecording && audioBlob && (
+                    <>
+                      <div className="flex flex-1 items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-muted-foreground" />
+                        <span className="font-mono text-sm text-muted-foreground">
+                          {formatTime(recordingTime)}
+                        </span>
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          Áudio gravado
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handlePlayPause}
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary transition-colors hover:bg-primary/90"
+                        title={isPlaying ? "Parar áudio" : "Reproduzir áudio"}
+                      >
+                        {isPlaying ? (
+                          <Square className="h-5 w-5 text-primary-foreground" />
+                        ) : (
+                          <Play className="h-5 w-5 text-primary-foreground" />
+                        )}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+
+              <div className="relative flex min-h-0 flex-1 flex-col">
                 <Textarea
                   placeholder="Descreva o problema com suas próprias palavras... (ex: 'O botão de login não funciona no Safari do iPhone')"
-                  className="min-h-[120px] h-[150px] sm:h-auto resize-none text-base rounded-lg border-border-input px-[17px] py-[13px] pr-12 pb-10"
+                  className="h-full min-h-0 flex-1 resize-none rounded-lg border-border-input px-4 py-3 pr-12 text-base"
                   {...register("description", {
                     onChange: (e) => setDescription(e.target.value),
                   })}
                   disabled={isRecording || isPaused}
                 />
-                {/* Microphone Button inside textarea */}
-                {!hasRecording && (
+                {/* {!hasRecording && (
                   <button
                     type="button"
                     onClick={handleToggleRecording}
-                    className="absolute bottom-2 right-2 flex-shrink-0 w-10 h-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg"
+                    className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary shadow-md transition-all hover:bg-primary/90 hover:shadow-lg"
                   >
                     <Mic className="h-5 w-5 text-primary-foreground" />
                   </button>
-                )}
+                )} */}
               </div>
-              {error && <p className="text-xs text-destructive">{error}</p>}
+
+              {error && (
+                <p className="shrink-0 text-xs text-destructive">{error}</p>
+              )}
+
+              <div className="flex shrink-0 gap-2 rounded-lg border border-border-divider bg-indigo-50/30 p-3">
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+                <p className="text-xs leading-relaxed text-indigo-500">
+                  O assistente usa as regras do prompt selecionado ao lado para
+                  identificar categoria, título e descrição. Produtos, usuários
+                  e o restante do formulário são preenchidos automaticamente a
+                  partir do relato.
+                </p>
+              </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                disabled={!canSubmit}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                {isAssistantSubmitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Preenchendo...
-                  </>
+            {/* Coluna direita — prompt */}
+            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden bg-muted/20 p-6 lg:w-[360px] lg:shrink-0 lg:flex-none">
+              <div className="shrink-0 space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                  Prompt do assistente
+                </Label>
+
+                {useDefaultPromptOnly ? (
+                  <div className="flex h-10 items-center gap-2 rounded-lg border border-border-input bg-card px-3">
+                    <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
+                    <span className="truncate text-sm font-medium text-text-primary">
+                      {selectedPrompt?.name ?? "Prompt padrão"}
+                    </span>
+                  </div>
                 ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Preencher Automaticamente
-                  </>
+                  <Select
+                    value={selectedPromptKey}
+                    onValueChange={setSelectedPromptKey}
+                    disabled={
+                      isLoadingPrompts ||
+                      isAssistantSubmitting ||
+                      activePrompts.length === 0
+                    }
+                  >
+                    <SelectTrigger className="w-full bg-card">
+                      <SelectValue
+                        placeholder={
+                          isLoadingPrompts
+                            ? "Carregando prompts..."
+                            : "Selecione um prompt"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activePrompts.map((prompt) => (
+                        <SelectItem
+                          key={prompt.id}
+                          value={promptOptionKey(prompt)}
+                        >
+                          {promptOptionLabel(prompt)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
-              </Button>
+
+                <p className="text-xs text-text-secondary">
+                  {isLoadingPrompts
+                    ? "Carregando informações do prompt..."
+                    : promptHelperText(selectedPrompt)}
+                </p>
+              </div>
+
+              <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+                <div className="flex shrink-0 items-center justify-between gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                    Estrutura do prompt
+                  </span>
+                  {selectedPrompt?.id && !useDefaultPromptOnly && (
+                    <Link
+                      href={`/configuracoes/prompts-ia/${selectedPrompt.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-medium text-indigo-400 hover:underline"
+                    >
+                      Editar
+                      <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  )}
+                </div>
+
+                {isLoadingPrompts ? (
+                  <div className="rounded-lg border border-border-divider bg-card p-4 text-xs text-text-secondary">
+                    Carregando template...
+                  </div>
+                ) : (
+                  <AssistantPromptPreview
+                    template={selectedPrompt?.template ?? ""}
+                  />
+                )}
+              </div>
             </div>
           </div>
+
+          <div className="flex shrink-0 items-center justify-between gap-3 border-t border-border-divider px-6 py-4">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={!canSubmit}>
+              {isAssistantSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Preenchendo...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Preencher Automaticamente
+                </>
+              )}
+            </Button>
+          </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

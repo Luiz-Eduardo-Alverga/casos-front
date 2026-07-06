@@ -18,6 +18,9 @@ interface ConfirmarExclusaoPapelModalProps {
   isDeleting?: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void | Promise<void>;
+  confirmationInputLabel?: string;
+  confirmButtonLabel?: string;
+  description?: string;
 }
 
 export function ConfirmarExclusaoPapelModal({
@@ -28,8 +31,14 @@ export function ConfirmarExclusaoPapelModal({
   isDeleting = false,
   onOpenChange,
   onConfirm,
+  confirmationInputLabel = "Insira o nome do Perfil de acesso",
+  confirmButtonLabel = "Excluir perfil",
+  description,
 }: ConfirmarExclusaoPapelModalProps) {
   const isValid = confirmationText === roleName && roleName.length > 0;
+  const resolvedDescription =
+    description ??
+    `Deseja mesmo excluir o perfil de acesso "${roleName}" ? Esta ação é irreversível`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -40,7 +49,7 @@ export function ConfirmarExclusaoPapelModal({
               {`Excluir "${roleName}"`}
             </DialogTitle>
             <DialogDescription className="text-[15px] font-medium text-muted-foreground">
-              {`Deseja mesmo excluir o perfil de acesso "${roleName}" ? Esta ação é irreversível`}
+              {resolvedDescription}
             </DialogDescription>
           </div>
 
@@ -49,7 +58,7 @@ export function ConfirmarExclusaoPapelModal({
               className="text-sm font-medium text-foreground"
               htmlFor="role-delete-confirmation-input"
             >
-              Insira o nome do Perfil de acesso
+              {confirmationInputLabel}
             </label>
             <Input
               id="role-delete-confirmation-input"
@@ -79,7 +88,7 @@ export function ConfirmarExclusaoPapelModal({
               disabled={!isValid || isDeleting}
             >
               <Trash2 className="h-3.5 w-3.5" />
-              {isDeleting ? "Excluindo..." : "Excluir perfil"}
+              {isDeleting ? "Excluindo..." : confirmButtonLabel}
             </Button>
           </div>
         </div>

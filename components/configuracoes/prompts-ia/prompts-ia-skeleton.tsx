@@ -23,14 +23,10 @@ function SkeletonRow() {
         <Skeleton className="h-4 w-28" />
       </TableCell>
       <TableCell className="py-3">
-        <Skeleton className="h-6 w-16 rounded-full" />
+        <Skeleton className="h-6 w-20 rounded-full" />
       </TableCell>
       <TableCell className="py-3 text-right">
-        <div className="flex justify-end gap-2">
-          <Skeleton className="h-8 w-16 rounded-md" />
-          <Skeleton className="h-8 w-24 rounded-md" />
-          <Skeleton className="h-8 w-16 rounded-md" />
-        </div>
+        <Skeleton className="h-8 w-16 rounded-md ml-auto" />
       </TableCell>
     </TableRow>
   );

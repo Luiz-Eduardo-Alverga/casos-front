@@ -274,6 +274,7 @@ export function ReportCreateForm() {
         isRecording={false}
         onToggleRecording={() => {}}
         isAssistantSubmitting={isAssistantPending}
+        useDefaultPromptOnly
       />
     </ListagemPageLayout>
   );

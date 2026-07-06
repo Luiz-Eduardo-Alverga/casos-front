@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -19,16 +20,15 @@ interface PromptsIaTableProps {
   rows: PromptRow[];
   togglingId?: string | null;
   onToggle: (row: PromptRow) => void;
-  onDelete: (row: PromptRow) => void;
 }
 
 export function PromptsIaTable({
   rows,
   togglingId,
   onToggle,
-  onDelete,
 }: PromptsIaTableProps) {
   const router = useRouter();
+
   if (rows.length === 0) {
     return (
       <EmptyState
@@ -45,9 +45,9 @@ export function PromptsIaTable({
       <TableHeader>
         <TableRow>
           <TableHead className="w-[35%]">Nome</TableHead>
-          <TableHead className="w-[25%]">Squad</TableHead>
+          <TableHead className="w-[30%]">Squad</TableHead>
           <TableHead className="w-[15%]">Status</TableHead>
-          <TableHead className="w-[25%] text-right">Ações</TableHead>
+          <TableHead className="w-[20%] text-right">Ações</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -75,56 +75,34 @@ export function PromptsIaTable({
               </TableCell>
 
               <TableCell className="py-3">
-                {row.isActive ? (
-                  <Badge className="bg-green-100 text-green-700 border-transparent rounded-full hover:bg-green-100">
-                    Ativo
-                  </Badge>
-                ) : (
-                  <Badge
-                    variant="outline"
-                    className="text-text-secondary rounded-full"
-                  >
-                    Inativo
-                  </Badge>
-                )}
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={row.isActive}
+                    onCheckedChange={() => onToggle(row)}
+                    disabled={isDefault || isToggling}
+                    aria-label={
+                      row.isActive
+                        ? `Desativar prompt ${row.name}`
+                        : `Ativar prompt ${row.name}`
+                    }
+                  />
+                  <span className="text-xs text-text-secondary">
+                    {isToggling ? "Aguarde..." : row.isActive ? "Ativo" : "Inativo"}
+                  </span>
+                </div>
               </TableCell>
 
               <TableCell className="py-3 text-right">
-                <div className="flex justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push(`/configuracoes/prompts-ia/${row.id}`)}
-                  >
-                    Editar
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={isDefault || isToggling}
-                    onClick={() => onToggle(row)}
-                  >
-                    {isToggling
-                      ? "Aguarde..."
-                      : row.isActive
-                        ? "Desativar"
-                        : "Ativar"}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={isDefault}
-                    className="text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/10 disabled:opacity-40"
-                    onClick={() => onDelete(row)}
-                  >
-                    Excluir
-                  </Button>
-                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    router.push(`/configuracoes/prompts-ia/${row.id}`)
+                  }
+                >
+                  Editar
+                </Button>
               </TableCell>
             </TableRow>
           );
