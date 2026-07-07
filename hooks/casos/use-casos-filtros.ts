@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { useQueryStates } from "nuqs";
 import { casosFiltrosParsers } from "@/components/casos/filtros/casos-filtros-parsers";
 import {
-  clearSheetFields,
   filtrosAplicadosToNuqsState,
   filtrosQueryKey,
   nuqsStateToFiltrosAplicados,
@@ -57,14 +56,9 @@ export function useCasosFiltros() {
     });
   }, [setNuqsState]);
 
-  const limparFiltrosSheet = useCallback(() => {
-    aplicarFiltros(clearSheetFields(filtrosAplicados));
-  }, [aplicarFiltros, filtrosAplicados]);
-
   return {
     filtrosAplicados,
     aplicarFiltros,
     limparFiltros,
-    limparFiltrosSheet,
   };
 }

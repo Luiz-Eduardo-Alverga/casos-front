@@ -3,9 +3,14 @@
 import { useCallback, useMemo, useEffect, useState, useRef } from "react";
 import type { ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useForm, FormProvider, Controller, useFormContext } from "react-hook-form";
+import {
+  useForm,
+  FormProvider,
+  Controller,
+  useFormContext,
+} from "react-hook-form";
 import { AnimatePresence } from "framer-motion";
-import { CircleDot, ChevronUp, Filter, Search } from "lucide-react";
+import { CircleDot, Filter, Search } from "lucide-react";
 import { LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,18 +44,17 @@ import {
   EMPTY_CASOS_FILTERS_FORM,
   DEFAULT_FILTROS_RESUMO,
 } from "@/components/casos/filtros/casos-filtros.types";
-import type { CasoFiltroField } from "@/components/casos/filtros/casos-filtros.types";
+import type {
+  CasoFiltroField,
+  FiltroResumoItem,
+} from "@/components/casos/filtros/casos-filtros.types";
 import {
   filtrosQueryKey,
   filtrosToFormDefaults,
   formToFiltrosAplicados,
   hasFiltersApplied,
 } from "@/components/casos/filtros/casos-filtros-mappers";
-import {
-  CasosFiltrosAnimatedContent,
-  type CasosFiltrosAnimationMode,
-} from "@/components/casos/filtros/casos-filtros-animated-content";
-import { CasosFiltrosCamposExpandidos } from "@/components/casos/filtros/casos-filtros-campos-expandidos";
+import { CasosFiltrosAnimatedContent } from "@/components/casos/filtros/casos-filtros-animated-content";
 import { CasosFiltrosAplicadosBadges } from "@/components/casos/filtros/casos-filtros-aplicados-badges";
 import { CasosFiltrosPersonalizar } from "@/components/casos/filtros/casos-filtros-personalizar";
 import { useUserFiltrosPreferencias } from "@/hooks/configuracoes/use-user-filtros-preferencias";
@@ -58,7 +62,6 @@ import { useUserFiltrosPreferencias } from "@/hooks/configuracoes/use-user-filtr
 interface CasosFiltrosProps {
   filtrosAplicados: CasosFiltrosAplicados;
   onAplicar: (filtros: CasosFiltrosAplicados) => void;
-  onLimparSheet: () => void;
 }
 
 /** Componentes internos dos campos que precisam de Controller devem ser definidos
@@ -70,7 +73,10 @@ function StatusField() {
       name="status_ids"
       control={control}
       render={({ field }) => (
-        <StatusMultiSelect value={field.value ?? []} onChange={field.onChange} />
+        <StatusMultiSelect
+          value={field.value ?? []}
+          onChange={field.onChange}
+        />
       )}
     />
   );
@@ -153,7 +159,7 @@ function DataProducaoFimField() {
   );
 }
 
-/** Mapa de campo → componente JSX para a visão reduzida. */
+/** Mapa de campo → componente JSX para o painel de filtros. */
 const FILTRO_CAMPO_RENDER: Record<CasoFiltroField, () => ReactNode> = {
   produto: () => <CasoFormProduto required={false} />,
   versao: () => <CasoFormVersao required={false} todas />,
@@ -161,13 +167,22 @@ const FILTRO_CAMPO_RENDER: Record<CasoFiltroField, () => ReactNode> = {
   modulo: () => <CasoFormModulo required={false} />,
   categoria: () => <CasoFormCategoria required={false} />,
   projeto_id: () => (
-    <CasoFormProjeto requireProduto={false} name="projeto_id" required={false} autoSelectProjeto="never" />
+    <CasoFormProjeto
+      requireProduto={false}
+      name="projeto_id"
+      required={false}
+      autoSelectProjeto="never"
+    />
   ),
   tipo_abertura: () => <TipoAberturaField />,
   descricao_resumo: () => <DescricaoResumoField />,
   usuario_abertura_id: () => <CasoFormUsuarioAbertura required={false} />,
   devAtribuido: () => (
-    <CasoFormDevAtribuido required={false} requireProduto={false} label="Desenvolvedor" />
+    <CasoFormDevAtribuido
+      required={false}
+      requireProduto={false}
+      label="Desenvolvedor"
+    />
   ),
   qaAtribuido: () => (
     <CasoFormQaAtribuido required={false} requireProduto={false} label="QA" />
@@ -179,7 +194,6 @@ const FILTRO_CAMPO_RENDER: Record<CasoFiltroField, () => ReactNode> = {
 export function CasosFiltros({
   filtrosAplicados,
   onAplicar,
-  onLimparSheet,
 }: CasosFiltrosProps) {
   const queryClient = useQueryClient();
   const { data: categorias } = useCategorias();
@@ -192,10 +206,13 @@ export function CasosFiltros({
     todas: true,
   });
 
-  const { data: filtrosResumo = DEFAULT_FILTROS_RESUMO } =
+  const { data: filtrosSalvos = DEFAULT_FILTROS_RESUMO } =
     useUserFiltrosPreferencias();
+  const [filtrosPreview, setFiltrosPreview] = useState<
+    FiltroResumoItem[] | null
+  >(null);
+  const filtrosExibidos = filtrosPreview ?? filtrosSalvos;
 
-  const [camposExpandidos, setCamposExpandidos] = useState(false);
   const [modoResumo, setModoResumo] = useState(filtrosAtivos);
 
   const appliedQueryKey = filtrosQueryKey(filtrosAplicados);
@@ -221,7 +238,11 @@ export function CasosFiltros({
     if (lastFormSyncKeyRef.current === syncKey) return;
     lastFormSyncKeyRef.current = syncKey;
     methods.reset(
-      filtrosToFormDefaults(filtrosAplicados, categorias ?? [], versoesCatalogo),
+      filtrosToFormDefaults(
+        filtrosAplicados,
+        categorias ?? [],
+        versoesCatalogo,
+      ),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- syncKey agrega deps; `methods` é estável
   }, [
@@ -253,7 +274,6 @@ export function CasosFiltros({
   useEffect(() => {
     if (!filtrosAtivos) {
       setModoResumo(false);
-      setCamposExpandidos(false);
     }
   }, [filtrosAtivos]);
 
@@ -277,7 +297,6 @@ export function CasosFiltros({
       resolveVersoesParaAplicar(),
     );
     onAplicar(next);
-    setCamposExpandidos(false);
     if (hasFiltersApplied(next)) {
       setModoResumo(true);
     }
@@ -288,7 +307,6 @@ export function CasosFiltros({
       onAplicar(filtros);
       if (!hasFiltersApplied(filtros)) {
         setModoResumo(false);
-        setCamposExpandidos(false);
       }
     },
     [onAplicar],
@@ -311,33 +329,16 @@ export function CasosFiltros({
     [methods, produto],
   );
 
-  const animationMode: CasosFiltrosAnimationMode = modoResumo
-    ? "resumo"
-    : camposExpandidos
-      ? "expandido"
-      : "reduzido";
-
-  const handleToggleExpandido = useCallback(() => {
-    if (camposExpandidos) {
-      setCamposExpandidos(false);
-      if (filtrosAtivos) {
-        setModoResumo(true);
-      }
-    } else {
-      setModoResumo(false);
-      setCamposExpandidos(true);
-    }
-  }, [camposExpandidos, filtrosAtivos]);
-
   const handleEditarFiltros = useCallback(() => {
     setModoResumo(false);
-    setCamposExpandidos(true);
   }, []);
 
   return (
     <CasoFormProvider value={providerValue}>
       <FormProvider {...methods}>
-        <Card className={`bg-card shadow-card rounded-lg shrink-0 ${LISTAGEM_CARD_STACK_GAP} overflow-hidden`}>
+        <Card
+          className={`bg-card shadow-card rounded-lg shrink-0 ${LISTAGEM_CARD_STACK_GAP} overflow-hidden`}
+        >
           <AnimatePresence mode="wait" initial={false}>
             {modoResumo ? (
               <CasosFiltrosAnimatedContent
@@ -378,68 +379,44 @@ export function CasosFiltros({
                     </CardTitle>
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    {!camposExpandidos && (
-                      <CasosFiltrosPersonalizar filtrosAtuais={filtrosResumo} />
-                    )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      type="button"
-                      onClick={handleToggleExpandido}
-                    >
-                      <ChevronUp
-                        className={cn(
-                          "h-3.5 w-3.5 text-text-primary transition-transform duration-200",
-                          !camposExpandidos && "rotate-180",
-                        )}
-                      />
-                      <span>
-                        {camposExpandidos ? "Colapsar Filtros" : "Mais Filtros"}
-                      </span>
-                    </Button>
-                  </div>
+                  <CasosFiltrosPersonalizar
+                    filtrosAtuais={filtrosSalvos}
+                    onPreviewChange={setFiltrosPreview}
+                  />
                 </CardHeader>
 
                 <CardContent className="overflow-hidden p-6 pt-3">
-                  <AnimatePresence mode="wait" initial={false}>
-                    <CasosFiltrosAnimatedContent
-                      key={animationMode}
-                      mode={animationMode}
-                      className="overflow-hidden"
-                    >
-                      {camposExpandidos ? (
-                        <CasosFiltrosCamposExpandidos
-                          onFiltrar={handleFiltrar}
-                          onLimparExpandidos={onLimparSheet}
-                          filtrarDisabled={!canFiltrar}
-                        />
-                      ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-[18px] mb-1 items-end">
-                          {filtrosResumo.map((item) => (
-                            <div
-                              key={item.field}
-                              className={cn(
-                                "min-w-0",
-                                item.colSpan === 2 && "col-span-2",
-                              )}
-                            >
-                              {FILTRO_CAMPO_RENDER[item.field]?.()}
-                            </div>
-                          ))}
-                          <Button
-                            type="button"
-                            onClick={handleFiltrar}
-                            disabled={!canFiltrar}
-                            className="h-9 w-full"
+                  <CasosFiltrosAnimatedContent
+                    mode="edicao"
+                    className="overflow-hidden"
+                  >
+                    <div className="flex flex-col gap-[18px]">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-[18px] items-end">
+                        {filtrosExibidos.map((item) => (
+                          <div
+                            key={item.field}
+                            className={cn(
+                              "min-w-0",
+                              item.colSpan === 2 && "col-span-2",
+                            )}
                           >
-                            <Search className="h-3.5 w-3.5 mr-2" />
-                            <span>Filtrar</span>
-                          </Button>
-                        </div>
-                      )}
-                    </CasosFiltrosAnimatedContent>
-                  </AnimatePresence>
+                            {FILTRO_CAMPO_RENDER[item.field]?.()}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          onClick={handleFiltrar}
+                          disabled={!canFiltrar}
+                          className="h-9 w-full sm:w-[205px]"
+                        >
+                          <Search className="h-3.5 w-3.5 mr-2" />
+                          <span>Filtrar</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </CasosFiltrosAnimatedContent>
                 </CardContent>
               </div>
             )}

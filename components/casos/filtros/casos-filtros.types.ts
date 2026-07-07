@@ -7,21 +7,22 @@ export { DEFAULT_FILTROS_RESUMO };
 export const FILTROS_RESUMO_CATALOGO: Array<{
   field: CasoFiltroField;
   label: string;
+  tipo: "Texto" | "Seleção" | "Múltiplo";
   defaultColSpan: 1 | 2;
 }> = [
-  { field: "produto",              label: "Produto",           defaultColSpan: 1 },
-  { field: "versao",               label: "Versão",            defaultColSpan: 1 },
-  { field: "status_ids",           label: "Status",            defaultColSpan: 2 },
-  { field: "modulo",               label: "Módulo",            defaultColSpan: 1 },
-  { field: "categoria",            label: "Categoria",         defaultColSpan: 1 },
-  { field: "projeto_id",           label: "Projeto",           defaultColSpan: 1 },
-  { field: "tipo_abertura",        label: "Tipo de Abertura",  defaultColSpan: 1 },
-  { field: "descricao_resumo",     label: "Descrição/Resumo",  defaultColSpan: 2 },
-  { field: "usuario_abertura_id",  label: "Quem abriu",        defaultColSpan: 1 },
-  { field: "devAtribuido",         label: "Desenvolvedor",     defaultColSpan: 1 },
-  { field: "qaAtribuido",          label: "QA",                defaultColSpan: 1 },
-  { field: "data_producao_inicio", label: "Produção (início)", defaultColSpan: 1 },
-  { field: "data_producao_fim",    label: "Produção (fim)",    defaultColSpan: 1 },
+  { field: "produto",              label: "Produto",            tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "versao",               label: "Versão do Produto",  tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "status_ids",           label: "Status",             tipo: "Múltiplo", defaultColSpan: 2 },
+  { field: "modulo",               label: "Módulo",             tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "categoria",            label: "Categoria",          tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "projeto_id",           label: "Projeto",            tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "tipo_abertura",        label: "Tipo de Abertura",   tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "descricao_resumo",     label: "Descrição / Resumo", tipo: "Texto",    defaultColSpan: 2 },
+  { field: "usuario_abertura_id",  label: "Quem abriu",         tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "devAtribuido",         label: "Desenvolvedor",      tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "qaAtribuido",          label: "QA",                 tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "data_producao_inicio", label: "Produção (início)",  tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "data_producao_fim",    label: "Produção (fim)",     tipo: "Seleção",  defaultColSpan: 1 },
 ];
 
 export interface CasosFiltrosAplicados {
@@ -87,13 +88,3 @@ export const EMPTY_CASOS_FILTROS: CasosFiltrosAplicados = {
   data_producao_inicio: "",
   data_producao_fim: "",
 };
-
-/** Chaves dos filtros exibidos apenas na visão expandida do card. */
-export const CASOS_FILTROS_EXPANDIDOS_KEYS = [
-  "projeto_id",
-  "usuario_dev_id",
-  "usuario_qa_id",
-  "data_producao_inicio",
-  "data_producao_fim",
-  "tipo_abertura",
-] as const satisfies ReadonlyArray<keyof CasosFiltrosAplicados>;

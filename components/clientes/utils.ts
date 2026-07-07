@@ -9,6 +9,36 @@ export function formatCnpj(value: string | null | undefined): string {
   );
 }
 
+export function formatCpf(value: string | null | undefined): string {
+  const digits = (value ?? "").replace(/\D/g, "");
+  if (digits.length !== 11) return value?.trim() || EMPTY_VALUE;
+  return digits.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+}
+
+export function formatClienteDocumento(
+  cnpj: string | null | undefined,
+  cpf: string | null | undefined,
+): string {
+  const cnpjDigits = (cnpj ?? "").replace(/\D/g, "");
+  if (cnpjDigits.length === 14) return formatCnpj(cnpj);
+
+  const cpfDigits = (cpf ?? "").replace(/\D/g, "");
+  if (cpfDigits.length === 11) return formatCpf(cpf);
+
+  return cnpj?.trim() || cpf?.trim() || EMPTY_VALUE;
+}
+
+export function formatCidadeUf(
+  cidade: string | null | undefined,
+  uf: string | null | undefined,
+): string {
+  const cidadeTrimmed = cidade?.trim();
+  const ufTrimmed = uf?.trim();
+
+  if (cidadeTrimmed && ufTrimmed) return `${cidadeTrimmed} / ${ufTrimmed}`;
+  return cidadeTrimmed || ufTrimmed || EMPTY_VALUE;
+}
+
 export function formatCep(value: string | null | undefined): string {
   const digits = (value ?? "").replace(/\D/g, "");
   if (digits.length !== 8) return value?.trim() || EMPTY_VALUE;

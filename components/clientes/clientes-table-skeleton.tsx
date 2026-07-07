@@ -18,16 +18,25 @@ export function ClientesTableSkeleton() {
     <Table>
       <TableHeader>
         <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
-          <TableHead className="w-[120px] text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
-            Código
+          <TableHead className="w-[90px] text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
+            ID
           </TableHead>
-          <TableHead className="w-[35%] text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
-            Nome (fantasia)
+          <TableHead className="w-[22%] text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
+            Nome
           </TableHead>
-          <TableHead className="text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
+          <TableHead className="w-[24%] text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
             Razão social
           </TableHead>
-          <TableHead className="w-[100px] text-right text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
+          <TableHead className="w-[160px] text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
+            CPF/CNPJ
+          </TableHead>
+          <TableHead className="w-[140px] text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
+            Cidade / UF
+          </TableHead>
+          <TableHead className="w-[140px] text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
+            Situação
+          </TableHead>
+          <TableHead className="w-[80px] text-right text-xs uppercase tracking-wide font-medium text-text-primary h-auto py-3 px-2.5">
             Ações
           </TableHead>
         </TableRow>
@@ -45,7 +54,16 @@ export function ClientesTableSkeleton() {
               <Skeleton className="h-4 w-48" />
             </TableCell>
             <TableCell className="py-3 px-2.5">
-              <Skeleton className="h-4 w-64" />
+              <Skeleton className="h-4 w-56" />
+            </TableCell>
+            <TableCell className="py-3 px-2.5">
+              <Skeleton className="h-4 w-32" />
+            </TableCell>
+            <TableCell className="py-3 px-2.5">
+              <Skeleton className="h-4 w-24" />
+            </TableCell>
+            <TableCell className="py-3 px-2.5">
+              <Skeleton className="h-6 w-20 rounded-full" />
             </TableCell>
             <TableCell className="py-3 px-2.5">
               <div className="flex justify-end">

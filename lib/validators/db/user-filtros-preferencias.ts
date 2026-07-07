@@ -23,11 +23,6 @@ export const filtroResumoItemSchema = z.object({
 
 const filtrosResumoLayoutRefinements = [
   {
-    check: (items: { colSpan: number }[]) =>
-      items.reduce((acc, i) => acc + i.colSpan, 0) === 4,
-    message: "A soma dos colSpans deve ser exatamente 4",
-  },
-  {
     check: (items: { field: string }[]) =>
       new Set(items.map((i) => i.field)).size === items.length,
     message: "Não é permitido adicionar o mesmo filtro mais de uma vez",
@@ -39,9 +34,6 @@ export const filtrosResumoReadSchema = z
   .min(1)
   .refine(filtrosResumoLayoutRefinements[0].check, {
     message: filtrosResumoLayoutRefinements[0].message,
-  })
-  .refine(filtrosResumoLayoutRefinements[1].check, {
-    message: filtrosResumoLayoutRefinements[1].message,
   });
 
 export const upsertFiltrosResumoSchema = z
@@ -49,9 +41,6 @@ export const upsertFiltrosResumoSchema = z
   .min(1, "É necessário ao menos um filtro")
   .refine(filtrosResumoLayoutRefinements[0].check, {
     message: filtrosResumoLayoutRefinements[0].message,
-  })
-  .refine(filtrosResumoLayoutRefinements[1].check, {
-    message: filtrosResumoLayoutRefinements[1].message,
   });
 
 export type UpsertFiltrosResumoInput = z.infer<typeof upsertFiltrosResumoSchema>;

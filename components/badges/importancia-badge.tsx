@@ -80,7 +80,7 @@ export function ImportanciaBadge({
 
   return (
     <Badge
-      className={` inline-flex w-fit items-center rounded-full border border-border-divider bg-muted/90 px-1.5 py-0 text-[10px] font-semibold text-text-secondary`.trim()}
+      className={`${colorClass} border-transparent rounded-full h-5 w-5 flex items-center justify-center whitespace-nowrap hover:${colorClass} ${className}`.trim()}
     >
       <span className="text-xs font-semibold">{String(displayValue)}</span>
     </Badge>

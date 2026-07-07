@@ -9,7 +9,7 @@ import { CadastroFiltrosCard } from "@/components/cadastros/cadastro-filtros-car
 import { CadastroListagemCard } from "@/components/cadastros/cadastro-listagem-card";
 import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
-import { useClientes } from "@/hooks/catalogos/use-clientes";
+import { useSoftcomClientes } from "@/hooks/clientes/use-softcom-clientes";
 import { ClientesTable } from "./clientes-table";
 import { ClientesTableSkeleton } from "./clientes-table-skeleton";
 import type { ClienteListItem } from "./types";
@@ -20,21 +20,15 @@ export function Clientes() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState(
-    () => searchParams.get("search") ?? "",
+    () =>
+      searchParams.get("nome") ?? searchParams.get("search") ?? "",
   );
 
   const debouncedSearch = useDebouncedValue(searchInput, DEBOUNCE_MS);
   const hasSearch = debouncedSearch.trim().length > 0;
-  const urlSearch = searchParams.get("search") ?? "";
 
-  useEffect(() => {
-    if (urlSearch && !searchInput.trim()) {
-      setSearchInput(urlSearch);
-    }
-  }, [urlSearch, searchInput]);
-
-  const clientesQuery = useClientes(
-    { search: debouncedSearch.trim(), per_page: 50 },
+  const clientesQuery = useSoftcomClientes(
+    { nome: debouncedSearch.trim(), pageSize: 50 },
     { enabled: hasSearch },
   );
 
@@ -42,6 +36,9 @@ export function Clientes() {
     () => clientesQuery.data?.pages.flatMap((page) => page.data) ?? [],
     [clientesQuery.data],
   );
+
+  const totalRecords =
+    clientesQuery.data?.pages[0]?.pagination.totalRecords ?? rows.length;
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const hasNextPage = clientesQuery.hasNextPage;
@@ -68,12 +65,12 @@ export function Clientes() {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    const term = searchInput.trim();
-    if (term) params.set("search", term);
+    const term = debouncedSearch.trim();
+    if (term) params.set("nome", term);
     const qs = params.toString();
     const next = qs ? `${pathname}?${qs}` : pathname;
     window.history.replaceState(null, "", next);
-  }, [searchInput, pathname]);
+  }, [debouncedSearch, pathname]);
 
   useEffect(() => {
     if (clientesQuery.isError && clientesQuery.error) {
@@ -100,7 +97,7 @@ export function Clientes() {
         title="Listagem de Clientes"
         icon={Building2}
         showTotalRecords={hasSearch}
-        totalRecords={rows.length}
+        totalRecords={totalRecords}
         totalRecordsUnit={{ singular: "cliente", plural: "clientes" }}
       >
         {!hasSearch ? (

@@ -24,11 +24,9 @@ export function ClienteViewHeader() {
         )}
       >
         <TabsTrigger value="dados" className={TAB_TRIGGER_CLASS}>
-          <UserRound className="h-3.5 w-3.5" />
           Dados
         </TabsTrigger>
         <TabsTrigger value="tickets" className={TAB_TRIGGER_CLASS}>
-          <Ticket className="h-3.5 w-3.5" />
           Ocorrências
         </TabsTrigger>
       </TabsList>

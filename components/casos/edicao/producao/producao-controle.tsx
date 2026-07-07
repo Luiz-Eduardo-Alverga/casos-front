@@ -22,7 +22,7 @@ export function ProducaoControle({
 }: ProducaoControleProps) {
   void Badge;
   return (
-    <div className="bg-card rounded-lg border border-border-divider p-5 space-y-4 bg-sky-100">
+    <div className="bg-card rounded-lg border border-border-divider p-5 space-y-4 bg-sky-100 dark:bg-sky-950/40">
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-text-primary">
           Controle de Produção

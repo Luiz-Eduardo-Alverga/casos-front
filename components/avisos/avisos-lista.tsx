@@ -9,6 +9,8 @@ import { useMensagens } from "@/hooks/mensagens/use-mensagens";
 import type { Mensagem } from "@/services/mensagens/get-mensagens";
 import { AvisosListaSkeleton } from "./avisos-lista-skeleton";
 import { cn } from "@/lib/utils";
+import { sortMensagensPorDataEnvio } from "@/lib/mensagens/sort-por-data-envio";
+import { useMemo } from "react";
 
 export interface PeriodoParams {
   data_msg_inicio?: string;
@@ -151,8 +153,14 @@ export function AvisosLista({
   const { data: dataLidos, isLoading: loadingLidos } =
     useMensagens(paramsLidos);
 
-  const naoLidos = dataNaoLidos?.data ?? [];
-  const lidos = dataLidos?.data ?? [];
+  const naoLidos = useMemo(
+    () => sortMensagensPorDataEnvio(dataNaoLidos?.data ?? []),
+    [dataNaoLidos?.data],
+  );
+  const lidos = useMemo(
+    () => sortMensagensPorDataEnvio(dataLidos?.data ?? []),
+    [dataLidos?.data],
+  );
   const isLoading = loadingNaoLidos || loadingLidos;
 
   if (isLoading) {

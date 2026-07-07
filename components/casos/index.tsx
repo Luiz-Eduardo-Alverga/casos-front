@@ -14,7 +14,6 @@ export function Casos() {
     filtrosAplicados,
     aplicarFiltros,
     limparFiltros,
-    limparFiltrosSheet,
   } = useCasosFiltros();
 
   return (
@@ -38,7 +37,6 @@ export function Casos() {
       <CasosFiltros
         filtrosAplicados={filtrosAplicados}
         onAplicar={aplicarFiltros}
-        onLimparSheet={limparFiltrosSheet}
       />
       <CasosTabela filtros={filtrosAplicados} />
     </ListagemPageLayout>

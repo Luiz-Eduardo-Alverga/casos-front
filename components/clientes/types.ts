@@ -1,3 +1,3 @@
-import type { Cliente } from "@/services/auxiliar/clientes";
+import type { Cliente } from "@/interfaces/cliente";
 
 export type ClienteListItem = Cliente;

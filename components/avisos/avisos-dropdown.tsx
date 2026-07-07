@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import type { Mensagem } from "@/services/mensagens/get-mensagens";
 import { getPeriodoRange } from "@/lib/periodo-avisos";
 import { cn } from "@/lib/utils";
+import { sortMensagensPorDataEnvio } from "@/lib/mensagens/sort-por-data-envio";
 import { useEffect, useMemo, useState } from "react";
 
 const LIMITE_DROPDOWN = 10;
@@ -83,8 +84,10 @@ export function AvisosDropdown() {
     { enabled: open },
   );
 
-  const mensagens = data?.data ?? [];
-  const exibir = mensagens.slice(0, LIMITE_DROPDOWN);
+  const exibir = useMemo(
+    () => sortMensagensPorDataEnvio(data?.data ?? []).slice(0, LIMITE_DROPDOWN),
+    [data?.data],
+  );
 
   const handleVerTodos = () => {
     setOpen(false);

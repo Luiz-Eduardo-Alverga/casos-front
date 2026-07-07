@@ -3,17 +3,12 @@
 import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
-export type CasosFiltrosAnimationMode = "reduzido" | "expandido" | "resumo";
+export type CasosFiltrosAnimationMode = "edicao" | "resumo";
 
 export const FILTROS_TRANSITION = { duration: 0.2, ease: "easeInOut" } as const;
 
 const contentVariants = {
-  reduzido: {
-    initial: { height: 0, opacity: 0 },
-    animate: { height: "auto", opacity: 1 },
-    exit: { height: 0, opacity: 0 },
-  },
-  expandido: {
+  edicao: {
     initial: { height: 0, opacity: 0 },
     animate: { height: "auto", opacity: 1 },
     exit: { height: 0, opacity: 0 },
