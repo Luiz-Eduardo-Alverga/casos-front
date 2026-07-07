@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { Card, CardContent } from "@/components/ui/card";
-import { CasoEditCardHeader } from "../caso-edit-card-header";
+import { CasoEditTabCardHeader } from "../caso-edit-card-header";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
 import { RelacoesForm } from "./relacoes-form";
@@ -92,11 +92,10 @@ export function AbaRelacoes({ relacoes }: AbaRelacoesProps) {
     <>
       <FormProvider {...methods}>
         <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
-          <CasoEditCardHeader
+          <CasoEditTabCardHeader
             title="Relacionamentos do caso"
             icon={CARD_HEADER_PRESETS.relacoes.icon}
             iconClassName={CARD_HEADER_PRESETS.relacoes.iconClassName}
-            badge={numeroCaso}
           />
 
           <CardContent className="p-6 pt-3 space-y-4 lg:flex-1">

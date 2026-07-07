@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { Card, CardContent } from "@/components/ui/card";
-import { CasoEditCardHeader } from "../caso-edit-card-header";
+import { CasoEditTabCardHeader } from "../caso-edit-card-header";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
 import { ClientesForm } from "./clientes-form";
@@ -17,7 +17,7 @@ import { useClientesProdutosEnderecosUrlPorClientes } from "@/hooks/casos/client
 import toast from "react-hot-toast";
 
 export function AbaClientes({ clientes, isTabActive = false }: AbaClientesProps) {
-  const { numeroCaso, invalidate, canEditCase } = useCasoEdit();
+  const { invalidate, canEditCase } = useCasoEdit();
   const queryClient = useQueryClient();
   const createClienteCaso = useCreateClienteCaso();
   const deleteClienteCaso = useDeleteClienteCaso();
@@ -82,11 +82,10 @@ export function AbaClientes({ clientes, isTabActive = false }: AbaClientesProps)
   return (
     <FormProvider {...methods}>
       <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
-        <CasoEditCardHeader
+        <CasoEditTabCardHeader
           title="Clientes vinculados"
           icon={CARD_HEADER_PRESETS.clientes.icon}
           iconClassName={CARD_HEADER_PRESETS.clientes.iconClassName}
-          badge={numeroCaso}
         />
         <CardContent className="p-6 pt-3 space-y-4 lg:flex-1 ">
           <ClientesForm

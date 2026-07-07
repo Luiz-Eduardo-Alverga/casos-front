@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { CasoEditCardHeader } from "../caso-edit-card-header";
+import { CasoEditTabCardHeader } from "../caso-edit-card-header";
 import { EmptyState } from "@/components/painel/empty-state";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import {
@@ -32,7 +32,6 @@ const PRODUCAO_TEMPO_ATUALIZACAO_MS = 1000;
 
 export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
   const {
-    numeroCaso,
     invalidate: onProducaoAlterada,
     isSaving: casoFormSaving,
     memoriaQueryId,
@@ -218,11 +217,10 @@ export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
   return (
     <>
       <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
-        <CasoEditCardHeader
+        <CasoEditTabCardHeader
           title="Produção"
           icon={CARD_HEADER_PRESETS.producao.icon}
           iconClassName={CARD_HEADER_PRESETS.producao.iconClassName}
-          badge={numeroCaso}
         />
         <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 ">
           {!readOnly ? (

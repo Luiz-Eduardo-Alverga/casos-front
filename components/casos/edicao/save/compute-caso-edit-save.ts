@@ -162,7 +162,6 @@ export function computeCasoEditSave({
       aprovado: statusReportAprovado,
       analiseStatus: statusReportFinal,
       analiseDataConclusao,
-      ...(deveLimparDataLimite ? { dataLimite: null } : {}),
       reportAnaliseUsuarioId:
         userId != null && String(userId).trim() !== ""
           ? String(userId)

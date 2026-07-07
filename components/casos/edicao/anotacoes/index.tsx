@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { CasoEditCardHeader } from "../caso-edit-card-header";
+import { CasoEditTabCardHeader } from "../caso-edit-card-header";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
 import { AnotacoesEditor } from "./anotacoes-editor";
@@ -112,11 +112,10 @@ export function AbaAnotacoes({ report, anotacoes }: AbaAnotacoesProps) {
   return (
     <>
       <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
-        <CasoEditCardHeader
+        <CasoEditTabCardHeader
           title="Anotações do caso"
           icon={CARD_HEADER_PRESETS.anotacoes.icon}
           iconClassName={CARD_HEADER_PRESETS.anotacoes.iconClassName}
-          badge={numeroCaso}
         />
 
         <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 ">

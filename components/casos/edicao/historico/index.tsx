@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CasoEditCardHeader } from "../caso-edit-card-header";
+import { CasoEditTabCardHeader } from "../caso-edit-card-header";
 import { CalendarDays, ChevronUp, Pencil, User } from "lucide-react";
 import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
 import { cn } from "@/lib/utils";
@@ -28,7 +28,6 @@ function getErrorMessage(error: unknown): string {
 }
 
 export function AbaHistorico({
-  numeroCaso,
   historico,
   isLoading = false,
   isFetching = false,
@@ -45,11 +44,10 @@ export function AbaHistorico({
 
   return (
     <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
-      <CasoEditCardHeader
+      <CasoEditTabCardHeader
         title="Histórico de alterações"
         icon={CARD_HEADER_PRESETS.historico.icon}
         iconClassName={CARD_HEADER_PRESETS.historico.iconClassName}
-        badge={numeroCaso}
       />
 
       <CardContent className="p-8 pt-3 flex flex-col lg:flex-1 min-h-0">

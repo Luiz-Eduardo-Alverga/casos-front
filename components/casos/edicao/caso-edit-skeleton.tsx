@@ -23,18 +23,39 @@ const TAB_TRIGGER_OUTER = cn(
 
 function CardHeaderSkeleton({
   showBadge = true,
+  showAberturaMeta = showBadge,
   titleWidthClass = "max-w-[11rem]",
 }: {
   showBadge?: boolean;
+  showAberturaMeta?: boolean;
   titleWidthClass?: string;
 }) {
   return (
-    <div className="shrink-0 border-b border-border-divider p-5 pb-2">
-      <div className="flex w-full items-center gap-2">
-        <Skeleton className="h-3.5 w-3.5 shrink-0 rounded" />
-        <Skeleton className={cn("h-4 flex-1", titleWidthClass)} />
+    <div className="shrink-0 border-b border-border-divider p-4 pb-2">
+      <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="flex min-w-0 shrink-0 items-center gap-2">
+          <Skeleton className="h-3.5 w-3.5 shrink-0 rounded" />
+          <Skeleton className={cn("h-4", titleWidthClass)} />
+        </div>
+        {showAberturaMeta ? (
+          <div
+            className={cn(
+              "flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2",
+              "rounded-lg border border-sky-100 bg-sky-50/70 px-3 py-1.5",
+              "dark:border-sky-900/50 dark:bg-sky-950/25",
+            )}
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              <Skeleton className="h-3.5 w-32 max-w-full rounded" />
+              <Skeleton className="hidden h-3.5 w-36 max-w-full rounded sm:block" />
+            </div>
+            <Skeleton className="h-5 w-28 shrink-0 rounded-full" />
+          </div>
+        ) : (
+          <div className="min-w-0 flex-1" aria-hidden />
+        )}
         {showBadge ? (
-          <Skeleton className="h-7 w-14 shrink-0 rounded-full" />
+          <Skeleton className="ml-auto h-7 w-14 shrink-0 rounded-full" />
         ) : null}
       </div>
     </div>

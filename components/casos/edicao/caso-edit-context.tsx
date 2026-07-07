@@ -1,12 +1,15 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
+import type { CasoAberturaInfo } from "@/lib/casos/caso-abertura-info";
 
 export interface CasoEditContextValue {
   /** ID do caso na rota / query `projeto-memoria`. */
   memoriaQueryId: string;
   /** ID numérico do caso exibido nos badges (#n). */
   numeroCaso: number;
+  /** Metadados de abertura do caso (usuário, data e dias no backlog). */
+  aberturaInfo?: CasoAberturaInfo;
   canEditCase: boolean;
   invalidate: () => void;
   isSaving: boolean;

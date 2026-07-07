@@ -39,6 +39,7 @@ import {
   resolveReportStatusFromCaso,
 } from "@/components/casos/edicao/report-analise-modal/utils";
 import { isCasoBloqueado } from "@/lib/casos/is-caso-bloqueado";
+import { getCasoAberturaInfo } from "@/lib/casos/caso-abertura-info";
 import { buildCasoEditSnapshot } from "@/components/casos/edicao/save/edit-snapshot";
 import { computeCasoEditSave } from "@/components/casos/edicao/save/compute-caso-edit-save";
 import { getUser } from "@/lib/auth";
@@ -70,6 +71,7 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
 
   const caso = item.caso;
   const numeroCaso = caso?.id ?? Number(casoId);
+  const aberturaInfo = useMemo(() => getCasoAberturaInfo(caso), [caso]);
   const rbacReady = permissionsLoaded();
   const showAnexosTab = !rbacReady || hasPermission("list-case-attachment");
   const anexosQuery = useCaseAttachments({
@@ -255,6 +257,7 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
     () => ({
       memoriaQueryId: casoId,
       numeroCaso,
+      aberturaInfo,
       canEditCase,
       invalidate,
       isSaving: updateCaso.isPending || isUpdateCasoMutatingForPage,
@@ -267,6 +270,7 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
     [
       casoId,
       numeroCaso,
+      aberturaInfo,
       canEditCase,
       invalidate,
       updateCaso.isPending,

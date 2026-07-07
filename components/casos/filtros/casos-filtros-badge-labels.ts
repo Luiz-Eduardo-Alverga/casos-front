@@ -10,7 +10,7 @@ import {
 } from "@/components/casos/shared/versao-combobox";
 import { formatDateYmdToBr } from "@/components/painel-kanban/horas-analiticas-modal/utils";
 
-export const MAX_CASOS_FILTROS_BADGES_VISIVEIS = 3;
+export const MAX_CASOS_FILTROS_BADGES_VISIVEIS = 7;
 
 export type CasosFiltroBadgeKey =
   | "produto"

@@ -9,6 +9,7 @@ import { useQueryClient, useIsMutating } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 import { isCasoBloqueado } from "@/lib/casos/is-caso-bloqueado";
+import { getCasoAberturaInfo } from "@/lib/casos/caso-abertura-info";
 
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 
@@ -146,6 +147,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
 
   const caso = item.caso;
   const numeroCaso = caso?.id ?? Number(casoId);
+  const aberturaInfo = useMemo(() => getCasoAberturaInfo(caso), [caso]);
   const isReport = item.caso.caracteristicas.tipo_abertura === "REPORT";
   const rbacReady = permissionsLoaded();
   const showAnexosTab = !rbacReady || hasPermission("list-case-attachment");
@@ -430,6 +432,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     () => ({
       memoriaQueryId: casoId,
       numeroCaso,
+      aberturaInfo,
       canEditCase,
       invalidate,
       isSaving: updateCaso.isPending || isUpdateCasoMutatingForPage,
@@ -444,6 +447,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     [
       casoId,
       numeroCaso,
+      aberturaInfo,
       canEditCase,
       invalidate,
       updateCaso.isPending,
