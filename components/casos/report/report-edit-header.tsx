@@ -176,7 +176,7 @@ export function ReportEditHeader({
         className={cn(
           "flex shrink-0 flex-col gap-2 lg:flex-row",
           isPinned &&
-            "fixed z-20 bg-white px-6 py-2 shadow-sm border-b border-border/40 transition-[left,width] duration-300",
+            "fixed z-20 bg-card px-6 py-2 shadow-sm border-b border-border/40 transition-[left,width] duration-300",
         )}
         style={pinnedStyle}
       >
@@ -186,7 +186,7 @@ export function ReportEditHeader({
               "w-full max-w-full min-w-0 flex flex-nowrap justify-start items-center gap-0",
               "h-auto min-h-9 overflow-x-auto overflow-y-hidden overscroll-x-contain",
               "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
-              "rounded-full bg-white py-1 text-muted-foreground",
+              "rounded-full bg-card py-1 text-muted-foreground",
             )}
           >
             {tabs.map((tab) => (

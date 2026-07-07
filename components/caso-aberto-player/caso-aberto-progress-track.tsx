@@ -36,7 +36,7 @@ export function CasoAbertoProgressTrack({
 
       <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full bg-slate-900 transition-all duration-300"
+          className="h-full rounded-full bg-primary transition-all duration-300"
           style={{ width: `${percent}%` }}
         />
       </div>

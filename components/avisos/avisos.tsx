@@ -51,7 +51,7 @@ export function Avisos() {
           value={periodo}
           onValueChange={(v) => setPeriodo(v as PeriodoAvisosValue)}
         >
-          <SelectTrigger className="w-full sm:w-[180px] h-9 bg-white">
+          <SelectTrigger className="w-full sm:w-[180px] h-9 bg-card">
             <SelectValue placeholder="Período" />
           </SelectTrigger>
           <SelectContent>

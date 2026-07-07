@@ -7,7 +7,7 @@ import { Box } from "lucide-react";
 const CASES = 5;
 
 const SKELETON_ITEM = (
-  <div className="bg-white border border-border-divider rounded-lg p-3.5 flex flex-col gap-0">
+  <div className="bg-card border border-border rounded-lg p-3.5 flex flex-col gap-0">
     <div className="flex gap-3 items-start pb-2 border-b border-border-divider">
       <Skeleton className="h-7 w-9 shrink-0 rounded-full" />
       <div className="flex-1 flex flex-wrap gap-3.75 items-start space-y-2">

@@ -83,25 +83,25 @@ export function EscopoSummaryCards({
         value={STATIC_SUMMARY.quantidade}
         icon={Layers}
         className="bg-muted/40"
-        iconClassName="bg-blue-100 text-blue-700"
+        iconClassName="bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400"
       />
       <SummaryCard
         label="Qtd. Planejada"
         value={STATIC_SUMMARY.qtdPlanejada}
         icon={CheckCircle2}
-        className="bg-green-50 border-green-100"
-        iconClassName="bg-green-100 text-green-700"
-        labelClassName="text-green-800"
-        valueClassName="text-green-900"
+        className="bg-green-50 border-green-100 dark:bg-green-950/40 dark:border-green-800"
+        iconClassName="bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400"
+        labelClassName="text-green-800 dark:text-green-400"
+        valueClassName="text-green-900 dark:text-green-300"
       />
       <SummaryCard
         label="Excedido Planejado"
         value={STATIC_SUMMARY.excedidoPlanejado}
         icon={BarChart3}
-        className="bg-red-50 border-red-100"
-        iconClassName="bg-red-100 text-red-700"
-        labelClassName="text-red-700"
-        valueClassName="text-red-800"
+        className="bg-red-50 border-red-100 dark:bg-red-950/40 dark:border-red-800"
+        iconClassName="bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"
+        labelClassName="text-red-700 dark:text-red-400"
+        valueClassName="text-red-800 dark:text-red-300"
       />
       <SummaryCard
         label="Tempo Total"

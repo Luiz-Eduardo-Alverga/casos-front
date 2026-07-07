@@ -15,7 +15,6 @@ import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
 import { CasoEditHeader } from "./caso-edit-header";
-import { CasoEditRodapeAcoes } from "./caso-edit-rodape-acoes";
 import { CasoEditColunaDireita } from "./caso-edit-coluna-direita";
 import { CasoEditCardClassificacao } from "./caso-edit-card-classificacao";
 import { AbaInicial } from "./aba-inicial";
@@ -176,9 +175,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   const previousAnaliseStatusValueRef = useRef(
     String(defaultValues.analiseStatus ?? ""),
   );
-  const previousVersaoRef = useRef(
-    String(defaultValues.versao ?? "").trim(),
-  );
+  const previousVersaoRef = useRef(String(defaultValues.versao ?? "").trim());
 
   const produtoWatch = methods.watch("produto");
 
@@ -252,10 +249,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   // Catálogo pode chegar após o reset: alinha texto → sequencia sem novo reset completo.
   useEffect(() => {
     const atual = String(methods.getValues("versao") ?? "").trim();
-    const versoesMerged = mergeEditVersaoCatalog(
-      versoesCatalogo,
-      atual,
-    );
+    const versoesMerged = mergeEditVersaoCatalog(versoesCatalogo, atual);
     if (!versoesMerged.length || !atual) return;
     if (isSequenciaNoCatalogo(atual, versoesMerged)) return;
 
@@ -295,8 +289,6 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     methods,
     mergeEditVersaoCatalog,
   ]);
-
-  const { data: statusList } = useStatus();
 
   const updateCaso = useUpdateCaso(casoId);
   const isUpdateCasoMutatingForPage =
@@ -402,8 +394,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   });
 
   const canEditCase =
-    (!rbacReady || hasPermission("edit-case")) &&
-    !isCasoBloqueado(caso?.flags);
+    (!rbacReady || hasPermission("edit-case")) && !isCasoBloqueado(caso?.flags);
 
   const anotacoes = (caso?.anotacoes ??
     []) as ProjetoMemoriaItem["caso"]["anotacoes"];
@@ -478,12 +469,19 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
           countClientes={countClientes}
           countAnexos={countAnexos}
           showAnexosTab={showAnexosTab}
+          tempoStatus={
+            item?.caso?.tempos?.tempo_status ?? item?.caso?.status?.tempo_status
+          }
+          statusTempo={
+            item?.caso?.tempos?.status_tempo ?? item?.caso?.status?.status_tempo
+          }
+          onRedirecionarParaAbaProducao={() => setTabValue("producao")}
         />
 
         <div className="mt-2 flex-1 flex flex-col min-h-0 overflow-auto">
           <CasoFormProvider value={providerValue}>
             <FormProvider {...methods}>
-              <div className="flex-1 pb-12">
+              <div className="flex-1">
                 <div className="flex min-h-0 flex-1 flex-col gap-2 lg:flex-row">
                   <div className="flex min-h-0 flex-1 min-w-0 flex-col gap-6">
                     <TabsContent
@@ -605,21 +603,6 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                   </fieldset>
                 </div>
               </div>
-
-              <CasoEditRodapeAcoes
-                tempoStatus={
-                  item?.caso?.tempos?.tempo_status ??
-                  item?.caso?.status?.tempo_status
-                }
-                statusTempo={
-                  item?.caso?.tempos?.status_tempo ??
-                  item?.caso?.status?.status_tempo
-                }
-                onCancelar={() => router.back()}
-                onRedirecionarParaAbaProducao={() => setTabValue("producao")}
-                dataAbertura={item?.caso?.datas?.abertura ?? ""}
-                usuarioAbertura={item?.caso?.usuarios?.abertura?.nome ?? ""}
-              />
             </FormProvider>
           </CasoFormProvider>
         </div>

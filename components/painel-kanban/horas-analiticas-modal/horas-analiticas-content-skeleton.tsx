@@ -12,7 +12,7 @@ export function HorasAnaliticasContentSkeleton() {
         {Array.from({ length: SUMMARY_CARDS }).map((_, index) => (
           <article
             key={index}
-            className="rounded-lg border border-border-divider bg-white p-4 shadow-sm"
+            className="rounded-lg border border-border-divider bg-card p-4 shadow-sm"
           >
             <div className="mb-3 flex items-center justify-between">
               <Skeleton className="h-3 w-28" />
@@ -24,8 +24,8 @@ export function HorasAnaliticasContentSkeleton() {
         ))}
       </div>
 
-      <section className="overflow-hidden rounded-lg border border-border-divider bg-white shadow-sm">
-        <header className="flex items-center justify-between border-b border-border-divider bg-slate-50 px-4 py-3">
+      <section className="overflow-hidden rounded-lg border border-border-divider bg-card shadow-sm">
+        <header className="flex items-center justify-between border-b border-border-divider bg-muted/50 px-4 py-3">
           <Skeleton className="h-4 w-40" />
           <Skeleton className="h-3 w-20" />
         </header>
@@ -57,8 +57,8 @@ export function HorasAnaliticasContentSkeleton() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-border-divider bg-white shadow-sm">
-        <header className="flex items-center justify-between border-b border-border-divider bg-slate-50 px-4 py-3">
+      <section className="overflow-hidden rounded-lg border border-border-divider bg-card shadow-sm">
+        <header className="flex items-center justify-between border-b border-border-divider bg-muted/50 px-4 py-3">
           <Skeleton className="h-4 w-36" />
           <Skeleton className="h-5 w-32" />
         </header>

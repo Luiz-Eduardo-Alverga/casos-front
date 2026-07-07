@@ -48,20 +48,20 @@ export function CasoFormAnexosDialog({
           abertura do caso.
         </DialogDescription>
 
-        <div className="flex items-center gap-3 border-b border-border-divider bg-white px-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-50">
+        <div className="flex items-center gap-3 border-b border-border bg-card px-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-50 dark:bg-sky-950/40">
             <Paperclip className="h-4 w-4 text-blue-500" />
           </div>
           <div>
-            <p className="text-sm font-bold text-black">Gerenciar Anexos</p>
-            <p className="text-xs text-slate-500">
+            <p className="text-sm font-bold text-foreground">Gerenciar Anexos</p>
+            <p className="text-xs text-muted-foreground">
               Imagens, PDF ou vídeo (até {MAX_ATTACHMENTS_PER_CASE} arquivos).
             </p>
           </div>
         </div>
 
-        <div className="flex min-h-[500px] flex-col bg-white md:flex-row">
-          <div className="flex-1 bg-slate-50 p-4">
+        <div className="flex min-h-[500px] flex-col bg-card md:flex-row">
+          <div className="flex-1 bg-muted/30 p-4">
             <CasoFormAnexosDropzone
               inputRef={inputRef}
               dragOver={dragOver}
@@ -72,12 +72,12 @@ export function CasoFormAnexosDialog({
             />
           </div>
 
-          <div className="flex w-full flex-col border-l justify-between border-border-divider bg-white md:w-[340px] ">
+          <div className="flex w-full flex-col border-l justify-between border-border bg-card md:w-[340px] ">
             <div className="flex items-center justify-between border-b border-border-divider px-3 py-3">
-              <p className="text-sm font-semibold text-black">
+              <p className="text-sm font-semibold text-foreground">
                 Arquivos Anexados
               </p>
-              <span className="inline-flex h-6 min-w-4 items-center justify-center rounded-full bg-blue-100 px-2 text-xs font-bold text-blue-900">
+              <span className="inline-flex h-6 min-w-4 items-center justify-center rounded-full bg-blue-100 px-2 text-xs font-bold text-blue-900 dark:bg-blue-950/40 dark:text-blue-400">
                 {files.length}
               </span>
             </div>
@@ -97,7 +97,7 @@ export function CasoFormAnexosDialog({
                   return (
                     <div
                       key={`${file.name}-${file.size}-${idx}`}
-                      className="rounded border border-border-divider bg-white px-2 py-2"
+                      className="rounded border border-border bg-card px-2 py-2"
                     >
                       <div className="flex items-start gap-2">
                         <div className="h-8 w-8 shrink-0 overflow-hidden rounded border border-border-divider bg-muted">
@@ -110,15 +110,15 @@ export function CasoFormAnexosDialog({
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center">
-                              <Icon className="h-4 w-4 text-slate-500" />
+                              <Icon className="h-4 w-4 text-muted-foreground" />
                             </div>
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-medium text-black">
+                          <p className="truncate text-xs font-medium text-foreground">
                             {file.name}
                           </p>
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-muted-foreground">
                             {(file.size / (1024 * 1024)).toFixed(1)} MB
                           </p>
                         </div>
@@ -130,7 +130,7 @@ export function CasoFormAnexosDialog({
                           onClick={() => onRemoveAt(idx)}
                           disabled={disabled}
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-slate-500" />
+                          <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
                         </Button>
                       </div>
                     </div>

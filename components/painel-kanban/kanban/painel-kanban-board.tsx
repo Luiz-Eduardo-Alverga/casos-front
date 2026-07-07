@@ -182,7 +182,7 @@ export function PainelKanbanBoard({
                       dragHandle
                       onCardClick={() => onExpand?.(item)}
                       className={cn(
-                        "border-0 bg-white !shadow-kanban-card cursor-pointer",
+                        "border-0 bg-card !shadow-kanban-card cursor-pointer",
                         "transition-transform duration-200 hover:scale-[1.02]",
                         item.statusTempo === "INICIADO" &&
                           "border-l-4 border-l-primary",

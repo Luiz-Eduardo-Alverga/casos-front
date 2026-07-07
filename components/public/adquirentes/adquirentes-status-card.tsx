@@ -19,9 +19,9 @@ function getStatusTone(status: string | null): string {
     case "Em teste":
       return " text-violet-700";
     case "Em desenvolvimento":
-      return "bg-orange-50 text-orange-700";
+      return "bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400";
     default:
-      return " text-slate-600";
+      return " text-muted-foreground";
   }
 }
 

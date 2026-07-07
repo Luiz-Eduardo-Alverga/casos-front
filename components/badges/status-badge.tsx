@@ -22,9 +22,9 @@ export interface StatusBadgeConfigItem {
 }
 
 const DEFAULT_STATUS_BADGE_STYLE: StatusBadgeStyle = {
-  container: "bg-gray-50 border-gray-200",
-  dot: "bg-gray-500",
-  text: "text-gray-700",
+  container: "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700",
+  dot: "bg-gray-500 dark:bg-gray-400",
+  text: "text-gray-700 dark:text-gray-300",
 };
 
 /** Configuração padrão de status para casos (reutilizável e customizável) */
@@ -32,41 +32,41 @@ export const STATUS_BADGE_CONFIG: StatusBadgeConfigItem[] = [
   {
     values: ["CONCLUÍDO", "CONCLUIDO"],
     style: {
-      container: "bg-green-50 border-green-200",
-      dot: "bg-green-500",
-      text: "text-green-700",
+      container: "bg-green-50 border-green-200 dark:bg-green-950/40 dark:border-green-800",
+      dot: "bg-green-500 dark:bg-green-400",
+      text: "text-green-700 dark:text-green-400",
     },
   },
   {
     values: ["EM DESENVOLVIMENTO"],
     style: {
-      container: "bg-blue-50 border-blue-200",
-      dot: "bg-blue-500",
-      text: "text-blue-700",
+      container: "bg-blue-50 border-blue-200 dark:bg-blue-950/40 dark:border-blue-800",
+      dot: "bg-blue-500 dark:bg-blue-400",
+      text: "text-blue-700 dark:text-blue-400",
     },
   },
   {
     values: ["AGUARDANDO TESTE"],
     style: {
-      container: "bg-red-50 border-red-200",
-      dot: "bg-red-500",
-      text: "text-red-700",
+      container: "bg-red-50 border-red-200 dark:bg-red-950/40 dark:border-red-800",
+      dot: "bg-red-500 dark:bg-red-400",
+      text: "text-red-700 dark:text-red-400",
     },
   },
   {
     values: ["SUSPENSO"],
     style: {
-      container: "bg-yellow-50 border-yellow-200",
-      dot: "bg-yellow-500",
-      text: "text-yellow-700",
+      container: "bg-yellow-50 border-yellow-200 dark:bg-yellow-950/40 dark:border-yellow-800",
+      dot: "bg-yellow-500 dark:bg-yellow-400",
+      text: "text-yellow-700 dark:text-yellow-400",
     },
   },
   {
     values: ["REABERTO"],
     style: {
-      container: "bg-orange-50 border-orange-200",
-      dot: "bg-orange-500",
-      text: "text-orange-700",
+      container: "bg-orange-50 border-orange-200 dark:bg-orange-950/40 dark:border-orange-800",
+      dot: "bg-orange-500 dark:bg-orange-400",
+      text: "text-orange-700 dark:text-orange-400",
     },
   },
   { values: [], style: DEFAULT_STATUS_BADGE_STYLE },

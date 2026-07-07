@@ -25,12 +25,12 @@ import {
 const getTipoProducaoBadgeClassName = (tipo: string) => {
   switch (tipo) {
     case "TESTANDO":
-      return "bg-green-100 text-green-700";
+      return "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400";
     case "RETORNO":
-      return "bg-yellow-100 text-yellow-700";
+      return "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400";
     case "DESENVOLVENDO":
     default:
-      return "bg-sky-100 text-sky-700";
+      return "bg-sky-100 text-sky-700 dark:bg-sky-950/40 dark:text-sky-400";
   }
 };
 
@@ -97,7 +97,7 @@ export function ProducaoDetalhes({
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-white border-b border-white hover:bg-white">
+        <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
           <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
             Abertura
           </TableHead>
@@ -127,7 +127,7 @@ export function ProducaoDetalhes({
         {producaoListOrdenada.map((row) => (
           <TableRow
             key={row.sequencia}
-            className="bg-white border-t border-border-divider hover:bg-white"
+            className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover"
           >
             <TableCell className="py-3 px-2.5 text-sm text-text-primary">
               {editandoSequencia === row.sequencia ? (

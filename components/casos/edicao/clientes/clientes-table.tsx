@@ -51,12 +51,10 @@ function CopyUrlButton({ url }: { url: string }) {
       {copied ? (
         <>
           <Check className="h-4 w-4" />
-
         </>
       ) : (
         <>
           <Copy className="h-4 w-4 mr-2" />
-
         </>
       )}
     </Button>
@@ -72,7 +70,7 @@ function UrlCell({
 }) {
   const urlText = urlPorCliente.get(clienteId);
   if (!urlText) {
-    return <span className="text-sm text-text-secondary">—</span>;
+    return <span className="text-sm text-blue-500">—</span>;
   }
 
   const urls = urlText
@@ -153,7 +151,7 @@ export function ClientesTable({
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-white border-b border-white hover:bg-white">
+        <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
           <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
             Cliente
           </TableHead>
@@ -175,7 +173,7 @@ export function ClientesTable({
         {lista.map((item) => (
           <TableRow
             key={item.sequencia}
-            className="bg-white border-t border-border-divider hover:bg-white"
+            className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover"
           >
             <TableCell className="py-3 px-2.5">
               <span className="text-sm text-text-primary">{item.cliente}</span>
@@ -191,10 +189,7 @@ export function ClientesTable({
               </span>
             </TableCell>
             <TableCell className="py-3 px-2.5">
-              <UrlCell
-                clienteId={item.cliente}
-                urlPorCliente={urlPorCliente}
-              />
+              <UrlCell clienteId={item.cliente} urlPorCliente={urlPorCliente} />
             </TableCell>
             <TableCell className="py-3 px-2.5">
               {canDelete ? (

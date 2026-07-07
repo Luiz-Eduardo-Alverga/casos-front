@@ -18,13 +18,6 @@ function extractCalendarDateParts(
   return { year: match[1], month: match[2], day: match[3] };
 }
 
-function isValidTicketDate(value: string | null | undefined): boolean {
-  if (!value?.trim()) return false;
-  const parts = extractCalendarDateParts(value);
-  if (!parts) return false;
-  return Number(parts.year) > 1500;
-}
-
 /** Data no calendário (DD/MM/AAAA), sem deslocamento de fuso em meia-noite UTC. */
 export function formatTicketDate(value: string | null | undefined): string {
   if (!value?.trim()) return EMPTY;
@@ -34,10 +27,10 @@ export function formatTicketDate(value: string | null | undefined): string {
 }
 
 export function formatTicketTime(value: string | null | undefined): string {
-  if (!isValidTicketDate(value)) return EMPTY;
+  if (!value?.trim()) return EMPTY;
 
   const date = new Date(
-    value!.includes(" ") ? value!.replace(" ", "T") : value!,
+    value.includes(" ") ? value.replace(" ", "T") : value,
   );
   if (Number.isNaN(date.getTime())) return EMPTY;
 

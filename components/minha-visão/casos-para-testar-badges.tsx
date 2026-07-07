@@ -4,14 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export const STATUS_BADGE_CLASSES = {
-  abertos: "bg-blue-100 text-blue-700 border-transparent hover:bg-blue-100",
+  abertos: "bg-blue-100 text-blue-700 border-transparent hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-950/40",
   corrigido:
-    "bg-green-100 text-green-700 border-transparent hover:bg-green-100",
-  retorno: "bg-orange-100 text-orange-700 border-transparent hover:bg-orange-100",
+    "bg-green-100 text-green-700 border-transparent hover:bg-green-100 dark:bg-green-950/40 dark:text-green-400 dark:hover:bg-green-950/40",
+  retorno: "bg-orange-100 text-orange-700 border-transparent hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-400 dark:hover:bg-orange-950/40",
   suspenso:
-    "bg-yellow-100 text-yellow-700 border-transparent hover:bg-yellow-100",
+    "bg-yellow-100 text-yellow-700 border-transparent hover:bg-yellow-100 dark:bg-yellow-950/40 dark:text-yellow-400 dark:hover:bg-yellow-950/40",
   resolvidos:
-    "bg-gray-100 text-gray-700 border-transparent hover:bg-gray-100",
+    "bg-gray-100 text-gray-700 border-transparent hover:bg-gray-100 dark:bg-gray-800/40 dark:text-gray-400 dark:hover:bg-gray-800/40",
 } as const;
 
 interface CasosParaTestarBadgesProps {

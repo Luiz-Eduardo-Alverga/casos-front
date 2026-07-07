@@ -12,14 +12,14 @@ const variantStyles: Record<
   { container: string; dot: string; text: string }
 > = {
   caso: {
-    container: "bg-green-50 border-green-200",
-    dot: "bg-green-500",
-    text: "text-green-700",
+    container: "bg-green-50 border-green-200 dark:bg-green-950/40 dark:border-green-800",
+    dot: "bg-green-500 dark:bg-green-400",
+    text: "text-green-700 dark:text-green-400",
   },
   report: {
-    container: "bg-sky-50 border-sky-200",
-    dot: "bg-sky-500",
-    text: "text-sky-700",
+    container: "bg-sky-50 border-sky-200 dark:bg-sky-950/40 dark:border-sky-800",
+    dot: "bg-sky-500 dark:bg-sky-400",
+    text: "text-sky-700 dark:text-sky-400",
   },
   neutral: {
     container: "bg-muted border-border-divider",

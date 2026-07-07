@@ -12,7 +12,7 @@ export function HorasAnaliticasSummaryCards({
 }: HorasAnaliticasSummaryCardsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <article className="rounded-lg border border-border-divider bg-white p-4 shadow-md">
+      <article className="rounded-lg border border-border-divider bg-card p-4 shadow-md">
         <div className="mb-1 flex items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-[0.3px] text-text-secondary">
             Total técnico
@@ -27,7 +27,7 @@ export function HorasAnaliticasSummaryCards({
         </p>
       </article>
 
-      <article className="rounded-lg border border-border-divider bg-white p-4 shadow-md">
+      <article className="rounded-lg border border-border-divider bg-card p-4 shadow-md">
         <div className="mb-1 flex items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-[0.3px] text-text-secondary">
             Não técnico
@@ -42,17 +42,17 @@ export function HorasAnaliticasSummaryCards({
         </p>
       </article>
 
-      <article className="rounded-lg border border-slate-700 bg-slate-800 p-4 shadow-md">
+      <article className="rounded-lg border border-border bg-primary p-4 shadow-md">
         <div className="mb-1 flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-[0.3px] text-slate-300">
+          <p className="text-xs font-semibold uppercase tracking-[0.3px] text-primary-foreground/80">
             Total geral
           </p>
-          <Clock3 className="h-4 w-4 text-slate-200" aria-hidden />
+          <Clock3 className="h-4 w-4 text-primary-foreground/90" aria-hidden />
         </div>
-        <p className="text-2xl font-bold leading-none text-white">
+        <p className="text-2xl font-bold leading-none text-primary-foreground">
           {toSummaryCardValue(resumo.minutosTotais)}
         </p>
-        <p className="mt-2 text-xs text-slate-300">
+        <p className="mt-2 text-xs text-primary-foreground/80">
           {resumo.totalCasos} {resumo.totalCasos === 1 ? "caso" : "casos"}{" "}
           trabalhados
         </p>

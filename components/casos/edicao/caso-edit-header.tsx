@@ -4,7 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Copy, Trash2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Copy,
+  Loader2,
+  MoreHorizontal,
+  Save,
+  Trash2,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   appendStandaloneToCasoPath,
@@ -13,15 +21,18 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import toast from "react-hot-toast";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { useClonarCaso } from "@/hooks/casos/use-clonar-caso";
 import { useDeleteCaso } from "@/hooks/casos/use-delete-caso";
+import { useCasoProducaoActions } from "@/components/caso-resumo-modal/use-caso-producao-actions";
+import { CasoProducaoActionButton } from "@/components/caso-resumo-modal/caso-producao-action-button";
 import { useCasoEdit } from "./caso-edit-context";
 
 export interface CasoEditHeaderProps {
@@ -33,6 +44,9 @@ export interface CasoEditHeaderProps {
   countAnexos: number;
   /** Se false, a aba "Anexos" não é exibida (RBAC `list-case-attachment`). */
   showAnexosTab: boolean;
+  tempoStatus?: string;
+  statusTempo?: string;
+  onRedirecionarParaAbaProducao?: () => void;
 }
 
 const TAB_TRIGGER_CLASS = cn(
@@ -63,11 +77,21 @@ export function CasoEditHeader({
   countHistorico,
   countAnexos,
   showAnexosTab,
+  tempoStatus,
+  statusTempo,
+  onRedirecionarParaAbaProducao,
 }: CasoEditHeaderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const standalone = isCasoStandaloneMode(searchParams);
-  const { memoriaQueryId, invalidate, canEditCase } = useCasoEdit();
+  const {
+    memoriaQueryId,
+    numeroCaso,
+    invalidate,
+    canEditCase,
+    isSaving,
+    onSalvar,
+  } = useCasoEdit();
   const clonarCaso = useClonarCaso();
   const deleteCaso = useDeleteCaso();
   const [excluirCasoModal, setExcluirCasoModal] = useState(false);
@@ -79,7 +103,28 @@ export function CasoEditHeader({
   const [isMobile, setIsMobile] = useState(false);
   const rbacReady = permissionsLoaded();
   const canDeleteCase = !rbacReady || hasPermission("delete-case");
-  const showDeleteTooltip = rbacReady && !canDeleteCase;
+
+  const disabled = isSaving || !canEditCase;
+  const showIniciar = tempoStatus === "INICIAR" && statusTempo === "PARADO";
+  const showParar = tempoStatus === "PARAR" && statusTempo === "INICIADO";
+
+  const {
+    iniciarProducao,
+    pararProducao,
+    handleIniciar,
+    handleParar,
+    casoAbertoModalOpen,
+    setCasoAbertoModalOpen,
+    setCasoAbertoId,
+    tempoEstimadoModalOpen,
+    setTempoEstimadoModalOpen,
+    handleConfirmarVisualizarCaso,
+    handleIrParaAbaProducao,
+  } = useCasoProducaoActions({
+    casoId: numeroCaso,
+    onProducaoAlterada: invalidate,
+    onRedirecionarParaAbaProducao,
+  });
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -98,7 +143,7 @@ export function CasoEditHeader({
     const observer = new ResizeObserver(measure);
     observer.observe(header);
     return () => observer.disconnect();
-  }, [isMobile, showAnexosTab]);
+  }, [isMobile, showAnexosTab, showIniciar, showParar]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -190,19 +235,17 @@ export function CasoEditHeader({
         className={cn(
           "flex shrink-0 flex-col gap-2 lg:flex-row",
           isPinned &&
-            "fixed z-20 bg-white px-6 py-2 shadow-sm border-b border-border/40 transition-[left,width] duration-300",
+            "fixed z-20 bg-card px-6 py-2 shadow-sm border-b border-border/40 transition-[left,width] duration-300",
         )}
         style={pinnedStyle}
       >
-        {/* Coluna esquerda: mesmo espaço do conteúdo à esquerda do formulário */}
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           <TabsList
             className={cn(
               "w-full max-w-full min-w-0 flex flex-nowrap justify-start items-center gap-0",
               "h-9 overflow-x-auto overflow-y-hidden overscroll-x-contain",
-              // Scroll funciona, mas barra não aparece (Chrome/Safari/Edge/Firefox/IE)
               "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
-              "rounded-full bg-white py-1 text-muted-foreground",
+              "rounded-full bg-card py-1 text-muted-foreground",
             )}
           >
             {tabs.map((tab) => (
@@ -220,61 +263,99 @@ export function CasoEditHeader({
           </TabsList>
         </div>
 
-        {/* Coluna direita: mesmo espaço da coluna direita do formulário (362px em lg) */}
-        <div className="w-full lg:w-[362px] flex flex-row items-center justify-between gap-2 shrink-0 ">
+        <div className="flex w-full shrink-0 flex-row items-center gap-1.5 lg:w-[362px]">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-9 w-9 shrink-0"
+                aria-label="Mais ações"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem
+                onClick={() => void handleClonar()}
+                disabled={clonarCaso.isPending || !canEditCase}
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                {clonarCaso.isPending ? "Clonando..." : "Clonar"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setExcluirCasoModal(true)}
+                disabled={
+                  deleteCaso.isPending || !canDeleteCase || !canEditCase
+                }
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button
             type="button"
             variant="outline"
-            className=" px-3 flex-1"
+            className="h-9 min-w-0 flex-1 px-2"
             onClick={() =>
               standalone ? tryCloseTabOrIrCasos() : router.back()
             }
           >
             {standalone ? (
               <>
-                <X className="h-3.5 w-3.5 mr-1.5" />
-                Fechar
+                <X className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Fechar</span>
               </>
             ) : (
               <>
-                <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
-                Voltar
+                <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Voltar</span>
               </>
             )}
           </Button>
+
+          {showIniciar ? (
+            <CasoProducaoActionButton
+              mode="iniciar"
+              onClick={handleIniciar}
+              disabled={disabled}
+              isPending={iniciarProducao.isPending}
+              className="h-9 min-w-0 flex-1 px-2"
+            />
+          ) : null}
+
+          {showParar ? (
+            <CasoProducaoActionButton
+              mode="parar"
+              onClick={handleParar}
+              disabled={disabled}
+              isPending={pararProducao.isPending}
+              className="h-9 min-w-0 flex-1 px-2"
+            />
+          ) : null}
+
           <Button
             type="button"
-            variant="outline"
-            className=" px-3 flex-1"
-            onClick={handleClonar}
-            disabled={clonarCaso.isPending || !canEditCase}
+            onClick={onSalvar}
+            disabled={disabled}
+            className="h-9 min-w-0 flex-1 px-2"
           >
-            <Copy className="h-3.5 w-3.5 mr-1.5" />
-            {clonarCaso.isPending ? "Clonando..." : "Clonar"}
-          </Button>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="flex-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full px-3 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
-                  onClick={() => setExcluirCasoModal(true)}
-                  disabled={
-                    deleteCaso.isPending || !canDeleteCase || !canEditCase
-                  }
-                >
-                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                  Excluir
-                </Button>
-              </span>
-            </TooltipTrigger>
-            {showDeleteTooltip && (
-              <TooltipContent>
-                Você não possui permissão para excluir este caso.
-              </TooltipContent>
+            {isSaving ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin " />
+                <span className="truncate">Salvando...</span>
+              </>
+            ) : (
+              <>
+                <Save className="h-3.5 w-3.5 shrink-0 " />
+                <span className="truncate">Salvar</span>
+              </>
             )}
-          </Tooltip>
+          </Button>
         </div>
       </div>
 
@@ -288,6 +369,31 @@ export function CasoEditHeader({
         onConfirm={handleExcluirCaso}
         variant="danger"
         isLoading={deleteCaso.isPending}
+      />
+
+      <ConfirmacaoModal
+        open={casoAbertoModalOpen}
+        onOpenChange={(open) => {
+          setCasoAbertoModalOpen(open);
+          if (!open) {
+            setCasoAbertoId(null);
+          }
+        }}
+        titulo="Caso em produção"
+        descricao="Já existe um caso em produção. Deseja visualizar o caso aberto?"
+        confirmarLabel="Visualizar caso"
+        cancelarLabel="Cancelar"
+        onConfirm={handleConfirmarVisualizarCaso}
+      />
+
+      <ConfirmacaoModal
+        open={tempoEstimadoModalOpen}
+        onOpenChange={setTempoEstimadoModalOpen}
+        titulo="Planejamento necessário"
+        descricao="Este caso ainda não possui um tempo estimado. Deseja lançar uma estimativa ou marcar como não planejado?"
+        confirmarLabel="Ir para aba Produção"
+        cancelarLabel="Cancelar"
+        onConfirm={handleIrParaAbaProducao}
       />
     </TooltipProvider>
   );

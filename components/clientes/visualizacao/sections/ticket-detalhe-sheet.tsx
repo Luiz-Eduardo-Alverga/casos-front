@@ -21,6 +21,7 @@ import { displayValue, formatTelefone } from "@/components/clientes/utils";
 import {
   formatTicketDate,
   formatTicketDateTime,
+  formatTicketTime,
   formatTicketMotivo,
   formatTicketRetorno,
   formatTicketServicoRealizado,
@@ -205,15 +206,15 @@ function TicketDetalheContent({
             />
             <ClienteDetailField
               label="Hora marcada"
-              value={formatTicketDateTime(ticket.horaMarcada)}
+              value={formatTicketTime(ticket.horaMarcada)}
             />
             <ClienteDetailField
               label="Chegada"
-              value={formatTicketDateTime(ticket.horaChegada)}
+              value={formatTicketTime(ticket.horaChegada)}
             />
             <ClienteDetailField
               label="Saída"
-              value={formatTicketDateTime(ticket.horaSaida)}
+              value={formatTicketTime(ticket.horaSaida)}
             />
 
             <ClienteDetailField

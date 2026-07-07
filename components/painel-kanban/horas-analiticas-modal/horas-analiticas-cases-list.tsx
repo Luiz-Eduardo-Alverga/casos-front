@@ -9,9 +9,9 @@ import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
 
 function getTarefaTecnicaBadgeClass(tarefaTecnica: boolean): string {
   if (tarefaTecnica) {
-    return "bg-blue-100 text-blue-700 hover:bg-blue-100";
+    return "bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-950/40";
   }
-  return "bg-emerald-100 text-emerald-700 hover:bg-emerald-100";
+  return "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/40";
 }
 
 function getTarefaTecnicaLabel(tarefaTecnica: boolean): string {
@@ -22,8 +22,8 @@ export function HorasAnaliticasCasesList({
   casos,
 }: HorasAnaliticasCasesListProps) {
   return (
-    <section className="overflow-hidden rounded-lg border border-border-divider bg-white shadow-sm">
-      <header className="flex items-center justify-between border-b border-border-divider bg-slate-50 px-4 py-3">
+    <section className="overflow-hidden rounded-lg border border-border-divider bg-card shadow-sm">
+      <header className="flex items-center justify-between border-b border-border-divider bg-muted/50 px-4 py-3">
         <h3 className="text-sm font-semibold text-text-primary">
           Casos Trabalhados Hoje
         </h3>
@@ -64,7 +64,7 @@ export function HorasAnaliticasCasesList({
                   target="_blank"
                   href={buildCasoHrefForNewTab(caso.registro)}
                   type="button"
-                  className="inline-flex h-7 w-7 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={`Editar caso ${caso.registro}`}
                 >
                   <SquarePen className="h-4 w-4" aria-hidden />

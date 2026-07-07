@@ -134,11 +134,11 @@ export function CasoAbertoMiniPlayerCollapsed({
                 Produção ativa
               </span> */}
 
-              <span className="block truncate text-sm font-bold text-slate-900">
+              <span className="block truncate text-sm font-bold text-foreground">
                 Caso #{viewModel.casoId}
               </span>
 
-              <span className="block truncate text-xs  text-slate-900">
+              <span className="block truncate text-xs text-muted-foreground">
                 {viewModel.produtoNome}
               </span>
             </span>

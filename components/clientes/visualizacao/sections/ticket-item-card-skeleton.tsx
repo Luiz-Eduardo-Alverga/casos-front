@@ -14,7 +14,7 @@ function InfoItemSkeleton() {
 export function TicketItemCardSkeleton() {
   return (
     <article className="relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-border-divider bg-card shadow-card">
-      <span className="absolute inset-y-0 left-0 w-1 bg-slate-200" aria-hidden />
+      <span className="absolute inset-y-0 left-0 w-1 bg-muted" aria-hidden />
 
       <div className="flex flex-col gap-3 p-5 pl-6">
         <div className="flex flex-wrap items-start justify-between gap-2">

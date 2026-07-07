@@ -42,7 +42,7 @@ const MODAL_CONFIG: Record<
     descricao: "Descreva o que falta para o Suporte complementar o report.",
     loadingLabel: "Concluindo...",
     icon: CircleHelp,
-    iconBoxClass: "bg-amber-50",
+    iconBoxClass: "bg-amber-50 dark:bg-amber-950/40",
     iconClass: "text-amber-600",
     confirmButtonClass:
       "bg-amber-500 text-white hover:bg-amber-500/90 disabled:opacity-50",
@@ -52,7 +52,7 @@ const MODAL_CONFIG: Record<
     descricao: "Explique por que este report está sendo suspenso.",
     loadingLabel: "Concluindo...",
     icon: Ban,
-    iconBoxClass: "bg-red-50",
+    iconBoxClass: "bg-red-50 dark:bg-red-950/40",
     iconClass: "text-red-500",
     confirmButtonClass:
       "bg-red-400 text-white hover:bg-red-400/90 disabled:opacity-50",

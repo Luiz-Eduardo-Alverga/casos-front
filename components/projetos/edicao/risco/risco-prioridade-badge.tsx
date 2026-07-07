@@ -7,9 +7,9 @@ import {
 } from "@/components/projetos/edicao/risco/utils";
 
 const VARIANT_CLASSES: Record<PrioridadeBadgeVariant, string> = {
-  low: "bg-emerald-100 text-emerald-800",
-  high: "bg-red-100 text-red-800",
-  medium: "bg-amber-100 text-amber-800",
+  low: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400",
+  high: "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-400",
+  medium: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400",
   neutral: "bg-muted text-text-secondary",
 };
 

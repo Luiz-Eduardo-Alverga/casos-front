@@ -107,9 +107,9 @@ export function PainelKanbanAgendaCardsField({
                 type="button"
                 onClick={() => handleSelect(card)}
                 className={cn(
-                  "relative w-full rounded-lg border bg-white p-3 text-left transition-colors",
+                  "relative w-full rounded-lg border bg-card p-3 text-left transition-colors",
                   "hover:border-brand-yellow",
-                  isSelected ? "border-brand-yellow " : "border-border-divider",
+                  isSelected ? "border-brand-yellow " : "border-border",
                 )}
                 aria-pressed={isSelected}
               >
@@ -118,7 +118,7 @@ export function PainelKanbanAgendaCardsField({
                     "absolute right-3 top-3 inline-flex h-4 w-4 items-center justify-center rounded-full border",
                     isSelected
                       ? "border-brand-yellow bg-brand-yellow "
-                      : "border-border-divider bg-white",
+                      : "border-border bg-card",
                   )}
                 >
                   {isSelected ? (
@@ -136,13 +136,13 @@ export function PainelKanbanAgendaCardsField({
                 <div className="mt-1.5 flex items-center gap-4 text-xs text-text-primary">
                   <span className="inline-flex items-center gap-1">
                     Abertos
-                    <Badge className="h-5 min-w-5 rounded-full border-transparent bg-blue-100 px-1.5 text-[10px] text-blue-700 hover:bg-blue-100">
+                    <Badge className="h-5 min-w-5 rounded-full border-transparent bg-blue-100 px-1.5 text-[10px] text-blue-700 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-950/40">
                       {card.abertos}
                     </Badge>
                   </span>
                   <span className="inline-flex items-center gap-1">
                     Retornos
-                    <Badge className="h-5 min-w-5 rounded-full border-transparent bg-orange-100 px-1.5 text-[10px] text-orange-700 hover:bg-orange-100">
+                    <Badge className="h-5 min-w-5 rounded-full border-transparent bg-orange-100 px-1.5 text-[10px] text-orange-700 hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-400 dark:hover:bg-orange-950/40">
                       {card.retornos}
                     </Badge>
                   </span>

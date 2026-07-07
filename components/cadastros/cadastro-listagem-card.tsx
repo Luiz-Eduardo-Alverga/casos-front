@@ -50,11 +50,11 @@ export function CadastroListagemCard({
             </CardTitle>
           </div>
 
-          {/* {shouldShowTotal ? (
+          {shouldShowTotal ? (
             <div className="text-sm font-semibold text-text-secondary">
               Total de {formatTotalRecords(totalRecords, totalRecordsUnit)}
             </div>
-          ) : null} */}
+          ) : null}
         </div>
       </CardHeader>
       <CardContent className="p-6 pt-3 overflow-x-auto flex-1 min-h-0">

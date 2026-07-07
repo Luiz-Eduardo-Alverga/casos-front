@@ -54,7 +54,7 @@ export function ProjetoEditSkeleton() {
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           <div
             className={cn(
-              "flex h-auto min-h-9 w-full max-w-full min-w-0 flex-nowrap items-center justify-start gap-0 overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-full bg-white py-1",
+              "flex h-auto min-h-9 w-full max-w-full min-w-0 flex-nowrap items-center justify-start gap-0 overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-full bg-card py-1",
               "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
             )}
           >

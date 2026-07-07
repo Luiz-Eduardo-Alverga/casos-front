@@ -75,7 +75,7 @@ export function Retorno() {
           <>
             <Table>
               <TableHeader>
-                <TableRow className="bg-white border-b border-white hover:bg-white">
+                <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
                   <TableHead className="w-[30px] text-center font-medium text-sm text-text-primary h-auto py-3 px-2.5">
                     Imp.
                   </TableHead>
@@ -97,7 +97,7 @@ export function Retorno() {
                 {itens.map((retorno) => (
                   <TableRow
                     key={retorno.id}
-                    className="bg-white border-t border-border-divider hover:bg-white cursor-pointer transition-colors"
+                    className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover cursor-pointer transition-colors"
                     onClick={() => router.push(`/casos/${retorno.id}`)}
                   >
                     <TableCell className="w-[30px] py-3 px-2.5">

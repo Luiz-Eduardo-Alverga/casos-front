@@ -20,7 +20,7 @@ import type {
 } from "@/components/projetos/tabela/projetos-tabela-types";
 
 const HEADER_ROW_CLASS =
-  "bg-background border-b border-background hover:bg-background";
+  "bg-background border-b border-background dark:border-card hover:bg-background";
 
 function ProjetosTabelaTableEscopo({
   itens,
@@ -61,7 +61,7 @@ function ProjetosTabelaTableEscopo({
     <ProjetosTabelaSortableHeader
       key="detalhes"
       label="Detalhes do caso"
-      sortField="produto_nome"
+      sortFields={["produto_nome", "prioridade"]}
       sort={sort}
       onSortChange={onSortChange}
       className="min-w-0 flex-1"

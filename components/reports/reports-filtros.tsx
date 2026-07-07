@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
-import { Filter, Search, FilterX } from "lucide-react";
-import { MAX_STATUS_IDS_FILTRO_CASOS } from "@/components/casos/filtros/constants";
+import { Filter, Search } from "lucide-react";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,17 +10,27 @@ import { LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layou
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormSetor } from "@/components/fields/caso-form-setor";
 import { CasoFormProduto } from "@/components/fields/caso-form-produto";
-import { useSetores } from "@/hooks/catalogos/use-setores";
-import { getUser } from "@/lib/auth";
 import { importanceOptions } from "@/mocks/teste";
+import {
+  filtrosQueryKey,
+  filtrosToFormDefaults,
+  formToFiltrosAplicados,
+  hasFiltersApplied,
+} from "@/components/reports/filtros/reports-filtros-mappers";
 import type { ReportsFiltersForm, ReportsFiltrosAplicados } from "./types";
-import { DEFAULT_REPORTS_STATUS_IDS, EMPTY_REPORTS_FILTERS } from "./types";
+import { DEFAULT_REPORTS_STATUS_IDS } from "./types";
 
 interface ReportsFiltrosProps {
+  filtrosAplicados: ReportsFiltrosAplicados;
   onAplicar: (filtros: ReportsFiltrosAplicados) => void;
 }
 
-export function ReportsFiltros({ onAplicar }: ReportsFiltrosProps) {
+export function ReportsFiltros({
+  filtrosAplicados,
+  onAplicar,
+}: ReportsFiltrosProps) {
+  const appliedQueryKey = filtrosQueryKey(filtrosAplicados);
+
   const methods = useForm<ReportsFiltersForm>({
     defaultValues: {
       setor: "",
@@ -30,37 +39,15 @@ export function ReportsFiltros({ onAplicar }: ReportsFiltrosProps) {
     },
   });
 
-  const { data: setores } = useSetores();
   const produto = methods.watch("produto");
-  const defaultSetorAplicadoRef = useRef(false);
+  const lastFormSyncKeyRef = useRef<string | null>(null);
 
-  // Pré-seleciona o setor do usuário logado e aplica o filtro na carga inicial.
   useEffect(() => {
-    if (defaultSetorAplicadoRef.current) return;
-    if (!setores?.length) return;
-
-    const setorUsuario = String(getUser()?.setor ?? "").trim();
-    if (!setorUsuario) {
-      defaultSetorAplicadoRef.current = true;
-      return;
-    }
-
-    const setorMatch = setores.find(
-      (s) => s.nome?.trim().toUpperCase() === setorUsuario.toUpperCase(),
-    );
-    if (!setorMatch) {
-      defaultSetorAplicadoRef.current = true;
-      return;
-    }
-
-    defaultSetorAplicadoRef.current = true;
-    methods.setValue("setor", String(setorMatch.id));
-    onAplicar({
-      setor: setorMatch.nome.trim(),
-      produto: "",
-      status_ids: [...DEFAULT_REPORTS_STATUS_IDS],
-    });
-  }, [setores, methods, onAplicar]);
+    if (lastFormSyncKeyRef.current === appliedQueryKey) return;
+    lastFormSyncKeyRef.current = appliedQueryKey;
+    methods.reset(filtrosToFormDefaults(filtrosAplicados));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- syncKey agrega deps; `methods` é estável
+  }, [appliedQueryKey, filtrosAplicados]);
 
   const providerValue = useMemo(
     () => ({
@@ -72,36 +59,15 @@ export function ReportsFiltros({ onAplicar }: ReportsFiltrosProps) {
     [methods, produto],
   );
 
-  const resolveSetorNome = useCallback(
-    (setorId: string): string => {
-      const id = setorId.trim();
-      if (!id) return "";
-      const setor = (setores ?? []).find((s) => String(s.id) === id);
-      return setor?.nome?.trim() ?? "";
-    },
-    [setores],
-  );
-
   const handleFiltrar = useCallback(() => {
-    const values = methods.getValues();
-    onAplicar({
-      setor: resolveSetorNome(String(values.setor ?? "")),
-      produto: String(values.produto ?? "").trim(),
-      status_ids: (values.status_ids ?? []).slice(
-        0,
-        MAX_STATUS_IDS_FILTRO_CASOS,
-      ),
-    });
-  }, [methods, onAplicar, resolveSetorNome]);
-
-  const handleLimpar = useCallback(() => {
-    methods.reset({
-      setor: "",
-      produto: "",
-      status_ids: [...DEFAULT_REPORTS_STATUS_IDS],
-    });
-    onAplicar(EMPTY_REPORTS_FILTERS);
+    onAplicar(formToFiltrosAplicados(methods.getValues()));
   }, [methods, onAplicar]);
+
+  const formValues = methods.watch();
+  const canFiltrar = useMemo(
+    () => hasFiltersApplied(formToFiltrosAplicados(formValues)),
+    [formValues],
+  );
 
   return (
     <CasoFormProvider value={providerValue}>
@@ -142,6 +108,7 @@ export function ReportsFiltros({ onAplicar }: ReportsFiltrosProps) {
               <Button
                 type="button"
                 onClick={handleFiltrar}
+                disabled={!canFiltrar}
                 className="h-9 flex-1 sm:flex-initial sm:col-span-2 lg:col-span-1"
               >
                 <Search className="h-3.5 w-3.5 mr-2" />

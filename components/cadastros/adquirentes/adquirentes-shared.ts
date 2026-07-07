@@ -57,7 +57,7 @@ export function getAcquirerStatusDotClass(status: string | null): string {
     case "Em certificação":
       return "bg-orange-500";
     case "Em homologação":
-      return "bg-slate-400";
+      return "bg-muted-foreground/60";
     case "Em teste":
       return "bg-blue-500";
     case "Em desenvolvimento":

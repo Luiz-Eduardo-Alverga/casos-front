@@ -110,11 +110,11 @@ export function CasoAbertoMiniPlayerExpanded({
 
       <div className="space-y-4 px-4 py-4">
         <div className="flex items-start gap-2">
-          <h2 className="min-w-0 flex-1 text-sm font-bold leading-snug text-slate-900">
+          <h2 className="min-w-0 flex-1 text-sm font-bold leading-snug text-foreground">
             {viewModel.titleLine}
           </h2>
           {viewModel.prioridadeBadge ? (
-            <span className="shrink-0 rounded-md bg-red-50 px-2 py-0.5 text-xs font-bold text-red-600">
+            <span className="shrink-0 rounded-md bg-red-50 px-2 py-0.5 text-xs font-bold text-red-600 dark:bg-red-950/40 dark:text-red-400">
               {viewModel.prioridadeBadge}
             </span>
           ) : null}
@@ -140,7 +140,7 @@ export function CasoAbertoMiniPlayerExpanded({
       <div className="flex gap-2 border-t border-border-divider px-4 py-3">
         <Button
           type="button"
-          className="h-10 flex-1 bg-slate-900 text-white hover:bg-slate-800"
+          className="h-10 flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={onVerCaso}
         >
           <Eye className="mr-2 size-4" aria-hidden />

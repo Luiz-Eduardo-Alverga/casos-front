@@ -84,20 +84,20 @@ export function AbaHistorico({
                 );
                 const marcadorAzul = indexEvento % 2 === 0;
                 const corMarcador = marcadorAzul
-                  ? "bg-blue-100 text-blue-600"
-                  : "bg-emerald-100 text-emerald-600";
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+                  : "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400";
 
                 return (
                   <section key={evento.seq} className="relative">
                     <div
-                      className={`absolute left-[-24px] top-1 z-10 h-6 w-6 -translate-x-1/2 rounded-full ${corMarcador} border border-white shadow-sm ring-4 ring-background flex items-center justify-center`}
+                      className={`absolute left-[-24px] top-1 z-10 h-6 w-6 -translate-x-1/2 rounded-full ${corMarcador} border border-card shadow-sm ring-4 ring-background flex items-center justify-center`}
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </div>
 
                     <header className="flex flex-wrap items-center justify-between gap-2 ">
                       <div className="flex items-center gap-2">
-                        <span className="h-8 w-8 rounded-full border border-blue-100 bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <span className="h-8 w-8 rounded-full border border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-400 flex items-center justify-center">
                           <User className="h-4 w-4" />
                         </span>
                         <p className="text-sm font-semibold text-foreground">

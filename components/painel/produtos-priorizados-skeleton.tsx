@@ -28,7 +28,7 @@ export function ProdutosPriorizadosSkeleton() {
       <CardContent className="p-6 pt-3 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-white border-b border-white hover:bg-white">
+            <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
               <TableHead className="w-[30px] text-center font-medium text-sm h-auto py-3 px-2.5">
                 Sel.
               </TableHead>
@@ -53,7 +53,7 @@ export function ProdutosPriorizadosSkeleton() {
             {Array.from({ length: ROWS }).map((_, i) => (
               <TableRow
                 key={i}
-                className="bg-white border-t border-border-divider hover:bg-white"
+                className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover"
               >
                 <TableCell className="w-[30px] py-3 px-2.5">
                   <div className="flex justify-center">

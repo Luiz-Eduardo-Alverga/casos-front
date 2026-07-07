@@ -9,14 +9,14 @@ const VARIANT_STYLES: Record<
   { container: string; dot: string; text: string }
 > = {
   urgente: {
-    container: "border-red-200 bg-red-50",
-    dot: "bg-red-500",
-    text: "text-red-700",
+    container: "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/40",
+    dot: "bg-red-500 dark:bg-red-400",
+    text: "text-red-700 dark:text-red-400",
   },
   "atendimento-imediato": {
-    container: "border-blue-200 bg-blue-50",
-    dot: "bg-blue-500",
-    text: "text-blue-700",
+    container: "border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/40",
+    dot: "bg-blue-500 dark:bg-blue-400",
+    text: "text-blue-700 dark:text-blue-400",
   },
 };
 

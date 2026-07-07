@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function ClientesTableSkeletonRow() {
   return (
-    <TableRow className="bg-white border-t border-border-divider hover:bg-white">
+    <TableRow className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover">
       <TableCell className="py-3 px-2.5">
         <Skeleton className="h-4 w-12" />
       </TableCell>
@@ -42,7 +42,7 @@ export function ClientesTableSkeleton({ rowCount = 1 }: ClientesTableSkeletonPro
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-white border-b border-white hover:bg-white">
+        <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
           <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
             Cliente
           </TableHead>

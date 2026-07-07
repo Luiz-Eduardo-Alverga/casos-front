@@ -19,10 +19,10 @@ export const STATUS_ADQUIRENTES_COLUMNS: StatusAdquirentesColumnMeta[] =
         return {
           id: status,
           name: "Em homologação",
-          dotClass: "bg-slate-400",
+          dotClass: "bg-muted-foreground/60",
           emptyTitle: "Nenhum item em homologação",
           emptyDescription: "Não há adquirentes nesta etapa.",
-          badgeClass: "bg-slate-200 text-slate-600",
+          badgeClass: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
         };
       case "Em desenvolvimento":
         return {
@@ -31,7 +31,7 @@ export const STATUS_ADQUIRENTES_COLUMNS: StatusAdquirentesColumnMeta[] =
           dotClass: "bg-blue-400",
           emptyTitle: "Nenhum item em desenvolvimento",
           emptyDescription: "Não há adquirentes nesta etapa.",
-          badgeClass: "bg-blue-100 text-blue-700",
+          badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400",
         };
       case "Em teste":
         return {
@@ -40,7 +40,7 @@ export const STATUS_ADQUIRENTES_COLUMNS: StatusAdquirentesColumnMeta[] =
           dotClass: "bg-blue-500",
           emptyTitle: "Nenhum item em teste",
           emptyDescription: "Não há adquirentes nesta etapa.",
-          badgeClass: "bg-blue-100 text-blue-700",
+          badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400",
         };
       case "Em certificação":
         return {
@@ -49,7 +49,7 @@ export const STATUS_ADQUIRENTES_COLUMNS: StatusAdquirentesColumnMeta[] =
           dotClass: "bg-orange-500",
           emptyTitle: "Nenhum item em certificação",
           emptyDescription: "Não há adquirentes nesta etapa.",
-          badgeClass: "bg-orange-100 text-orange-700",
+          badgeClass: "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400",
         };
       case "Concluído":
       default:
@@ -59,7 +59,7 @@ export const STATUS_ADQUIRENTES_COLUMNS: StatusAdquirentesColumnMeta[] =
           dotClass: "bg-emerald-500",
           emptyTitle: "Nenhum item concluído",
           emptyDescription: "Não há adquirentes nesta etapa.",
-          badgeClass: "bg-emerald-100 text-emerald-700",
+          badgeClass: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
         };
     }
   });

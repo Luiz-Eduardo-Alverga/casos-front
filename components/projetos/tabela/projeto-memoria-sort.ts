@@ -1,6 +1,7 @@
 export type ProjetoMemoriaSortField =
   | "numero_caso"
   | "produto_nome"
+  | "prioridade"
   | "data_conclusao_dev";
 
 export type ProjetoMemoriaSortOrder = "ASC" | "DESC";
@@ -42,6 +43,16 @@ export const PROJETO_MEMORIA_SORT_OPTIONS: Record<
     desc: {
       label: "Ordenar por Produto (Z-A)",
       hint: "Ordem alfabética decrescente",
+    },
+  },
+  prioridade: {
+    asc: {
+      label: "Ordenar por Prioridade (Menor)",
+      hint: "Importâncias mais baixas primeiro",
+    },
+    desc: {
+      label: "Ordenar por Prioridade (Maior)",
+      hint: "Importâncias mais altas primeiro",
     },
   },
   data_conclusao_dev: {

@@ -18,6 +18,7 @@ export function mapProjetoMemoriaToTabelaRow(
   item: ProjetoMemoriaItem,
 ): ProjetosTabelaEscopoRow {
   return {
+    importancia: item.caso.caracteristicas.prioridade ?? "",
     id: String(item.caso.id),
     numero: String(item.caso.id),
     descricao: item.caso.textos.descricao_resumo ?? "",

@@ -168,7 +168,7 @@ function ProdutoCollapsibleRow({ produto }: ProdutoCollapsibleRowProps) {
     <Collapsible
       open={open}
       onOpenChange={setOpen}
-      className="bg-white border border-border-divider rounded-lg overflow-hidden"
+      className="bg-card border border-border rounded-lg overflow-hidden"
     >
       <CollapsibleTrigger
         className={cn(
@@ -205,7 +205,7 @@ function ProdutoCollapsibleRow({ produto }: ProdutoCollapsibleRowProps) {
         <div className="border-t border-border-divider p-5 pt-3">
           <Table>
             <TableHeader>
-              <TableRow className="bg-white border-b border-white hover:bg-white">
+              <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
                 <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
                   Versão
                 </TableHead>
@@ -230,7 +230,7 @@ function ProdutoCollapsibleRow({ produto }: ProdutoCollapsibleRowProps) {
               {produto.versoes.map((v, idx) => (
                 <TableRow
                   key={`${v.versao}-${idx}`}
-                  className="bg-white border-t border-border-divider hover:bg-white"
+                  className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover"
                 >
                   <TableCell className="py-3 px-2.5">
                     <span className="text-xs font-semibold text-text-primary">

@@ -42,7 +42,7 @@ export function ClienteContatoCard({ cliente }: ClienteContatoCardProps) {
                     <Mail className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <a
                       href={`mailto:${email}`}
-                      className="break-all text-sm font-semibold text-primary hover:underline"
+                      className="break-all text-sm font-semibold text-text-primary hover:underline"
                     >
                       {email}
                     </a>

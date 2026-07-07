@@ -77,7 +77,7 @@ export function RelacoesTable({
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-white border-b border-white hover:bg-white">
+        <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
           <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
             Data
           </TableHead>
@@ -113,7 +113,7 @@ export function RelacoesTable({
           return (
             <TableRow
               key={item.sequencia}
-              className="bg-white border-t border-border-divider hover:bg-white"
+              className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover"
             >
               <TableCell className="py-3 px-2.5">
                 <span className="text-sm text-text-secondary">

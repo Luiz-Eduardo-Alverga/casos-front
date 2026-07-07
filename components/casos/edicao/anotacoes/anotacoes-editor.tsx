@@ -36,7 +36,7 @@ export function AnotacoesEditor({
             Descrição Completa
           </Label>
 
-          <Button
+          {/* <Button
             type="button"
             size="sm"
             onClick={onImproveWithIA}
@@ -54,7 +54,7 @@ export function AnotacoesEditor({
                 Melhorar com IA
               </>
             )}
-          </Button>
+          </Button> */}
         </div>
 
         <Textarea

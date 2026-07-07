@@ -149,11 +149,11 @@ export function HorasAnaliticasModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex w-[calc(100vw-1rem)] max-w-[900px] flex-col gap-0 overflow-hidden border-border-divider bg-white p-0 shadow-2xl sm:w-[min(96vw,900px)]">
+      <DialogContent className="flex w-[calc(100vw-1rem)] max-w-[900px] flex-col gap-0 overflow-hidden border-border bg-card p-0 shadow-2xl sm:w-[min(96vw,900px)]">
         <DialogHeader className="border-b border-border-divider px-5 pb-5 pt-5 text-left sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 shadow-sm">
-              <Clock3 className="h-4 w-4 text-white" aria-hidden />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shadow-sm">
+              <Clock3 className="h-4 w-4 text-primary-foreground" aria-hidden />
             </div>
             <div>
               <DialogTitle className="text-xl font-bold leading-tight text-text-primary">
@@ -215,7 +215,7 @@ export function HorasAnaliticasModal({
                   <Button
                     type="button"
                     onClick={handleAtualizar}
-                    className="w-full bg-slate-800 text-white hover:bg-slate-700 h-9"
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-9"
                     aria-label="Atualizar horas analíticas"
                     disabled={!canFetch || query.isFetching}
                   >

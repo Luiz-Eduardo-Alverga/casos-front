@@ -14,7 +14,7 @@ const ROWS = 6;
 
 function SkeletonRow() {
   return (
-    <TableRow className="bg-white border-t border-border-divider hover:bg-white">
+    <TableRow className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover">
       <TableCell className="py-3 px-2.5">
         <div className="flex items-center gap-3">
           <Skeleton className="h-9 w-9 rounded-full shrink-0" />
@@ -50,7 +50,7 @@ export function AdquirentesTabelaSkeleton() {
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-white border-b border-white hover:bg-white">
+        <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
           <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5">
             Adquirente
           </TableHead>

@@ -9,7 +9,7 @@ import { ReportIdBadge } from "@/components/reports/report-badges";
 import { formatTelefone, displayValue } from "@/components/clientes/utils";
 import {
   formatTicketDate,
-  formatTicketDateTime,
+  formatTicketTime,
   formatTicketMotivo,
   formatTicketRetorno,
   formatTicketServicoRealizado,
@@ -113,7 +113,7 @@ export function TicketItemCard({ ticket, onEditar }: TicketItemCardProps) {
               <button
                 type="button"
                 onClick={() => setMotivoExpanded((prev) => !prev)}
-                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-medium text-text-primary hover:underline"
               >
                 {motivoExpanded ? (
                   <>
@@ -152,16 +152,13 @@ export function TicketItemCard({ ticket, onEditar }: TicketItemCardProps) {
           <InfoItem label="Retorno" value={retornoFormatado} />
           <InfoItem
             label="Hora marcada"
-            value={formatTicketDateTime(ticket.horaMarcada)}
+            value={formatTicketTime(ticket.horaMarcada)}
           />
           <InfoItem
             label="Chegada"
-            value={formatTicketDateTime(ticket.horaChegada)}
+            value={formatTicketTime(ticket.horaChegada)}
           />
-          <InfoItem
-            label="Saída"
-            value={formatTicketDateTime(ticket.horaSaida)}
-          />
+          <InfoItem label="Saída" value={formatTicketTime(ticket.horaSaida)} />
         </div>
 
         {!servicoVazio ? (

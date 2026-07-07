@@ -387,7 +387,7 @@ export function StatusAdquirentesSheet({
         <FormProvider {...form}>
           <form onSubmit={onSubmit} className="flex min-h-0 h-full flex-col">
             <SheetHeader className="px-6 pt-8 pb-0 space-y-1.5 shrink-0">
-              <SheetTitle className="text-base font-semibold text-black">
+              <SheetTitle className="text-base font-semibold text-foreground">
                 {mode === "create"
                   ? "Nova Status de Adquirente"
                   : "Editar Status de Adquirente"}
@@ -428,8 +428,8 @@ export function StatusAdquirentesSheet({
                             className={cn(
                               "inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs font-semibold transition-colors",
                               isPrimary
-                                ? "border-public-border bg-public-info-bg text-black"
-                                : "border-border-divider bg-background text-black",
+                                ? "border-public-border bg-public-info-bg text-foreground"
+                                : "border-border-divider bg-background text-foreground",
                             )}
                             onClick={() =>
                               form.setValue("recommendedDeviceId", deviceId, {

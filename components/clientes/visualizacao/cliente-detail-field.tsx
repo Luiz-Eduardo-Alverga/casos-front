@@ -16,7 +16,7 @@ export function ClienteDetailField({
 }: ClienteDetailFieldProps) {
   return (
     <div className={cn("flex min-w-0 flex-col gap-1", className)}>
-      <span className="text-xs uppercase font-medium text-slate-400">
+      <span className="text-xs uppercase font-medium text-muted-foreground">
         {label}
       </span>
       <div className="text-xs leading-5 font-semibold text-text-primary">

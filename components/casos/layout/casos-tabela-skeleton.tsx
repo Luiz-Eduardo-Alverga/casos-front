@@ -22,13 +22,13 @@ export function CasosTabelaSkeleton() {
     />,
     <TableHead
       key="id"
-      className="min-w-[95px] font-medium text-sm text-text-primary h-auto py-4 px-5"
+      className="min-w-[95px] font-medium text-sm text-text-primary h-auto py-4 px-2"
     >
       ID / Categoria
     </TableHead>,
     <TableHead
       key="detalhes"
-      className="min-w-0 flex-1 font-medium text-sm text-text-primary h-auto py-4 px-5"
+      className="min-w-0 flex-1 font-medium text-sm text-text-primary h-auto py-4 px-2"
     >
       Detalhes do caso
     </TableHead>,
@@ -46,7 +46,7 @@ export function CasosTabelaSkeleton() {
     </TableHead>,
     <TableHead
       key="status"
-      className="w-[123px] font-medium text-sm text-text-primary h-auto py-4 px-5"
+      className="min-w-[185px] font-medium text-sm text-text-primary h-auto py-4 px-5"
     >
       Status
     </TableHead>,

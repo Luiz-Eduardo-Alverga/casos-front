@@ -18,7 +18,7 @@ export function AuditoriaColaboradorRow({
   const StatusIcon = statusConfig.icon;
 
   return (
-    <TableRow className="bg-white border-t border-border-divider hover:bg-white">
+    <TableRow className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover">
       <TableCell className="py-3 w-[220px] px-6">
         <div className="flex items-center gap-2 min-w-[180px]">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border-accent bg-bg-accent-start">

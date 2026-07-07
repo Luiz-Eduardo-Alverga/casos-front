@@ -128,6 +128,11 @@
     --public-danger-bg: 0 86% 97%;
     --public-danger-text: 0 72% 51%;
 
+    /* Tokens de superfície (light mode) */
+    --table-row-bg: 0 0% 100%;
+    --table-row-hover: 220 14% 97%;
+    --surface-elevated: 0 0% 100%;
+
     /* Auditoria Squad — status */
     --audit-conforme: 152 69% 39%;
     --audit-conforme-bg: 152 69% 39%;
@@ -142,22 +147,22 @@
   .dark {
     --background: 215 27.9% 16.9%;
     --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
+    --card: 215 25% 20%;
     --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
+    --popover: 215 25% 20%;
     --popover-foreground: 210 20% 98%;
     --primary: 215 25% 27%;
     --primary-foreground: 210 20% 98%;
-    --secondary: 215 27.9% 16.9%;
+    --secondary: 215 25% 22%;
     --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
+    --muted: 215 25% 22%;
     --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
+    --accent: 215 25% 24%;
     --accent-foreground: 210 20% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62.8% 45%;
     --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 213 18.9% 26.7%;
+    --border: 215 20% 26%;
+    --input: 215 20% 28%;
     --ring: 215 70% 40%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -166,52 +171,58 @@
     --chart-5: 340 75% 55%;
 
     /* Cores customizadas do formulário - dark mode */
-    --page-background: 222 39.3% 11%;
+    --page-background: 215 28% 13%;
     --text-primary: 210 20% 98%;
     --text-secondary: 217.9 10.6% 64.9%;
     --text-label: 217.9 10.6% 64.9%;
-    --text-error: 0 62.8% 30.6%;
-    --border-input: 215 27.9% 16.9%;
-    --border-divider: 215 27.9% 16.9%;
+    --text-error: 0 72% 55%;
+    --border-input: 215 20% 28%;
+    --border-divider: 215 22% 22%;
     --button-secondary: 215 25% 27%;
     --gradient-start: 262 83% 58%;
     --gradient-end: 217 91% 60%;
-    --border-accent: 214 95% 93%;
-    --bg-accent-start: 214 100% 97%;
-    --bg-accent-end: 270 100% 98%;
+    --border-accent: 215 50% 35%;
+    --bg-accent-start: 215 40% 20%;
+    --bg-accent-end: 262 40% 22%;
     --shadow-card: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
     --shadow-kanban-card:
       0 -1px 3px -1px rgba(0, 0, 0, 0.2), 0 4px 6px -1px rgba(0, 0, 0, 0.25),
       0 2px 4px -2px rgba(0, 0, 0, 0.2);
+
+    /* Tokens de superfície para tabelas e componentes */
+    --table-row-bg: 215 25% 18%;
+    --table-row-hover: 215 25% 23%;
+    --surface-elevated: 215 25% 22%;
+
     /* Cores da sidebar - dark mode */
     --sidebar-bg: 215 25% 20%;
-    --sidebar-border: 215 20% 30%;
+    --sidebar-border: 215 20% 26%;
     --sidebar-text: 215 10% 80%;
     --sidebar-text-secondary: 215 16% 47%;
     --sidebar-text-muted: 222 17% 63%;
     --sidebar-section-label: 228 18% 36%;
 
     /* Cores do Painel do Desenvolvedor - dark mode */
-    --panel-bg: 224 71.4% 4.1%;
-    --panel-card-bg: 215 27.9% 16.9%;
+    --panel-bg: 215 28% 13%;
+    --panel-card-bg: 215 25% 20%;
     --panel-text-primary: 210 20% 98%;
     --panel-text-secondary: 217.9 10.6% 64.9%;
-    --panel-border: 215 27.9% 16.9%;
-    --panel-border-light: 215 27.9% 16.9%;
-    --panel-checkbox-border: 215 27.9% 16.9%;
-    --panel-checkbox-checked: 240 100% 50%;
-    --panel-badge-open: 217 91% 60%;
-    --panel-badge-open-bg: 217 95% 93%;
-    --panel-badge-fixed: 142 76% 36%;
-    --panel-badge-fixed-bg: 142 76% 95%;
-    --panel-badge-return: 0 84% 60%;
-    --panel-badge-return-bg: 0 93% 94%;
-    --panel-badge-importance: 142 76% 36%;
-    --panel-badge-importance-bg: 142 76% 95%;
-    --panel-card-border: 215 27.9% 16.9%;
+    --panel-border: 215 20% 26%;
+    --panel-border-light: 215 22% 22%;
+    --panel-checkbox-border: 215 20% 28%;
+    --panel-checkbox-checked: 215 70% 55%;
+    --panel-badge-open: 217 91% 70%;
+    --panel-badge-open-bg: 217 50% 22%;
+    --panel-badge-fixed: 142 76% 55%;
+    --panel-badge-fixed-bg: 142 35% 18%;
+    --panel-badge-return: 0 84% 70%;
+    --panel-badge-return-bg: 0 35% 20%;
+    --panel-badge-importance: 142 76% 55%;
+    --panel-badge-importance-bg: 142 35% 18%;
+    --panel-card-border: 215 20% 26%;
     --panel-card-yellow-accent: 43 96% 56%;
-    --panel-badge-importance-yellow: 43 96% 56%;
-    --panel-badge-importance-yellow-bg: 43 96% 95%;
+    --panel-badge-importance-yellow: 43 96% 70%;
+    --panel-badge-importance-yellow-bg: 43 50% 18%;
     --panel-button-back: 215 25% 27%;
     /* Login (mesmo visual em dark) */
     --login-bg-start: 216 14% 36%;
@@ -247,19 +258,29 @@
 
     /* Tons específicos usados em telas/tabelas (dark mode) */
     --cases-ink: 210 20% 98%;
-    --border-strong: 215 27.9% 16.9%;
+    --border-strong: 215 20% 26%;
 
     /* Página pública (Adquirentes) - dark mode */
-    --public-border: 215 27.9% 16.9%;
+    --public-border: 215 20% 26%;
     --public-placeholder: 217.9 10.6% 64.9%;
     --public-text-muted: 217.9 10.6% 64.9%;
     --public-hint: 217.9 10.6% 64.9%;
-    --public-surface-muted: 215 27.9% 16.9%;
+    --public-surface-muted: 215 25% 20%;
     --public-focus: 48 93% 60%;
-    --public-info-bg: 215 27.9% 16.9%;
+    --public-info-bg: 215 40% 20%;
     --public-info-text: 214 100% 75%;
-    --public-danger-bg: 215 27.9% 16.9%;
+    --public-danger-bg: 0 35% 18%;
     --public-danger-text: 0 84% 75%;
+
+    /* Auditoria Squad - dark mode */
+    --audit-conforme: 152 69% 55%;
+    --audit-conforme-bg: 152 69% 55%;
+    --audit-alerta-leve: 38 91% 60%;
+    --audit-alerta-leve-bg: 38 91% 60%;
+    --audit-alerta-critico: 2 66% 65%;
+    --audit-alerta-critico-bg: 2 66% 65%;
+    --audit-inconsistencia: 254 59% 70%;
+    --audit-inconsistencia-bg: 254 59% 70%;
   }
 }
 

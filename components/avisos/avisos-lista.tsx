@@ -94,7 +94,7 @@ function ItemAviso({
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full text-left rounded-lg border bg-white shadow-sm transition-colors hover:bg-muted/50",
+        "w-full text-left rounded-lg border bg-card shadow-sm transition-colors hover:bg-muted/50",
         "p-4 flex flex-col gap-0",
         selecionado
           ? "border-primary bg-primary/5 ring-1 ring-primary/30"
@@ -103,8 +103,8 @@ function ItemAviso({
     >
       {/* Top: Avatar + bloco de texto (título, data curta, enviado por) */}
       <div className="flex gap-3 items-start">
-        <Avatar className="h-10 w-10 shrink-0 rounded-full bg-blue-100 border-0">
-          <AvatarFallback className="bg-blue-100 text-blue-600 text-sm font-medium">
+        <Avatar className="h-10 w-10 shrink-0 rounded-full bg-blue-100 border-0 dark:bg-blue-950/40">
+          <AvatarFallback className="bg-blue-100 text-blue-600 text-sm font-medium dark:bg-blue-950/40 dark:text-blue-400">
             {enviadoPor !== "—" ? iniciais(enviadoPor) : "?"}
           </AvatarFallback>
         </Avatar>

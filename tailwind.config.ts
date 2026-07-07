@@ -149,6 +149,11 @@ const config: Config = {
         "public-info-text": "hsl(var(--public-info-text))",
         "public-danger-bg": "hsl(var(--public-danger-bg))",
         "public-danger-text": "hsl(var(--public-danger-text))",
+        // Tokens de superfície para dark mode
+        "table-row-bg": "hsl(var(--table-row-bg))",
+        "table-row-hover": "hsl(var(--table-row-hover))",
+        "surface-elevated": "hsl(var(--surface-elevated))",
+
         // Auditoria Squad
         "audit-conforme": "hsl(var(--audit-conforme))",
         "audit-conforme-bg": "hsl(var(--audit-conforme-bg) / 0.1)",

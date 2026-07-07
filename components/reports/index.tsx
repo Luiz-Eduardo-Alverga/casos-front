@@ -1,29 +1,36 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { FilterX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import { ReportsFiltros } from "./reports-filtros";
 import { ReportsLista } from "./reports-lista";
-import { EMPTY_REPORTS_FILTERS, type ReportsFiltrosAplicados } from "./types";
+import { useReportsFiltros } from "@/hooks/reports/use-reports-filtros";
 
 export function Reports() {
-  const router = useRouter();
-  const [filtrosAplicados, setFiltrosAplicados] =
-    useState<ReportsFiltrosAplicados>(EMPTY_REPORTS_FILTERS);
-
-  const handleAplicar = useCallback((filtros: ReportsFiltrosAplicados) => {
-    setFiltrosAplicados(filtros);
-  }, []);
+  const { filtrosAplicados, aplicarFiltros, limparFiltros } =
+    useReportsFiltros();
 
   return (
     <ListagemPageLayout
       title="Reports"
       subtitle="Visualize e analise os reports abertos"
+      actions={
+        <Button
+          variant="outline"
+          type="button"
+          className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
+          onClick={limparFiltros}
+        >
+          <FilterX className="h-3.5 w-3.5" />
+          Limpar filtros
+        </Button>
+      }
     >
-      <ReportsFiltros onAplicar={handleAplicar} />
+      <ReportsFiltros
+        filtrosAplicados={filtrosAplicados}
+        onAplicar={aplicarFiltros}
+      />
       <ReportsLista filtros={filtrosAplicados} />
     </ListagemPageLayout>
   );

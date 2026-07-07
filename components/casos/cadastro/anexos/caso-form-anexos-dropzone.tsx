@@ -72,10 +72,10 @@ export function CasoFormAnexosDropzone({
           !canInteract && "opacity-50 pointer-events-none",
         )}
       >
-        <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-white">
+        <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-card">
           <Upload className="h-5 w-5 text-blue-500" />
         </div>
-        <p className="mb-1 text-sm font-bold text-black">
+        <p className="mb-1 text-sm font-bold text-foreground">
           Arraste arquivos aqui ou{" "}
           <button
             type="button"
@@ -86,11 +86,11 @@ export function CasoFormAnexosDropzone({
             escolha do computador
           </button>
         </p>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-muted-foreground">
           Você também pode colar captura de tela com Ctrl+V
         </p>
 
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-slate-500">
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <ImageIcon className="h-3 w-3" />
             PNG, JPG, WEBP (10MB)

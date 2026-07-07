@@ -2,10 +2,10 @@ import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 
 /** Filtros aplicados na listagem de reports abertos. */
 export interface ReportsFiltrosAplicados {
-  /** Nome do setor (ex.: "SQUAD XP"), enviado no param `setor`. */
-  setor?: string;
+  /** ID do setor, enviado como nome no param `setor` da API. */
+  setor: string;
   /** ID do produto, enviado no param `produto_id`. */
-  produto?: string;
+  produto: string;
   /** IDs de status (Registro), enviados no param `status_id`. */
   status_ids: string[];
 }

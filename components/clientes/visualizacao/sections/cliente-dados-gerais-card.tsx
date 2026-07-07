@@ -19,25 +19,25 @@ const CLIENTE_SITUACAO_BADGE_CONFIG: StatusBadgeConfigItem[] = [
   {
     values: ["ATIVO"],
     style: {
-      container: "bg-green-50 border-green-200",
-      dot: "bg-green-500",
-      text: "text-green-700",
+      container: "bg-green-50 border-green-200 dark:bg-green-950/40 dark:border-green-800",
+      dot: "bg-green-500 dark:bg-green-400",
+      text: "text-green-700 dark:text-green-400",
     },
   },
   {
     values: ["INATIVO"],
     style: {
-      container: "bg-gray-50 border-gray-200",
-      dot: "bg-gray-500",
-      text: "text-gray-700",
+      container: "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700",
+      dot: "bg-gray-500 dark:bg-gray-400",
+      text: "text-gray-700 dark:text-gray-300",
     },
   },
   {
     values: [],
     style: {
-      container: "bg-gray-50 border-gray-200",
-      dot: "bg-gray-500",
-      text: "text-gray-700",
+      container: "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700",
+      dot: "bg-gray-500 dark:bg-gray-400",
+      text: "text-gray-700 dark:text-gray-300",
     },
   },
 ];

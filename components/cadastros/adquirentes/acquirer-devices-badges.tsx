@@ -18,7 +18,7 @@ interface AcquirerDevicesBadgesProps {
 
 const VARIANT_BADGE_CLASS: Record<AcquirerDevicesBadgesVariant, string> = {
   table: "gap-1 font-normal px-2 py-0.5 text-xs border-0",
-  card: "rounded-md border border-border-divider bg-white px-2 py-0 text-[10px] font-semibold text-muted-foreground",
+  card: "rounded-md border border-border-divider bg-card px-2 py-0 text-[10px] font-semibold text-muted-foreground",
 };
 
 const VARIANT_PRIMARY_BADGE_CLASS: Record<
@@ -81,7 +81,7 @@ export function AcquirerDevicesBadges({
           className={cn(
             variant === "table"
               ? "font-normal px-2 py-0.5 text-xs border-0 bg-muted text-foreground"
-              : "rounded-md border border-border-divider bg-white px-2 py-0 text-[10px] font-semibold text-muted-foreground",
+              : "rounded-md border border-border-divider bg-card px-2 py-0 text-[10px] font-semibold text-muted-foreground",
           )}
         >
           +{overflow}

@@ -2,10 +2,10 @@ import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import type { ReportCardData, ReportPrioridadeStyle } from "./types";
 
 const DEFAULT_PRIORIDADE_STYLE: ReportPrioridadeStyle = {
-  border: "bg-gray-400",
-  badgeContainer: "bg-gray-50 border-gray-200",
-  badgeDot: "bg-gray-500",
-  badgeText: "text-gray-700",
+  border: "bg-gray-400 dark:bg-gray-500",
+  badgeContainer: "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700",
+  badgeDot: "bg-gray-500 dark:bg-gray-400",
+  badgeText: "text-gray-700 dark:text-gray-300",
 };
 
 /**
@@ -20,36 +20,36 @@ const PRIORIDADE_STYLES: Array<{
     values: ["CRITIC", "CRÍTIC"],
     style: {
       border: "bg-red-500",
-      badgeContainer: "bg-red-50 border-red-100",
-      badgeDot: "bg-red-500",
-      badgeText: "text-red-600",
+      badgeContainer: "bg-red-50 border-red-100 dark:bg-red-950/40 dark:border-red-800",
+      badgeDot: "bg-red-500 dark:bg-red-400",
+      badgeText: "text-red-600 dark:text-red-400",
     },
   },
   {
     values: ["ALTO", "ALTA"],
     style: {
       border: "bg-orange-500",
-      badgeContainer: "bg-orange-50 border-orange-100",
-      badgeDot: "bg-orange-500",
-      badgeText: "text-orange-600",
+      badgeContainer: "bg-orange-50 border-orange-100 dark:bg-orange-950/40 dark:border-orange-800",
+      badgeDot: "bg-orange-500 dark:bg-orange-400",
+      badgeText: "text-orange-600 dark:text-orange-400",
     },
   },
   {
     values: ["MEDIO", "MÉDIO", "MEDIA", "MÉDIA"],
     style: {
       border: "bg-yellow-500",
-      badgeContainer: "bg-yellow-50 border-yellow-100",
-      badgeDot: "bg-yellow-500",
-      badgeText: "text-yellow-700",
+      badgeContainer: "bg-yellow-50 border-yellow-100 dark:bg-yellow-950/40 dark:border-yellow-800",
+      badgeDot: "bg-yellow-500 dark:bg-yellow-400",
+      badgeText: "text-yellow-700 dark:text-yellow-400",
     },
   },
   {
     values: ["BAIXO", "BAIXA"],
     style: {
       border: "bg-blue-500",
-      badgeContainer: "bg-blue-50 border-blue-100",
-      badgeDot: "bg-blue-500",
-      badgeText: "text-blue-600",
+      badgeContainer: "bg-blue-50 border-blue-100 dark:bg-blue-950/40 dark:border-blue-800",
+      badgeDot: "bg-blue-500 dark:bg-blue-400",
+      badgeText: "text-blue-600 dark:text-blue-400",
     },
   },
 ];
@@ -175,11 +175,11 @@ export function getSlaSeverityStyle(severity: ReportSlaSeverity): string {
   switch (severity) {
     case "overdue":
     case "close":
-      return "border-red-100 bg-red-50 text-red-600";
+      return "border-red-100 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400";
     case "medium":
-      return "border-amber-100 bg-amber-50 text-amber-700";
+      return "border-amber-100 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-400";
     case "far":
-      return "border-emerald-100 bg-emerald-50 text-emerald-700";
+      return "border-emerald-100 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400";
     default:
       return "border-border-divider bg-muted/40 text-text-secondary";
   }

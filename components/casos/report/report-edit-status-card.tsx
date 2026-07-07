@@ -89,7 +89,7 @@ export function ReportEditStatusCard({ item }: ReportEditStatusCardProps) {
 
         <ReportInfoRow
           icon={Clock}
-          iconClassName="bg-amber-50 text-amber-600"
+          iconClassName="bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400"
           label="Data Limite"
         >
           {dataLimite ? (
@@ -108,7 +108,7 @@ export function ReportEditStatusCard({ item }: ReportEditStatusCardProps) {
 
         <ReportInfoRow
           icon={CalendarCheck}
-          iconClassName="bg-green-50 text-green-600"
+          iconClassName="bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400"
           label="Data Conclusão"
         >
           {dataConclusao ? (

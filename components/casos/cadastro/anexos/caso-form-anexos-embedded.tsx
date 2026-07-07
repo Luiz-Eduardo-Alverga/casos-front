@@ -56,7 +56,7 @@ export function CasoFormAnexosEmbedded({
             return (
               <li
                 key={`${file.name}-${file.size}-${idx}`}
-                className="flex items-center justify-between gap-2 rounded-md border border-border-divider bg-white px-3 py-2 text-sm"
+                className="flex items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm"
               >
                 <div className="flex min-w-0 items-center gap-2">
                   <Icon className="h-4 w-4 shrink-0 text-text-secondary" />

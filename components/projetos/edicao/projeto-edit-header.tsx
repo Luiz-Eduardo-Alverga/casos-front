@@ -73,7 +73,7 @@ export function ProjetoEditHeader({
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           <TabsList
             className={cn(
-              "flex h-9 w-full max-w-full min-w-0 flex-nowrap items-center justify-start gap-0 overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-full bg-white py-1 text-muted-foreground",
+              "flex h-9 w-full max-w-full min-w-0 flex-nowrap items-center justify-start gap-0 overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-full bg-card py-1 text-muted-foreground",
               "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
             )}
           >

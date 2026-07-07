@@ -71,10 +71,10 @@ export function AnotacoesList({
           <div className="flex w-full items-start justify-between gap-3">
             <div className="flex min-w-0 flex-1 items-start gap-2">
               <div
-                className="flex size-8 shrink-0 items-center justify-center rounded-full border border-sky-200 bg-sky-50"
+                className="flex size-8 shrink-0 items-center justify-center rounded-full border border-sky-200 bg-sky-50 dark:border-sky-800 dark:bg-sky-950/40"
                 aria-hidden
               >
-                <User className="size-3.5 text-sky-700" />
+                <User className="size-3.5 text-sky-700 dark:text-sky-400" />
               </div>
               <div className="min-w-0 flex flex-col">
                 <span className="text-sm font-semibold leading-5 text-foreground">

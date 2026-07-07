@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { useSidebar } from "@/components/sidebar/sidebar-provider";
 
 /** Larguras aproximadas dos rótulos das abas (Inicial, Anotações, Anexos, …). */
 const TAB_PILL_WIDTHS = [
@@ -45,20 +43,9 @@ function CardHeaderSkeleton({
 
 /**
  * Replica a hierarquia de {@link CasoEditForm}: Tabs (header em pills + ações),
- * corpo com pb-12, linha lg (coluna esquerda aba Inicial + coluna direita 362px),
- * rodapé fixo alinhado à sidebar como em {@link CasoEditRodapeAcoes}.
+ * corpo com linha lg (coluna esquerda aba Inicial + coluna direita 362px).
  */
 export function CasoEditSkeleton() {
-  const { isCollapsed } = useSidebar();
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
   return (
     <div
       className="flex min-h-0 flex-1 flex-col lg:overflow-hidden"
@@ -71,7 +58,7 @@ export function CasoEditSkeleton() {
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           <div
             className={cn(
-              "flex h-auto min-h-9 w-full max-w-full min-w-0 flex-nowrap items-center justify-start gap-0 overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-full bg-white py-1 text-muted-foreground",
+              "flex h-auto min-h-9 w-full max-w-full min-w-0 flex-nowrap items-center justify-start gap-0 overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-full bg-card py-1 text-muted-foreground",
               "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
             )}
           >
@@ -82,45 +69,42 @@ export function CasoEditSkeleton() {
             ))}
           </div>
         </div>
-        <div className="flex w-full shrink-0 flex-row items-center justify-between gap-2 lg:w-[362px]">
+        <div className="flex w-full shrink-0 flex-row items-center gap-1.5 lg:w-[362px]">
           <Button
             type="button"
             variant="outline"
-            className="pointer-events-none flex-1 px-3"
+            size="icon"
+            className="pointer-events-none h-9 w-9 shrink-0"
             disabled
             tabIndex={-1}
           >
-            <Skeleton className="mr-1.5 h-3.5 w-3.5 shrink-0 rounded" />
+            <Skeleton className="h-4 w-4 rounded" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="pointer-events-none h-9 min-w-0 flex-1 px-2"
+            disabled
+            tabIndex={-1}
+          >
+            <Skeleton className="mr-1 h-3.5 w-3.5 shrink-0 rounded" />
             <Skeleton className="h-4 w-12 rounded" />
           </Button>
           <Button
             type="button"
-            variant="outline"
-            className="pointer-events-none flex-1 px-3"
+            className="pointer-events-none h-9 min-w-0 flex-1 px-2"
             disabled
             tabIndex={-1}
           >
-            <Skeleton className="mr-1.5 h-3.5 w-3.5 shrink-0 rounded" />
+            <Skeleton className="mr-1 h-3.5 w-3.5 shrink-0 rounded" />
             <Skeleton className="h-4 w-14 rounded" />
           </Button>
-          <span className="flex-1">
-            <Button
-              type="button"
-              variant="outline"
-              className="pointer-events-none w-full px-3 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
-              disabled
-              tabIndex={-1}
-            >
-              <Skeleton className="mr-1.5 h-3.5 w-3.5 shrink-0 rounded" />
-              <Skeleton className="h-4 w-14 rounded" />
-            </Button>
-          </span>
         </div>
       </div>
 
       {/* mt-4 flex-1 overflow-auto — CasoEditForm */}
       <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-auto">
-        <div className="flex-1 pb-12">
+        <div className="flex-1">
           <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
             {/* Coluna esquerda: AbaInicial (Informações + Classificação) */}
             <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6">
@@ -181,26 +165,6 @@ export function CasoEditSkeleton() {
           </div>
         </div>
       </div>
-
-      {/* CasoEditRodapeAcoes — footer fixo */}
-      <footer
-        className="fixed bottom-0 z-30 flex flex-row items-center justify-between gap-2 border-t border-border-divider bg-card px-6 py-4 shadow-card transition-all duration-300"
-        style={{
-          left: isMobile ? "0" : isCollapsed ? "64px" : "256px",
-          right: "0",
-          width: isMobile
-            ? "100%"
-            : `calc(100% - ${isCollapsed ? "64px" : "256px"})`,
-        }}
-      >
-        <div className="flex min-w-0 flex-row flex-wrap gap-2 sr-only sm:not-sr-only">
-          <Skeleton className="h-4 w-full max-w-xl rounded" />
-        </div>
-        <div className="flex flex-row gap-2">
-          <Skeleton className="h-10 w-48 rounded-lg" />
-          <Skeleton className="h-10 w-48 rounded-lg" />
-        </div>
-      </footer>
     </div>
   );
 }

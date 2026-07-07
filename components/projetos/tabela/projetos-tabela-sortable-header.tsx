@@ -1,10 +1,12 @@
 "use client";
 
+import { Fragment } from "react";
 import { TableHead } from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -18,7 +20,8 @@ import { ArrowDown, ArrowUp, ArrowUpDown, Check } from "lucide-react";
 
 export interface ProjetosTabelaSortableHeaderProps {
   label: string;
-  sortField: ProjetoMemoriaSortField;
+  sortField?: ProjetoMemoriaSortField;
+  sortFields?: ProjetoMemoriaSortField[];
   sort?: ProjetoMemoriaSortState;
   onSortChange?: (sort: ProjetoMemoriaSortState) => void;
   className?: string;
@@ -74,15 +77,24 @@ function SortMenuOption({
 export function ProjetosTabelaSortableHeader({
   label,
   sortField,
+  sortFields,
   sort,
   onSortChange,
   className,
 }: ProjetosTabelaSortableHeaderProps) {
-  const isActive = sort?.sort_by === sortField;
-  const options = PROJETO_MEMORIA_SORT_OPTIONS[sortField];
+  const fields = sortFields ?? (sortField ? [sortField] : []);
+  const activeField = fields.find((field) => sort?.sort_by === field);
+  const isActive = Boolean(activeField);
 
-  const handleSelect = (order: ProjetoMemoriaSortOrder) => {
-    onSortChange?.({ sort_by: sortField, sort_order: order });
+  const handleSelect = (
+    field: ProjetoMemoriaSortField,
+    order: ProjetoMemoriaSortOrder,
+  ) => {
+    if (sort?.sort_by === field && sort?.sort_order === order) {
+      onSortChange?.({});
+      return;
+    }
+    onSortChange?.({ sort_by: field, sort_order: order });
   };
 
   const SortIcon = isActive
@@ -122,20 +134,30 @@ export function ProjetosTabelaSortableHeader({
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[17.5rem] p-1.5">
-            <SortMenuOption
-              icon={ArrowUp}
-              label={options.asc.label}
-              hint={options.asc.hint}
-              selected={isActive && sort?.sort_order === "ASC"}
-              onSelect={() => handleSelect("ASC")}
-            />
-            <SortMenuOption
-              icon={ArrowDown}
-              label={options.desc.label}
-              hint={options.desc.hint}
-              selected={isActive && sort?.sort_order === "DESC"}
-              onSelect={() => handleSelect("DESC")}
-            />
+            {fields.map((field, index) => {
+              const options = PROJETO_MEMORIA_SORT_OPTIONS[field];
+              const fieldActive = sort?.sort_by === field;
+
+              return (
+                <Fragment key={field}>
+                  {index > 0 ? <DropdownMenuSeparator /> : null}
+                  <SortMenuOption
+                    icon={ArrowUp}
+                    label={options.asc.label}
+                    hint={options.asc.hint}
+                    selected={fieldActive && sort?.sort_order === "ASC"}
+                    onSelect={() => handleSelect(field, "ASC")}
+                  />
+                  <SortMenuOption
+                    icon={ArrowDown}
+                    label={options.desc.label}
+                    hint={options.desc.hint}
+                    selected={fieldActive && sort?.sort_order === "DESC"}
+                    onSelect={() => handleSelect(field, "DESC")}
+                  />
+                </Fragment>
+              );
+            })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

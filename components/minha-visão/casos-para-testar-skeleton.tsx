@@ -22,7 +22,7 @@ export function CasosParaTestarSkeleton() {
           {Array.from({ length: ROWS }).map((_, i) => (
             <div
               key={i}
-              className="bg-white border border-border-divider rounded-lg p-5"
+              className="bg-card border border-border rounded-lg p-5"
             >
               <div className="flex items-center gap-2">
                 <Skeleton className="h-4 w-4 shrink-0" />

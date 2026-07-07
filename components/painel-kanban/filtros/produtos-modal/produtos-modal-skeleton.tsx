@@ -26,7 +26,7 @@ export function PainelKanbanProdutosModalSkeleton() {
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
-            className="flex items-center justify-between rounded-lg border border-border-divider bg-white p-4"
+            className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
           >
             <div className="flex min-w-0 items-center gap-3">
               <Skeleton className="h-5 w-5 rounded" />

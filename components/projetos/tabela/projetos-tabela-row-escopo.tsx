@@ -19,6 +19,7 @@ import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
 import { formatDatePt } from "@/components/cadastros/format-display";
 import { formatMinutesToHHMM } from "@/lib/utils";
 import { Box, ExternalLink, Paperclip, SquarePen } from "lucide-react";
+import { ImportanciaBadge } from "@/components/badges/importancia-badge";
 
 export interface ProjetosTabelaRowEscopoProps {
   row: ProjetosTabelaEscopoRow;
@@ -103,6 +104,12 @@ export function ProjetosTabelaRowEscopo({
                 </span>
               </div>
 
+              <span className="inline-flex w-fit items-center rounded-full border border-border-divider bg-muted/90 px-1.5 py-0 text-[10px] font-semibold text-text-secondary">
+                Importância: {Number(row.importancia) || 0}
+              </span>
+
+              {/* <ImportanciaBadge importancia={Number(row.importancia) || 0} /> */}
+
               {relacoes.length > 0 ? (
                 <>
                   <span className="text-text-secondary" aria-hidden>
@@ -160,14 +167,14 @@ export function ProjetosTabelaRowEscopo({
             href={`/casos/${row.id}`}
             aria-label={`Editar caso ${row.numero}`}
           >
-            <SquarePen className="h-4 w-4 text-primary" />
+            <SquarePen className="h-4 w-4 text-text-primary" />
           </Link>
           <Link
             target="_blank"
             href={buildCasoHrefForNewTab(row.id)}
             aria-label={`Abrir caso ${row.numero} em nova aba`}
           >
-            <ExternalLink className="h-4 w-4 text-primary" />
+            <ExternalLink className="h-4 w-4 text-text-primary" />
           </Link>
         </div>
       </TableCell>

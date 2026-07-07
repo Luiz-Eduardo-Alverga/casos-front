@@ -37,8 +37,8 @@ export const CARD_HEADER_PRESETS = {
   anotacoes: { icon: StickyNote, iconClassName: "text-amber-600" },
   relacoes: { icon: GitBranch, iconClassName: "text-purple-600" },
   clientes: { icon: Building2, iconClassName: "text-violet-600" },
-  anexos: { icon: Paperclip, iconClassName: "text-slate-600" },
-  historico: { icon: History, iconClassName: "text-slate-600" },
+  anexos: { icon: Paperclip, iconClassName: "text-slate-600 dark:text-muted-foreground" },
+  historico: { icon: History, iconClassName: "text-slate-600 dark:text-muted-foreground" },
   producao: { icon: Wrench, iconClassName: "text-green-600" },
 } as const satisfies Record<string, CardHeaderPreset>;
 

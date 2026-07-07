@@ -43,7 +43,7 @@ export function CasoAbertoCronometro({
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Produção Atual
         </p>
-        <p className="mt-1 font-mono text-3xl font-bold tabular-nums text-slate-900">
+        <p className="mt-1 font-mono text-3xl font-bold tabular-nums text-foreground">
           {formatElapsedHms(elapsedSeconds)}
         </p>
       </div>
@@ -53,7 +53,7 @@ export function CasoAbertoCronometro({
         disabled={isParando}
         className={cn(
           "flex size-12 shrink-0 items-center justify-center rounded-full",
-          "bg-red-50 text-red-600 transition-colors hover:bg-red-100",
+          "bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-950/60",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400",
           "disabled:opacity-60",
         )}

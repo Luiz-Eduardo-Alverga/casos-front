@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
 import {
-  ArrowLeft,
   Code2,
   Info,
   Lightbulb,
@@ -16,22 +15,15 @@ import {
   Save,
   ShieldCheck,
   Trash2,
-  Users,
-  Package,
+  X,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { useFormAssistantPrompts } from "@/hooks/assistant/use-form-assistant-prompts";
@@ -649,7 +641,7 @@ export function PromptsIaForm({ mode, promptId }: PromptsIaFormProps) {
           disabled={isPending}
           className="w-48 px-4"
         >
-          <ArrowLeft className="h-3.5 w-3.5 mr-2" />
+          <X className="h-3.5 w-3.5 mr-2" />
           Cancelar
         </Button>
         <Button

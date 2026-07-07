@@ -99,7 +99,7 @@ export function ProdutosModalList({
         >
           <div className="space-y-3 pb-1">
             {items.length === 0 ? (
-              <div className="rounded-lg border border-border-divider bg-white p-4 text-sm text-text-secondary">
+              <div className="rounded-lg border border-border bg-card p-4 text-sm text-text-secondary">
                 Nenhum produto configurado para este desenvolvedor.
               </div>
             ) : (
@@ -136,7 +136,7 @@ export function ProdutosModalList({
                 {Array.from({ length: skeletonRows }).map((_, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between rounded-lg border border-border-divider bg-white p-4"
+                    className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <Skeleton className="h-5 w-5 rounded" />

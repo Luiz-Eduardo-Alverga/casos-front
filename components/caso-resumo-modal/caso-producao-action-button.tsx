@@ -35,15 +35,15 @@ export function CasoProducaoActionButton({
     >
       {isPending ? (
         <>
-          <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin " />
           {isIniciar ? "Iniciando..." : "Parando..."}
         </>
       ) : (
         <>
           {isIniciar ? (
-            <Play className="h-3.5 w-3.5 mr-2" />
+            <Play className="h-3.5 w-3.5 " />
           ) : (
-            <Pause className="h-3.5 w-3.5 mr-2" />
+            <Pause className="h-3.5 w-3.5 " />
           )}
           {isIniciar ? "Iniciar" : "Parar"}
         </>
@@ -51,4 +51,3 @@ export function CasoProducaoActionButton({
     </Button>
   );
 }
-

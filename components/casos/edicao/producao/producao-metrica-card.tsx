@@ -35,7 +35,7 @@ export function ProducaoMetricaCard({
   return (
     <Card
       className={cn(
-        "rounded-lg border bg-white shadow-sm",
+        "rounded-lg border bg-card shadow-sm",
         isDestructive && "border-destructive",
         className,
       )}

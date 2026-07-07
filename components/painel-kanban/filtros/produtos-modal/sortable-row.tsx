@@ -62,7 +62,7 @@ export function SortableRow({
         transition,
       }}
       className={cn(
-        "flex flex-col items-start gap-3 rounded-lg border border-border-divider bg-white p-4 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col items-start gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between",
         isDragging && "opacity-60",
       )}
     >
@@ -91,7 +91,7 @@ export function SortableRow({
             onValueChange={onChangeEditVersao}
             disabled={isSavingEdicao}
           >
-            <SelectTrigger className="h-10 w-full sm:w-[150px] rounded-lg border-border-divider bg-white">
+            <SelectTrigger className="h-10 w-full sm:w-[150px] rounded-lg border-border bg-card">
               <SelectValue placeholder="Selecione a versão..." />
             </SelectTrigger>
             <SelectContent>

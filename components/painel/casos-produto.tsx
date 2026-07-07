@@ -137,7 +137,7 @@ export function CasosProduto({
               <div
                 key={caso.id}
                 className={cn(
-                  "bg-white border border-border-divider rounded-lg p-3.5 flex flex-col gap-0 cursor-pointer hover:bg-muted/50 transition-colors",
+                  "bg-card border border-border-divider rounded-lg p-3.5 flex flex-col gap-0 cursor-pointer hover:bg-muted/50 transition-colors",
                   caso.statusTempo === "INICIADO" &&
                     "border-l-4 border-l-primary",
                 )}
@@ -150,7 +150,7 @@ export function CasosProduto({
                   />
                   <div className="flex-1 flex flex-wrap gap-3.75 items-start">
                     <div className="space-x-2">
-                      <span className="text-xs font-semibold text-black">
+                      <span className="text-xs font-semibold text-foreground">
                         Caso #{caso.numero}
                       </span>
                     </div>

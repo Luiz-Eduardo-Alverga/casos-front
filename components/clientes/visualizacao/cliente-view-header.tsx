@@ -19,7 +19,7 @@ export function ClienteViewHeader() {
     <div className="flex shrink-0 items-center justify-between gap-4">
       <TabsList
         className={cn(
-          "inline-flex h-9 w-auto shrink-0 flex-nowrap items-center justify-start gap-0 overflow-x-auto rounded-full bg-white p-1 text-muted-foreground shadow-sm",
+          "inline-flex h-9 w-auto shrink-0 flex-nowrap items-center justify-start gap-0 overflow-x-auto rounded-full bg-card p-1 text-muted-foreground shadow-sm",
           "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
         )}
       >

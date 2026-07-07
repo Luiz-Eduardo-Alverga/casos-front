@@ -14,34 +14,34 @@ export interface CategoriaBadgeConfigItem {
 }
 
 const DEFAULT_CATEGORIA_BADGE_STYLE: CategoriaBadgeStyle = {
-  container: "bg-gray-50 border-gray-200",
-  dot: "bg-gray-500",
-  text: "text-gray-700",
+  container: "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700",
+  dot: "bg-gray-500 dark:bg-gray-400",
+  text: "text-gray-700 dark:text-gray-300",
 };
 
 export const CATEGORIA_BADGE_CONFIG: CategoriaBadgeConfigItem[] = [
   {
     values: ["MELHORIA"],
     style: {
-      container: "bg-purple-50 border-purple-200",
-      dot: "bg-purple-500",
-      text: "text-purple-700",
+      container: "bg-purple-50 border-purple-200 dark:bg-purple-950/40 dark:border-purple-800",
+      dot: "bg-purple-500 dark:bg-purple-400",
+      text: "text-purple-700 dark:text-purple-400",
     },
   },
   {
     values: ["BUG"],
     style: {
-      container: "bg-red-50 border-red-200",
-      dot: "bg-red-500",
-      text: "text-red-700",
+      container: "bg-red-50 border-red-200 dark:bg-red-950/40 dark:border-red-800",
+      dot: "bg-red-500 dark:bg-red-400",
+      text: "text-red-700 dark:text-red-400",
     },
   },
   {
     values: ["REQUISITO"],
     style: {
-      container: "bg-blue-50 border-blue-200",
-      dot: "bg-blue-500",
-      text: "text-blue-700",
+      container: "bg-blue-50 border-blue-200 dark:bg-blue-950/40 dark:border-blue-800",
+      dot: "bg-blue-500 dark:bg-blue-400",
+      text: "text-blue-700 dark:text-blue-400",
     },
   },
   { values: [], style: DEFAULT_CATEGORIA_BADGE_STYLE },

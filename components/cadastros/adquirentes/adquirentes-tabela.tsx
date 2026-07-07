@@ -49,7 +49,7 @@ export function AdquirentesTabela({
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-white border-b border-white hover:bg-white">
+        <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
           <TableHead className="text-xs font-medium text-muted-foreground uppercase tracking-wide h-auto py-3 px-2.5">
             Adquirente
           </TableHead>
@@ -78,7 +78,7 @@ export function AdquirentesTabela({
           return (
             <TableRow
               key={a.id}
-              className="bg-white border-t border-border-divider hover:bg-white"
+              className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover"
             >
               <TableCell className="py-3 px-2.5">
                 <div className="flex items-center gap-3 min-w-0">

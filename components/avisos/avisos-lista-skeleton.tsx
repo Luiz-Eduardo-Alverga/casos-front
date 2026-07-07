@@ -24,7 +24,7 @@ export function AvisosListaSkeleton() {
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-lg border border-border-divider bg-white p-4 flex flex-col gap-0 shadow-sm"
+              className="rounded-lg border border-border bg-card p-4 flex flex-col gap-0 shadow-sm"
             >
               <div className="flex gap-3 items-start">
                 <Skeleton className="h-10 w-10 shrink-0 rounded-full" />

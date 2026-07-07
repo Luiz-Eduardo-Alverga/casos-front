@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Inbox } from "lucide-react";
 import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
+import { useSetores } from "@/hooks/catalogos/use-setores";
+import { resolveSetorNome } from "@/components/reports/filtros/reports-filtros-mappers";
 import { EmptyState } from "@/components/painel/empty-state";
 import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
 import { buildCasoEditHref } from "@/lib/caso-edit-layout";
@@ -36,6 +38,7 @@ type ReportAcaoModalState = {
 
 export function ReportsLista({ filtros }: ReportsListaProps) {
   const router = useRouter();
+  const { data: setores } = useSetores();
   const { aprovar, marcarIncompletoComAnotacao, suspenderComAnotacao, isPending } =
     useReportAcoes();
   const [itemParaAprovar, setItemParaAprovar] =
@@ -43,8 +46,8 @@ export function ReportsLista({ filtros }: ReportsListaProps) {
   const [aprovarModalOpen, setAprovarModalOpen] = useState(false);
   const [acaoModal, setAcaoModal] = useState<ReportAcaoModalState>(null);
 
-  const setorFiltro = filtros.setor?.trim() ?? "";
-  const hasSetor = Boolean(setorFiltro);
+  const setorNome = resolveSetorNome(filtros.setor, setores);
+  const hasSetor = Boolean(setorNome);
 
   const params = useMemo(() => {
     const produtoId = filtros.produto?.trim();
@@ -56,12 +59,12 @@ export function ReportsLista({ filtros }: ReportsListaProps) {
       analise_aprovado: false,
       tipo_abertura: "REPORT" as const,
       status_id: statusIds,
-      ...(setorFiltro ? { setor: setorFiltro } : {}),
+      ...(setorNome ? { setor: setorNome } : {}),
       ...(produtoId ? { produto_id: produtoId } : {}),
       sort_by: "prioridade",
       sort_order: "DESC" as const,
     };
-  }, [setorFiltro, filtros.produto, filtros.status_ids]);
+  }, [setorNome, filtros.produto, filtros.status_ids]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useProjetoMemoria(params, {

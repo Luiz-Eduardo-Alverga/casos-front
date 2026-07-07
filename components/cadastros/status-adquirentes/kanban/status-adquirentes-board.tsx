@@ -112,7 +112,7 @@ export function StatusAdquirentesBoard({
                       id={item.id}
                       name={item.name}
                       column={item.column}
-                      className="rounded-lg border border-border-divider bg-white shadow-sm"
+                      className="rounded-lg border border-border bg-card shadow-sm"
                     >
                       <StatusAdquirentesCardBody
                         row={item.row}

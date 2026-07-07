@@ -183,32 +183,32 @@ export function Header() {
               <ExternalLink className="h-[18px] w-[15.75px] text-foreground" />
             </Button>
 
-            {/* {themeMounted ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 hover:bg-muted"
-              onClick={() =>
-                setTheme(resolvedTheme === "dark" ? "light" : "dark")
-              }
-              aria-label={
-                resolvedTheme === "dark"
-                  ? "Alternar para tema claro"
-                  : "Alternar para tema escuro"
-              }
-              title={
-                resolvedTheme === "dark"
-                  ? "Alternar para tema claro"
-                  : "Alternar para tema escuro"
-              }
-            >
-              {resolvedTheme === "dark" ? (
-                <Sun className="h-[18px] w-[15.75px] text-foreground" />
-              ) : (
-                <Moon className="h-[18px] w-[15.75px] text-foreground" />
-              )}
-            </Button>
-          ) : null} */}
+            {themeMounted ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 hover:bg-muted"
+                onClick={() =>
+                  setTheme(resolvedTheme === "dark" ? "light" : "dark")
+                }
+                aria-label={
+                  resolvedTheme === "dark"
+                    ? "Alternar para tema claro"
+                    : "Alternar para tema escuro"
+                }
+                title={
+                  resolvedTheme === "dark"
+                    ? "Alternar para tema claro"
+                    : "Alternar para tema escuro"
+                }
+              >
+                {resolvedTheme === "dark" ? (
+                  <Sun className="h-[18px] w-[15.75px] text-foreground" />
+                ) : (
+                  <Moon className="h-[18px] w-[15.75px] text-foreground" />
+                )}
+              </Button>
+            ) : null}
 
             <Button
               variant="ghost"

@@ -77,7 +77,7 @@ export function ReportEditColunaDireita({
         <CardContent className="px-4 pb-1 pt-0">
           <ReportInfoRow
             icon={Calendar}
-            iconClassName="bg-sky-50 text-sky-600"
+            iconClassName="bg-sky-50 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400"
             label="Data de início"
           >
             <ReportValueText value={dataInicio} />
@@ -103,14 +103,14 @@ export function ReportEditColunaDireita({
         <CardContent className="px-4 pb-1 pt-0">
           <ReportInfoRow
             icon={CalendarClock}
-            iconClassName="bg-amber-50 text-amber-600"
+            iconClassName="bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400"
             label="Prazo"
           >
             <ReportValueText value={prazo} />
           </ReportInfoRow>
           <ReportInfoRow
             icon={CircleDot}
-            iconClassName="bg-green-50 text-green-600"
+            iconClassName="bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400"
             label="Status"
           >
             <StatusBadge status={statusDescricao} />

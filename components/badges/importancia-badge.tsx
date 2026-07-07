@@ -17,9 +17,23 @@ export interface ImportanciaBadgeConfigItem {
 
 /** Configuração padrão: 1-3 verde, 4-7 amarelo, 8+ vermelho */
 export const IMPORTANCIA_BADGE_CONFIG: ImportanciaBadgeConfigItem[] = [
-  { min: 1, max: 3, className: "bg-green-100 text-green-700" },
-  { min: 4, max: 7, className: "bg-yellow-100 text-yellow-700" },
-  { min: 8, max: 10, className: "bg-red-100 text-red-700" },
+  {
+    min: 1,
+    max: 3,
+    className:
+      "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400",
+  },
+  {
+    min: 4,
+    max: 7,
+    className:
+      "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400",
+  },
+  {
+    min: 8,
+    max: 10,
+    className: "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400",
+  },
 ];
 
 function getImportanciaBadgeClassName(
@@ -28,13 +42,16 @@ function getImportanciaBadgeClassName(
 ): string {
   const value = Number(importancia);
   if (!Number.isFinite(value)) {
-    return config[config.length - 1]?.className ?? "bg-gray-100 text-gray-700";
+    return (
+      config[config.length - 1]?.className ??
+      "bg-gray-100 text-gray-700 dark:bg-gray-800/40 dark:text-gray-400"
+    );
   }
   const item = config.find((c) => value >= c.min && value <= c.max);
   return (
     item?.className ??
     config[config.length - 1]?.className ??
-    "bg-gray-100 text-gray-700"
+    "bg-gray-100 text-gray-700 dark:bg-gray-800/40 dark:text-gray-400"
   );
 }
 
@@ -63,7 +80,7 @@ export function ImportanciaBadge({
 
   return (
     <Badge
-      className={`${colorClass} border-transparent rounded-full h-5 w-5 flex items-center justify-center whitespace-nowrap hover:${colorClass} ${className}`.trim()}
+      className={` inline-flex w-fit items-center rounded-full border border-border-divider bg-muted/90 px-1.5 py-0 text-[10px] font-semibold text-text-secondary`.trim()}
     >
       <span className="text-xs font-semibold">{String(displayValue)}</span>
     </Badge>

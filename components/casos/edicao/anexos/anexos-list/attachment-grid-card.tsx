@@ -56,7 +56,7 @@ export function AttachmentGridCard({
                 type="button"
                 size="icon"
                 variant="secondary"
-                className="size-8 rounded-full border-0 bg-white shadow-sm hover:bg-white"
+                className="size-8 rounded-full border-0 bg-card shadow-sm hover:bg-card"
                 aria-label={`Visualizar ${row.filenameOriginal}`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -72,7 +72,7 @@ export function AttachmentGridCard({
                 type="button"
                 size="icon"
                 variant="secondary"
-                className="size-8 rounded-full border-0 bg-white shadow-sm hover:bg-white"
+                className="size-8 rounded-full border-0 bg-card shadow-sm hover:bg-card"
                 aria-label={`Baixar ${row.filenameOriginal}`}
                 onClick={(e) => onDownload(e, row)}
               >
