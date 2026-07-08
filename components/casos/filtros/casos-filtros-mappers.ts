@@ -6,6 +6,7 @@ import {
   resolveVersaoSequenciaForForm,
 } from "@/components/casos/shared/versao-combobox";
 import type { ProjetoMemoriaQueryParams } from "@/hooks/casos/use-projeto-memoria";
+import type { ProjetoMemoriaSortState } from "@/components/projetos/tabela/projeto-memoria-sort";
 import { MAX_STATUS_IDS_FILTRO_CASOS } from "@/components/casos/filtros/constants";
 import type {
   CasosFiltrosNuqsState,
@@ -35,9 +36,7 @@ export function dateToYmd(date: Date | undefined): string | undefined {
   return `${y}-${m}-${d}`;
 }
 
-function resolveStatusIds(
-  params: URLSearchParams,
-): string[] {
+function resolveStatusIds(params: URLSearchParams): string[] {
   let status_ids = params
     .getAll("status_id")
     .map((s) => s.trim())
@@ -100,9 +99,28 @@ export function nuqsStateToFiltrosAplicados(
   };
 }
 
+export function nuqsStateToSortState(
+  state: Pick<CasosFiltrosNuqsState, "sort_by" | "sort_order">,
+): ProjetoMemoriaSortState {
+  if (!state.sort_by || !state.sort_order) return {};
+  return {
+    sort_by: state.sort_by,
+    sort_order: state.sort_order,
+  };
+}
+
+export function sortStateToNuqsUpdate(
+  sort: ProjetoMemoriaSortState,
+): Pick<CasosFiltrosNuqsUpdate, "sort_by" | "sort_order"> {
+  return {
+    sort_by: sort.sort_by ?? null,
+    sort_order: sort.sort_order ?? null,
+  };
+}
+
 export function filtrosAplicadosToNuqsState(
   filtros: CasosFiltrosAplicados,
-): CasosFiltrosNuqsUpdate {
+): Omit<CasosFiltrosNuqsUpdate, "sort_by" | "sort_order"> {
   return {
     produto: filtros.produto.trim() || null,
     versao: filtros.versao.trim() || null,
@@ -272,9 +290,7 @@ export function filtrosToProjetoMemoriaParams(
     per_page: 15,
     ...(filtros.produto ? { produto_id: filtros.produto } : {}),
     ...(versaoProduto ? { versao_produto: versaoProduto } : {}),
-    ...(filtros.status_ids.length > 0
-      ? { status_id: filtros.status_ids }
-      : {}),
+    ...(filtros.status_ids.length > 0 ? { status_id: filtros.status_ids } : {}),
     ...(filtros.modulo?.trim() ? { modulo: filtros.modulo.trim() } : {}),
     ...(filtros.tipo_categoria
       ? { tipo_categoria: filtros.tipo_categoria }

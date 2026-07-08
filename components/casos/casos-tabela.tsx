@@ -30,9 +30,11 @@ import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
 
 interface CasosTabelaProps {
   filtros: CasosFiltrosAplicados;
+  sort: ProjetoMemoriaSortState;
+  onSortChange: (sort: ProjetoMemoriaSortState) => void;
 }
 
-export function CasosTabela({ filtros }: CasosTabelaProps) {
+export function CasosTabela({ filtros, sort, onSortChange }: CasosTabelaProps) {
   const user = getUser();
   const queryClient = useQueryClient();
   const bulkUpdateCasos = useBulkUpdateCasos();
@@ -51,7 +53,6 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] =
     useState(false);
-  const [sort, setSort] = useState<ProjetoMemoriaSortState>({});
 
   const projetoMemoriaParams = useMemo(
     () => ({
@@ -226,7 +227,7 @@ export function CasosTabela({ filtros }: CasosTabelaProps) {
               onToggleItem={handleToggleItem}
               onToggleAll={handleToggleAll}
               sort={sort}
-              onSortChange={setSort}
+              onSortChange={onSortChange}
             />
             {hasNextPage && itens.length > 0 && (
               <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />

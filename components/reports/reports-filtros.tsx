@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { Filter, Search } from "lucide-react";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
@@ -10,6 +11,9 @@ import { LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layou
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormSetor } from "@/components/fields/caso-form-setor";
 import { CasoFormProduto } from "@/components/fields/caso-form-produto";
+import { CasoFormCategoria } from "@/components/fields/caso-form-categoria";
+import { useCategorias } from "@/hooks/catalogos/use-categorias";
+import type { Categoria } from "@/services/auxiliar/categorias";
 import { importanceOptions } from "@/mocks/teste";
 import {
   filtrosQueryKey,
@@ -29,25 +33,56 @@ export function ReportsFiltros({
   filtrosAplicados,
   onAplicar,
 }: ReportsFiltrosProps) {
+  const queryClient = useQueryClient();
   const appliedQueryKey = filtrosQueryKey(filtrosAplicados);
 
   const methods = useForm<ReportsFiltersForm>({
     defaultValues: {
       setor: "",
       produto: "",
+      categoria: "",
       status_ids: [...DEFAULT_REPORTS_STATUS_IDS],
     },
   });
 
   const produto = methods.watch("produto");
+  const categoriaForm = methods.watch("categoria");
+  const needsCategoriasCatalog =
+    Boolean(filtrosAplicados.tipo_categoria?.trim()) ||
+    Boolean(String(categoriaForm ?? "").trim());
+  const { data: categorias } = useCategorias({
+    enabled: needsCategoriasCatalog,
+  });
+
+  const categoriasSyncKey = useMemo(
+    () => (categorias ?? []).map((c) => c.id).join(","),
+    [categorias],
+  );
+
+  const getCategoriasForMapper = useCallback((): Categoria[] => {
+    return (
+      categorias ??
+      queryClient.getQueryData<Categoria[]>(["categorias", ""]) ??
+      []
+    );
+  }, [categorias, queryClient]);
+
   const lastFormSyncKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (lastFormSyncKeyRef.current === appliedQueryKey) return;
-    lastFormSyncKeyRef.current = appliedQueryKey;
-    methods.reset(filtrosToFormDefaults(filtrosAplicados));
+    const syncKey = `${appliedQueryKey}|${categoriasSyncKey}`;
+    if (lastFormSyncKeyRef.current === syncKey) return;
+    lastFormSyncKeyRef.current = syncKey;
+    methods.reset(
+      filtrosToFormDefaults(filtrosAplicados, getCategoriasForMapper()),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- syncKey agrega deps; `methods` é estável
-  }, [appliedQueryKey, filtrosAplicados]);
+  }, [
+    appliedQueryKey,
+    categoriasSyncKey,
+    filtrosAplicados,
+    getCategoriasForMapper,
+  ]);
 
   const providerValue = useMemo(
     () => ({
@@ -60,13 +95,18 @@ export function ReportsFiltros({
   );
 
   const handleFiltrar = useCallback(() => {
-    onAplicar(formToFiltrosAplicados(methods.getValues()));
-  }, [methods, onAplicar]);
+    onAplicar(
+      formToFiltrosAplicados(methods.getValues(), getCategoriasForMapper()),
+    );
+  }, [methods, onAplicar, getCategoriasForMapper]);
 
   const formValues = methods.watch();
   const canFiltrar = useMemo(
-    () => hasFiltersApplied(formToFiltrosAplicados(formValues)),
-    [formValues],
+    () =>
+      hasFiltersApplied(
+        formToFiltrosAplicados(formValues, getCategoriasForMapper()),
+      ),
+    [formValues, getCategoriasForMapper],
   );
 
   return (
@@ -85,12 +125,15 @@ export function ReportsFiltros({
           </CardHeader>
 
           <CardContent className="p-6 pt-3">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-end">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6 lg:items-end">
               <div className="min-w-0">
                 <CasoFormSetor />
               </div>
               <div className="min-w-0">
                 <CasoFormProduto required={false} />
+              </div>
+              <div className="min-w-0">
+                <CasoFormCategoria required={false} />
               </div>
               <div className="min-w-0 sm:col-span-2 lg:col-span-2">
                 <Controller

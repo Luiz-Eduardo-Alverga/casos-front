@@ -10,7 +10,8 @@ import { useCasosFiltros } from "@/hooks/casos/use-casos-filtros";
 
 export function Casos() {
   const router = useRouter();
-  const { filtrosAplicados, aplicarFiltros, limparFiltros } = useCasosFiltros();
+  const { filtrosAplicados, sort, setSort, aplicarFiltros, limparFiltros } =
+    useCasosFiltros();
 
   return (
     <ListagemPageLayout
@@ -34,7 +35,7 @@ export function Casos() {
         filtrosAplicados={filtrosAplicados}
         onAplicar={aplicarFiltros}
       />
-      <CasosTabela filtros={filtrosAplicados} />
+      <CasosTabela filtros={filtrosAplicados} sort={sort} onSortChange={setSort} />
     </ListagemPageLayout>
   );
 }

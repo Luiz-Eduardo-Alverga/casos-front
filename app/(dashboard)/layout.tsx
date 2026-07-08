@@ -15,6 +15,7 @@ const ROUTES_WITH_INTERNAL_SCROLL = [
   "/avisos",
   "/painel",
   "/cadastros/adquirentes/status",
+  "/reports",
   "",
 ];
 

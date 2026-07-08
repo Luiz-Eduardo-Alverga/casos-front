@@ -3,12 +3,6 @@
 import { BarChart3, CheckCircle2, Clock, Layers } from "lucide-react";
 import { cn, formatMinutesToHHMM } from "@/lib/utils";
 
-const STATIC_SUMMARY = {
-  quantidade: "111",
-  qtdPlanejada: "53",
-  excedidoPlanejado: "13",
-} as const;
-
 function formatTempoTotalEstimadoRealizado(
   estimadoMinutos: number,
   realizadoMinutos: number,
@@ -17,6 +11,9 @@ function formatTempoTotalEstimadoRealizado(
 }
 
 export interface EscopoSummaryCardsProps {
+  totalCasos?: number;
+  casosPlanejados?: number;
+  casosNaoPlanejados?: number;
   tempoTotalEstimadoMinutos?: number;
   tempoTotalRealizadoMinutos?: number;
 }
@@ -68,6 +65,9 @@ function SummaryCard({
 }
 
 export function EscopoSummaryCards({
+  totalCasos = 0,
+  casosPlanejados = 0,
+  casosNaoPlanejados = 0,
   tempoTotalEstimadoMinutos = 0,
   tempoTotalRealizadoMinutos = 0,
 }: EscopoSummaryCardsProps) {
@@ -80,14 +80,14 @@ export function EscopoSummaryCards({
     <div className="grid grid-cols-1 gap-4 border-b border-border-divider pb-4 pt-2 sm:grid-cols-2 lg:grid-cols-4">
       <SummaryCard
         label="Quantidade"
-        value={STATIC_SUMMARY.quantidade}
+        value={String(totalCasos)}
         icon={Layers}
         className="bg-muted/40"
         iconClassName="bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400"
       />
       <SummaryCard
         label="Qtd. Planejada"
-        value={STATIC_SUMMARY.qtdPlanejada}
+        value={String(casosPlanejados)}
         icon={CheckCircle2}
         className="bg-green-50 border-green-100 dark:bg-green-950/40 dark:border-green-800"
         iconClassName="bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400"
@@ -96,7 +96,7 @@ export function EscopoSummaryCards({
       />
       <SummaryCard
         label="Excedido Planejado"
-        value={STATIC_SUMMARY.excedidoPlanejado}
+        value={String(casosNaoPlanejados)}
         icon={BarChart3}
         className="bg-red-50 border-red-100 dark:bg-red-950/40 dark:border-red-800"
         iconClassName="bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"

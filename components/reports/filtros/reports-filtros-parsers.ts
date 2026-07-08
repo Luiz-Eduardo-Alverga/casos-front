@@ -4,6 +4,7 @@ import { DEFAULT_REPORTS_STATUS_IDS } from "@/components/reports/types";
 export const reportsFiltrosParsers = {
   setor: parseAsString.withDefault(""),
   produto: parseAsString.withDefault(""),
+  tipo_categoria: parseAsString.withDefault(""),
   status_id: parseAsArrayOf(parseAsString).withDefault([
     ...DEFAULT_REPORTS_STATUS_IDS,
   ]),
@@ -12,6 +13,7 @@ export const reportsFiltrosParsers = {
 export type ReportsFiltrosNuqsState = {
   setor: string;
   produto: string;
+  tipo_categoria: string;
   status_id: string[];
 };
 

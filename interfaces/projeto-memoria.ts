@@ -243,6 +243,9 @@ export interface ProjetoMemoriaPagination {
 }
 
 export interface ProjetoMemoriaTotalizadores {
+  total_casos: number;
+  casos_planejados: number;
+  casos_nao_planejados: number;
   tempo_total_estimado_minutos: number;
   tempo_total_realizado_minutos: number;
   total_pontos: number;

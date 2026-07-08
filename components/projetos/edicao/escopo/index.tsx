@@ -240,6 +240,9 @@ export function AbaEscopo({ projetoId, enabled = true }: AbaEscopoProps) {
         ) : (
           <>
             <EscopoSummaryCards
+              totalCasos={totalizadores?.total_casos}
+              casosPlanejados={totalizadores?.casos_planejados}
+              casosNaoPlanejados={totalizadores?.casos_nao_planejados}
               tempoTotalEstimadoMinutos={
                 totalizadores?.tempo_total_estimado_minutos
               }

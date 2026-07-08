@@ -6,6 +6,8 @@ export interface ReportsFiltrosAplicados {
   setor: string;
   /** ID do produto, enviado no param `produto_id`. */
   produto: string;
+  /** Label da categoria, enviado no param `tipo_categoria` da API. */
+  tipo_categoria: string;
   /** IDs de status (Registro), enviados no param `status_id`. */
   status_ids: string[];
 }
@@ -13,6 +15,7 @@ export interface ReportsFiltrosAplicados {
 export interface ReportsFiltersForm {
   setor: string;
   produto: string;
+  categoria: string;
   status_ids: string[];
 }
 
@@ -21,6 +24,7 @@ export const DEFAULT_REPORTS_STATUS_IDS = ["1"] as const;
 export const EMPTY_REPORTS_FILTERS: ReportsFiltrosAplicados = {
   setor: "",
   produto: "",
+  tipo_categoria: "",
   status_ids: [...DEFAULT_REPORTS_STATUS_IDS],
 };
 
@@ -35,6 +39,9 @@ export interface ReportPrioridadeStyle {
   /** Cor do texto do badge de prioridade. */
   badgeText: string;
 }
+
+/** Modo de visualização da listagem de reports. */
+export type ReportsViewMode = "cards" | "split";
 
 /** Dados normalizados de um report para o card da listagem. */
 export interface ReportCardData {

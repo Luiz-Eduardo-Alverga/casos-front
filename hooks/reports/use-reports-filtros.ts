@@ -55,6 +55,7 @@ export function useReportsFiltros() {
     void setNuqsState({
       setor: setorId || null,
       produto: null,
+      tipo_categoria: null,
       status_id: null,
     });
   }, [setores, setNuqsState]);
