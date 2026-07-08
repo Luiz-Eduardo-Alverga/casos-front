@@ -10,11 +10,7 @@ import { useCasosFiltros } from "@/hooks/casos/use-casos-filtros";
 
 export function Casos() {
   const router = useRouter();
-  const {
-    filtrosAplicados,
-    aplicarFiltros,
-    limparFiltros,
-  } = useCasosFiltros();
+  const { filtrosAplicados, aplicarFiltros, limparFiltros } = useCasosFiltros();
 
   return (
     <ListagemPageLayout

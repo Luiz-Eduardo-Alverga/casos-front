@@ -3,7 +3,10 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { FolderKanban } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "@/components/fields/caso-form-provider";
+import {
+  resolveComboboxLazyLoad,
+  useCasoForm,
+} from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useProjetos } from "@/hooks/catalogos/use-projetos";
 import { useProdutos } from "@/hooks/catalogos/use-produtos";
@@ -93,8 +96,17 @@ export function CasoFormProjeto({
   projetosLoadingExterno = false,
   omitSetorProjetoInRequest = false,
 }: CasoFormProjetoProps) {
-  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } =
-    useCasoForm();
+  const {
+    produto,
+    isDisabled,
+    lazyLoadComboboxOptions,
+    eagerLoadComboboxFieldNames,
+    editCaseItem,
+  } = useCasoForm();
+  const lazyLoad = resolveComboboxLazyLoad(
+    { lazyLoadComboboxOptions, eagerLoadComboboxFieldNames },
+    name,
+  );
   const { watch, setValue, getValues } = useFormContext();
   const produtoValue = watch("produto");
   const projetoValue = watch(name);
@@ -102,7 +114,7 @@ export function CasoFormProjeto({
     ? String(watch(setorProjetoFieldName) ?? "")
     : "";
   const [optionsRequested, setOptionsRequested] = useState(
-    useExternalProjetos || !lazyLoadComboboxOptions,
+    useExternalProjetos || !lazyLoad,
   );
 
   // Em telas como o Kanban, queremos buscar opções automaticamente ao carregar.
@@ -180,7 +192,7 @@ export function CasoFormProjeto({
   const projetosOptions = useMemo(() => {
     const list: Array<{ value: string; label: string }> = [];
     if (
-      lazyLoadComboboxOptions &&
+      lazyLoad &&
       editCaseItem?.projeto &&
       projetoValue &&
       !projetos?.length
@@ -220,7 +232,7 @@ export function CasoFormProjeto({
           value: projetoId,
           label: `${found.id} | ${found.nome_projeto}`,
         });
-      } else if (useExternalProjetos || lazyLoadComboboxOptions) {
+      } else if (useExternalProjetos || lazyLoad) {
         options.unshift({
           value: projetoId,
           label: projetoId,
@@ -229,7 +241,7 @@ export function CasoFormProjeto({
     }
 
     if (
-      lazyLoadComboboxOptions &&
+      lazyLoad &&
       editCaseItem?.projeto &&
       projetoValue &&
       !options.some((o) => o.value === projetoValue)
@@ -242,7 +254,7 @@ export function CasoFormProjeto({
     return options;
   }, [
     projetos,
-    lazyLoadComboboxOptions,
+    lazyLoad,
     editCaseItem,
     projetoValue,
     useExternalProjetos,
@@ -381,11 +393,8 @@ export function CasoFormProjeto({
               : "Selecione o produto primeiro."
             : "Selecione o projeto..."
         }
-        emptyText={
-          isProjetosLoading
-            ? "Carregando projetos..."
-            : "Nenhum projeto encontrado."
-        }
+        emptyText="Nenhum projeto encontrado."
+        isLoading={isProjetosLoading}
         // onSearchChange={setProjetosSearch}
         searchDebounceMs={450}
         disabled={
@@ -396,7 +405,7 @@ export function CasoFormProjeto({
         }
         required={required}
         onOpenChange={
-          lazyLoadComboboxOptions && !useExternalProjetos
+          lazyLoad && !useExternalProjetos
             ? (open) => open && setOptionsRequested(true)
             : undefined
         }

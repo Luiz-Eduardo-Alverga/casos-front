@@ -49,11 +49,8 @@ export function CasoFormSetor({ required = false }: CasoFormSetorProps) {
         icon={Building2}
         options={setoresOptions}
         placeholder="Selecione o setor..."
-        emptyText={
-          isSetoresLoading
-            ? "Carregando setores..."
-            : "Nenhum setor encontrado."
-        }
+        emptyText="Nenhum setor encontrado."
+        isLoading={optionsRequested && isSetoresLoading}
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}

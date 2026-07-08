@@ -66,7 +66,7 @@ export function AdquirentesPage({
           ) : (
             <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6">
               {rows.map((row) => (
-                <div key={row.acquirer.id} className="min-w-0">
+                <div key={row.acquirer.id} className="flex min-w-0">
                   <AdquirentesStatusCard row={row} />
                 </div>
               ))}

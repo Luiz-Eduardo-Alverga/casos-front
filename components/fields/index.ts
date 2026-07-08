@@ -19,4 +19,5 @@ export { CasoFormStatus } from "./caso-form-status";
 export { CasoFormDescricaoResumo } from "./caso-form-descricao-resumo";
 export { CasoFormDescricaoCompleta } from "./caso-form-descricao-completa";
 export { CasoFormInformacoesAdicionais } from "./caso-form-informacoes-adicionais";
+export { CasoFormAnexo } from "./caso-form-anexo";
 export { StatusMultiSelect } from "./status-multi-select";

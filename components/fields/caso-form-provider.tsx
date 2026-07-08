@@ -11,7 +11,22 @@ export interface CasoFormContextValue {
   produto?: string;
   isDisabled: boolean;
   lazyLoadComboboxOptions?: boolean;
+  /** Nomes de campo (`name` do react-hook-form) que ignoram lazy load. */
+  eagerLoadComboboxFieldNames?: readonly string[];
   editCaseItem?: ProjetoMemoriaItem | null;
+}
+
+export function resolveComboboxLazyLoad(
+  context: Pick<
+    CasoFormContextValue,
+    "lazyLoadComboboxOptions" | "eagerLoadComboboxFieldNames"
+  >,
+  fieldName: string,
+): boolean {
+  if (context.eagerLoadComboboxFieldNames?.includes(fieldName)) {
+    return false;
+  }
+  return context.lazyLoadComboboxOptions ?? false;
 }
 
 const CasoFormContext = createContext<CasoFormContextValue | undefined>(

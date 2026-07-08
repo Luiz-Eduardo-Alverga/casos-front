@@ -14,6 +14,8 @@ export type PublicAcquirerListItem = {
   nextVersionName: string | null;
   deliveryDate: string | null;
   recommendedDeviceId: string | null;
+  /** Observações do status ativo (`acquirer_status.obs`). */
+  obs: string | null;
   /** Indica `acquirer_status.is_active` do status usado no enriquecimento. */
   isActive: boolean | null;
   compatibleDevices: {

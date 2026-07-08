@@ -52,7 +52,8 @@ export function AcquirerStatusCurrentVersionField({
       icon={GitBranch}
       options={options}
       placeholder="Selecione a versão atual..."
-      emptyText={isLoading ? "Carregando versões..." : "Nenhuma versão encontrada."}
+      emptyText="Nenhuma versão encontrada."
+      isLoading={isLoading}
       searchDebounceMs={450}
       disabled={disabled}
       required

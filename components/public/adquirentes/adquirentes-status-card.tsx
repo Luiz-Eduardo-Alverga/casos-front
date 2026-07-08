@@ -27,9 +27,10 @@ function getStatusTone(status: string | null): string {
 
 export function AdquirentesStatusCard({ row }: AdquirentesStatusCardProps) {
   const statusLabel = row.status ?? "Sem status";
+  const observacao = row.obs?.trim();
 
   return (
-    <article className="min-w-0 space-y-6 rounded-2xl border border-public-border bg-background p-6 transition-all duration-200 md:hover:scale-[1.02] hover:shadow-lg">
+    <article className="flex min-h-full w-full min-w-0 flex-col rounded-2xl border border-public-border bg-background p-6 transition-all duration-200 md:hover:scale-[1.02] hover:shadow-lg">
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           <AcquirerLogo
@@ -105,7 +106,20 @@ export function AdquirentesStatusCard({ row }: AdquirentesStatusCardProps) {
         </div>
       </div>
 
-      <div className="border-t border-secondary pt-2">
+      <div className="mb-3 min-h-0 flex-1">
+        {observacao ? (
+          <>
+            <p className="mb-1 text-sm font-semibold text-muted-foreground">
+              Observações
+            </p>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+              {observacao}
+            </p>
+          </>
+        ) : null}
+      </div>
+
+      <div className="mt-auto border-t border-secondary pt-2">
         <p className="mb-1.5 text-sm font-semibold text-muted-foreground">
           Dispositivos compatíveis
         </p>

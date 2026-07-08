@@ -3,7 +3,10 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { User } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "@/components/fields/caso-form-provider";
+import {
+  resolveComboboxLazyLoad,
+  useCasoForm,
+} from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useUsuariosProjetos } from "@/hooks/catalogos/use-usuarios";
 import type { Usuario } from "@/services/auxiliar/usuarios";
@@ -31,12 +34,22 @@ export function CasoFormQaAtribuido({
   requireProjeto = false,
   projetoFieldName = "projeto",
 }: CasoFormQaAtribuidoProps = {}) {
-  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
+  const {
+    produto,
+    isDisabled,
+    lazyLoadComboboxOptions,
+    eagerLoadComboboxFieldNames,
+    editCaseItem,
+  } = useCasoForm();
+  const lazyLoad = resolveComboboxLazyLoad(
+    { lazyLoadComboboxOptions, eagerLoadComboboxFieldNames },
+    name,
+  );
   const { watch, setValue } = useFormContext();
   const qaAtribuido = watch(name);
   const produtoValue = watch("produto");
   const projetoValue = watch(projetoFieldName);
-  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoad);
   const [qaSelecionado, setQaSelecionado] = useState<Usuario | null>(null);
   const prevProjetoRef = useRef<string | undefined>(undefined);
 
@@ -96,13 +109,13 @@ export function CasoFormQaAtribuido({
       }
     }
 
-    if (lazyLoadComboboxOptions && editCaseItem?.caso?.usuarios?.qa && qaAtribuido && !valuesAdded.has(String(qaAtribuido))) {
+    if (lazyLoad && editCaseItem?.caso?.usuarios?.qa && qaAtribuido && !valuesAdded.has(String(qaAtribuido))) {
       const u = editCaseItem.caso.usuarios.qa;
       options.unshift({ value: String(u.id), label: u.nome ?? String(u.id) });
     }
 
     return options;
-  }, [usuarios, qaAtribuido, qaSelecionado, lazyLoadComboboxOptions, editCaseItem]);
+  }, [usuarios, qaAtribuido, qaSelecionado, lazyLoad, editCaseItem]);
   
   // Quando QA é selecionado, buscar e salvar os dados completos
   useEffect(() => {
@@ -130,7 +143,8 @@ export function CasoFormQaAtribuido({
             ? "Selecione o projeto primeiro."
             : placeholder
         }
-        emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
+        emptyText="Nenhum usuário encontrado."
+        isLoading={optionsRequested && isUsuariosLoading}
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
         disabled={
@@ -139,7 +153,7 @@ export function CasoFormQaAtribuido({
           (requireProjeto && !projetoAtual)
         }
         required={required}
-        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
+        onOpenChange={lazyLoad ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
   );

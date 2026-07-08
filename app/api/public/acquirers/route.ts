@@ -93,6 +93,7 @@ export async function GET(request: Request) {
         r.recommendedDeviceId != null
           ? opaqueId("dev", r.recommendedDeviceId)
           : null,
+      obs: r.obs,
       isActive: r.isActive,
       compatibleDevices: r.compatibleDevices.map((d) => ({
         deviceId: opaqueId("dev", d.deviceId),

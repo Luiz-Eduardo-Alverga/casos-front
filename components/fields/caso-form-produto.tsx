@@ -3,7 +3,10 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { BriefcaseBusiness } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "@/components/fields/caso-form-provider";
+import {
+  resolveComboboxLazyLoad,
+  useCasoForm,
+} from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useProdutos } from "@/hooks/catalogos/use-produtos";
 import type { Produto } from "@/services/auxiliar/produtos";
@@ -17,12 +20,19 @@ export function CasoFormProduto({
   required = true,
   onlyWithPoQaConfigured = false,
 }: CasoFormProdutoProps) {
-  const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
+  const {
+    isDisabled,
+    lazyLoadComboboxOptions,
+    eagerLoadComboboxFieldNames,
+    editCaseItem,
+  } = useCasoForm();
+  const lazyLoad = resolveComboboxLazyLoad(
+    { lazyLoadComboboxOptions, eagerLoadComboboxFieldNames },
+    "produto",
+  );
   const { watch, setValue } = useFormContext();
   const produtoValue = watch("produto");
-  const [optionsRequested, setOptionsRequested] = useState(
-    !lazyLoadComboboxOptions,
-  );
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoad);
   const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(
     null,
   );
@@ -61,7 +71,7 @@ export function CasoFormProduto({
     }
 
     if (
-      lazyLoadComboboxOptions &&
+      lazyLoad &&
       editCaseItem?.produto &&
       produtoValue &&
       !options.some((o) => o.value === produtoValue)
@@ -78,7 +88,7 @@ export function CasoFormProduto({
     produtos,
     produtoValue,
     produtoSelecionado,
-    lazyLoadComboboxOptions,
+    lazyLoad,
     editCaseItem,
     onlyWithPoQaConfigured,
   ]);
@@ -95,7 +105,7 @@ export function CasoFormProduto({
       String(prev) !== String(produtoValue);
 
     const isFormProdutoAlignedWithItem =
-      lazyLoadComboboxOptions &&
+      lazyLoad &&
       editCaseItem?.produto?.id != null &&
       String(produtoValue) === String(editCaseItem.produto.id);
 
@@ -130,7 +140,7 @@ export function CasoFormProduto({
     produtoValue,
     produtos,
     setValue,
-    lazyLoadComboboxOptions,
+    lazyLoad,
     editCaseItem,
   ]);
 
@@ -142,16 +152,13 @@ export function CasoFormProduto({
         icon={BriefcaseBusiness}
         options={produtosOptions}
         placeholder="Selecione o produto..."
-        emptyText={
-          isProdutosLoading
-            ? "Carregando produtos..."
-            : "Nenhum produto encontrado."
-        }
+        emptyText="Nenhum produto encontrado."
+        isLoading={optionsRequested && isProdutosLoading}
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}
         onOpenChange={
-          lazyLoadComboboxOptions
+          lazyLoad
             ? (open) => open && setOptionsRequested(true)
             : undefined
         }

@@ -54,7 +54,8 @@ export function AcquirerStatusNextVersionField({
       icon={ArrowRightLeft}
       options={options}
       placeholder="Selecione a próxima versão..."
-      emptyText={isLoading ? "Carregando versões..." : "Nenhuma versão encontrada."}
+      emptyText="Nenhuma versão encontrada."
+      isLoading={isLoading}
       searchDebounceMs={450}
       disabled={disabled}
     />

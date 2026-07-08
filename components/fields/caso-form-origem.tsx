@@ -37,7 +37,8 @@ export function CasoFormOrigem() {
         icon={Activity}
         options={origensOptions}
         placeholder="Selecione a origem..."
-        emptyText={isOrigensLoading ? "Carregando origens..." : "Nenhuma origem encontrada."}
+        emptyText="Nenhuma origem encontrada."
+        isLoading={optionsRequested && isOrigensLoading}
         // onSearchChange={setOrigensSearch}
         searchDebounceMs={450}
         disabled={isDisabled}

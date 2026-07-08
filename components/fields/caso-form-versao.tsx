@@ -3,7 +3,10 @@
 import { useState, useMemo, useEffect, useLayoutEffect } from "react";
 import { Rocket } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "@/components/fields/caso-form-provider";
+import {
+  resolveComboboxLazyLoad,
+  useCasoForm,
+} from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
 import {
@@ -22,24 +25,34 @@ export function CasoFormVersao({
   required = true,
   todas = false,
 }: CasoFormVersaoProps) {
-  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } =
-    useCasoForm();
+  const {
+    produto,
+    isDisabled,
+    lazyLoadComboboxOptions,
+    eagerLoadComboboxFieldNames,
+    editCaseItem,
+  } = useCasoForm();
+  const lazyLoad = resolveComboboxLazyLoad(
+    { lazyLoadComboboxOptions, eagerLoadComboboxFieldNames },
+    "versao",
+  );
   const { watch, setValue } = useFormContext();
   const produtoValue = watch("produto");
   const versaoValue = watch("versao");
   const versaoValueTrimmed = String(versaoValue ?? "").trim();
+  const produtoAtual = produtoValue || produto;
   const [optionsRequested, setOptionsRequested] = useState(
-    !lazyLoadComboboxOptions || Boolean(versaoValueTrimmed),
+    !lazyLoad || Boolean(versaoValueTrimmed),
   );
 
   useEffect(() => {
-    if (!lazyLoadComboboxOptions) return;
+    if (!lazyLoad) return;
     if (optionsRequested) return;
 
-    if (versaoValueTrimmed) setOptionsRequested(true);
-  }, [lazyLoadComboboxOptions, optionsRequested, versaoValueTrimmed]);
-
-  const produtoAtual = produtoValue || produto;
+    if (versaoValueTrimmed || produtoAtual) {
+      setOptionsRequested(true);
+    }
+  }, [lazyLoad, optionsRequested, versaoValueTrimmed, produtoAtual]);
 
   const editVersaoFallback = useMemo(() => {
     const produtoAlinhado =
@@ -130,15 +143,14 @@ export function CasoFormVersao({
         emptyText={
           !produtoAtual
             ? "Selecione o produto primeiro."
-            : isVersoesLoading
-              ? "Carregando versões..."
-              : "Nenhuma versão encontrada."
+            : "Nenhuma versão encontrada."
         }
+        isLoading={Boolean(produtoAtual) && optionsRequested && isVersoesLoading}
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
         required={required}
         onOpenChange={
-          lazyLoadComboboxOptions
+          lazyLoad
             ? (open) => open && setOptionsRequested(true)
             : undefined
         }

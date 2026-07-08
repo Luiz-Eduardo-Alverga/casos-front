@@ -22,6 +22,8 @@ export type AcquirerListExpandedItem = {
   nextVersionName: string | null;
   deliveryDate: string | null;
   recommendedDeviceId: string | null;
+  /** Observações do status ativo (`acquirer_status.obs`). */
+  obs: string | null;
   /** `acquirer_status.is_active`; `null` se não houver linha de status. */
   isActive: boolean | null;
   compatibleDevices: {
@@ -155,6 +157,7 @@ export async function listAcquirersExpanded(
           : null,
       deliveryDate: st?.deliveryDate ?? null,
       recommendedDeviceId: st?.recommendedDeviceId ?? null,
+      obs: st?.obs ?? null,
       isActive: st?.isActive ?? null,
       compatibleDevices,
     };

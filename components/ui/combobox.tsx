@@ -6,6 +6,7 @@ import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Command,
   CommandEmpty,
@@ -35,10 +36,24 @@ export interface ComboboxProps {
   emptyText?: string;
   onSearchChange?: (search: string) => void;
   searchDebounceMs?: number;
+  /**
+   * Mensagem exibida enquanto o debounce da busca está pendente.
+   * Quando omitida e `onSearchChange` estiver definido, usa texto padrão.
+   */
+  searchDebounceText?: string;
+  /**
+   * Comprimento mínimo do termo digitado para exibir `searchDebounceText`.
+   * Padrão: 1.
+   */
+  minSearchLengthForDebounceFeedback?: number;
   className?: string;
   disabled?: boolean;
   /** Chamado quando o popover abre ou fecha (para lazy load de opções). */
   onOpenChange?: (open: boolean) => void;
+  /** Carregamento inicial das opções (ex.: lazy load ao abrir). */
+  isLoading?: boolean;
+  /** Quantidade de linhas do skeleton durante o carregamento inicial. */
+  loadingSkeletonRows?: number;
   /** Controle de paginação infinita: se há mais páginas para carregar. */
   hasMore?: boolean;
   /** Controle de paginação infinita: se está carregando a próxima página. */
@@ -95,6 +110,38 @@ function getSearchRelevanceScore(label: string, search: string): number {
   return 10 + index;
 }
 
+function ComboboxSearchDebounceMessage({ message }: { message: string }) {
+  return (
+    <div
+      className="flex items-center justify-center gap-2 px-4 py-6 text-sm text-muted-foreground"
+      role="status"
+      aria-live="polite"
+    >
+      <Loader2 className="h-4 w-4 shrink-0 animate-spin opacity-70" />
+      <span>{message}</span>
+    </div>
+  );
+}
+
+function ComboboxOptionsSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="p-1" aria-hidden>
+      {Array.from({ length: rows }).map((_, index) => (
+        <div
+          key={index}
+          className="flex items-center gap-2 rounded-sm px-2 py-1.5"
+        >
+          <Skeleton className="h-4 w-4 shrink-0" />
+          <Skeleton
+            className="h-4"
+            style={{ width: `${55 + (index % 3) * 12}%` }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function filterAndSortComboboxOptions(
   options: ComboboxOption[],
   searchValue: string,
@@ -123,9 +170,13 @@ export function Combobox({
   emptyText = "Nenhum resultado encontrado.",
   onSearchChange,
   searchDebounceMs = 400,
+  searchDebounceText,
+  minSearchLengthForDebounceFeedback = 1,
   className,
   disabled = false,
   onOpenChange,
+  isLoading = false,
+  loadingSkeletonRows = 5,
   hasMore = false,
   isLoadingMore = false,
   onLoadMore,
@@ -135,12 +186,24 @@ export function Combobox({
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [isDebouncingSearch, setIsDebouncingSearch] = useState(false);
+  const dispatchedSearchRef = useRef("");
   const listRef = useRef<HTMLDivElement | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
+  const debounceFeedbackText =
+    searchDebounceText ??
+    (onSearchChange && searchDebounceMs > 0
+      ? "Aguardando você terminar de digitar..."
+      : undefined);
+
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
-    if (!next) setSearchValue("");
+    if (!next) {
+      setSearchValue("");
+      dispatchedSearchRef.current = "";
+      setIsDebouncingSearch(false);
+    }
     onOpenChange?.(next);
   };
 
@@ -152,15 +215,32 @@ export function Combobox({
     () => filterAndSortComboboxOptions(options, searchValue),
     [options, searchValue],
   );
+  const showDebounceMessage =
+    Boolean(debounceFeedbackText) &&
+    isDebouncingSearch &&
+    searchValue.trim().length >= minSearchLengthForDebounceFeedback;
+  const showLoadingSkeleton = isLoading && !showDebounceMessage;
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: 0 });
   }, [searchValue]);
 
   useEffect(() => {
-    if (!onSearchChange) return;
+    if (!onSearchChange || searchDebounceMs <= 0) {
+      setIsDebouncingSearch(false);
+      return;
+    }
+
+    if (searchValue === dispatchedSearchRef.current) {
+      setIsDebouncingSearch(false);
+      return;
+    }
+
+    setIsDebouncingSearch(true);
     const t = setTimeout(() => {
       onSearchChange(searchValue);
+      dispatchedSearchRef.current = searchValue;
+      setIsDebouncingSearch(false);
     }, searchDebounceMs);
     return () => clearTimeout(t);
   }, [searchValue, onSearchChange, searchDebounceMs]);
@@ -263,25 +343,36 @@ export function Combobox({
               }
             }}
           />
-          <CommandList ref={listRef}>
-            <CommandEmpty>{emptyText}</CommandEmpty>
-            <CommandGroup key={searchValue || "all"}>
-              {filteredOptions.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.label ?? ""}
-                  onSelect={() => handleSelect(option.value)}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === option.value ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                  {option.label ?? ""}
-                </CommandItem>
-              ))}
-            </CommandGroup>
+          <CommandList
+            ref={listRef}
+            aria-busy={showLoadingSkeleton || showDebounceMessage}
+          >
+            {showDebounceMessage ? (
+              <ComboboxSearchDebounceMessage message={debounceFeedbackText!} />
+            ) : showLoadingSkeleton ? (
+              <ComboboxOptionsSkeleton rows={loadingSkeletonRows} />
+            ) : (
+              <>
+                <CommandEmpty>{emptyText}</CommandEmpty>
+                <CommandGroup key={searchValue || "all"}>
+                  {filteredOptions.map((option) => (
+                    <CommandItem
+                      key={option.value}
+                      value={option.label ?? ""}
+                      onSelect={() => handleSelect(option.value)}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          value === option.value ? "opacity-100" : "opacity-0",
+                        )}
+                      />
+                      {option.label ?? ""}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </>
+            )}
             {hasMore && (
               <div
                 ref={loadMoreRef}

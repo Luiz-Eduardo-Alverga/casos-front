@@ -111,12 +111,11 @@ export function CasoFormSgpRiscoCadastro({
         options={riscosOptions}
         placeholder={placeholder}
         emptyText={
-          isLoading
-            ? "Carregando riscos..."
-            : searchTrimmed.length > 0 && searchTrimmed.length < 2
-              ? "Digite pelo menos 2 caracteres para pesquisar."
-              : "Nenhum risco encontrado."
+          searchTrimmed.length > 0 && searchTrimmed.length < 2
+            ? "Digite pelo menos 2 caracteres para pesquisar."
+            : "Nenhum risco encontrado."
         }
+        isLoading={shouldFetch && isLoading}
         onSearchChange={setRiscoSearch}
         searchDebounceMs={450}
         disabled={isDisabled}

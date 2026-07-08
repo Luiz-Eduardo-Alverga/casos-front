@@ -25,10 +25,18 @@ interface ComboboxFieldProps {
   emptyText?: string;
   onSearchChange?: (search: string) => void;
   searchDebounceMs?: number;
+  /** Mensagem enquanto o debounce da busca está pendente. */
+  searchDebounceText?: string;
+  /** Comprimento mínimo do termo para exibir a mensagem de debounce. */
+  minSearchLengthForDebounceFeedback?: number;
   disabled?: boolean;
   required?: boolean;
   /** Quando true, dispara onOpenChange ao abrir/fechar (para lazy load de opções). */
   onOpenChange?: (open: boolean) => void;
+  /** Carregamento inicial das opções (ex.: lazy load ao abrir). */
+  isLoading?: boolean;
+  /** Quantidade de linhas do skeleton durante o carregamento inicial. */
+  loadingSkeletonRows?: number;
   /** Controle de paginação infinita: se há mais páginas para carregar. */
   hasMore?: boolean;
   /** Controle de paginação infinita: se está carregando a próxima página. */
@@ -92,9 +100,13 @@ export function ComboboxField({
   emptyText,
   onSearchChange,
   searchDebounceMs,
+  searchDebounceText,
+  minSearchLengthForDebounceFeedback,
   disabled = false,
   required = false,
   onOpenChange,
+  isLoading,
+  loadingSkeletonRows,
   hasMore,
   isLoadingMore,
   onLoadMore,
@@ -127,8 +139,14 @@ export function ComboboxField({
             emptyText={emptyText}
             onSearchChange={onSearchChange}
             searchDebounceMs={searchDebounceMs}
+            searchDebounceText={searchDebounceText}
+            minSearchLengthForDebounceFeedback={
+              minSearchLengthForDebounceFeedback
+            }
             disabled={disabled}
             onOpenChange={onOpenChange}
+            isLoading={isLoading}
+            loadingSkeletonRows={loadingSkeletonRows}
             hasMore={hasMore}
             isLoadingMore={isLoadingMore}
             onLoadMore={onLoadMore}
@@ -155,8 +173,14 @@ export function ComboboxField({
           emptyText={emptyText}
           onSearchChange={onSearchChange}
           searchDebounceMs={searchDebounceMs}
+          searchDebounceText={searchDebounceText}
+          minSearchLengthForDebounceFeedback={
+            minSearchLengthForDebounceFeedback
+          }
           disabled={disabled}
           onOpenChange={onOpenChange}
+          isLoading={isLoading}
+          loadingSkeletonRows={loadingSkeletonRows}
           hasMore={hasMore}
           isLoadingMore={isLoadingMore}
           onLoadMore={onLoadMore}
@@ -179,8 +203,12 @@ function RHFComboboxField({
   emptyText,
   onSearchChange,
   searchDebounceMs,
+  searchDebounceText,
+  minSearchLengthForDebounceFeedback,
   disabled,
   onOpenChange,
+  isLoading,
+  loadingSkeletonRows,
   hasMore,
   isLoadingMore,
   onLoadMore,
@@ -229,8 +257,14 @@ function RHFComboboxField({
             emptyText={emptyText}
             onSearchChange={onSearchChange}
             searchDebounceMs={searchDebounceMs}
+            searchDebounceText={searchDebounceText}
+            minSearchLengthForDebounceFeedback={
+              minSearchLengthForDebounceFeedback
+            }
             disabled={disabled}
             onOpenChange={onOpenChange}
+            isLoading={isLoading}
+            loadingSkeletonRows={loadingSkeletonRows}
             hasMore={hasMore}
             isLoadingMore={isLoadingMore}
             onLoadMore={onLoadMore}

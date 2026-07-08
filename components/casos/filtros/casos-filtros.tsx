@@ -37,6 +37,7 @@ import {
   resolveVersaoProdutoForApi,
 } from "@/components/casos/shared/versao-combobox";
 import type { Versao } from "@/services/auxiliar/versoes";
+import type { Categoria } from "@/services/auxiliar/categorias";
 import { cn } from "@/lib/utils";
 import type { CasosFiltrosAplicados } from "@/components/casos/filtros/casos-filtros.types";
 import type { CasosFiltersForm } from "@/components/casos/filtros/casos-filtros.types";
@@ -196,7 +197,6 @@ export function CasosFiltros({
   onAplicar,
 }: CasosFiltrosProps) {
   const queryClient = useQueryClient();
-  const { data: categorias } = useCategorias();
   const filtrosAtivos = hasFiltersApplied(filtrosAplicados);
   const produtoFiltro = filtrosAplicados.produto?.trim() ?? "";
   const versaoFiltro = filtrosAplicados.versao?.trim() ?? "";
@@ -217,11 +217,6 @@ export function CasosFiltros({
 
   const appliedQueryKey = filtrosQueryKey(filtrosAplicados);
 
-  const categoriasSyncKey = useMemo(
-    () => (categorias ?? []).map((c) => c.id).join(","),
-    [categorias],
-  );
-
   const versoesSyncKey = useMemo(
     () => versoesCatalogo.map((v) => String(v.sequencia ?? "")).join(","),
     [versoesCatalogo],
@@ -230,6 +225,28 @@ export function CasosFiltros({
   const methods = useForm<CasosFiltersForm>({
     defaultValues: EMPTY_CASOS_FILTERS_FORM,
   });
+
+  const produto = methods.watch("produto");
+  const categoriaForm = methods.watch("categoria");
+  const needsCategoriasCatalog =
+    Boolean(filtrosAplicados.tipo_categoria?.trim()) ||
+    Boolean(String(categoriaForm ?? "").trim());
+  const { data: categorias } = useCategorias({
+    enabled: needsCategoriasCatalog,
+  });
+
+  const categoriasSyncKey = useMemo(
+    () => (categorias ?? []).map((c) => c.id).join(","),
+    [categorias],
+  );
+
+  const getCategoriasForMapper = useCallback((): Categoria[] => {
+    return (
+      categorias ??
+      queryClient.getQueryData<Categoria[]>(["categorias", ""]) ??
+      []
+    );
+  }, [categorias, queryClient]);
 
   const lastFormSyncKeyRef = useRef<string | null>(null);
 
@@ -240,7 +257,7 @@ export function CasosFiltros({
     methods.reset(
       filtrosToFormDefaults(
         filtrosAplicados,
-        categorias ?? [],
+        getCategoriasForMapper(),
         versoesCatalogo,
       ),
     );
@@ -250,7 +267,7 @@ export function CasosFiltros({
     categoriasSyncKey,
     versoesSyncKey,
     filtrosAplicados,
-    categorias,
+    getCategoriasForMapper,
     versoesCatalogo,
   ]);
 
@@ -277,8 +294,6 @@ export function CasosFiltros({
     }
   }, [filtrosAtivos]);
 
-  const produto = methods.watch("produto");
-
   const resolveVersoesParaAplicar = useCallback((): Versao[] | undefined => {
     const produtoId = String(methods.getValues("produto") ?? "").trim();
     if (!produtoId) return undefined;
@@ -293,14 +308,14 @@ export function CasosFiltros({
   const handleFiltrar = useCallback(() => {
     const next = formToFiltrosAplicados(
       methods.getValues(),
-      categorias ?? [],
+      getCategoriasForMapper(),
       resolveVersoesParaAplicar(),
     );
     onAplicar(next);
     if (hasFiltersApplied(next)) {
       setModoResumo(true);
     }
-  }, [methods, onAplicar, categorias, resolveVersoesParaAplicar]);
+  }, [methods, onAplicar, getCategoriasForMapper, resolveVersoesParaAplicar]);
 
   const handleAplicarFromBadges = useCallback(
     (filtros: CasosFiltrosAplicados) => {
@@ -315,8 +330,10 @@ export function CasosFiltros({
   const formValues = methods.watch();
   const canFiltrar = useMemo(
     () =>
-      hasFiltersApplied(formToFiltrosAplicados(formValues, categorias ?? [])),
-    [formValues, categorias],
+      hasFiltersApplied(
+        formToFiltrosAplicados(formValues, getCategoriasForMapper()),
+      ),
+    [formValues, getCategoriasForMapper],
   );
 
   const providerValue = useMemo(
@@ -325,6 +342,8 @@ export function CasosFiltros({
       importanceOptions,
       produto,
       isDisabled: false,
+      lazyLoadComboboxOptions: true as const,
+      eagerLoadComboboxFieldNames: ["produto", "projeto_id"] as const,
     }),
     [methods, produto],
   );

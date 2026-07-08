@@ -3,7 +3,10 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { User } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "@/components/fields/caso-form-provider";
+import {
+  resolveComboboxLazyLoad,
+  useCasoForm,
+} from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useUsuariosProjetos } from "@/hooks/catalogos/use-usuarios";
 import { getUser } from "@/lib/auth";
@@ -57,8 +60,17 @@ export function CasoFormDevAtribuido({
   valueLabelPrefix,
   disabled,
 }: CasoFormDevAtribuidoProps = {}) {
-  const { produto, isDisabled, lazyLoadComboboxOptions, editCaseItem } =
-    useCasoForm();
+  const {
+    produto,
+    isDisabled,
+    lazyLoadComboboxOptions,
+    eagerLoadComboboxFieldNames,
+    editCaseItem,
+  } = useCasoForm();
+  const lazyLoad = resolveComboboxLazyLoad(
+    { lazyLoadComboboxOptions, eagerLoadComboboxFieldNames },
+    name,
+  );
   const { watch, setValue, getValues } = useFormContext();
   const devAtribuido = watch(name);
   const devAtribuidoLabel = watch(labelName);
@@ -66,7 +78,7 @@ export function CasoFormDevAtribuido({
   const projetoValue = watch(projetoFieldName);
   const devAtribuidoValue = String(devAtribuido ?? "").trim();
   const [optionsRequested, setOptionsRequested] = useState(
-    !lazyLoadComboboxOptions || Boolean(devAtribuidoValue),
+    !lazyLoad || Boolean(devAtribuidoValue),
   );
   const [devSelecionado, setDevSelecionado] = useState<Usuario | null>(null);
   const prevProjetoRef = useRef<string | undefined>(undefined);
@@ -123,12 +135,12 @@ export function CasoFormDevAtribuido({
   ]);
 
   useEffect(() => {
-    if (!lazyLoadComboboxOptions) return;
+    if (!lazyLoad) return;
     if (optionsRequested) return;
 
     const hasValue = Boolean(String(devAtribuido ?? "").trim());
     if (hasValue) setOptionsRequested(true);
-  }, [devAtribuido, lazyLoadComboboxOptions, optionsRequested]);
+  }, [devAtribuido, lazyLoad, optionsRequested]);
 
   useEffect(() => {
     if (String(devAtribuido ?? "").trim() === REPORT_DEV_631_ID) {
@@ -160,7 +172,7 @@ export function CasoFormDevAtribuido({
     // Usuário logado só entra na lista quando é o valor selecionado ou opções já carregadas.
     if (
       user &&
-      (!lazyLoadComboboxOptions ||
+      (!lazyLoad ||
         !devAtribuidoValue ||
         String(user.id) === devAtribuidoValue)
     ) {
@@ -201,7 +213,7 @@ export function CasoFormDevAtribuido({
 
     const editDev = editCaseItem?.caso?.usuarios?.desenvolvimento;
     if (
-      lazyLoadComboboxOptions &&
+      lazyLoad &&
       editDev &&
       devAtribuido &&
       String(editDev.id) === String(devAtribuido) &&
@@ -221,7 +233,7 @@ export function CasoFormDevAtribuido({
     devAtribuidoValue,
     devSelecionado,
     user,
-    lazyLoadComboboxOptions,
+    lazyLoad,
     editCaseItem,
   ]);
 
@@ -389,11 +401,8 @@ export function CasoFormDevAtribuido({
             ? "Selecione o projeto primeiro."
             : placeholder
         }
-        emptyText={
-          isUsuariosLoading
-            ? "Carregando usuários..."
-            : "Nenhum usuário encontrado."
-        }
+        emptyText="Nenhum usuário encontrado."
+        isLoading={optionsRequested && isUsuariosLoading}
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
         disabled={
@@ -404,7 +413,7 @@ export function CasoFormDevAtribuido({
         }
         required={required}
         onOpenChange={
-          lazyLoadComboboxOptions
+          lazyLoad
             ? (open) => open && setOptionsRequested(true)
             : undefined
         }

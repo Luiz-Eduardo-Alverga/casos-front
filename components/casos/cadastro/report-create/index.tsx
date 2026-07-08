@@ -26,12 +26,15 @@ import {
   assistantFormSchema,
   type AssistantFormData,
 } from "@/components/casos/cadastro/caso-create/schema";
+import { VincularClienteModal } from "./vincular-cliente-modal";
 
 export function ReportCreateForm() {
   const router = useRouter();
   const user = getUser();
 
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [vincularClienteModalOpen, setVincularClienteModalOpen] =
+    useState(false);
   const [numeroReport, setNumeroReport] = useState<number | null>(null);
 
   const [isAssistantModalOpen, setIsAssistantModalOpen] = useState(false);
@@ -207,7 +210,7 @@ export function ReportCreateForm() {
       }
 
       setNumeroReport(registro);
-      setSuccessModalOpen(true);
+      setVincularClienteModalOpen(true);
       resetFormForNovoReport();
     } catch (error) {
       console.error("Erro ao abrir report:", error);
@@ -251,6 +254,15 @@ export function ReportCreateForm() {
               </div>
             </div>
           </form>
+          <VincularClienteModal
+            open={vincularClienteModalOpen}
+            onOpenChange={setVincularClienteModalOpen}
+            registro={numeroReport}
+            onConcluido={() => {
+              setVincularClienteModalOpen(false);
+              setSuccessModalOpen(true);
+            }}
+          />
           <SuccessModal
             isOpen={successModalOpen}
             onClose={() => {

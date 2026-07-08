@@ -94,7 +94,8 @@ export function CasoFormRecurso({ required = false }: CasoFormRecursoProps) {
         icon={IconName}
         options={options}
         placeholder="Selecione..."
-        emptyText={isLoading ? "Carregando..." : "Nenhum item encontrado."}
+        emptyText="Nenhum item encontrado."
+        isLoading={optionsRequested && isLoading}
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}
@@ -152,8 +153,12 @@ Se o campo for obrigatório, inclua no schema zod (ex.: `setor: z.string().min(1
 | `icon` | LucideIcon | Ícone ao lado do conteúdo. |
 | `options` | `{ value: string; label: string }[]` | Lista de opções. |
 | `placeholder` | string | Texto quando vazio. |
-| `emptyText` | string | Texto quando não há opções (ou “Carregando…”). |
+| `emptyText` | string | Texto quando não há opções. |
+| `isLoading` | boolean | Exibe skeleton no popover durante o carregamento inicial (lazy load). |
+| `loadingSkeletonRows` | number | Quantidade de linhas do skeleton (padrão: 5). |
 | `searchDebounceMs` | number | Atraso do debounce da busca (ex.: 450). |
+| `searchDebounceText` | string | Mensagem exibida enquanto o debounce da busca está pendente (padrão automático quando há `onSearchChange`). |
+| `minSearchLengthForDebounceFeedback` | number | Comprimento mínimo do termo digitado para exibir a mensagem de debounce (padrão: 1). |
 | `disabled` | boolean | Desabilita o campo. |
 | `required` | boolean | Exibe asterisco e valida se o schema exigir. |
 | `onOpenChange` | `(open: boolean) => void` | Usado para lazy load: ao abrir (`open === true`), definir `setOptionsRequested(true)`. |

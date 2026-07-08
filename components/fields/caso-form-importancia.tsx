@@ -94,11 +94,9 @@ export function CasoFormImportancia({
     });
   }, [excludeSet, importanciaValue, options, setValue]);
 
-  const placeholder =
-    isLoading ? "Carregando importâncias…" : "Selecione a importância…";
+  const placeholder = "Selecione a importância…";
 
   let emptyText = "Nenhuma importância encontrada.";
-  if (isLoading) emptyText = "Carregando importâncias...";
   if (isError) emptyText = "Não foi possível carregar as importâncias.";
 
   const disabledFinal = isDisabled || Boolean(disabled);
@@ -112,6 +110,7 @@ export function CasoFormImportancia({
         options={options}
         placeholder={placeholder}
         emptyText={emptyText}
+        isLoading={optionsRequested && isLoading}
         searchDebounceMs={450}
         disabled={disabledFinal}
         required={required}

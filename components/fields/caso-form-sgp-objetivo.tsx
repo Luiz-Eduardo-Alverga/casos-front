@@ -70,12 +70,11 @@ export function CasoFormSgpObjetivo({
         options={objetivosOptions}
         placeholder="Selecione o objetivo..."
         emptyText={
-          isLoading
-            ? "Carregando objetivos..."
-            : searchTrimmed.length > 0 && searchTrimmed.length < 2
-              ? "Digite pelo menos 2 caracteres para pesquisar."
-              : "Nenhum objetivo encontrado."
+          searchTrimmed.length > 0 && searchTrimmed.length < 2
+            ? "Digite pelo menos 2 caracteres para pesquisar."
+            : "Nenhum objetivo encontrado."
         }
+        isLoading={shouldFetch && isLoading}
         onSearchChange={setObjetivoSearch}
         searchDebounceMs={450}
         disabled={isDisabled}

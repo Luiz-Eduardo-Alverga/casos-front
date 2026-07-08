@@ -124,7 +124,8 @@ export function CasoFormRelator({
         icon={User}
         options={relatoresOptions}
         placeholder={placeholder}
-        emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
+        emptyText="Nenhum usuário encontrado."
+        isLoading={optionsRequested && isUsuariosLoading}
         // onSearchChange={setUsuariosSearch}
         searchDebounceMs={450}
         disabled={isDisabled}

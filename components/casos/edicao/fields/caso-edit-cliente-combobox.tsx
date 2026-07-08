@@ -29,6 +29,7 @@ export function CasoEditClienteCombobox({
     fetchNextPage: fetchNextClientesPage,
     hasNextPage: hasNextClientesPage,
     isFetchingNextPage: isFetchingNextClientesPage,
+    isFetching: isClientesFetching,
   } = useClientes(
     {
       search: clienteSearch,
@@ -54,6 +55,12 @@ export function CasoEditClienteCombobox({
     onClienteChange(clienteSelecionado || undefined);
   }, [clienteSelecionado, onClienteChange]);
 
+  const canSearchClientes = clienteSearch.trim().length >= 2;
+  const isLoadingClientes =
+    canSearchClientes &&
+    isClientesFetching &&
+    !isFetchingNextClientesPage;
+
   return (
     <ComboboxField
       name="clienteSelecionado"
@@ -67,8 +74,10 @@ export function CasoEditClienteCombobox({
           ? "Digite pelo menos 2 caracteres para pesquisar."
           : "Nenhum cliente encontrado."
       }
+      isLoading={isLoadingClientes}
       onSearchChange={setClienteSearch}
       searchDebounceMs={400}
+      minSearchLengthForDebounceFeedback={2}
       hasMore={Boolean(hasNextClientesPage)}
       isLoadingMore={isFetchingNextClientesPage}
       onLoadMore={() => {

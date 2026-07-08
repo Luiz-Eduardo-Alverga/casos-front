@@ -75,8 +75,6 @@ export function CasoFormSgpTipo({
     return base;
   }, [tipos, mapOptions, fallbackOption]);
 
-  const resolvedEmptyText = isLoading ? "Carregando..." : emptyText;
-
   return (
     <ComboboxField
       name={name}
@@ -84,7 +82,8 @@ export function CasoFormSgpTipo({
       icon={icon}
       options={options}
       placeholder={placeholder}
-      emptyText={resolvedEmptyText}
+      emptyText={emptyText}
+      isLoading={shouldFetch && isLoading}
       searchDebounceMs={450}
       disabled={isDisabled}
       required={required}

@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 import { User } from "lucide-react";
 
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "@/components/fields/caso-form-provider";
+import {
+  resolveComboboxLazyLoad,
+  useCasoForm,
+} from "@/components/fields/caso-form-provider";
 import { useUsuarios } from "@/hooks/catalogos/use-usuarios";
 
 interface CasoFormUsuarioAberturaProps {
@@ -14,10 +17,17 @@ interface CasoFormUsuarioAberturaProps {
 export function CasoFormUsuarioAbertura({
   required = true,
 }: CasoFormUsuarioAberturaProps) {
-  const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
-  const [optionsRequested, setOptionsRequested] = useState(
-    !lazyLoadComboboxOptions,
+  const {
+    isDisabled,
+    lazyLoadComboboxOptions,
+    eagerLoadComboboxFieldNames,
+    editCaseItem,
+  } = useCasoForm();
+  const lazyLoad = resolveComboboxLazyLoad(
+    { lazyLoadComboboxOptions, eagerLoadComboboxFieldNames },
+    "usuario_abertura_id",
   );
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoad);
 
   const { data: usuarios, isLoading: isUsuariosLoading } = useUsuarios({
     enabled: optionsRequested,
@@ -36,7 +46,7 @@ export function CasoFormUsuarioAbertura({
     }
 
     if (
-      lazyLoadComboboxOptions &&
+      lazyLoad &&
       editCaseItem?.caso?.usuarios?.abertura &&
       !options.some((o) => o.value === String(editCaseItem.caso.usuarios.abertura?.id))
     ) {
@@ -45,7 +55,7 @@ export function CasoFormUsuarioAbertura({
     }
 
     return options;
-  }, [usuarios, lazyLoadComboboxOptions, editCaseItem]);
+  }, [usuarios, lazyLoad, editCaseItem]);
 
   return (
     <div className="space-y-2">
@@ -55,14 +65,13 @@ export function CasoFormUsuarioAbertura({
         icon={User}
         options={usuarioOptions}
         placeholder="Quem abriu o caso..."
-        emptyText={isUsuariosLoading ? "Carregando usuários..." : "Nenhum usuário encontrado."}
+        emptyText="Nenhum usuário encontrado."
+        isLoading={optionsRequested && isUsuariosLoading}
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}
         onOpenChange={
-          lazyLoadComboboxOptions
-            ? (open) => open && setOptionsRequested(true)
-            : undefined
+          lazyLoad ? (open) => open && setOptionsRequested(true) : undefined
         }
       />
     </div>

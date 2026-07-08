@@ -5,6 +5,7 @@ import { CasoEditTabCardHeader } from "../caso-edit-card-header";
 import { CasoFormDescricaoResumo } from "@/components/fields/caso-form-descricao-resumo";
 import { CasoFormDescricaoCompleta } from "@/components/fields/caso-form-descricao-completa";
 import { CasoFormInformacoesAdicionais } from "@/components/fields/caso-form-informacoes-adicionais";
+import { CasoFormAnexo } from "@/components/fields/caso-form-anexo";
 import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
 import { CasoEditCardClassificacao } from "../caso-edit-card-classificacao";
 
@@ -27,7 +28,10 @@ export function AbaInicial() {
         <CardContent className="p-6 pt-2 space-y-2">
           <CasoFormDescricaoResumo />
           <CasoFormDescricaoCompleta />
-          <CasoFormInformacoesAdicionais />
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <CasoFormInformacoesAdicionais />
+            <CasoFormAnexo />
+          </div>
         </CardContent>
       </Card>
 

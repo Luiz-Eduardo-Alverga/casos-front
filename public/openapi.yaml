@@ -118,6 +118,10 @@ components:
         recommendedDeviceId:
           $ref: "#/components/schemas/OpaqueId"
           nullable: true
+        obs:
+          type: string
+          nullable: true
+          description: Observações do status ativo (`acquirer_status.obs`).
         isActive:
           type: boolean
           nullable: true
@@ -773,6 +777,10 @@ components:
           type: string
           format: uuid
           nullable: true
+        obs:
+          type: string
+          nullable: true
+          description: Observações do status ativo (`acquirer_status.obs`).
         isActive:
           type: boolean
           nullable: true

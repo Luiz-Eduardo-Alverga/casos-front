@@ -47,7 +47,8 @@ export function AcquirerStatusAcquirerField({
       icon={Building2}
       options={options}
       placeholder="Selecione a adquirente..."
-      emptyText={isLoading ? "Carregando adquirentes..." : "Nenhuma adquirente encontrada."}
+      emptyText="Nenhuma adquirente encontrada."
+      isLoading={isLoading}
       searchDebounceMs={450}
       disabled={disabled}
       required

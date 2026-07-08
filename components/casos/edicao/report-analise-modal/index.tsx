@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { useRelatores } from "@/hooks/catalogos/use-usuarios";
 import { formatReportDate } from "./utils";
 import type { ReportAnaliseModalProps } from "./types";
 import {
@@ -120,6 +121,22 @@ export function ReportAnaliseModal({
   const dataLimite = report.data_limite;
   const responsavelFeedback = report.responsavel_feedback_nome?.trim() || "—";
   const dataConclusao = formatReportDate(report.analise_data_conclusao);
+  const analiseUsuarioId = String(report.report_analise_usuario_id ?? "").trim();
+  const precisaResolverUsuario =
+    analiseConcluida &&
+    Boolean(analiseUsuarioId) &&
+    !report.analise_usuario_nome?.trim();
+  const { data: usuarios } = useRelatores({
+    enabled: precisaResolverUsuario,
+  });
+  const usuarioConclusao = useMemo(() => {
+    const nomeApi = report.analise_usuario_nome?.trim();
+    if (nomeApi) return nomeApi;
+    if (!analiseUsuarioId) return "—";
+
+    const usuario = usuarios?.find((u) => u.id === analiseUsuarioId);
+    return usuario?.nome_suporte?.trim() || "—";
+  }, [report.analise_usuario_nome, analiseUsuarioId, usuarios]);
   const { control, setValue } = useFormContext();
   const analiseStatusValue = useWatch({ control, name: "analiseStatus" });
 
@@ -217,9 +234,10 @@ export function ReportAnaliseModal({
                   label="Data de Conclusão"
                   value={dataConclusao}
                 />
-                <div className="sr-only">
-                  <ReportReadonlyField label="Usuário Conclusão" value="—" />
-                </div>
+                <ReportReadonlyField
+                  label="Usuário Conclusão"
+                  value={usuarioConclusao}
+                />
               </div>
             ) : isStepFlow && step === 2 ? (
               <div className="min-w-0 space-y-4">

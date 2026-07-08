@@ -20,6 +20,7 @@ export interface CasoBaseFormInput {
   DescricaoResumo: string;
   DescricaoCompleta: string;
   InformacoesAdicionais?: string;
+  Anexo?: string;
 }
 
 /**
@@ -65,6 +66,7 @@ export function buildCasoBasePayload(
     DescricaoResumo: data.DescricaoResumo || "",
     DescricaoCompleta: (data.DescricaoCompleta || "").replace(/\r?\n/g, "\r\n"),
     InformacoesAdicionais: data.InformacoesAdicionais || "",
+    Anexo: data.Anexo || "",
   };
 }
 
@@ -147,6 +149,7 @@ export function buildCasoUpdatePayload({
     DescricaoResumo: base.DescricaoResumo,
     DescricaoCompleta: base.DescricaoCompleta,
     InformacoesAdicionais: base.InformacoesAdicionais || undefined,
+    Anexo: base.Anexo || undefined,
     Prioridade: base.Prioridade,
     Categoria: base.Categoria,
     Relator: base.Relator,

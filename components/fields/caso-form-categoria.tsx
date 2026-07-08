@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Tag } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "@/components/fields/caso-form-provider";
+import {
+  resolveComboboxLazyLoad,
+  useCasoForm,
+} from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useCategorias } from "@/hooks/catalogos/use-categorias";
 
@@ -20,12 +23,19 @@ export function CasoFormCategoria({
   required = true,
   excludeTipoCategorias = [],
 }: CasoFormCategoriaProps) {
-  const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
+  const {
+    isDisabled,
+    lazyLoadComboboxOptions,
+    eagerLoadComboboxFieldNames,
+    editCaseItem,
+  } = useCasoForm();
+  const lazyLoad = resolveComboboxLazyLoad(
+    { lazyLoadComboboxOptions, eagerLoadComboboxFieldNames },
+    name,
+  );
   const { getValues, setValue, watch } = useFormContext();
   const categoriaValue = watch(name);
-  const [optionsRequested, setOptionsRequested] = useState(
-    !lazyLoadComboboxOptions,
-  );
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoad);
 
   const { data: categorias, isLoading: isCategoriasLoading } = useCategorias({
     enabled: optionsRequested,
@@ -48,7 +58,7 @@ export function CasoFormCategoria({
       }));
 
     if (
-      lazyLoadComboboxOptions &&
+      lazyLoad &&
       editCaseItem?.caso?.caracteristicas &&
       categoriaValue &&
       !list.some((o) => o.value === categoriaValue)
@@ -62,7 +72,7 @@ export function CasoFormCategoria({
     return list;
   }, [
     categorias,
-    lazyLoadComboboxOptions,
+    lazyLoad,
     editCaseItem,
     categoriaValue,
     excludeSet,
@@ -102,17 +112,14 @@ export function CasoFormCategoria({
         icon={Tag}
         options={categoriasOptions}
         placeholder="Selecione a categoria..."
-        emptyText={
-          isCategoriasLoading
-            ? "Carregando categorias..."
-            : "Nenhuma categoria encontrada."
-        }
+        emptyText="Nenhuma categoria encontrada."
+        isLoading={optionsRequested && isCategoriasLoading}
         // onSearchChange={setCategoriasSearch}
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}
         onOpenChange={
-          lazyLoadComboboxOptions
+          lazyLoad
             ? (open) => open && setOptionsRequested(true)
             : undefined
         }

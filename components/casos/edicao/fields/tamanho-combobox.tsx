@@ -108,10 +108,11 @@ export function TamanhoCombobox({
             }
           }
         }}
-        placeholder={isLoading ? "Carregando..." : placeholder}
-        emptyText={isLoading ? "Carregando..." : "Nenhum tamanho encontrado."}
+        placeholder={placeholder}
+        emptyText="Nenhum tamanho encontrado."
+        isLoading={optionsRequested && isLoading}
         searchDebounceMs={450}
-        disabled={isFieldDisabled || isLoading}
+        disabled={isFieldDisabled}
         onOpenChange={
           lazyLoadComboboxOptions
             ? (open) => open && setOptionsRequested(true)

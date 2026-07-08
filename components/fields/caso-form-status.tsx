@@ -84,9 +84,8 @@ export function CasoFormStatus({
         icon={CircleDot}
         options={statusOptions}
         placeholder={placeholder}
-        emptyText={
-          isStatusLoading ? "Carregando status..." : "Nenhum status encontrado."
-        }
+        emptyText="Nenhum status encontrado."
+        isLoading={optionsRequested && isStatusLoading}
         searchDebounceMs={450}
         required={required}
         disabled={isDisabled || disabled}

@@ -3,7 +3,10 @@
 import { useState, useMemo } from "react";
 import { Package } from "lucide-react";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
-import { useCasoForm } from "@/components/fields/caso-form-provider";
+import {
+  resolveComboboxLazyLoad,
+  useCasoForm,
+} from "@/components/fields/caso-form-provider";
 import { useFormContext } from "react-hook-form";
 import { useModulos } from "@/hooks/catalogos/use-modulos";
 
@@ -12,11 +15,20 @@ interface CasoFormModuloProps {
 }
 
 export function CasoFormModulo({ required = true }: CasoFormModuloProps) {
-  const { produto, isDisabled, lazyLoadComboboxOptions } = useCasoForm();
+  const {
+    produto,
+    isDisabled,
+    lazyLoadComboboxOptions,
+    eagerLoadComboboxFieldNames,
+  } = useCasoForm();
+  const lazyLoad = resolveComboboxLazyLoad(
+    { lazyLoadComboboxOptions, eagerLoadComboboxFieldNames },
+    "modulo",
+  );
   const { watch } = useFormContext();
   const produtoValue = watch("produto");
   const moduloValue = watch("modulo");
-  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoad);
 
   const produtoAtual = produtoValue || produto;
 
@@ -55,16 +67,13 @@ export function CasoFormModulo({ required = true }: CasoFormModuloProps) {
             ? "Selecione o módulo..."
             : "Selecione o produto primeiro."
         }
-        emptyText={
-          isModulosLoading
-            ? "Carregando módulos..."
-            : "Nenhum módulo encontrado."
-        }
+        emptyText="Nenhum módulo encontrado."
+        isLoading={optionsRequested && isModulosLoading}
         // onSearchChange={setModulosSearch}
         searchDebounceMs={450}
         disabled={isDisabled || !produtoAtual}
         required={required}
-        onOpenChange={lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined}
+        onOpenChange={lazyLoad ? (open) => open && setOptionsRequested(true) : undefined}
       />
     </div>
   );
