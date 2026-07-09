@@ -18,14 +18,17 @@ import type { CasoRelacoes } from "@/interfaces/projeto-memoria";
 import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
 import { formatDatePt } from "@/components/cadastros/format-display";
 import { formatMinutesToHHMM } from "@/lib/utils";
-import { Box, ExternalLink, Paperclip, SquarePen } from "lucide-react";
-import { ImportanciaBadge } from "@/components/badges/importancia-badge";
+import { Box, ExternalLink, Paperclip, SquarePen, Users } from "lucide-react";
+import { SortableFieldContextMenu } from "@/components/projetos/tabela/sortable-field-context-menu";
+import type { ProjetoMemoriaSortState } from "@/components/projetos/tabela/projeto-memoria-sort";
 
 export interface ProjetosTabelaRowEscopoProps {
   row: ProjetosTabelaEscopoRow;
   showCheckbox?: boolean;
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
+  sort?: ProjetoMemoriaSortState;
+  onSortChange?: (sort: ProjetoMemoriaSortState) => void;
 }
 
 export function ProjetosTabelaRowEscopo({
@@ -33,6 +36,8 @@ export function ProjetosTabelaRowEscopo({
   showCheckbox = false,
   checked = false,
   onCheckedChange,
+  sort,
+  onSortChange,
 }: ProjetosTabelaRowEscopoProps) {
   const versaoLabel = row.versao
     ? row.versao.toLowerCase().startsWith("v")
@@ -64,9 +69,15 @@ export function ProjetosTabelaRowEscopo({
         className="min-w-[95px] max-w-[120px] py-3 px-2 align-top"
       >
         <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-semibold text-text-primary whitespace-nowrap">
-            #{row.numero}
-          </span>
+          <SortableFieldContextMenu
+            sortField="numero_caso"
+            sort={sort}
+            onSortChange={onSortChange}
+          >
+            <span className="text-sm font-semibold text-text-primary whitespace-nowrap">
+              #{row.numero}
+            </span>
+          </SortableFieldContextMenu>
           <CategoriaBadge categoria={row.categoria} />
         </div>
       </TableCell>
@@ -78,9 +89,15 @@ export function ProjetosTabelaRowEscopo({
           <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
             <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-text-secondary">
               <Box className="h-3.5 w-3.5 shrink-0" aria-hidden />
-              <span className="min-w-0 truncate font-semibold">
-                {row.produto || "—"}
-              </span>
+              <SortableFieldContextMenu
+                sortField="produto_nome"
+                sort={sort}
+                onSortChange={onSortChange}
+              >
+                <span className="min-w-0 truncate font-semibold">
+                  {row.produto || "—"}
+                </span>
+              </SortableFieldContextMenu>
               <span className="text-text-secondary" aria-hidden>
                 •
               </span>
@@ -102,11 +119,24 @@ export function ProjetosTabelaRowEscopo({
                 >
                   Aberto há {row.dias_no_backlog} dias
                 </span>
+                <span
+                  className="inline-flex w-fit items-center gap-0.5 rounded-full border border-border-divider bg-muted/90 px-1.5 py-0 text-[10px] font-semibold text-text-secondary"
+                  title={`${row.qtd_clientes_vinculados} cliente(s) vinculado(s)`}
+                >
+                  <Users className="h-2.5 w-2.5 shrink-0" aria-hidden />
+                  {row.qtd_clientes_vinculados}
+                </span>
               </div>
 
-              <span className="inline-flex w-fit items-center rounded-full border border-border-divider bg-muted/90 px-1.5 py-0 text-[10px] font-semibold text-text-secondary">
-                Importância: {Number(row.importancia) || 0}
-              </span>
+              <SortableFieldContextMenu
+                sortField="prioridade"
+                sort={sort}
+                onSortChange={onSortChange}
+              >
+                <span className="inline-flex w-fit items-center rounded-full border border-border-divider bg-muted/90 px-1.5 py-0 text-[10px] font-semibold text-text-secondary">
+                  Importância: {Number(row.importancia) || 0}
+                </span>
+              </SortableFieldContextMenu>
 
               {/* <ImportanciaBadge importancia={Number(row.importancia) || 0} /> */}
 
@@ -141,10 +171,16 @@ export function ProjetosTabelaRowEscopo({
         key="estimativas"
         className="w-[88px] py-3 px-5 text-center align-top"
       >
-        <div className="flex items-center  flex-col gap-0.5 text-xs font-normal text-text-secondary">
-          <span>E: {formatMinutesToHHMM(row.estimado_minutos)}</span>
-          <span>R: {formatMinutesToHHMM(row.realizado_minutos)}</span>
-        </div>
+        <SortableFieldContextMenu
+          sortField="tempo_estimado"
+          sort={sort}
+          onSortChange={onSortChange}
+        >
+          <div className="flex items-center flex-col gap-0.5 text-xs font-normal text-text-secondary">
+            <span>E: {formatMinutesToHHMM(row.estimado_minutos)}</span>
+            <span>R: {formatMinutesToHHMM(row.realizado_minutos)}</span>
+          </div>
+        </SortableFieldContextMenu>
       </TableCell>
       <TableCell key="desenvolvedor" className="w-[120px] py-3 px-5 align-top">
         <span className="text-sm font-light text-text-primary line-clamp-2">
@@ -152,14 +188,20 @@ export function ProjetosTabelaRowEscopo({
         </span>
       </TableCell>
       <TableCell key="status" className="min-w-[185px] py-3 px-5 align-top">
-        <div className="flex flex-col items-start gap-1">
-          <StatusBadge status={row.status} />
-          {row.dataConclusao ? (
-            <span className="text-xs font-semibold text-text-secondary">
-              Finalizado em {formatDatePt(row.dataConclusao)}
-            </span>
-          ) : null}
-        </div>
+        <SortableFieldContextMenu
+          sortField="data_conclusao_dev"
+          sort={sort}
+          onSortChange={onSortChange}
+        >
+          <div className="flex flex-col items-start gap-1">
+            <StatusBadge status={row.status} />
+            {row.dataConclusao ? (
+              <span className="text-xs font-semibold text-text-secondary">
+                Finalizado em {formatDatePt(row.dataConclusao)}
+              </span>
+            ) : null}
+          </div>
+        </SortableFieldContextMenu>
       </TableCell>
       <TableCell key="acoes" className="w-[66px] py-3 px-5 align-top">
         <div className="flex items-center justify-end gap-2">

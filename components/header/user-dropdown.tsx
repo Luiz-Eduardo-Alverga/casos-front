@@ -128,8 +128,8 @@ export function UserDropDown() {
                     }}
                     className="cursor-pointer w-full flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors text-left"
                   >
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-primary/20 rounded-full flex items-center justify-center">
-                      <Camera className="w-5 h-5 text-primary" />
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-primary rounded-full flex items-center justify-center">
+                      <Camera className="w-5 h-5 text-text-primary" />
                     </div>
                     <div className="flex-1">
                       <div className="font-medium text-sm">

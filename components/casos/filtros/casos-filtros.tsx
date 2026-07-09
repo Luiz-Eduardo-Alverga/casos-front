@@ -26,6 +26,8 @@ import { CasoFormUsuarioAbertura } from "@/components/fields/caso-form-usuario-a
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
 import { CasoFormQaAtribuido } from "@/components/fields/caso-form-qa-atribuido";
 import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
+import { CasoFormSetor } from "@/components/fields/caso-form-setor";
+import { NaoPlanejadoFiltroSelect } from "@/components/filtros/nao-planejado-filtro-select";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { importanceOptions } from "@/mocks/teste";
@@ -59,10 +61,13 @@ import { CasosFiltrosAnimatedContent } from "@/components/casos/filtros/casos-fi
 import { CasosFiltrosAplicadosBadges } from "@/components/casos/filtros/casos-filtros-aplicados-badges";
 import { CasosFiltrosPersonalizar } from "@/components/casos/filtros/casos-filtros-personalizar";
 import { useUserFiltrosPreferencias } from "@/hooks/configuracoes/use-user-filtros-preferencias";
+import type { ProjetoMemoriaSortState } from "@/components/projetos/tabela/projeto-memoria-sort";
 
 interface CasosFiltrosProps {
   filtrosAplicados: CasosFiltrosAplicados;
   onAplicar: (filtros: CasosFiltrosAplicados) => void;
+  sort?: ProjetoMemoriaSortState;
+  onSortChange?: (sort: ProjetoMemoriaSortState) => void;
 }
 
 /** Componentes internos dos campos que precisam de Controller devem ser definidos
@@ -122,6 +127,60 @@ function DescricaoResumoField() {
   );
 }
 
+function DataAberturaInicioField() {
+  const { control } = useFormContext<CasosFiltersForm>();
+  return (
+    <Controller
+      name="data_abertura_inicio"
+      control={control}
+      render={({ field }) => (
+        <DatePickerInput
+          label="Abertura (início)"
+          value={field.value}
+          onChange={field.onChange}
+          placeholder="Selecionar data"
+          controlHeightClassName="h-9"
+        />
+      )}
+    />
+  );
+}
+
+function DataAberturaFinalField() {
+  const { control } = useFormContext<CasosFiltersForm>();
+  return (
+    <Controller
+      name="data_abertura_final"
+      control={control}
+      render={({ field }) => (
+        <DatePickerInput
+          label="Abertura (fim)"
+          value={field.value}
+          onChange={field.onChange}
+          placeholder="Selecionar data"
+          controlHeightClassName="h-9"
+        />
+      )}
+    />
+  );
+}
+
+function NaoPlanejadoField() {
+  const { control } = useFormContext<CasosFiltersForm>();
+  return (
+    <Controller
+      name="nao_planejado_filtro"
+      control={control}
+      render={({ field }) => (
+        <NaoPlanejadoFiltroSelect
+          value={field.value}
+          onValueChange={field.onChange}
+        />
+      )}
+    />
+  );
+}
+
 function DataProducaoInicioField() {
   const { control } = useFormContext<CasosFiltersForm>();
   return (
@@ -175,6 +234,7 @@ const FILTRO_CAMPO_RENDER: Record<CasoFiltroField, () => ReactNode> = {
       autoSelectProjeto="never"
     />
   ),
+  setor: () => <CasoFormSetor required={false} />,
   tipo_abertura: () => <TipoAberturaField />,
   descricao_resumo: () => <DescricaoResumoField />,
   usuario_abertura_id: () => <CasoFormUsuarioAbertura required={false} />,
@@ -188,13 +248,18 @@ const FILTRO_CAMPO_RENDER: Record<CasoFiltroField, () => ReactNode> = {
   qaAtribuido: () => (
     <CasoFormQaAtribuido required={false} requireProduto={false} label="QA" />
   ),
+  data_abertura_inicio: () => <DataAberturaInicioField />,
+  data_abertura_final: () => <DataAberturaFinalField />,
   data_producao_inicio: () => <DataProducaoInicioField />,
   data_producao_fim: () => <DataProducaoFimField />,
+  nao_planejado: () => <NaoPlanejadoField />,
 };
 
 export function CasosFiltros({
   filtrosAplicados,
   onAplicar,
+  sort,
+  onSortChange,
 }: CasosFiltrosProps) {
   const queryClient = useQueryClient();
   const filtrosAtivos = hasFiltersApplied(filtrosAplicados);
@@ -375,6 +440,8 @@ export function CasosFiltros({
                   <CasosFiltrosAplicadosBadges
                     filtrosAplicados={filtrosAplicados}
                     onAplicar={handleAplicarFromBadges}
+                    sort={sort}
+                    onSortChange={onSortChange}
                     className="min-w-0 flex-1"
                   />
                 </div>

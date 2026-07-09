@@ -164,6 +164,7 @@ export interface CasoItem {
   id: number;
   datas: CasoDatas;
   dias_no_backlog: number;
+  qtd_clientes_vinculados: number;
   usuarios: CasoUsuarios;
   tempos: CasoTempos;
   quantidades_apontadas: CasoQuantidadesApontadas;
@@ -285,6 +286,8 @@ export interface ProjetoMemoriaParams {
   status_id?: string | string[] | null;
   tipo_categoria?: string;
   modulo?: string;
+  data_abertura_inicio?: string;
+  data_abertura_final?: string;
   data_producao_inicio?: string;
   data_producao_fim?: string;
   tipo_abertura?: "CASO" | "REPORT";

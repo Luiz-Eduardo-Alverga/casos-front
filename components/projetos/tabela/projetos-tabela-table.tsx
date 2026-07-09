@@ -66,12 +66,14 @@ function ProjetosTabelaTableEscopo({
       onSortChange={onSortChange}
       className="min-w-0 flex-1"
     />,
-    <TableHead
+    <ProjetosTabelaSortableHeader
       key="estimativas"
-      className="w-[88px] text-center font-medium text-sm text-text-primary h-auto py-4 px-5"
-    >
-      Estimativas
-    </TableHead>,
+      label="Estimativas"
+      sortField="tempo_estimado"
+      sort={sort}
+      onSortChange={onSortChange}
+      className="w-[88px] text-center"
+    />,
     <TableHead
       key="desenvolvedor"
       className="w-[120px] font-medium text-sm text-text-primary h-auto py-4 px-5"
@@ -102,6 +104,8 @@ function ProjetosTabelaTableEscopo({
         showCheckbox={showCheckbox}
         checked={selectedIdsSet.has(row.id)}
         onCheckedChange={(checked) => onToggleItem?.(row.id, checked)}
+        sort={sort}
+        onSortChange={onSortChange}
       />
     )),
     ...(isFetchingNextPage

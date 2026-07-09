@@ -202,7 +202,5 @@ export const caseAttachments = pgTable(
     }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
-  (t) => [
-    index("case_attachments_caso_registro_idx").on(t.casoRegistro),
-  ],
+  (t) => [index("case_attachments_caso_registro_idx").on(t.casoRegistro)],
 );

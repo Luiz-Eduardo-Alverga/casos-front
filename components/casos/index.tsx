@@ -34,8 +34,14 @@ export function Casos() {
       <CasosFiltros
         filtrosAplicados={filtrosAplicados}
         onAplicar={aplicarFiltros}
+        sort={sort}
+        onSortChange={setSort}
       />
-      <CasosTabela filtros={filtrosAplicados} sort={sort} onSortChange={setSort} />
+      <CasosTabela
+        filtros={filtrosAplicados}
+        sort={sort}
+        onSortChange={setSort}
+      />
     </ListagemPageLayout>
   );
 }

@@ -49,7 +49,7 @@ function SortMenuOption({
         className={cn(
           "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border",
           selected
-            ? "border-primary/30 bg-primary/10 text-primary"
+            ? "border-text-primary/30 bg-text-primary/10 text-text-primary"
             : "border-border-divider bg-muted/50 text-text-secondary",
         )}
       >
@@ -65,7 +65,7 @@ function SortMenuOption({
       </span>
       <Check
         className={cn(
-          "mt-1 h-4 w-4 shrink-0 text-primary",
+          "mt-1 h-4 w-4 shrink-0 text-text-primary",
           selected ? "opacity-100" : "opacity-0",
         )}
         aria-hidden
@@ -114,7 +114,7 @@ export function ProjetosTabelaSortableHeader({
         <span
           className={cn(
             "min-w-0 truncate font-medium",
-            isActive && "text-primary",
+            isActive && "text-text-primary",
           )}
         >
           {label}
@@ -126,7 +126,7 @@ export function ProjetosTabelaSortableHeader({
               className={cn(
                 "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-colors",
                 "hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-                isActive ? "text-primary" : "text-text-secondary",
+                isActive ? "text-text-primary" : "text-text-secondary",
               )}
               aria-label={`Ordenar por ${label}`}
             >

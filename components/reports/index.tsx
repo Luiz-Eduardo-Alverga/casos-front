@@ -23,8 +23,13 @@ import { useRouter } from "next/navigation";
 
 export function Reports() {
   const router = useRouter();
-  const { filtrosAplicados, aplicarFiltros, limparFiltros, viewMode, setViewMode } =
-    useReportsFiltros();
+  const {
+    filtrosAplicados,
+    aplicarFiltros,
+    limparFiltros,
+    viewMode,
+    setViewMode,
+  } = useReportsFiltros();
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -107,7 +112,7 @@ export function Reports() {
         onAplicar={aplicarFiltros}
       />
 
-      <div className="mb-3 flex items-center justify-between gap-4 shrink-0">
+      <div className="mb-2 flex items-center justify-between gap-4 shrink-0">
         <ReportsViewToggle viewMode={viewMode} onChange={setViewMode} />
         <ReportsTotalizador
           className="min-w-0"

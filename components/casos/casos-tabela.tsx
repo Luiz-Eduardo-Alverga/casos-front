@@ -5,16 +5,23 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
 import { getUser } from "@/lib/auth";
-import { ArrowLeftRight, Box, ChevronUp } from "lucide-react";
+import { ArrowLeftRight, Box, ChevronUp, CircleHelp } from "lucide-react";
 import toast from "react-hot-toast";
 import { EmptyState } from "@/components/painel/empty-state";
 import { CasosTabelaSkeleton } from "@/components/casos/layout/casos-tabela-skeleton";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ProjetosTabelaTable } from "@/components/projetos/tabela/projetos-tabela-table";
 import type { ProjetoMemoriaSortState } from "@/components/projetos/tabela/projeto-memoria-sort";
 import { mapProjetoMemoriaToTabelaRow } from "@/components/projetos/tabela/map-projeto-memoria-to-escopo-row";
 import { useBulkUpdateCasos } from "@/hooks/casos/use-bulk-update-casos";
 import { CasosTransferenciaModal } from "@/components/casos/transferencia/casos-transferencia-modal";
+import { CasosTotalizador } from "@/components/casos/casos-totalizador";
 import { buildBulkTransferPayload } from "@/components/casos/transferencia/utils";
 import type { CasosTransferenciaFormValues } from "@/components/casos/transferencia/types";
 import type { CasosFiltrosAplicados } from "@/components/casos/filtros/casos-filtros.types";
@@ -24,6 +31,7 @@ import {
   needsVersaoCatalogToResolve,
 } from "@/components/casos/filtros/casos-filtros-mappers";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
+import { useSetores } from "@/hooks/catalogos/use-setores";
 import { getVersoesQueryKey } from "@/components/casos/shared/versao-combobox";
 import type { Versao } from "@/services/auxiliar/versoes";
 import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
@@ -50,16 +58,18 @@ export function CasosTabela({ filtros, sort, onSortChange }: CasosTabelaProps) {
       todas: true,
     });
 
+  const { data: setores = [] } = useSetores({ enabled: hasFilters });
+
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isTransferenciaModalOpen, setIsTransferenciaModalOpen] =
     useState(false);
 
   const projetoMemoriaParams = useMemo(
     () => ({
-      ...filtrosToProjetoMemoriaParams(filtros, versoesCatalogo),
+      ...filtrosToProjetoMemoriaParams(filtros, versoesCatalogo, setores),
       ...sort,
     }),
-    [filtros, versoesCatalogo, sort],
+    [filtros, versoesCatalogo, setores, sort],
   );
 
   const aguardandoVersaoCatalogo =
@@ -84,6 +94,14 @@ export function CasosTabela({ filtros, sort, onSortChange }: CasosTabelaProps) {
       [],
     [data],
   );
+
+  const totalizadores = data?.pages[0]?.totalizadores;
+  const totalCasos = totalizadores?.total_casos ?? 0;
+  const tempoTotalEstimadoMinutos =
+    totalizadores?.tempo_total_estimado_minutos ?? 0;
+  const tempoTotalRealizadoMinutos =
+    totalizadores?.tempo_total_realizado_minutos ?? 0;
+  const isQueryLoading = isLoading || aguardandoVersaoCatalogo;
 
   useEffect(() => {
     if (itens.length === 0) {
@@ -170,91 +188,130 @@ export function CasosTabela({ filtros, sort, onSortChange }: CasosTabelaProps) {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <Card className="bg-card shadow-card rounded-lg flex flex-col">
-      <CardHeader className="p-4 pb-2 border-b border-border-divider shrink-0">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Box className="h-3.5 w-3.5 text-text-primary" />
-            <CardTitle className="text-sm font-semibold text-text-primary">
-              Listagem de Casos
-            </CardTitle>
-          </div>
-
-          <div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsTransferenciaModalOpen(true)}
-              disabled={selectedIds.length === 0}
-            >
-              <ArrowLeftRight className="h-3.5 w-3.5 text-text-primary" />
-              {selectedIds.length > 0
-                ? `Transferir casos (${selectedIds.length})`
-                : "Transferir casos"}
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6 pt-3">
-        {!hasFilters ? (
-          <EmptyState
-            imageSrc="/images/empty-state-casos-produto.svg"
-            imageAlt="Nenhum filtro aplicado"
-            icon={Box}
-            title="Nenhum filtro aplicado"
-            description="Selecione os filtros e clique em 'Filtrar' para visualizar os casos."
-            className="w-42 h-42"
-          />
-        ) : isLoading || aguardandoVersaoCatalogo ? (
-          <CasosTabelaSkeleton />
-        ) : itens.length === 0 ? (
-          <EmptyState
-            imageSrc="/images/empty-state-casos-produto.svg"
-            imageAlt="Nenhum caso encontrado"
-            icon={Box}
-            title="Nenhum caso encontrado"
-            description="Ajuste os filtros ou não há casos que correspondam aos critérios."
-            className="w-42 h-42"
-          />
-        ) : (
-          <>
-            <ProjetosTabelaTable
-              variant="escopo"
-              itens={itens}
-              isFetchingNextPage={isFetchingNextPage}
-              showCheckbox
-              selectedIds={selectedIds}
-              onToggleItem={handleToggleItem}
-              onToggleAll={handleToggleAll}
-              sort={sort}
-              onSortChange={onSortChange}
-            />
-            {hasNextPage && itens.length > 0 && (
-              <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />
-            )}
-          </>
-        )}
-      </CardContent>
-      {showScrollTop && (
-        <Button
-          type="button"
-          size="icon"
-          className="fixed bottom-6 right-6 h-10 w-10 rounded-full bg-primary text-white shadow-md hover:bg-primary/90 z-50"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          aria-label="Voltar ao topo"
-        >
-          <ChevronUp className="h-5 w-5" />
-        </Button>
-      )}
-
-      <CasosTransferenciaModal
-        open={isTransferenciaModalOpen}
-        onOpenChange={setIsTransferenciaModalOpen}
-        totalSelecionados={selectedIds.length}
-        produtoIdPadrao={filtros.produto}
-        isSubmitting={bulkUpdateCasos.isPending}
-        onSubmit={handleTransferirCasos}
+    <>
+      <CasosTotalizador
+        exibindo={itens.length}
+        totalCasos={totalCasos}
+        tempoEstimadoMinutos={tempoTotalEstimadoMinutos}
+        tempoRealizadoMinutos={tempoTotalRealizadoMinutos}
+        hasFilters={hasFilters}
+        isLoading={isQueryLoading}
       />
-    </Card>
+      <Card className="bg-card shadow-card rounded-lg flex flex-col">
+        <CardHeader className="p-4 pb-2 border-b border-border-divider shrink-0">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Box className="h-3.5 w-3.5 text-text-primary" />
+              <CardTitle className="text-sm font-semibold text-text-primary">
+                Listagem de Casos
+              </CardTitle>
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      aria-label="Como ordenar a listagem"
+                    >
+                      <CircleHelp className="h-4 w-4" aria-hidden />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="top"
+                    className="max-w-xs text-xs leading-snug"
+                  >
+                    <p className="font-semibold">Ordenação da listagem</p>
+                    <ul className="mt-1.5 list-disc space-y-1 pl-4">
+                      <li>
+                        Pelo cabeçalho da tabela, usando o ícone de setas nas
+                        colunas ordenáveis.
+                      </li>
+                      <li>
+                        Clicando com o botão direito nos campos da linha (ID,
+                        produto, importância, estimativas e status).
+                      </li>
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            <div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsTransferenciaModalOpen(true)}
+                disabled={selectedIds.length === 0}
+              >
+                <ArrowLeftRight className="h-3.5 w-3.5 text-text-primary" />
+                {selectedIds.length > 0
+                  ? `Transferir casos (${selectedIds.length})`
+                  : "Transferir casos"}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6 pt-3">
+          {!hasFilters ? (
+            <EmptyState
+              imageSrc="/images/empty-state-casos-produto.svg"
+              imageAlt="Nenhum filtro aplicado"
+              icon={Box}
+              title="Nenhum filtro aplicado"
+              description="Selecione os filtros e clique em 'Filtrar' para visualizar os casos."
+              className="w-42 h-42"
+            />
+          ) : isLoading || aguardandoVersaoCatalogo ? (
+            <CasosTabelaSkeleton />
+          ) : itens.length === 0 ? (
+            <EmptyState
+              imageSrc="/images/empty-state-casos-produto.svg"
+              imageAlt="Nenhum caso encontrado"
+              icon={Box}
+              title="Nenhum caso encontrado"
+              description="Ajuste os filtros ou não há casos que correspondam aos critérios."
+              className="w-42 h-42"
+            />
+          ) : (
+            <>
+              <ProjetosTabelaTable
+                variant="escopo"
+                itens={itens}
+                isFetchingNextPage={isFetchingNextPage}
+                showCheckbox
+                selectedIds={selectedIds}
+                onToggleItem={handleToggleItem}
+                onToggleAll={handleToggleAll}
+                sort={sort}
+                onSortChange={onSortChange}
+              />
+              {hasNextPage && itens.length > 0 && (
+                <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />
+              )}
+            </>
+          )}
+        </CardContent>
+        {showScrollTop && (
+          <Button
+            type="button"
+            size="icon"
+            className="fixed bottom-6 right-6 h-10 w-10 rounded-full bg-primary text-white shadow-md hover:bg-primary/90 z-50"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Voltar ao topo"
+          >
+            <ChevronUp className="h-5 w-5" />
+          </Button>
+        )}
+
+        <CasosTransferenciaModal
+          open={isTransferenciaModalOpen}
+          onOpenChange={setIsTransferenciaModalOpen}
+          totalSelecionados={selectedIds.length}
+          produtoIdPadrao={filtros.produto}
+          isSubmitting={bulkUpdateCasos.isPending}
+          onSubmit={handleTransferirCasos}
+        />
+      </Card>
+    </>
   );
 }

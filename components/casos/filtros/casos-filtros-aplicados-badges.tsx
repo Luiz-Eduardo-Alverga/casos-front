@@ -7,6 +7,7 @@ import { useProdutos } from "@/hooks/catalogos/use-produtos";
 import { useStatus } from "@/hooks/catalogos/use-status";
 import { useCategorias } from "@/hooks/catalogos/use-categorias";
 import { useUsuarios } from "@/hooks/catalogos/use-usuarios";
+import { useSetores } from "@/hooks/catalogos/use-setores";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
 import { cn } from "@/lib/utils";
 import type { CasosFiltrosAplicados } from "@/components/casos/filtros/casos-filtros.types";
@@ -16,16 +17,22 @@ import {
   removeFilterFromAplicados,
   type CasosFiltroBadgeKey,
 } from "@/components/casos/filtros/casos-filtros-badge-labels";
+import { ProjetoMemoriaSortChip } from "@/components/projetos/tabela/projeto-memoria-sort-chip";
+import type { ProjetoMemoriaSortState } from "@/components/projetos/tabela/projeto-memoria-sort";
 
 interface CasosFiltrosAplicadosBadgesProps {
   filtrosAplicados: CasosFiltrosAplicados;
   onAplicar: (filtros: CasosFiltrosAplicados) => void;
+  sort?: ProjetoMemoriaSortState;
+  onSortChange?: (sort: ProjetoMemoriaSortState) => void;
   className?: string;
 }
 
 export function CasosFiltrosAplicadosBadges({
   filtrosAplicados,
   onAplicar,
+  sort,
+  onSortChange,
   className,
 }: CasosFiltrosAplicadosBadgesProps) {
   const reduceMotion = useReducedMotion();
@@ -33,11 +40,11 @@ export function CasosFiltrosAplicadosBadges({
   const { data: statusList = [] } = useStatus();
   const { data: categorias = [] } = useCategorias();
   const { data: usuarios = [] } = useUsuarios();
+  const { data: setores = [] } = useSetores();
   const produtoFiltro = filtrosAplicados.produto?.trim() ?? "";
   const { data: versoes = [] } = useVersoes({
     produto_id: produtoFiltro,
-    enabled:
-      Boolean(produtoFiltro) && Boolean(filtrosAplicados.versao?.trim()),
+    enabled: Boolean(produtoFiltro) && Boolean(filtrosAplicados.versao?.trim()),
     todas: false,
   });
 
@@ -48,9 +55,18 @@ export function CasosFiltrosAplicadosBadges({
         statusList,
         categorias,
         usuarios,
+        setores,
         versoes,
       }),
-    [filtrosAplicados, produtos, statusList, categorias, usuarios, versoes],
+    [
+      filtrosAplicados,
+      produtos,
+      statusList,
+      categorias,
+      usuarios,
+      setores,
+      versoes,
+    ],
   );
 
   const visibleItems = allItems.slice(0, MAX_CASOS_FILTROS_BADGES_VISIVEIS);
@@ -63,7 +79,9 @@ export function CasosFiltrosAplicadosBadges({
     onAplicar(removeFilterFromAplicados(filtrosAplicados, key));
   };
 
-  if (allItems.length === 0) {
+  const hasSort = Boolean(sort?.sort_by && sort?.sort_order);
+
+  if (allItems.length === 0 && !hasSort) {
     return null;
   }
 
@@ -79,6 +97,12 @@ export function CasosFiltrosAplicadosBadges({
             onRemove={() => handleRemove(item.key)}
           />
         ))}
+        {hasSort ? (
+          <ProjetoMemoriaSortChip
+            sort={sort}
+            onClear={onSortChange ? () => onSortChange({}) : undefined}
+          />
+        ) : null}
         {overflowCount > 0 ? (
           <span
             className={cn(
@@ -127,6 +151,22 @@ export function CasosFiltrosAplicadosBadges({
           >
             +{overflowCount} Filtros ativos
           </motion.span>
+        ) : null}
+        {hasSort ? (
+          <motion.div
+            key="sort"
+            layout
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.15, ease: "easeInOut" }}
+            className="inline-flex"
+          >
+            <ProjetoMemoriaSortChip
+              sort={sort}
+              onClear={onSortChange ? () => onSortChange({}) : undefined}
+            />
+          </motion.div>
         ) : null}
       </AnimatePresence>
     </motion.div>

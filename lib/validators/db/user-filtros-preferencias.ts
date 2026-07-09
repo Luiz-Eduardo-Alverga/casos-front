@@ -7,13 +7,17 @@ const VALID_FIELDS = [
   "modulo",
   "categoria",
   "projeto_id",
+  "setor",
   "tipo_abertura",
   "descricao_resumo",
   "usuario_abertura_id",
   "devAtribuido",
   "qaAtribuido",
+  "data_abertura_inicio",
+  "data_abertura_final",
   "data_producao_inicio",
   "data_producao_fim",
+  "nao_planejado",
 ] as const;
 
 export const filtroResumoItemSchema = z.object({

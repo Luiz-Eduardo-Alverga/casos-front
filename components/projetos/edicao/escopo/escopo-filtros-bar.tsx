@@ -7,18 +7,8 @@ import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
-import { StatusMultiSelect } from "@/components/fields/status-multi-select";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  ESCOPO_NAO_PLANEJADO_OPTIONS,
-  type EscopoNaoPlanejadoFiltro,
-} from "@/components/projetos/edicao/escopo/utils";
+import { NaoPlanejadoFiltroSelect } from "@/components/filtros/nao-planejado-filtro-select";
+import type { EscopoNaoPlanejadoFiltro } from "@/components/projetos/edicao/escopo/utils";
 
 export interface EscopoFiltrosFormValues {
   devAtribuido: string;
@@ -120,28 +110,12 @@ export function EscopoFiltrosBar({
           label="Status"
         />
       </div> */}
-      <div className="w-full sm:w-[192px]">
-        <Select
-          value={naoPlanejadoFiltro}
-          onValueChange={(value) =>
-            onNaoPlanejadoFiltroChange(value as EscopoNaoPlanejadoFiltro)
-          }
-        >
-          <SelectTrigger
-            aria-label="Filtrar por planejamento"
-            className="h-9 w-full rounded-lg border-border-input font-semibold"
-          >
-            <SelectValue placeholder="Planejamento: Todos" />
-          </SelectTrigger>
-          <SelectContent>
-            {ESCOPO_NAO_PLANEJADO_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <NaoPlanejadoFiltroSelect
+        value={naoPlanejadoFiltro}
+        onValueChange={onNaoPlanejadoFiltroChange}
+        hideLabel
+        className="w-full sm:w-[192px]"
+      />
       <CasoFormProvider value={providerValue}>
         <FormProvider {...form}>
           <div className="w-full sm:w-[292px]">

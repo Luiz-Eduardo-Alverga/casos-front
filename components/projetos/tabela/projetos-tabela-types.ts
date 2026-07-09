@@ -13,6 +13,7 @@ export interface ProjetosTabelaEscopoRow {
   descricao: string;
   categoria: string;
   dias_no_backlog: number;
+  qtd_clientes_vinculados: number;
   relacoes: CasoRelacoes[];
   produto: string;
   produtoId?: string;

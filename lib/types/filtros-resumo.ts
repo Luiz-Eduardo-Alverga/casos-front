@@ -6,13 +6,17 @@ export type CasoFiltroField =
   | "modulo"
   | "categoria"
   | "projeto_id"
+  | "setor"
   | "tipo_abertura"
   | "descricao_resumo"
   | "usuario_abertura_id"
   | "devAtribuido"
   | "qaAtribuido"
+  | "data_abertura_inicio"
+  | "data_abertura_final"
   | "data_producao_inicio"
-  | "data_producao_fim";
+  | "data_producao_fim"
+  | "nao_planejado";
 
 /** Um filtro selecionado pelo usuário para exibição, com seu colSpan na grid de 5 colunas. */
 export interface FiltroResumoItem {
@@ -26,6 +30,7 @@ export const DEFAULT_FILTROS_RESUMO: FiltroResumoItem[] = [
   { field: "versao", colSpan: 1 },
   { field: "status_ids", colSpan: 2 },
   { field: "projeto_id", colSpan: 1 },
+  { field: "setor", colSpan: 1 },
   { field: "modulo", colSpan: 1 },
   { field: "categoria", colSpan: 1 },
   { field: "descricao_resumo", colSpan: 2 },
@@ -33,6 +38,9 @@ export const DEFAULT_FILTROS_RESUMO: FiltroResumoItem[] = [
   { field: "devAtribuido", colSpan: 1 },
   { field: "qaAtribuido", colSpan: 1 },
   { field: "usuario_abertura_id", colSpan: 1 },
+  { field: "data_abertura_inicio", colSpan: 1 },
+  { field: "data_abertura_final", colSpan: 1 },
   { field: "data_producao_inicio", colSpan: 1 },
   { field: "data_producao_fim", colSpan: 1 },
+  { field: "nao_planejado", colSpan: 1 },
 ];

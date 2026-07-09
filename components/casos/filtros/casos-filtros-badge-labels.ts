@@ -1,5 +1,6 @@
 import type { Categoria } from "@/services/auxiliar/categorias";
 import type { Produto } from "@/services/auxiliar/produtos";
+import type { Setor } from "@/services/auxiliar/setores";
 import type { StatusItem } from "@/services/auxiliar/status";
 import type { Usuario } from "@/services/auxiliar/usuarios";
 import type { Versao } from "@/services/auxiliar/versoes";
@@ -9,6 +10,7 @@ import {
   resolveVersaoProdutoForApi,
 } from "@/components/casos/shared/versao-combobox";
 import { formatDateYmdToBr } from "@/components/painel-kanban/horas-analiticas-modal/utils";
+import { NAO_PLANEJADO_FILTRO_OPTIONS } from "@/components/filtros/nao-planejado-filtro";
 
 export const MAX_CASOS_FILTROS_BADGES_VISIVEIS = 7;
 
@@ -17,6 +19,7 @@ export type CasosFiltroBadgeKey =
   | "versao"
   | "status_ids"
   | "projeto_id"
+  | "setor"
   | "modulo"
   | "tipo_categoria"
   | "descricao_resumo"
@@ -24,8 +27,11 @@ export type CasosFiltroBadgeKey =
   | "usuario_abertura_id"
   | "usuario_dev_id"
   | "usuario_qa_id"
+  | "data_abertura_inicio"
+  | "data_abertura_final"
   | "data_producao_inicio"
-  | "data_producao_fim";
+  | "data_producao_fim"
+  | "nao_planejado_filtro";
 
 export interface CasosFiltroBadgeItem {
   key: CasosFiltroBadgeKey;
@@ -37,6 +43,7 @@ export interface CasosFiltrosBadgeCatalogs {
   statusList: StatusItem[];
   categorias: Categoria[];
   usuarios: Usuario[];
+  setores: Setor[];
   versoes?: Versao[];
 }
 
@@ -73,6 +80,11 @@ function resolveStatusLabel(ids: string[], statusList: StatusItem[]): string {
   return labels.join(", ");
 }
 
+function resolveSetorLabel(id: string, setores: Setor[]): string {
+  const s = setores.find((x) => String(x.id) === id);
+  return s?.nome?.trim() || id;
+}
+
 function resolveUsuarioLabel(id: string, usuarios: Usuario[]): string {
   const u = usuarios.find((x) => x.id === id);
   return u?.nome_suporte?.trim() || id;
@@ -100,6 +112,8 @@ export function removeFilterFromAplicados(
       return { ...filtros, status_ids: [] };
     case "projeto_id":
       return { ...filtros, projeto_id: "" };
+    case "setor":
+      return { ...filtros, setor: "" };
     case "modulo":
       return { ...filtros, modulo: "" };
     case "tipo_categoria":
@@ -114,10 +128,16 @@ export function removeFilterFromAplicados(
       return { ...filtros, usuario_dev_id: "" };
     case "usuario_qa_id":
       return { ...filtros, usuario_qa_id: "" };
+    case "data_abertura_inicio":
+      return { ...filtros, data_abertura_inicio: "" };
+    case "data_abertura_final":
+      return { ...filtros, data_abertura_final: "" };
     case "data_producao_inicio":
       return { ...filtros, data_producao_inicio: "" };
     case "data_producao_fim":
       return { ...filtros, data_producao_fim: "" };
+    case "nao_planejado_filtro":
+      return { ...filtros, nao_planejado_filtro: "todos" };
     default:
       return filtros;
   }
@@ -154,6 +174,13 @@ export function buildCasosFiltrosBadgeItems(
     items.push({
       key: "projeto_id",
       label: `Projeto: ${filtros.projeto_id.trim()}`,
+    });
+  }
+
+  if (filtros.setor?.trim()) {
+    items.push({
+      key: "setor",
+      label: `Setor: ${resolveSetorLabel(filtros.setor.trim(), catalogs.setores)}`,
     });
   }
 
@@ -208,6 +235,20 @@ export function buildCasosFiltrosBadgeItems(
     });
   }
 
+  if (filtros.data_abertura_inicio?.trim()) {
+    items.push({
+      key: "data_abertura_inicio",
+      label: `Abertura (início): ${formatDateYmdToBr(filtros.data_abertura_inicio)}`,
+    });
+  }
+
+  if (filtros.data_abertura_final?.trim()) {
+    items.push({
+      key: "data_abertura_final",
+      label: `Abertura (fim): ${formatDateYmdToBr(filtros.data_abertura_final)}`,
+    });
+  }
+
   if (filtros.data_producao_inicio?.trim()) {
     items.push({
       key: "data_producao_inicio",
@@ -219,6 +260,16 @@ export function buildCasosFiltrosBadgeItems(
     items.push({
       key: "data_producao_fim",
       label: `Produção (fim): ${formatDateYmdToBr(filtros.data_producao_fim)}`,
+    });
+  }
+
+  if (filtros.nao_planejado_filtro !== "todos") {
+    const option = NAO_PLANEJADO_FILTRO_OPTIONS.find(
+      (opt) => opt.value === filtros.nao_planejado_filtro,
+    );
+    items.push({
+      key: "nao_planejado_filtro",
+      label: `Planejamento: ${option?.label ?? filtros.nao_planejado_filtro}`,
     });
   }
 

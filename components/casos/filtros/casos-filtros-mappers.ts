@@ -1,5 +1,9 @@
 import type { Categoria } from "@/services/auxiliar/categorias";
+import type { Setor } from "@/services/auxiliar/setores";
 import type { Versao } from "@/services/auxiliar/versoes";
+import { resolveSetorNome } from "@/components/reports/filtros/reports-filtros-mappers";
+import { naoPlanejadoFiltroToApiParam } from "@/components/filtros/nao-planejado-filtro";
+import type { NaoPlanejadoFiltro } from "@/components/filtros/nao-planejado-filtro";
 import {
   isSequenciaNoCatalogo,
   resolveVersaoProdutoForApi,
@@ -61,12 +65,25 @@ export function parseSearchParamsToFiltros(
     descricao_resumo: params.get("descricao_resumo") || "",
     status_ids: resolveStatusIds(params),
     projeto_id: params.get("projeto_id") || "",
+    setor: params.get("setor") || "",
     usuario_abertura_id: params.get("usuario_abertura_id") || "",
     usuario_dev_id: params.get("usuario_dev_id") || "",
     usuario_qa_id: params.get("usuario_qa_id") || "",
+    data_abertura_inicio: params.get("data_abertura_inicio") || "",
+    data_abertura_final: params.get("data_abertura_final") || "",
     data_producao_inicio: params.get("data_producao_inicio") || "",
     data_producao_fim: params.get("data_producao_fim") || "",
+    nao_planejado_filtro: parseNaoPlanejadoFiltroParam(
+      params.get("nao_planejado_filtro"),
+    ),
   };
+}
+
+function parseNaoPlanejadoFiltroParam(
+  value: string | null,
+): NaoPlanejadoFiltro {
+  if (value === "planejado" || value === "nao_planejado") return value;
+  return "todos";
 }
 
 export function nuqsStateToFiltrosAplicados(
@@ -91,11 +108,15 @@ export function nuqsStateToFiltrosAplicados(
     descricao_resumo: state.descricao_resumo ?? "",
     status_ids,
     projeto_id: state.projeto_id ?? "",
+    setor: state.setor ?? "",
     usuario_abertura_id: state.usuario_abertura_id ?? "",
     usuario_dev_id: state.usuario_dev_id ?? "",
     usuario_qa_id: state.usuario_qa_id ?? "",
+    data_abertura_inicio: state.data_abertura_inicio ?? "",
+    data_abertura_final: state.data_abertura_final ?? "",
     data_producao_inicio: state.data_producao_inicio ?? "",
     data_producao_fim: state.data_producao_fim ?? "",
+    nao_planejado_filtro: state.nao_planejado_filtro ?? "todos",
   };
 }
 
@@ -129,11 +150,18 @@ export function filtrosAplicadosToNuqsState(
     tipo_abertura: filtros.tipo_abertura.trim() || null,
     descricao_resumo: filtros.descricao_resumo.trim() || null,
     projeto_id: filtros.projeto_id.trim() || null,
+    setor: filtros.setor.trim() || null,
     usuario_abertura_id: filtros.usuario_abertura_id.trim() || null,
     usuario_dev_id: filtros.usuario_dev_id.trim() || null,
     usuario_qa_id: filtros.usuario_qa_id.trim() || null,
+    data_abertura_inicio: filtros.data_abertura_inicio.trim() || null,
+    data_abertura_final: filtros.data_abertura_final.trim() || null,
     data_producao_inicio: filtros.data_producao_inicio.trim() || null,
     data_producao_fim: filtros.data_producao_fim.trim() || null,
+    nao_planejado_filtro:
+      filtros.nao_planejado_filtro !== "todos"
+        ? filtros.nao_planejado_filtro
+        : null,
     status_id:
       filtros.status_ids.length > 0
         ? filtros.status_ids.slice(0, MAX_STATUS_IDS_FILTRO_CASOS)
@@ -194,11 +222,15 @@ export function formToFiltrosAplicados(
       .filter(Boolean)
       .slice(0, MAX_STATUS_IDS_FILTRO_CASOS),
     projeto_id: values.projeto_id?.trim() ?? "",
+    setor: values.setor?.trim() ?? "",
     usuario_abertura_id: values.usuario_abertura_id?.trim() ?? "",
     usuario_dev_id: values.devAtribuido?.trim() ?? "",
     usuario_qa_id: values.qaAtribuido?.trim() ?? "",
+    data_abertura_inicio: dateToYmd(values.data_abertura_inicio) ?? "",
+    data_abertura_final: dateToYmd(values.data_abertura_final) ?? "",
     data_producao_inicio: dateToYmd(values.data_producao_inicio) ?? "",
     data_producao_fim: dateToYmd(values.data_producao_fim) ?? "",
+    nao_planejado_filtro: values.nao_planejado_filtro ?? "todos",
   };
 }
 
@@ -223,12 +255,16 @@ export function filtrosToFormDefaults(
         : "",
     descricao_resumo: filtros.descricao_resumo,
     projeto_id: filtros.projeto_id,
+    setor: filtros.setor,
     status_ids: [...filtros.status_ids].slice(0, MAX_STATUS_IDS_FILTRO_CASOS),
     usuario_abertura_id: filtros.usuario_abertura_id,
     devAtribuido: filtros.usuario_dev_id,
     qaAtribuido: filtros.usuario_qa_id,
+    data_abertura_inicio: parseYmdToDate(filtros.data_abertura_inicio),
+    data_abertura_final: parseYmdToDate(filtros.data_abertura_final),
     data_producao_inicio: parseYmdToDate(filtros.data_producao_inicio),
     data_producao_fim: parseYmdToDate(filtros.data_producao_fim),
+    nao_planejado_filtro: filtros.nao_planejado_filtro ?? "todos",
   };
 }
 
@@ -243,10 +279,14 @@ export function hasFiltersApplied(filtros: CasosFiltrosAplicados): boolean {
     !!filtros.tipo_abertura?.trim() ||
     !!filtros.descricao_resumo?.trim() ||
     !!filtros.projeto_id?.trim() ||
+    !!filtros.setor?.trim() ||
     !!filtros.usuario_dev_id?.trim() ||
     !!filtros.usuario_qa_id?.trim() ||
+    !!filtros.data_abertura_inicio?.trim() ||
+    !!filtros.data_abertura_final?.trim() ||
     !!filtros.data_producao_inicio?.trim() ||
-    !!filtros.data_producao_fim?.trim()
+    !!filtros.data_producao_fim?.trim() ||
+    filtros.nao_planejado_filtro !== "todos"
   );
 }
 
@@ -283,8 +323,11 @@ export function needsVersaoCatalogToResolve(
 export function filtrosToProjetoMemoriaParams(
   filtros: CasosFiltrosAplicados,
   versoes?: Versao[] | null,
+  setores?: Setor[] | null,
 ): ProjetoMemoriaQueryParams {
   const versaoProduto = parseVersaoProduto(filtros.versao, versoes);
+  const setorNome = resolveSetorNome(filtros.setor, setores ?? undefined);
+  const naoPlanejado = naoPlanejadoFiltroToApiParam(filtros.nao_planejado_filtro);
 
   return {
     per_page: 15,
@@ -310,6 +353,7 @@ export function filtrosToProjetoMemoriaParams(
     ...(filtros.projeto_id?.trim()
       ? { projeto_id: filtros.projeto_id.trim() }
       : {}),
+    ...(setorNome ? { setor: setorNome } : {}),
     ...(filtros.usuario_abertura_id?.trim()
       ? { usuario_abertura_id: filtros.usuario_abertura_id.trim() }
       : {}),
@@ -319,12 +363,19 @@ export function filtrosToProjetoMemoriaParams(
     ...(filtros.usuario_qa_id?.trim()
       ? { usuario_qa_id: filtros.usuario_qa_id.trim() }
       : {}),
+    ...(filtros.data_abertura_inicio?.trim()
+      ? { data_abertura_inicio: filtros.data_abertura_inicio.trim() }
+      : {}),
+    ...(filtros.data_abertura_final?.trim()
+      ? { data_abertura_final: filtros.data_abertura_final.trim() }
+      : {}),
     ...(filtros.data_producao_inicio?.trim()
       ? { data_producao_inicio: filtros.data_producao_inicio.trim() }
       : {}),
     ...(filtros.data_producao_fim?.trim()
       ? { data_producao_fim: filtros.data_producao_fim.trim() }
       : {}),
+    ...(naoPlanejado !== undefined ? { nao_planejado: naoPlanejado } : {}),
   };
 }
 
@@ -334,10 +385,14 @@ export function clearSheetFields(
   return {
     ...filtros,
     projeto_id: "",
+    setor: "",
     usuario_dev_id: "",
     usuario_qa_id: "",
+    data_abertura_inicio: "",
+    data_abertura_final: "",
     data_producao_inicio: "",
     data_producao_fim: "",
+    nao_planejado_filtro: "todos",
     tipo_abertura: "",
   };
 }

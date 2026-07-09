@@ -37,6 +37,10 @@ export function UserAvatarDropzone({
     onAddFiles(dropped);
   };
 
+  const openFilePicker = () => {
+    if (canInteract) inputRef.current?.click();
+  };
+
   return (
     <>
       <input
@@ -54,7 +58,7 @@ export function UserAvatarDropzone({
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            if (canInteract) inputRef.current?.click();
+            if (canInteract) openFilePicker();
           }
         }}
         onDragOver={(e) => {
@@ -63,27 +67,21 @@ export function UserAvatarDropzone({
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
+        onClick={openFilePicker}
         className={cn(
           "flex w-full flex-col items-center justify-center rounded-xl border border-dashed px-6 py-8 text-center transition-colors",
           dragOver
             ? "border-primary bg-primary/5"
             : "border-border bg-muted/20 hover:bg-muted/30",
+          canInteract && "cursor-pointer",
           !canInteract && "pointer-events-none opacity-50",
         )}
       >
         <CloudUpload className="mb-3 h-8 w-8 text-muted-foreground" />
         <p className="text-sm text-muted-foreground">
-          <button
-            type="button"
-            className="font-semibold text-primary hover:underline"
-            disabled={!canInteract}
-            onClick={(e) => {
-              e.stopPropagation();
-              inputRef.current?.click();
-            }}
-          >
+          <span className="font-semibold text-text-primary">
             Clique para enviar
-          </button>{" "}
+          </span>{" "}
           ou arraste a imagem
         </p>
       </div>

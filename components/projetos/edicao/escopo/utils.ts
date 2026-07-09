@@ -1,4 +1,9 @@
 import type { ProjetoMemoriaQueryParams } from "@/hooks/casos/use-projeto-memoria";
+import {
+  naoPlanejadoFiltroToApiParam,
+  type NaoPlanejadoFiltro,
+  NAO_PLANEJADO_FILTRO_OPTIONS,
+} from "@/components/filtros/nao-planejado-filtro";
 
 export {
   isDuplicado,
@@ -7,21 +12,11 @@ export {
   mapProjetoMemoriaToTabelaRow,
 } from "@/components/projetos/tabela/map-projeto-memoria-to-escopo-row";
 
-export type EscopoNaoPlanejadoFiltro = "todos" | "planejado" | "nao_planejado";
+export type EscopoNaoPlanejadoFiltro = NaoPlanejadoFiltro;
 
-export const ESCOPO_NAO_PLANEJADO_OPTIONS = [
-  { value: "todos" as const, label: "Todos" },
-  { value: "planejado" as const, label: "Planejado" },
-  { value: "nao_planejado" as const, label: "Não planejados" },
-] as const;
+export const ESCOPO_NAO_PLANEJADO_OPTIONS = NAO_PLANEJADO_FILTRO_OPTIONS;
 
-export function naoPlanejadoFiltroToApiParam(
-  filtro: EscopoNaoPlanejadoFiltro,
-): boolean | undefined {
-  if (filtro === "todos") return undefined;
-  if (filtro === "planejado") return false;
-  return true;
-}
+export { naoPlanejadoFiltroToApiParam };
 
 export function buildEscopoMemoriaParams(
   projetoId: number | string,
