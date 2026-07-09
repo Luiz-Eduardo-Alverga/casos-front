@@ -13,8 +13,11 @@ import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import { useProjetoMemoriaById } from "@/hooks/casos/use-projeto-memoria-by-id";
+import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
 import { CasoResumoModalContent } from "@/components/caso-resumo-modal/caso-resumo-modal-content";
 import {
+  CASE_ID_MAX_LENGTH,
+  CASE_SEARCH_DEBOUNCE_MS,
   formatCaseSearchValue,
   isCaseSearchReady,
 } from "@/components/caso-resumo-modal/utils";
@@ -42,10 +45,29 @@ export function CasoResumoModal({
 }: CasoResumoModalProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [searchValue, setSearchValue] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [committedSearchId, setCommittedSearchId] = useState<string | null>(
+    null,
+  );
+  const debouncedSearch = useDebouncedValue(
+    searchInput,
+    CASE_SEARCH_DEBOUNCE_MS,
+  );
 
-  const readySearch = isCaseSearchReady(searchValue);
-  const searchId = readySearch ? searchValue : null;
+  useEffect(() => {
+    if (debouncedSearch !== searchInput) return;
+
+    if (isCaseSearchReady(debouncedSearch)) {
+      setCommittedSearchId(debouncedSearch);
+    } else {
+      setCommittedSearchId(null);
+    }
+  }, [debouncedSearch, searchInput]);
+
+  const isSearchPending =
+    variant === "pesquisa" &&
+    isCaseSearchReady(searchInput) &&
+    searchInput !== committedSearchId;
 
   const kanbanShouldFetch =
     variant === "kanban" && open && Boolean(initialCaseId);
@@ -53,34 +75,45 @@ export function CasoResumoModal({
     enabled: kanbanShouldFetch,
   });
 
-  const searchQuery = useProjetoMemoriaById(searchId, {
-    enabled: variant === "pesquisa" && open && readySearch,
+  const searchQuery = useProjetoMemoriaById(committedSearchId, {
+    enabled: variant === "pesquisa" && open && Boolean(committedSearchId),
   });
 
   const loadedItem = useMemo(() => {
     if (variant === "kanban") {
       return kanbanQuery.data?.data ?? itemProp ?? null;
     }
+    if (!committedSearchId || searchInput !== committedSearchId) return null;
     return searchQuery.data?.data ?? null;
-  }, [variant, itemProp, searchQuery.data, kanbanQuery.data]);
+  }, [
+    variant,
+    itemProp,
+    searchQuery.data,
+    kanbanQuery.data,
+    committedSearchId,
+    searchInput,
+  ]);
 
   const isLoading =
     variant === "kanban"
       ? Boolean(initialCaseId) && kanbanQuery.isLoading
-      : readySearch && searchQuery.isLoading;
+      : isSearchPending ||
+        (Boolean(committedSearchId) && searchQuery.isLoading);
 
   const isError =
     variant === "kanban"
       ? Boolean(initialCaseId) && kanbanQuery.isError
-      : readySearch && searchQuery.isError;
+      : Boolean(committedSearchId) &&
+        !isSearchPending &&
+        searchQuery.isError;
   const queryError =
     variant === "kanban" ? kanbanQuery.error : searchQuery.error;
 
   const memoriaQueryId = useMemo(() => {
-    if (variant === "pesquisa") return searchId ?? "";
+    if (variant === "pesquisa") return committedSearchId ?? "";
     const fromProp = initialCaseId ?? loadedItem?.caso?.id ?? "";
     return String(fromProp);
-  }, [variant, searchId, initialCaseId, loadedItem]);
+  }, [variant, committedSearchId, initialCaseId, loadedItem]);
 
   const statusForm = useForm<{ status?: string }>({
     resolver: zodResolver(statusFormSchema),
@@ -93,7 +126,8 @@ export function CasoResumoModal({
 
   useEffect(() => {
     if (!open || variant !== "pesquisa") return;
-    setSearchValue("");
+    setSearchInput("");
+    setCommittedSearchId(null);
   }, [open, variant]);
 
   const invalidate = () => {
@@ -105,6 +139,34 @@ export function CasoResumoModal({
     queryClient.invalidateQueries({ queryKey: ["projeto-memoria"] });
     queryClient.invalidateQueries({ queryKey: ["agenda-dev"] });
   };
+
+  const handleVerCasoCompleto = useCallback(() => {
+    const id = loadedItem?.caso?.id;
+    if (!id) return;
+    onOpenChange(false);
+    router.push(`/casos/${id}`);
+  }, [loadedItem?.caso?.id, onOpenChange, router]);
+
+  const handleSearchInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== "Enter") return;
+      if (!isCaseSearchReady(searchInput)) return;
+
+      e.preventDefault();
+
+      if (
+        loadedItem &&
+        searchInput === String(loadedItem.caso?.id) &&
+        !isLoading
+      ) {
+        handleVerCasoCompleto();
+        return;
+      }
+
+      setCommittedSearchId(searchInput);
+    },
+    [searchInput, loadedItem, isLoading, handleVerCasoCompleto],
+  );
 
   const handleRedirecionarParaAbaProducao = useCallback(() => {
     const id = loadedItem?.caso?.id ?? memoriaQueryId;
@@ -168,44 +230,45 @@ export function CasoResumoModal({
                   variant={variant}
                   item={loadedItem}
                   memoriaQueryId={memoriaQueryId}
-                  showEmptyForSearch={variant === "pesquisa" && !readySearch}
+                  showEmptyForSearch={
+                    variant === "pesquisa" &&
+                    !isCaseSearchReady(searchInput) &&
+                    !isSearchPending &&
+                    !isLoading
+                  }
                   isLoading={isLoading}
                   isError={isError}
                   error={queryError}
                   searchedCaseId={
                     variant === "pesquisa"
-                      ? searchId
+                      ? committedSearchId
                       : String(initialCaseId ?? "")
                   }
                   searchHeader={
                     variant === "pesquisa" ? (
                       <div className="px-6 pt-8 pb-4 shrink-0 bg-card">
                         <Input
-                          value={searchValue}
+                          value={searchInput}
                           onChange={(e) =>
-                            setSearchValue(
+                            setSearchInput(
                               formatCaseSearchValue(e.target.value),
                             )
                           }
-                          maxLength={5}
+                          onKeyDown={handleSearchInputKeyDown}
+                          maxLength={CASE_ID_MAX_LENGTH}
                           inputMode="numeric"
-                          placeholder="Digite o número do caso (5 dígitos)"
+                          placeholder="Digite o número do caso (mín. 5 dígitos)"
                         />
                       </div>
                     ) : null
                   }
                   resultBannerText={
-                    variant === "pesquisa" && loadedItem
-                      ? `1 caso encontrado para o valor ${searchValue}`
+                    variant === "pesquisa" && loadedItem && committedSearchId
+                      ? `1 caso encontrado para o valor ${committedSearchId}`
                       : undefined
                   }
                   onStatusUpdated={invalidate}
-                  onVerCasoCompleto={() => {
-                    const id = loadedItem?.caso?.id;
-                    if (!id) return;
-                    onOpenChange(false);
-                    router.push(`/casos/${id}`);
-                  }}
+                  onVerCasoCompleto={handleVerCasoCompleto}
                   showProducaoButton={showProducaoButton}
                   onAcaoProducao={showIniciar ? handleIniciar : handleParar}
                   producaoMode={showIniciar ? "iniciar" : "parar"}

@@ -167,16 +167,13 @@ export function ProjetosTabelaRowEscopo({
           </div>
         </div>
       </TableCell>
-      <TableCell
-        key="estimativas"
-        className="w-[88px] py-3 px-5 text-center align-top"
-      >
+      <TableCell key="estimativas" className="w-[88px] py-3 px-2 align-top">
         <SortableFieldContextMenu
           sortField="tempo_estimado"
           sort={sort}
           onSortChange={onSortChange}
         >
-          <div className="flex items-center flex-col gap-0.5 text-xs font-normal text-text-secondary">
+          <div className="flex flex-col gap-0.5 text-xs font-normal text-text-secondary">
             <span>E: {formatMinutesToHHMM(row.estimado_minutos)}</span>
             <span>R: {formatMinutesToHHMM(row.realizado_minutos)}</span>
           </div>
@@ -187,7 +184,7 @@ export function ProjetosTabelaRowEscopo({
           {row.desenvolvedor?.trim() ? row.desenvolvedor : "—"}
         </span>
       </TableCell>
-      <TableCell key="status" className="min-w-[185px] py-3 px-5 align-top">
+      <TableCell key="status" className="w-[123px] py-3 px-2 align-top">
         <SortableFieldContextMenu
           sortField="data_conclusao_dev"
           sort={sort}

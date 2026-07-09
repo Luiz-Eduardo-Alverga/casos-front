@@ -72,7 +72,7 @@ function ProjetosTabelaTableEscopo({
       sortField="tempo_estimado"
       sort={sort}
       onSortChange={onSortChange}
-      className="w-[88px] text-center"
+      className="w-[88px]"
     />,
     <TableHead
       key="desenvolvedor"

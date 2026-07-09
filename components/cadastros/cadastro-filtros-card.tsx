@@ -30,7 +30,9 @@ export function CadastroFiltrosCard({
   statusSelect,
 }: CadastroFiltrosCardProps) {
   return (
-    <Card className={`bg-card shadow-card rounded-lg shrink-0 ${LISTAGEM_CARD_STACK_GAP}`}>
+    <Card
+      className={`bg-card shadow-card rounded-lg shrink-0 ${LISTAGEM_CARD_STACK_GAP}`}
+    >
       <CardHeader className="flex flex-row justify-between px-5 py-2 border-b border-border-divider">
         <div className="flex items-center gap-2">
           <Filter className="h-3.5 w-3.5 text-text-primary" />
@@ -48,7 +50,7 @@ export function CadastroFiltrosCard({
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
               <Input
-                className="pl-9 h-[42px] rounded-lg border-border-input"
+                className="pl-9 h-9 rounded-lg border-border-input"
                 placeholder={placeholder}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}

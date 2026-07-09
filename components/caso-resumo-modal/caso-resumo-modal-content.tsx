@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Eye, Info, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,6 +58,20 @@ export function CasoResumoModalContent({
   hasAnotations,
   onBeforeNavigate404,
 }: CasoResumoModalContentProps) {
+  useEffect(() => {
+    if (variant !== "pesquisa" || !item || isLoading || isError) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      if (e.target instanceof HTMLInputElement) return;
+      e.preventDefault();
+      onVerCasoCompleto();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [variant, item, isLoading, isError, onVerCasoCompleto]);
+
   if (showEmptyForSearch) {
     return (
       <div className="flex flex-col">
@@ -65,7 +80,7 @@ export function CasoResumoModalContent({
           <EmptyState
             imageSrc="/images/empty-state-casos-produto.svg"
             title="Pesquise um caso"
-            description="Digite o código do caso com 5 dígitos para carregar a visualização resumida."
+            description="Digite o número do caso (mínimo 5 dígitos) para carregar a visualização resumida."
           />
         </div>
       </div>
