@@ -88,5 +88,69 @@ export function buildCasoAbertoPlayerViewModel(
     progressPercent: getProgressPercent(caso?.tempos),
     realizadoMinutos: Number(caso?.tempos?.realizado_minutos ?? 0),
     estimadoMinutos: Number(caso?.tempos?.estimado_minutos ?? 0),
+    descricaoResumo: caso?.textos?.descricao_resumo?.trim() ?? "",
+    descricaoCompleta: caso?.textos?.descricao_completa?.trim() ?? "",
+    anexo: caso?.textos?.anexo?.trim() ?? "",
+    usuarioAbertura: caso?.usuarios?.abertura?.nome?.trim() ?? "",
+    relator: caso?.usuarios?.relator?.nome?.trim() ?? "",
   };
+}
+
+export function formatCasoCommitCopy(
+  viewModel: CasoAbertoPlayerViewModel,
+): string {
+  return `${viewModel.casoId} - ${viewModel.descricaoResumo}`;
+}
+
+export function formatCasoTextoCompletoCopy(
+  viewModel: CasoAbertoPlayerViewModel,
+): string {
+  return [
+    `Produto: ${viewModel.produtoNome} - ${viewModel.produtoVersao}`,
+    `ID: ${viewModel.casoId}`,
+    `Usuário de Abertura: ${viewModel.usuarioAbertura}`,
+    `Relator: ${viewModel.relator}`,
+    "",
+    viewModel.descricaoResumo,
+    "",
+    viewModel.descricaoCompleta,
+    "",
+    viewModel.anexo,
+  ].join("\n");
+}
+
+/** Copia texto no contexto da janela informada (útil para Document PiP). */
+export async function copyTextToClipboard(
+  text: string,
+  targetWindow: Window = window,
+): Promise<void> {
+  const clipboard = targetWindow.navigator?.clipboard;
+  if (clipboard?.writeText) {
+    try {
+      await clipboard.writeText(text);
+      return;
+    } catch {
+      // Fallback abaixo (comum em Document Picture-in-Picture).
+    }
+  }
+
+  const doc = targetWindow.document;
+  const textarea = doc.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "0";
+  textarea.style.left = "0";
+  textarea.style.opacity = "0";
+  doc.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+
+  const copied = doc.execCommand("copy");
+  textarea.remove();
+
+  if (!copied) {
+    throw new Error("Não foi possível copiar o texto.");
+  }
 }

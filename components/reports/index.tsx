@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FilterX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
@@ -17,33 +17,16 @@ import { useReportsFiltros } from "@/hooks/reports/use-reports-filtros";
 import { useReportsData } from "@/hooks/reports/use-reports-data";
 import { useReportsAcoesModais } from "@/hooks/reports/use-reports-acoes-modais";
 import { mapProjetoMemoriaToReportCard } from "./utils";
-import type { ReportsViewMode } from "./types";
-import {
-  readReportsViewMode,
-  writeReportsViewMode,
-} from "@/lib/reports-view-mode-storage";
+import { cn } from "@/lib/utils";
 import { buildCasoEditHref } from "@/lib/caso-edit-layout";
 import { useRouter } from "next/navigation";
 
 export function Reports() {
   const router = useRouter();
-  const { filtrosAplicados, aplicarFiltros, limparFiltros } =
+  const { filtrosAplicados, aplicarFiltros, limparFiltros, viewMode, setViewMode } =
     useReportsFiltros();
 
-  const [viewMode, setViewMode] = useState<ReportsViewMode>("cards");
-  const [viewModeReady, setViewModeReady] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-
-  useEffect(() => {
-    const stored = readReportsViewMode();
-    if (stored) setViewMode(stored);
-    setViewModeReady(true);
-  }, []);
-
-  const handleViewModeChange = useCallback((mode: ReportsViewMode) => {
-    setViewMode(mode);
-    writeReportsViewMode(mode);
-  }, []);
 
   const {
     itens,
@@ -82,7 +65,7 @@ export function Reports() {
   }, [itens, selectedId]);
 
   useEffect(() => {
-    if (!viewModeReady || viewMode !== "split") return;
+    if (viewMode !== "split") return;
     if (itens.length === 0) {
       setSelectedId(null);
       return;
@@ -92,14 +75,13 @@ export function Reports() {
     if (!stillExists) {
       setSelectedId(itens[0].caso.id);
     }
-  }, [itens, selectedId, viewMode, viewModeReady]);
+  }, [itens, selectedId, viewMode]);
 
-  const cardsScrollRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      setScrollRoot(node);
-    },
-    [setScrollRoot],
-  );
+  useEffect(() => {
+    if (viewMode === "cards") {
+      setScrollRoot(null);
+    }
+  }, [viewMode, setScrollRoot]);
 
   const isSplit = viewMode === "split";
 
@@ -107,7 +89,7 @@ export function Reports() {
     <ListagemPageLayout
       title="Reports"
       subtitle="Visualize e analise os reports abertos"
-      className="lg:min-h-0 lg:overflow-hidden lg:flex-1"
+      className={cn(isSplit && "lg:min-h-0 lg:overflow-hidden lg:flex-1")}
       actions={
         <Button
           variant="outline"
@@ -126,10 +108,7 @@ export function Reports() {
       />
 
       <div className="mb-3 flex items-center justify-between gap-4 shrink-0">
-        <ReportsViewToggle
-          viewMode={viewMode}
-          onChange={handleViewModeChange}
-        />
+        <ReportsViewToggle viewMode={viewMode} onChange={setViewMode} />
         <ReportsTotalizador
           className="min-w-0"
           exibindo={itens.length}
@@ -180,10 +159,7 @@ export function Reports() {
           </div>
         </div>
       ) : (
-        <div
-          ref={cardsScrollRef}
-          className="flex flex-col lg:flex-1 lg:min-h-0 lg:overflow-y-auto"
-        >
+        <div className="flex flex-col">
           <ReportsLista
             itens={itens}
             isLoading={isLoading}

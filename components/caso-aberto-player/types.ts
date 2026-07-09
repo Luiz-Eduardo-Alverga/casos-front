@@ -1,3 +1,9 @@
+export type DocumentPictureInPictureWindow = Window & {
+  document: Document;
+};
+
+export type CasoAbertoPipLayout = "collapsed" | "expanded";
+
 export interface CasoAbertoPlayerViewModel {
   casoId: number;
   titulo: string;
@@ -13,6 +19,11 @@ export interface CasoAbertoPlayerViewModel {
   progressPercent: number;
   realizadoMinutos: number;
   estimadoMinutos: number;
+  descricaoResumo: string;
+  descricaoCompleta: string;
+  anexo: string;
+  usuarioAbertura: string;
+  relator: string;
 }
 
 export interface CasoAbertoMiniPlayerCollapsedProps {
@@ -26,6 +37,11 @@ export interface CasoAbertoMiniPlayerExpandedProps {
   onVerCaso: () => void;
   onFinalizarCaso: () => void;
   onParar: () => void;
+  onCopiarCommit: () => void;
+  onCopiarTextoCompleto: () => void;
+  onAbrirPip: () => void;
   isParando: boolean;
   isFinalizando: boolean;
+  isPipOpen: boolean;
+  isPipSupported: boolean;
 }

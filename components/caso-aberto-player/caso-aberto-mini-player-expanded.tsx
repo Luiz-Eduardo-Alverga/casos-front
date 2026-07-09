@@ -6,10 +6,20 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Copy,
   Eye,
+  FileText,
   GripVertical,
+  MoreHorizontal,
+  PictureInPicture2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   useMiniPlayerDragHandle,
   useMiniPlayerExpandDirection,
@@ -56,8 +66,13 @@ export function CasoAbertoMiniPlayerExpanded({
   onVerCaso,
   onFinalizarCaso,
   onParar,
+  onCopiarCommit,
+  onCopiarTextoCompleto,
+  onAbrirPip,
   isParando,
   isFinalizando,
+  isPipOpen,
+  isPipSupported,
 }: CasoAbertoMiniPlayerExpandedProps) {
   const reduceMotion = useReducedMotion();
   const startDrag = useMiniPlayerDragHandle();
@@ -97,15 +112,58 @@ export function CasoAbertoMiniPlayerExpanded({
             </span>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onCollapse}
-          onPointerDown={(event) => event.stopPropagation()}
-          className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          aria-label="Minimizar player"
-        >
-          <CollapseChevron className="size-4" strokeWidth={2.5} aria-hidden />
-        </button>
+        <div className="flex shrink-0 items-center gap-0.5">
+          {isPipSupported ? (
+            <button
+              type="button"
+              onClick={onAbrirPip}
+              onPointerDown={(event) => event.stopPropagation()}
+              className={cn(
+                "flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                isPipOpen && "bg-muted text-foreground",
+              )}
+              aria-label={
+                isPipOpen
+                  ? "Picture-in-Picture já está aberto"
+                  : "Abrir Picture-in-Picture"
+              }
+              title="Abrir Picture-in-Picture"
+            >
+              <PictureInPicture2 className="size-4" aria-hidden />
+            </button>
+          ) : null}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                onPointerDown={(event) => event.stopPropagation()}
+                className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Mais ações"
+              >
+                <MoreHorizontal className="size-4" aria-hidden />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="z-[70] w-56">
+              <DropdownMenuItem onClick={onCopiarCommit}>
+                <Copy className="mr-2 size-4" aria-hidden />
+                Copiar formato commit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onCopiarTextoCompleto}>
+                <FileText className="mr-2 size-4" aria-hidden />
+                Copiar todo o texto
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <button
+            type="button"
+            onClick={onCollapse}
+            onPointerDown={(event) => event.stopPropagation()}
+            className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label="Minimizar player"
+          >
+            <CollapseChevron className="size-4" strokeWidth={2.5} aria-hidden />
+          </button>
+        </div>
       </div>
 
       <div className="space-y-4 px-4 py-4">

@@ -9,9 +9,13 @@ import {
   nuqsStateToFiltrosAplicados,
   resolveSetorIdByNome,
 } from "@/components/reports/filtros/reports-filtros-mappers";
-import type { ReportsFiltrosAplicados } from "@/components/reports/types";
+import type {
+  ReportsFiltrosAplicados,
+  ReportsViewMode,
+} from "@/components/reports/types";
 import { useSetores } from "@/hooks/catalogos/use-setores";
 import { getUser } from "@/lib/auth";
+import { readReportsViewMode, writeReportsViewMode } from "@/lib/reports-view-mode-storage";
 
 export function useReportsFiltros() {
   const { data: setores, isSuccess: setoresReady } = useSetores();
@@ -42,6 +46,25 @@ export function useReportsFiltros() {
     void setNuqsState({ setor: setorId });
   }, [nuqsState.setor, setores, setoresReady, setNuqsState]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("view")) return;
+
+    const stored = readReportsViewMode();
+    if (!stored || stored === "cards") return;
+
+    void setNuqsState({ view: stored });
+  }, [setNuqsState]);
+
+  const setViewMode = useCallback(
+    (mode: ReportsViewMode) => {
+      writeReportsViewMode(mode);
+      void setNuqsState({ view: mode });
+    },
+    [setNuqsState],
+  );
+
   const aplicarFiltros = useCallback(
     (filtros: ReportsFiltrosAplicados) => {
       void setNuqsState(filtrosAplicadosToNuqsState(filtros));
@@ -64,5 +87,7 @@ export function useReportsFiltros() {
     filtrosAplicados,
     aplicarFiltros,
     limparFiltros,
+    viewMode: nuqsState.view,
+    setViewMode,
   };
 }

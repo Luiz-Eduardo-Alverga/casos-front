@@ -6,8 +6,9 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { Header } from "@/components/header";
 import { CasoAbertoMiniPlayer } from "@/components/caso-aberto-player";
 import { useSidebar } from "@/components/sidebar/sidebar-provider";
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { REPORTS_VIEW_QUERY_KEY } from "@/components/reports/filtros/reports-filtros-parsers";
 
 // Rotas que devem ter scroll interno (overflow-hidden)
 // A maioria das telas terá scroll do navegador
@@ -15,7 +16,6 @@ const ROUTES_WITH_INTERNAL_SCROLL = [
   "/avisos",
   "/painel",
   "/cadastros/adquirentes/status",
-  "/reports",
   "",
 ];
 
@@ -23,9 +23,12 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // Verificar se a rota atual deve ter scroll interno
-  const hasInternalScroll = ROUTES_WITH_INTERNAL_SCROLL.includes(pathname);
+  const hasInternalScroll =
+    ROUTES_WITH_INTERNAL_SCROLL.includes(pathname) ||
+    (pathname === "/reports" && searchParams.get(REPORTS_VIEW_QUERY_KEY) === "split");
 
   useEffect(() => {
     const checkMobile = () => {
@@ -86,7 +89,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
       <SidebarProvider>
-        <AppLayoutContent>{children}</AppLayoutContent>
+        <Suspense fallback={null}>
+          <AppLayoutContent>{children}</AppLayoutContent>
+        </Suspense>
       </SidebarProvider>
     </ProtectedRoute>
   );
