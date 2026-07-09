@@ -16,6 +16,8 @@ export interface AppUserSummary {
   nome: string;
   setor: string;
   usuarioGrupoId: string;
+  avatarPath?: string | null;
+  avatarUpdatedAt?: string | null;
 }
 
 /** Token não é mais exposto ao cliente — fica apenas em cookie HttpOnly no servidor. */
@@ -99,6 +101,17 @@ export function getAppUser(): AppUserSummary | null {
   } catch {
     return null;
   }
+}
+
+/** Atualiza apenas o espelho local de `app_users` (ex.: após trocar foto de perfil). */
+export function updateAppUserInAuth(patch: Partial<AppUserSummary>): void {
+  if (typeof window === "undefined") return;
+  const current = getAppUser();
+  if (!current) return;
+  localStorage.setItem(
+    APP_USER_KEY,
+    JSON.stringify({ ...current, ...patch }),
+  );
 }
 
 /** Retorna user se existir (autenticação considerada válida se temos user + cookie no servidor). */

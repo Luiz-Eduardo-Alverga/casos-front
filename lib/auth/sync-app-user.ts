@@ -29,6 +29,8 @@ export function appUserToSummary(row: AppUserRow): AppUserSummary {
     nome: row.nome,
     setor: row.setor,
     usuarioGrupoId: row.usuarioGrupoId,
+    avatarPath: row.avatarPath,
+    avatarUpdatedAt: row.avatarUpdatedAt?.toISOString() ?? null,
   };
 }
 

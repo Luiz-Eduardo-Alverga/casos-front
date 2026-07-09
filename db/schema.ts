@@ -92,6 +92,9 @@ export const appUsers = pgTable("app_users", {
   nome: text("nome").notNull(),
   setor: text("setor").notNull(),
   usuarioGrupoId: text("usuario_grupo_id").notNull(),
+  /** Caminho no Supabase Storage (`user-avatars`); URL assinada gerada na leitura. */
+  avatarPath: text("avatar_path"),
+  avatarUpdatedAt: timestamp("avatar_updated_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });

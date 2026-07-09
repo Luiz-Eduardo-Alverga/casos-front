@@ -33,6 +33,8 @@ const APP_USER_GROUP_BY = [
   appUsers.nome,
   appUsers.setor,
   appUsers.usuarioGrupoId,
+  appUsers.avatarPath,
+  appUsers.avatarUpdatedAt,
   appUsers.createdAt,
   appUsers.updatedAt,
 ] as const;
@@ -112,16 +114,7 @@ export async function listAppUsers(search?: string): Promise<AppUserListRow[]> {
     .from(appUsers)
     .leftJoin(userRoles, eq(userRoles.userId, appUsers.id))
     .leftJoin(roles, eq(userRoles.roleId, roles.id))
-    .groupBy(
-      appUsers.id,
-      appUsers.legacyUserId,
-      appUsers.email,
-      appUsers.nome,
-      appUsers.setor,
-      appUsers.usuarioGrupoId,
-      appUsers.createdAt,
-      appUsers.updatedAt,
-    );
+    .groupBy(...APP_USER_GROUP_BY);
 
   const rows = term
     ? await base
@@ -392,4 +385,41 @@ export async function userRoleLinkExists(
     .where(and(eq(userRoles.userId, userId), eq(userRoles.roleId, roleId)))
     .limit(1);
   return r.length > 0;
+}
+
+export async function updateAppUserAvatar(
+  userId: string,
+  avatarPath: string,
+): Promise<AppUserRow> {
+  const now = new Date();
+  const rows = await db
+    .update(appUsers)
+    .set({
+      avatarPath,
+      avatarUpdatedAt: now,
+      updatedAt: now,
+    })
+    .where(eq(appUsers.id, userId))
+    .returning();
+
+  const row = rows[0];
+  if (!row) throw new Error("updateAppUserAvatar: usuário não encontrado");
+  return row;
+}
+
+export async function clearAppUserAvatar(userId: string): Promise<AppUserRow> {
+  const now = new Date();
+  const rows = await db
+    .update(appUsers)
+    .set({
+      avatarPath: null,
+      avatarUpdatedAt: null,
+      updatedAt: now,
+    })
+    .where(eq(appUsers.id, userId))
+    .returning();
+
+  const row = rows[0];
+  if (!row) throw new Error("clearAppUserAvatar: usuário não encontrado");
+  return row;
 }
