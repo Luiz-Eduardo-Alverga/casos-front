@@ -6,8 +6,9 @@ import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import {
   BLUE_ALERT_SOURCE_COLOR,
+  QUESTION_SOURCE_COLOR,
   getPrimaryLottieColor,
-  remapLottieFillColor,
+  prepareModalLottieAnimation,
 } from "@/lib/lottie-color-utils";
 import successAnimation from "@/public/animations/SuccessCheck.json";
 import alertAnimation from "@/public/animations/BlueAlert.json";
@@ -46,10 +47,21 @@ export function ModalLottieIcon({
 
   const animationData = useMemo(() => {
     const base = ANIMATIONS[variant];
-    if (variant !== "alert") return base;
-
     const targetColor = getPrimaryLottieColor(resolvedTheme);
-    return remapLottieFillColor(base, BLUE_ALERT_SOURCE_COLOR, targetColor);
+
+    if (variant === "alert") {
+      return prepareModalLottieAnimation(base, {
+        remapColor: { from: BLUE_ALERT_SOURCE_COLOR, to: targetColor },
+      });
+    }
+
+    if (variant === "question") {
+      return prepareModalLottieAnimation(base, {
+        remapColor: { from: QUESTION_SOURCE_COLOR, to: targetColor },
+      });
+    }
+
+    return prepareModalLottieAnimation(base);
   }, [variant, resolvedTheme]);
 
   return (

@@ -5,6 +5,11 @@ export const BLUE_ALERT_SOURCE_COLOR: LottieRgb = [
   0.1803921568627451, 0.7764705882352941, 0.9019607843137255,
 ];
 
+/** Cor roxa original do questionMarkBlue.json */
+export const QUESTION_SOURCE_COLOR: LottieRgb = [
+  0.1176, 0.0863, 0.2706,
+];
+
 export function parseHslCssVar(raw: string): [number, number, number] {
   const parts = raw.trim().split(/\s+/);
   const h = parseFloat(parts[0] ?? "0");
@@ -102,4 +107,41 @@ export function remapLottieFillColor(
 
   walk(json);
   return json;
+}
+
+/** Remove camadas de fundo sólido (ex.: "BG" no SuccessCheck.json). */
+export function removeLottieBackgroundLayers(animation: object): object {
+  const json = JSON.parse(JSON.stringify(animation)) as {
+    layers?: Array<{ nm?: string }>;
+    meta?: Record<string, unknown>;
+  };
+
+  if (Array.isArray(json.layers)) {
+    json.layers = json.layers.filter((layer) => layer.nm !== "BG");
+  }
+
+  if (json.meta && typeof json.meta === "object" && json.meta.tc) {
+    json.meta.tc = "";
+  }
+
+  return json;
+}
+
+export function prepareModalLottieAnimation(
+  animation: object,
+  options?: {
+    remapColor?: { from: LottieRgb; to: LottieRgb };
+  },
+): object {
+  let data = removeLottieBackgroundLayers(animation);
+
+  if (options?.remapColor) {
+    data = remapLottieFillColor(
+      data,
+      options.remapColor.from,
+      options.remapColor.to,
+    );
+  }
+
+  return data;
 }

@@ -30,7 +30,7 @@ export function AuditoriaFiltros({
 }: AuditoriaFiltrosCardProps) {
   return (
     <Card className="w-full shrink-0 overflow-hidden rounded-lg bg-card shadow-card">
-      <CardHeader className="shrink-0 border-b border-border-divider p-5 pb-2">
+      <CardHeader className="shrink-0 border-b border-border-divider p-4 pb-2">
         <div className="flex items-center gap-2">
           <ClipboardList className="h-3.5 w-3.5 text-text-primary" />
           <CardTitle className="text-sm font-semibold text-text-primary">
