@@ -29,6 +29,36 @@ export interface TicketDetalhe {
   status: string;
   alteracaoUsuario: string;
   alteracaoDataHora: string;
+  latitude?: string | null;
+  longitude?: string | null;
+  latitudeCheckout?: string | null;
+  longitudeCheckout?: string | null;
+}
+
+/** Payload para criar ticket na Softcom Cloud (POST /tickets). */
+export interface CreateTicketRequest {
+  clienteId: number;
+  motivo: string;
+  tipoAtendimento?: string;
+  solicitadoPor?: string;
+  telefone?: string;
+  atendente?: string;
+  suporteId?: number;
+  faqId?: number;
+  faqGrupo?: string;
+  assunto?: string;
+  data?: string;
+  retorno?: string;
+  horaMarcada?: string | null;
+  ticket?: number;
+  is?: boolean;
+  urgente?: boolean;
+  valeu?: number;
+  usuarioPartnerId?: number;
+  latitude?: string;
+  longitude?: string;
+  latitudeCheckout?: string;
+  longitudeCheckout?: string;
 }
 
 /** Item resumido retornado na listagem por cliente. */

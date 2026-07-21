@@ -483,6 +483,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
             item?.caso?.tempos?.status_tempo ?? item?.caso?.status?.status_tempo
           }
           onRedirecionarParaAbaProducao={() => setTabValue("producao")}
+          clientes={clientes ?? []}
+          descricaoResumo={caso?.textos?.descricao_resumo}
+          anotacoes={anotacoes ?? []}
+          responsavelFeedbackNome={item?.report?.responsavel_feedback_nome}
         />
 
         <div className="mt-2 flex-1 flex flex-col min-h-0 overflow-auto">

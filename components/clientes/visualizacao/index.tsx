@@ -13,6 +13,7 @@ import { ClienteDadosGeraisCard } from "./sections/cliente-dados-gerais-card";
 import { ClienteContatoCard } from "./sections/cliente-contato-card";
 import { ClienteEnderecoCard } from "./sections/cliente-endereco-card";
 import { ClienteProdutosUrlsCard } from "./sections/cliente-produtos-urls-card";
+import { ClienteCasosTab } from "./sections/cliente-casos-tab";
 import { ClienteTicketsTab } from "./sections/cliente-tickets-tab";
 
 interface ClienteViewProps {
@@ -64,6 +65,10 @@ export function ClienteView({ clienteId }: ClienteViewProps) {
             <ClienteEnderecoCard cliente={cliente} />
             <ClienteProdutosUrlsCard cliente={cliente} />
           </div>
+        </TabsContent>
+
+        <TabsContent value="casos" className="mt-0">
+          <ClienteCasosTab clienteId={cliente.registro} />
         </TabsContent>
 
         <TabsContent value="tickets" className="mt-0">

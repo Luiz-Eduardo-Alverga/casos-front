@@ -20,8 +20,7 @@ export function Clientes() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState(
-    () =>
-      searchParams.get("nome") ?? searchParams.get("search") ?? "",
+    () => searchParams.get("nome") ?? searchParams.get("search") ?? "",
   );
 
   const debouncedSearch = useDebouncedValue(searchInput, DEBOUNCE_MS);

@@ -66,6 +66,7 @@ export async function getProjetoMemoria(
     ["duplicado", params.duplicado],
     ["sort_by", params.sort_by],
     ["sort_order", params.sort_order],
+    ["cliente", params.cliente != null ? String(params.cliente) : undefined],
   ];
 
   for (const [key, value] of stringParams) {

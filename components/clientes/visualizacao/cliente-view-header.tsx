@@ -1,6 +1,6 @@
 "use client";
 
-import { Ticket, UserRound, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,9 @@ export function ClienteViewHeader() {
       >
         <TabsTrigger value="dados" className={TAB_TRIGGER_CLASS}>
           Dados
+        </TabsTrigger>
+        <TabsTrigger value="casos" className={TAB_TRIGGER_CLASS}>
+          Casos
         </TabsTrigger>
         <TabsTrigger value="tickets" className={TAB_TRIGGER_CLASS}>
           Ocorrências

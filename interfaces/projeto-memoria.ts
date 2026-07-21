@@ -294,4 +294,6 @@ export interface ProjetoMemoriaParams {
   duplicado?: "TRUE" | "FALSE" | "TODOS";
   /** Filtra reports pela conclusão da análise (ex.: `false` para reports abertos). */
   analise_aprovado?: boolean;
+  /** Filtra casos pelo ID do cliente vinculado. */
+  cliente?: number;
 }
