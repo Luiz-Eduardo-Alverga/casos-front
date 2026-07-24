@@ -14,7 +14,10 @@ interface CasosEmProducaoProps {
   isLoading?: boolean;
 }
 
-export function CasosEmProducao({ data, isLoading = false }: CasosEmProducaoProps) {
+export function CasosEmProducao({
+  data,
+  isLoading = false,
+}: CasosEmProducaoProps) {
   const [busca, setBusca] = useState("");
 
   const itensFiltrados = useMemo(() => {
@@ -39,10 +42,7 @@ export function CasosEmProducao({ data, isLoading = false }: CasosEmProducaoProp
 
           <CardTitle className="text-sm font-semibold text-text-primary flex items-center gap-1.5">
             Casos em produção
-            <span className="text-[11px] font-normal text-text-secondary">(live feed)</span>
           </CardTitle>
-
-
         </div>
         <div className="relative w-full sm:w-[260px]">
           <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-text-secondary" />

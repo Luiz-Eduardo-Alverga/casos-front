@@ -136,14 +136,16 @@ export function CasosParaTestar({
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-wrap">
           <Tabs
             value={view}
-            onValueChange={(value) => onViewChange(value as CasosParaTestarView)}
+            onValueChange={(value) =>
+              onViewChange(value as CasosParaTestarView)
+            }
           >
             <TabsList className="h-8 p-0.5">
-              <TabsTrigger value="distribuicao" className="h-7 px-2.5 text-xs">
-                Distribuição
-              </TabsTrigger>
               <TabsTrigger value="geral" className="h-7 px-2.5 text-xs">
                 Geral
+              </TabsTrigger>
+              <TabsTrigger value="distribuicao" className="h-7 px-2.5 text-xs">
+                Distribuição
               </TabsTrigger>
             </TabsList>
           </Tabs>

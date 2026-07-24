@@ -21,7 +21,11 @@ interface PainelIdeiasProps {
   isLoading?: boolean;
 }
 
-export function PainelIdeias({ data, total, isLoading = false }: PainelIdeiasProps) {
+export function PainelIdeias({
+  data,
+  total,
+  isLoading = false,
+}: PainelIdeiasProps) {
   if (isLoading) {
     return <PainelIdeiasSkeleton />;
   }
@@ -47,55 +51,61 @@ export function PainelIdeias({ data, total, isLoading = false }: PainelIdeiasPro
             className="py-8"
           />
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-card border-b border-border-divider hover:bg-card">
-                <TableHead className="py-2 px-4 text-[11px] font-medium uppercase tracking-wide text-text-secondary">
-                  Mês
-                </TableHead>
-                <TableHead className="py-2 px-2.5 text-[11px] font-medium uppercase tracking-wide text-text-secondary">
-                  Produto
-                </TableHead>
-                <TableHead className="py-2 px-2.5 text-[11px] font-medium uppercase tracking-wide text-text-secondary text-right">
-                  Pend.
-                </TableHead>
-                <TableHead className="py-2 px-4 text-[11px] font-medium uppercase tracking-wide text-text-secondary text-right">
-                  Aprov.
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((item, idx) => (
-                <TableRow
-                  key={`${item.produto_id}-${item.competencia}-${idx}`}
-                  className="bg-card border-b border-border-divider hover:bg-muted/40"
-                >
-                  <TableCell className="py-2 px-4 text-[11px] text-text-secondary">
-                    {item.competencia}
-                  </TableCell>
-                  <TableCell className="py-2 px-2.5 text-xs font-medium text-text-primary">
-                    {item.produto}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "py-2 px-2.5 text-right text-xs font-semibold",
-                      item.pendente > 0 ? "text-amber-600" : "text-text-secondary",
-                    )}
-                  >
-                    {item.pendente}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "py-2 px-4 text-right text-xs font-semibold",
-                      item.aprovado > 0 ? "text-green-600" : "text-text-secondary",
-                    )}
-                  >
-                    {item.aprovado}
-                  </TableCell>
+          <div className="max-h-[220px] overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-card border-b border-border-divider hover:bg-card">
+                  <TableHead className="sticky top-0 z-10 bg-card py-2 px-4 text-[11px] font-medium uppercase tracking-wide text-text-secondary">
+                    Mês
+                  </TableHead>
+                  <TableHead className="sticky top-0 z-10 bg-card py-2 px-2.5 text-[11px] font-medium uppercase tracking-wide text-text-secondary">
+                    Produto
+                  </TableHead>
+                  <TableHead className="sticky top-0 z-10 bg-card py-2 px-2.5 text-[11px] font-medium uppercase tracking-wide text-text-secondary text-right">
+                    Pend.
+                  </TableHead>
+                  <TableHead className="sticky top-0 z-10 bg-card py-2 px-4 text-[11px] font-medium uppercase tracking-wide text-text-secondary text-right">
+                    Aprov.
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {data.map((item, idx) => (
+                  <TableRow
+                    key={`${item.produto_id}-${item.competencia}-${idx}`}
+                    className="bg-card border-b border-border-divider hover:bg-muted/40"
+                  >
+                    <TableCell className="py-2 px-4 text-[11px] text-text-secondary">
+                      {item.competencia}
+                    </TableCell>
+                    <TableCell className="py-2 px-2.5 text-xs font-medium text-text-primary">
+                      {item.produto}
+                    </TableCell>
+                    <TableCell
+                      className={cn(
+                        "py-2 px-2.5 text-right text-xs font-semibold",
+                        item.pendente > 0
+                          ? "text-amber-600"
+                          : "text-text-secondary",
+                      )}
+                    >
+                      {item.pendente}
+                    </TableCell>
+                    <TableCell
+                      className={cn(
+                        "py-2 px-4 text-right text-xs font-semibold",
+                        item.aprovado > 0
+                          ? "text-green-600"
+                          : "text-text-secondary",
+                      )}
+                    >
+                      {item.aprovado}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </CardContent>
     </Card>

@@ -51,7 +51,7 @@ export function CasosEmProducaoRow({ item }: CasosEmProducaoRowProps) {
         <div className="text-xs font-medium text-text-primary leading-snug">
           {item.descricao_resumo}
         </div>
-        <div className="text-[11px] text-text-secondary mt-1">
+        <div className="text-[11px] text-text-secondary font-semibold mt-1">
           {item.produto} · Dev:{" "}
           <span className=" text-indigo-500 font-semibold">
             {item.colaborador}
