@@ -11,6 +11,8 @@ export function useVisaoDistribuicao(params: GetVisaoDistribuicaoParams = {}) {
   const produtoId = params.produto_id?.trim() ?? "";
   const setor = params.setor?.trim() ?? "";
   const atribuidoPara = params.atribuido_para?.trim() ?? "";
+  const agruparPor = params.agrupar_por?.trim() ?? "";
+  const versao = params.versao?.trim() ?? "";
 
   return useQuery({
     queryKey: [
@@ -19,6 +21,8 @@ export function useVisaoDistribuicao(params: GetVisaoDistribuicaoParams = {}) {
       produtoId,
       setor,
       atribuidoPara,
+      agruparPor,
+      versao,
     ],
     enabled: Boolean(idProjeto || produtoId || setor),
     queryFn: () =>
@@ -27,6 +31,8 @@ export function useVisaoDistribuicao(params: GetVisaoDistribuicaoParams = {}) {
         ...(produtoId ? { produto_id: produtoId } : {}),
         ...(setor ? { setor } : {}),
         ...(atribuidoPara ? { atribuido_para: atribuidoPara } : {}),
+        ...(agruparPor ? { agrupar_por: agruparPor } : {}),
+        ...(versao ? { versao } : {}),
       }),
   });
 }

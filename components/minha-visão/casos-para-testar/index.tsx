@@ -11,6 +11,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/painel/empty-state";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
@@ -36,11 +37,11 @@ const AGRUPAR_POR_OPTIONS: Array<{
   value: VisaoGeralAgruparPor;
   label: string;
 }> = [
-    { value: "versao", label: "Versão" },
-    { value: "produto", label: "Produto" },
-    { value: "projeto", label: "Projeto" },
-    { value: "atribuido_para", label: "Atribuído para" },
-  ];
+  { value: "versao", label: "Versão" },
+  { value: "produto", label: "Produto" },
+  { value: "projeto", label: "Projeto" },
+  { value: "atribuido_para", label: "Atribuído para" },
+];
 
 interface DevFiltroForm {
   atribuido_para: string;
@@ -54,6 +55,8 @@ interface CasosParaTestarProps {
   onAgruparPorChange: (value: VisaoGeralAgruparPor) => void;
   atribuidoPara: string;
   onAtribuidoParaChange: (value: string) => void;
+  versao: string;
+  onVersaoChange: (value: string) => void;
   geralData: VisaoGeralItem[];
   distribuicaoData: VisaoDistribuicaoItem[];
   distribuicaoTotais?: VisaoDistribuicaoTotais;
@@ -67,6 +70,8 @@ export function CasosParaTestar({
   onAgruparPorChange,
   atribuidoPara,
   onAtribuidoParaChange,
+  versao,
+  onVersaoChange,
   geralData,
   distribuicaoData,
   distribuicaoTotais,
@@ -148,7 +153,6 @@ export function CasosParaTestar({
             onValueChange={(value) =>
               onAgruparPorChange(value as VisaoGeralAgruparPor)
             }
-            disabled={view !== "geral"}
           >
             <SelectTrigger
               className={cn(
@@ -179,23 +183,34 @@ export function CasosParaTestar({
             </SelectContent>
           </Select>
 
-          <CasoFormProvider value={providerValue}>
-            <FormProvider {...methods}>
-              <div className="w-full sm:w-[200px]">
-                <CasoFormDevAtribuido
-                  name="atribuido_para"
-                  labelName="atribuido_para_label"
-                  required={false}
-                  requireProduto={false}
-                  hideLabel
-                  valueLabelPrefix="Dev: "
-                  placeholder="Todos os devs"
-                  wrapperClassName="w-full"
-                  controlHeightClassName="h-8"
-                />
-              </div>
-            </FormProvider>
-          </CasoFormProvider>
+          {view === "distribuicao" ? (
+            <div className="w-full sm:w-[200px]">
+              <Input
+                value={versao}
+                onChange={(e) => onVersaoChange(e.target.value)}
+                placeholder="Filtrar por versão"
+                className="h-8 text-sm"
+              />
+            </div>
+          ) : (
+            <CasoFormProvider value={providerValue}>
+              <FormProvider {...methods}>
+                <div className="w-full sm:w-[200px]">
+                  <CasoFormDevAtribuido
+                    name="atribuido_para"
+                    labelName="atribuido_para_label"
+                    required={false}
+                    requireProduto={false}
+                    hideLabel
+                    valueLabelPrefix="Dev: "
+                    placeholder="Todos os devs"
+                    wrapperClassName="w-full"
+                    controlHeightClassName="h-8"
+                  />
+                </div>
+              </FormProvider>
+            </CasoFormProvider>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-0">

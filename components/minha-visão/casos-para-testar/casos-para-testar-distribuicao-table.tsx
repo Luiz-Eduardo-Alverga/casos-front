@@ -46,9 +46,16 @@ export function CasosParaTestarDistribuicaoTable({
         {data.map((p, idx) => {
           const busy = p.abertos / maxAbertos;
           const barClass =
-            busy > 0.7 ? "bg-red-500" : busy > 0.4 ? "bg-amber-500" : "bg-blue-500";
+            busy > 0.7
+              ? "bg-red-500"
+              : busy > 0.4
+                ? "bg-amber-500"
+                : "bg-blue-500";
           return (
-            <div key={`${p.atribuido_para}-${idx}`} className="px-4 py-3 flex items-center gap-4">
+            <div
+              key={`${p.atribuido_para}-${idx}`}
+              className="px-4 py-3 flex items-center gap-4"
+            >
               <div className="flex items-center gap-2.5 w-[140px] shrink-0">
                 <div
                   className={cn(
@@ -70,14 +77,20 @@ export function CasosParaTestarDistribuicaoTable({
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-3 text-right shrink-0 w-[260px]">
-                <MetricCell value={p.abertos} label="abertos" />
+              <div className="grid grid-cols-6 gap-3 text-right shrink-0 w-[500px]">
+                <MetricCell value={p.retornos} label="Retornos" />
+                <MetricCell value={p.pendentes_qtd} label="Abertos" />
                 <MetricCell value={p.estimados_qtd} label="estimados" />
                 <MetricCell value={p.estimados_horas} label="horas est." />
                 <MetricCell
-                  value={p.pendentes_qtd}
-                  label="pendentes"
-                  highlight={p.pendentes_qtd > 0}
+                  value={p.abertos}
+                  label="Planejados"
+                  highlight={p.abertos > 0}
+                />
+                <MetricCell
+                  value={p.nao_planejados_qtd}
+                  label="Não planejados"
+                  highlight={p.nao_planejados_qtd > 0}
                 />
               </div>
             </div>
@@ -88,7 +101,9 @@ export function CasosParaTestarDistribuicaoTable({
         <div className="px-4 py-2.5 border-t border-border-divider bg-muted/30 flex items-center justify-between text-xs text-text-secondary">
           <span>Totais</span>
           <div className="grid grid-cols-4 gap-3 w-[260px] text-right">
-            <span className="font-semibold text-text-primary">{totais.abertos}</span>
+            <span className="font-semibold text-text-primary">
+              {totais.abertos}
+            </span>
             <span>{totais.estimados_qtd}</span>
             <span>{totais.estimados_horas}</span>
             <span>{totais.pendentes_qtd}</span>

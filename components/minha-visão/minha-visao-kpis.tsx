@@ -30,11 +30,16 @@ function KpiCard({
             {label}
           </div>
           <div
-            className={cn("text-2xl font-semibold mt-1 leading-none", accentTextClassName)}
+            className={cn(
+              "text-2xl font-semibold mt-1 leading-none",
+              accentTextClassName,
+            )}
           >
             {value}
           </div>
-          <div className="text-xs text-text-secondary mt-1.5 truncate">{sub}</div>
+          <div className="text-xs text-text-secondary mt-1.5 truncate">
+            {sub}
+          </div>
         </div>
         <div
           className={cn(
@@ -70,14 +75,6 @@ export function MinhaVisaoKpis({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
       <KpiCard
-        label="Casos em Produção"
-        value={casosProducaoTotal}
-        icon={Activity}
-        sub="Live feed · tempo real"
-        accentTextClassName="text-orange-600"
-        accentBgClassName="bg-orange-100"
-      />
-      <KpiCard
         label="Casos para Testar (QA)"
         value={casosParaTestarPendentes}
         icon={Users}
@@ -85,6 +82,15 @@ export function MinhaVisaoKpis({
         accentTextClassName="text-blue-600"
         accentBgClassName="bg-blue-100"
       />
+      <KpiCard
+        label="Casos em Produção"
+        value={casosProducaoTotal}
+        icon={Activity}
+        sub="Live feed · tempo real"
+        accentTextClassName="text-orange-600"
+        accentBgClassName="bg-orange-100"
+      />
+
       <KpiCard
         label="Prazos de Clientes"
         value={prazosClientesTotal}

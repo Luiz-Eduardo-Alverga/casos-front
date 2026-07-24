@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import type { VisaoGeralAgruparPor } from "@/services/sprint/get-visao-geral";
 
 export interface VisaoDistribuicaoItem {
   campo: string | null;
@@ -49,6 +50,8 @@ export interface GetVisaoDistribuicaoParams {
   produto_id?: string;
   setor?: string;
   atribuido_para?: string;
+  agrupar_por?: VisaoGeralAgruparPor | string;
+  versao?: string;
 }
 
 /**
@@ -74,6 +77,12 @@ export async function getVisaoDistribuicao(
   }
   if (params.atribuido_para?.trim()) {
     url.searchParams.set("atribuido_para", params.atribuido_para.trim());
+  }
+  if (params.agrupar_por?.trim()) {
+    url.searchParams.set("agrupar_por", params.agrupar_por.trim());
+  }
+  if (params.versao?.trim()) {
+    url.searchParams.set("versao", params.versao.trim());
   }
 
   const response = await fetchWithAuth(url.toString(), { method: "GET" });

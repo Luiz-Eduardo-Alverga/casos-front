@@ -17,7 +17,10 @@ import {
 } from "@/components/minha-visão/casos-para-testar";
 import { CasosEmProducao } from "@/components/minha-visão/casos-em-producao";
 import { PrazosClientes } from "@/components/minha-visão/prazos-clientes";
-import { Liberacoes } from "@/components/minha-visão/liberacoes";
+import {
+  Liberacoes,
+  type TipoLiberacaoFiltro,
+} from "@/components/minha-visão/liberacoes";
 import { PainelIdeias } from "@/components/minha-visão/painel-ideias";
 import { sumVisaoGeralPendente } from "@/components/minha-visão/utils";
 
@@ -28,7 +31,10 @@ import { useVisaoPrazosClientes } from "@/hooks/painel/use-visao-prazos-clientes
 import { useVisaoProximasLiberacoes } from "@/hooks/painel/use-visao-proximas-liberacoes";
 import { useVisaoUltimasLiberacoes } from "@/hooks/painel/use-visao-ultimas-liberacoes";
 import { useVisaoPainelIdeias } from "@/hooks/painel/use-visao-painel-ideias";
+import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
 import type { VisaoGeralAgruparPor } from "@/services/sprint/get-visao-geral";
+
+const VERSAO_DEBOUNCE_MS = 300;
 
 const VISAO_QUERY_KEYS = [
   "visao-geral",
@@ -48,6 +54,10 @@ export function MinhaVisao() {
   const [agruparPor, setAgruparPor] =
     useState<VisaoGeralAgruparPor>("versao");
   const [atribuidoPara, setAtribuidoPara] = useState("");
+  const [versao, setVersao] = useState("");
+  const debouncedVersao = useDebouncedValue(versao, VERSAO_DEBOUNCE_MS);
+  const [tipoLiberacao, setTipoLiberacao] =
+    useState<TipoLiberacaoFiltro>("todos");
 
   // Colapsa a sidebar apenas enquanto o usuário está na tela Minha Visão.
   useEffect(() => {
@@ -98,16 +108,19 @@ export function MinhaVisao() {
   const casosEmProducao = useVisaoCasosEmProducao(filtros);
   const distribuicao = useVisaoDistribuicao({
     ...filtros,
-    ...(atribuidoPara ? { atribuido_para: atribuidoPara } : {}),
+    agrupar_por: agruparPor,
+    ...(debouncedVersao.trim() ? { versao: debouncedVersao.trim() } : {}),
   });
   const prazosClientes = useVisaoPrazosClientes(filtros);
   const proximasLiberacoes = useVisaoProximasLiberacoes({
     produto_id: filtros.produto_id,
     setor: filtros.setor,
+    ...(tipoLiberacao !== "todos" ? { tipo_liberacao: tipoLiberacao } : {}),
   });
   const ultimasLiberacoes = useVisaoUltimasLiberacoes({
     produto_id: filtros.produto_id,
     setor: filtros.setor,
+    ...(tipoLiberacao !== "todos" ? { tipo_liberacao: tipoLiberacao } : {}),
     dias_liberacao: temFiltroLiberacoes ? "60" : undefined,
   });
   const painelIdeias = useVisaoPainelIdeias(filtros);
@@ -182,6 +195,8 @@ export function MinhaVisao() {
                 onAgruparPorChange={setAgruparPor}
                 atribuidoPara={atribuidoPara}
                 onAtribuidoParaChange={setAtribuidoPara}
+                versao={versao}
+                onVersaoChange={setVersao}
                 geralData={geralData}
                 distribuicaoData={distribuicaoData}
                 distribuicaoTotais={distribuicaoTotais}
@@ -200,6 +215,8 @@ export function MinhaVisao() {
               <Liberacoes
                 proximas={proximasLiberacoesData}
                 concluidas={ultimasLiberacoesData}
+                tipoLiberacao={tipoLiberacao}
+                onTipoLiberacaoChange={setTipoLiberacao}
                 isLoading={
                   proximasLiberacoes.isLoading || ultimasLiberacoes.isLoading
                 }

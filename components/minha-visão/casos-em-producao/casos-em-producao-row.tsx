@@ -39,7 +39,9 @@ export function CasosEmProducaoRow({ item }: CasosEmProducaoRowProps) {
     >
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1 text-[11px] text-text-secondary flex-wrap">
-          <span className="font-semibold text-text-primary">#{item.id_caso}</span>
+          <span className="font-semibold text-text-primary">
+            #{item.id_caso}
+          </span>
           <span>Proj: {item.projeto}</span>
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" />
@@ -51,7 +53,9 @@ export function CasosEmProducaoRow({ item }: CasosEmProducaoRowProps) {
         </div>
         <div className="text-[11px] text-text-secondary mt-1">
           {item.produto} · Dev:{" "}
-          <span className="text-text-primary">{item.colaborador}</span>
+          <span className=" text-indigo-500 font-semibold">
+            {item.colaborador}
+          </span>
         </div>
       </div>
     </div>

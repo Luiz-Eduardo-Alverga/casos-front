@@ -16,6 +16,9 @@ import {
   Flag,
   Building2,
   Eye,
+  CodeXml,
+  Settings,
+  Smartphone,
 } from "lucide-react";
 import {
   Sidebar,
@@ -116,7 +119,7 @@ const MAIN_NAV: MainNavEntry[] = [
     order: 20,
     label: "Painel do desenvolvedor",
     href: "/painel",
-    icon: Grid3x3,
+    icon: CodeXml,
     exact: true,
   },
   {
@@ -174,7 +177,7 @@ const MAIN_NAV: MainNavEntry[] = [
     order: 50,
     key: "cadastros",
     label: "Cadastros Smart",
-    icon: Database,
+    icon: Smartphone,
     collapsedHref: CADASTROS_COLLAPSED_HREF,
     subitems: CADASTROS_SUBITEMS_SORTED.map((s) => ({
       label: s.label,
@@ -187,7 +190,7 @@ const MAIN_NAV: MainNavEntry[] = [
     order: 60,
     key: "configuracoes",
     label: "Configurações",
-    icon: Shield,
+    icon: Settings,
     collapsedHref: CONFIGURACOES_COLLAPSED_HREF,
     subitems: CONFIGURACOES_SUBITEMS_SORTED.map((s) => ({
       label: s.label,
@@ -230,7 +233,8 @@ export function AppSidebar({
     rbacReady && hasAnyPermission(["list-case", "list-report"]);
   const canListReport = rbacReady && hasPermission("list-report");
   const canListProject = rbacReady && hasPermission("list-project");
-  const canAudit = rbacReady && hasAnyPermission(["audit-all-users", "audit-user"]);
+  const canAudit =
+    rbacReady && hasAnyPermission(["audit-all-users", "audit-user"]);
   const canAssignUserRole = rbacReady && hasPermission("assign-user-role");
   const canListUser = rbacReady && hasPermission("list-user");
   const canListPrompts = rbacReady && hasPermission("list-prompts");

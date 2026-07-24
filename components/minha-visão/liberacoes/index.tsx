@@ -2,30 +2,82 @@
 
 import { CalendarClock, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { EmptyState } from "@/components/painel/empty-state";
 import { TipoLiberacaoBadge } from "./tipo-liberacao-badge";
 import { LiberacoesSkeleton } from "./liberacoes-skeleton";
-import type { VisaoProximasLiberacoesItem } from "@/services/sprint/get-visao-proximas-liberacoes";
+import type {
+  TipoLiberacao,
+  VisaoProximasLiberacoesItem,
+} from "@/services/sprint/get-visao-proximas-liberacoes";
 import type { VisaoUltimasLiberacoesItem } from "@/services/sprint/get-visao-ultimas-liberacoes";
+
+export type TipoLiberacaoFiltro = TipoLiberacao | "todos";
+
+const TIPO_LIBERACAO_OPTIONS: Array<{
+  value: TipoLiberacaoFiltro;
+  label: string;
+}> = [
+  { value: "todos", label: "Todos" },
+  { value: "Release", label: "Release" },
+  { value: "Hotfix", label: "Hotfix" },
+];
 
 interface LiberacoesProps {
   proximas: VisaoProximasLiberacoesItem[];
   concluidas: VisaoUltimasLiberacoesItem[];
+  tipoLiberacao: TipoLiberacaoFiltro;
+  onTipoLiberacaoChange: (value: TipoLiberacaoFiltro) => void;
   isLoading?: boolean;
 }
 
-export function Liberacoes({ proximas, concluidas, isLoading = false }: LiberacoesProps) {
+export function Liberacoes({
+  proximas,
+  concluidas,
+  tipoLiberacao,
+  onTipoLiberacaoChange,
+  isLoading = false,
+}: LiberacoesProps) {
   if (isLoading) {
     return <LiberacoesSkeleton />;
   }
 
   return (
     <Card className="bg-card shadow-card rounded-lg">
-      <CardHeader className="p-4 pb-2 border-b border-border-divider flex-row items-center gap-2 space-y-0">
-        <CalendarClock className="h-3.5 w-3.5 text-text-primary shrink-0" />
-        <CardTitle className="text-sm font-semibold text-text-primary">
-          Pipeline de liberações
-        </CardTitle>
+      <CardHeader className="p-4 pb-2 border-b border-border-divider flex-row items-center justify-between gap-2 space-y-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <CalendarClock className="h-3.5 w-3.5 text-text-primary shrink-0" />
+          <CardTitle className="text-sm font-semibold text-text-primary truncate">
+            Pipeline de liberações
+          </CardTitle>
+        </div>
+        <Select
+          value={tipoLiberacao}
+          onValueChange={(value) =>
+            onTipoLiberacaoChange(value as TipoLiberacaoFiltro)
+          }
+        >
+          <SelectTrigger className="h-8 w-[120px] rounded-lg border border-input bg-background px-3 shadow-sm text-xs font-medium">
+            <SelectValue placeholder="Todos" />
+          </SelectTrigger>
+          <SelectContent>
+            {TIPO_LIBERACAO_OPTIONS.map((option) => (
+              <SelectItem
+                key={option.value}
+                value={option.value}
+                className="text-sm"
+              >
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </CardHeader>
       <CardContent className="p-0">
         <div className="px-4 pt-3 pb-1 flex items-center justify-between">
@@ -84,10 +136,13 @@ export function Liberacoes({ proximas, concluidas, isLoading = false }: Liberaco
                 className="px-4 py-2 flex items-center justify-between gap-2"
               >
                 <div className="text-xs text-text-primary truncate">
-                  {item.produto} <span className="text-text-secondary">(v{item.versao})</span>
+                  {item.produto}{" "}
+                  <span className="text-text-secondary">(v{item.versao})</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-[11px] text-text-secondary">{item.data}</span>
+                  <span className="text-[11px] text-text-secondary">
+                    {item.data}
+                  </span>
                   <Check className="h-3.5 w-3.5 text-green-600" />
                 </div>
               </div>
