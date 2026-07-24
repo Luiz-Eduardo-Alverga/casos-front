@@ -61,7 +61,7 @@ function EscopoSkeletonRow({
     <TableCell key="desenvolvedor" className="w-[120px] py-3 px-5 align-top">
       <Skeleton className="h-4 w-16" />
     </TableCell>,
-    <TableCell key="status" className="w-[123px] py-3 px-2 align-top">
+    <TableCell key="status" className="min-w-[185px] py-3 px-2 align-top">
       <div className="flex flex-col items-start gap-1">
         <Skeleton className="h-7 w-28 rounded-full" />
         <Skeleton className="h-3 w-36" />

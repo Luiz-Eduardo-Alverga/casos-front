@@ -184,7 +184,7 @@ export function ProjetosTabelaRowEscopo({
           {row.desenvolvedor?.trim() ? row.desenvolvedor : "—"}
         </span>
       </TableCell>
-      <TableCell key="status" className="w-[123px] py-3 px-2 align-top">
+      <TableCell key="status" className="min-w-[185px] py-3 px-2 align-top">
         <SortableFieldContextMenu
           sortField="data_conclusao_dev"
           sort={sort}
@@ -193,7 +193,7 @@ export function ProjetosTabelaRowEscopo({
           <div className="flex flex-col items-start gap-1">
             <StatusBadge status={row.status} />
             {row.dataConclusao ? (
-              <span className="text-xs font-semibold text-text-secondary">
+              <span className="text-xs font-semibold text-text-secondary whitespace-nowrap">
                 Finalizado em {formatDatePt(row.dataConclusao)}
               </span>
             ) : null}

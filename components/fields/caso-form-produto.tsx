@@ -14,11 +14,17 @@ import type { Produto } from "@/services/auxiliar/produtos";
 interface CasoFormProdutoProps {
   required?: boolean;
   onlyWithPoQaConfigured?: boolean;
+  hideLabel?: boolean;
+  valueLabelPrefix?: string;
+  wrapperClassName?: string;
 }
 
 export function CasoFormProduto({
   required = true,
   onlyWithPoQaConfigured = false,
+  hideLabel = false,
+  valueLabelPrefix,
+  wrapperClassName,
 }: CasoFormProdutoProps) {
   const {
     isDisabled,
@@ -157,6 +163,9 @@ export function CasoFormProduto({
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}
+        hideLabel={hideLabel}
+        valueLabelPrefix={valueLabelPrefix}
+        wrapperClassName={wrapperClassName}
         onOpenChange={
           lazyLoad
             ? (open) => open && setOptionsRequested(true)

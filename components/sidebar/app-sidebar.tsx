@@ -15,6 +15,7 @@ import {
   Clock3,
   Flag,
   Building2,
+  Eye,
 } from "lucide-react";
 import {
   Sidebar,
@@ -60,7 +61,7 @@ interface SidebarSubitem {
   exact?: boolean;
 }
 
-const STANDALONE_NAV_ORDERS = new Set([20]);
+const STANDALONE_NAV_ORDERS = new Set([20, 21]);
 const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 35, 36, 37, 40]);
 const RECURSOS_NAV_ORDERS = new Set([50, 60]);
 
@@ -116,6 +117,14 @@ const MAIN_NAV: MainNavEntry[] = [
     label: "Painel do desenvolvedor",
     href: "/painel",
     icon: Grid3x3,
+    exact: true,
+  },
+  {
+    type: "link",
+    order: 21,
+    label: "Minha Visão",
+    href: "/painel/minha-visao",
+    icon: Eye,
     exact: true,
   },
   {

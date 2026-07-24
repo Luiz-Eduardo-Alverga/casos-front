@@ -86,7 +86,7 @@ function ProjetosTabelaTableEscopo({
       sortField="data_conclusao_dev"
       sort={sort}
       onSortChange={onSortChange}
-      className="w-[123px]"
+      className="min-w-[185px]"
     />,
     <TableHead
       key="acoes"

@@ -9,9 +9,17 @@ import { useSetores } from "@/hooks/catalogos/use-setores";
 
 interface CasoFormSetorProps {
   required?: boolean;
+  hideLabel?: boolean;
+  valueLabelPrefix?: string;
+  wrapperClassName?: string;
 }
 
-export function CasoFormSetor({ required = false }: CasoFormSetorProps) {
+export function CasoFormSetor({
+  required = false,
+  hideLabel = false,
+  valueLabelPrefix,
+  wrapperClassName,
+}: CasoFormSetorProps) {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
   const setorValue = watch("setor");
@@ -42,7 +50,7 @@ export function CasoFormSetor({ required = false }: CasoFormSetorProps) {
   }, [setores, lazyLoadComboboxOptions, editCaseItem, setorValue]);
 
   return (
-    <div className="space-y-2">
+    <div className={hideLabel ? undefined : "space-y-2"}>
       <ComboboxField
         name="setor"
         label="Setor"
@@ -54,6 +62,9 @@ export function CasoFormSetor({ required = false }: CasoFormSetorProps) {
         searchDebounceMs={450}
         disabled={isDisabled}
         required={required}
+        hideLabel={hideLabel}
+        valueLabelPrefix={valueLabelPrefix}
+        wrapperClassName={wrapperClassName}
         onOpenChange={
           lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined
         }

@@ -3,28 +3,37 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormSetor } from "@/components/fields/caso-form-setor";
 import { CasoFormProduto } from "@/components/fields/caso-form-produto";
+import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
 import { useSetores } from "@/hooks/catalogos/use-setores";
-import { FileText, Search } from "lucide-react";
+import { RefreshCcw } from "lucide-react";
 import { importanceOptions } from "@/mocks/teste";
+
+export interface MinhaVisaoFiltrosValues {
+  setor: string;
+  produto_id: string;
+  id_projeto: string;
+}
+
+interface MinhaVisaoFiltrosProps {
+  filtrosIniciais: MinhaVisaoFiltrosValues;
+  /** Chamado após aplicar os filtros na URL (ex.: invalidar queries). */
+  onAfterFiltrar?: () => void;
+}
 
 interface MinhaVisaoFiltersForm {
   setor: string;
   produto: string;
+  projeto_id: string;
 }
 
-interface MinhaVisaoFiltrosProps {
-  filtrosIniciais: {
-    setor: string;
-    produto: string;
-  };
-}
-
-export function MinhaVisaoFiltros({ filtrosIniciais }: MinhaVisaoFiltrosProps) {
+export function MinhaVisaoFiltros({
+  filtrosIniciais,
+  onAfterFiltrar,
+}: MinhaVisaoFiltrosProps) {
   const router = useRouter();
   const { data: setores = [] } = useSetores();
 
@@ -41,7 +50,8 @@ export function MinhaVisaoFiltros({ filtrosIniciais }: MinhaVisaoFiltrosProps) {
   const methods = useForm<MinhaVisaoFiltersForm>({
     defaultValues: {
       setor: setorIdFromUrl || (filtrosIniciais.setor ?? ""),
-      produto: filtrosIniciais.produto ?? "",
+      produto: filtrosIniciais.produto_id ?? "",
+      projeto_id: filtrosIniciais.id_projeto ?? "",
     },
   });
 
@@ -49,26 +59,37 @@ export function MinhaVisaoFiltros({ filtrosIniciais }: MinhaVisaoFiltrosProps) {
   useEffect(() => {
     methods.reset({
       setor: setorIdFromUrl || (filtrosIniciais.setor ?? ""),
-      produto: filtrosIniciais.produto ?? "",
+      produto: filtrosIniciais.produto_id ?? "",
+      projeto_id: filtrosIniciais.id_projeto ?? "",
     });
   }, [filtrosIniciais, setorIdFromUrl, methods]);
 
   const produto = methods.watch("produto");
 
-  const handleFiltrar = useCallback(() => {
+  const handleAtualizar = useCallback(() => {
     const values = methods.getValues();
     const params = new URLSearchParams();
 
     if (values.setor?.trim()) {
-      const setorEncontrado = setores.find((s) => String(s.id) === values.setor.trim());
-      params.set("setor", setorEncontrado ? setorEncontrado.nome : values.setor.trim());
+      const setorEncontrado = setores.find(
+        (s) => String(s.id) === values.setor.trim(),
+      );
+      params.set(
+        "setor",
+        setorEncontrado ? setorEncontrado.nome : values.setor.trim(),
+      );
     }
     if (values.produto?.trim()) {
-      params.set("produto", values.produto.trim());
+      params.set("produto_id", values.produto.trim());
+    }
+    if (values.projeto_id?.trim()) {
+      params.set("id_projeto", values.projeto_id.trim());
     }
 
-    router.push(`/painel/minha-visao?${params.toString()}`);
-  }, [methods, router, setores]);
+    const qs = params.toString();
+    router.push(qs ? `/painel/minha-visao?${qs}` : "/painel/minha-visao");
+    onAfterFiltrar?.();
+  }, [methods, router, setores, onAfterFiltrar]);
 
   const providerValue = useMemo(
     () => ({
@@ -78,39 +99,48 @@ export function MinhaVisaoFiltros({ filtrosIniciais }: MinhaVisaoFiltrosProps) {
       isDisabled: false,
       lazyLoadComboboxOptions: false,
     }),
-    [methods, produto]
+    [methods, produto],
   );
 
   return (
     <CasoFormProvider value={providerValue}>
       <FormProvider {...methods}>
-        <Card className="bg-card shadow-card rounded-lg shrink-0 mb-2">
-          <CardHeader className="p-5 pb-2 border-b border-border-divider">
-            <div className="flex items-center gap-2">
-              <FileText className="h-3.5 w-3.5 text-text-primary" />
-              <CardTitle className="text-sm font-semibold text-text-primary">
-                Filtros
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 pt-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <CasoFormSetor required={false} />
-              <CasoFormProduto required={false} />
-              <div className="flex items-end gap-2">
-                <Button
-                  type="button"
-                  size="lg"
-                  onClick={handleFiltrar}
-                  className="w-full sm:w-48 h-9"
-                >
-                  <Search className="h-3.5 w-3.5" />
-                  Filtrar
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+          <div className="w-full sm:w-[230px]">
+            <CasoFormSetor
+              required={false}
+              hideLabel
+              valueLabelPrefix="Setor: "
+            />
+          </div>
+          <div className="w-full sm:w-[230px]">
+            <CasoFormProduto
+              required={false}
+              hideLabel
+              valueLabelPrefix="Produto: "
+            />
+          </div>
+          <div className="w-full sm:w-[230px]">
+            <CasoFormProjeto
+              name="projeto_id"
+              required={false}
+              requireProduto={false}
+              requireSetorProjeto={false}
+              autoSelectProjeto="never"
+              hideLabel
+              valueLabelPrefix="Projeto: "
+            />
+          </div>
+          <Button
+            type="button"
+            size="lg"
+            onClick={handleAtualizar}
+            className="w-full sm:w-auto h-9 px-4 shrink-0"
+          >
+            <RefreshCcw className="h-3.5 w-3.5" />
+            Atualizar
+          </Button>
+        </div>
       </FormProvider>
     </CasoFormProvider>
   );
