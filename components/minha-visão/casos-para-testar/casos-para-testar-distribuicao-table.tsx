@@ -6,10 +6,12 @@ import type {
   VisaoDistribuicaoItem,
   VisaoDistribuicaoTotais,
 } from "@/services/sprint/get-visao-distribuicao";
+import type { VisaoGeralAgruparPor } from "@/services/sprint/get-visao-geral";
 
 interface CasosParaTestarDistribuicaoTableProps {
   data: VisaoDistribuicaoItem[];
   totais?: VisaoDistribuicaoTotais;
+  agruparPor: VisaoGeralAgruparPor;
 }
 
 interface MetricCellProps {
@@ -37,6 +39,7 @@ function MetricCell({ value, label, highlight }: MetricCellProps) {
 export function CasosParaTestarDistribuicaoTable({
   data,
   totais,
+  agruparPor,
 }: CasosParaTestarDistribuicaoTableProps) {
   const maxAbertos = Math.max(1, ...data.map((p) => p.abertos));
 
@@ -54,9 +57,9 @@ export function CasosParaTestarDistribuicaoTable({
           return (
             <div
               key={`${p.atribuido_para}-${idx}`}
-              className="px-4 py-3 flex items-center gap-4"
+              className="flex justify-between px-4 py-3 items-center gap-4"
             >
-              <div className="flex items-center gap-2.5 w-[140px] shrink-0">
+              <div className="flex items-center gap-2.5 w-[240px] shrink-0">
                 <div
                   className={cn(
                     "h-8 w-8 rounded-full grid place-items-center text-white font-semibold text-[11px] shrink-0",
@@ -65,18 +68,25 @@ export function CasosParaTestarDistribuicaoTable({
                 >
                   {getInitials(p.atribuido_para)}
                 </div>
-                <span className="text-xs font-medium text-text-primary truncate">
-                  {p.atribuido_para}
-                </span>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-medium text-text-primary truncate">
+                    {p.atribuido_para}
+                  </span>
+                  {agruparPor === "versao" && p.campo ? (
+                    <span className="text-[10px] text-text-secondary">
+                      {p.campo}
+                    </span>
+                  ) : null}
+                </div>
               </div>
-              <div className="flex-1 min-w-[100px]">
+              {/* <div className="flex-1 min-w-[100px]">
                 <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                   <div
                     className={cn("h-full rounded-full", barClass)}
                     style={{ width: `${busy * 100}%` }}
                   />
                 </div>
-              </div>
+              </div> */}
               <div className="grid grid-cols-6 gap-3 text-right shrink-0 w-[500px]">
                 <MetricCell value={p.retornos} label="Retornos" />
                 <MetricCell value={p.pendentes_qtd} label="Abertos" />

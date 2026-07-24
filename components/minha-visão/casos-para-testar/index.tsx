@@ -43,6 +43,13 @@ const AGRUPAR_POR_OPTIONS: Array<{
   { value: "atribuido_para", label: "Atribuído para" },
 ];
 
+const AGRUPAR_POR_DISTRIBUICAO = new Set<VisaoGeralAgruparPor>([
+  "versao",
+  "atribuido_para",
+]);
+
+const AGRUPAR_POR_DISTRIBUICAO_DEFAULT: VisaoGeralAgruparPor = "atribuido_para";
+
 interface DevFiltroForm {
   atribuido_para: string;
   atribuido_para_label: string;
@@ -97,6 +104,15 @@ export function CasosParaTestar({
     }
   }, [atribuidoParaWatch, atribuidoPara, onAtribuidoParaChange]);
 
+  useEffect(() => {
+    if (
+      view === "distribuicao" &&
+      !AGRUPAR_POR_DISTRIBUICAO.has(agruparPor)
+    ) {
+      onAgruparPorChange(AGRUPAR_POR_DISTRIBUICAO_DEFAULT);
+    }
+  }, [view, agruparPor, onAgruparPorChange]);
+
   const providerValue = useMemo(
     () => ({
       form: methods,
@@ -108,13 +124,30 @@ export function CasosParaTestar({
     [methods],
   );
 
+  const agruparPorOptions = useMemo(
+    () =>
+      view === "distribuicao"
+        ? AGRUPAR_POR_OPTIONS.filter((option) =>
+            AGRUPAR_POR_DISTRIBUICAO.has(option.value),
+          )
+        : AGRUPAR_POR_OPTIONS,
+    [view],
+  );
+
   const agruparPorLabel = useMemo(
     () =>
-      AGRUPAR_POR_OPTIONS.find((option) => option.value === agruparPor)
-        ?.label ?? "",
-    [agruparPor],
+      agruparPorOptions.find((option) => option.value === agruparPor)?.label ??
+      "",
+    [agruparPor, agruparPorOptions],
   );
   const hasAgruparPorValue = Boolean(agruparPorLabel);
+
+  const handleViewChange = (value: CasosParaTestarView) => {
+    if (value === "distribuicao") {
+      onAgruparPorChange(AGRUPAR_POR_DISTRIBUICAO_DEFAULT);
+    }
+    onViewChange(value);
+  };
 
   if (isLoading) {
     return <CasosParaTestarSkeleton />;
@@ -137,7 +170,7 @@ export function CasosParaTestar({
           <Tabs
             value={view}
             onValueChange={(value) =>
-              onViewChange(value as CasosParaTestarView)
+              handleViewChange(value as CasosParaTestarView)
             }
           >
             <TabsList className="h-8 p-0.5">
@@ -173,7 +206,7 @@ export function CasosParaTestar({
               </span>
             </SelectTrigger>
             <SelectContent>
-              {AGRUPAR_POR_OPTIONS.map((option) => (
+              {agruparPorOptions.map((option) => (
                 <SelectItem
                   key={option.value}
                   value={option.value}
@@ -231,6 +264,7 @@ export function CasosParaTestar({
           <CasosParaTestarDistribuicaoTable
             data={distribuicaoData}
             totais={distribuicaoTotais}
+            agruparPor={agruparPor}
           />
         )}
       </CardContent>
