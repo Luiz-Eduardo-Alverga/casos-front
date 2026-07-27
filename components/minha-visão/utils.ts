@@ -13,7 +13,7 @@ const VISAO_STATUS_COLUMN_MATCHERS: Record<
   VisaoGeralStatusColumn,
   string[]
 > = {
-  abertos: ["ABERTO"],
+  abertos: ["ABERTO", "EM DESENVOLVIMENTO"],
   aguardando_teste: ["AGUARDANDO TESTE"],
   retorno: ["RETORNO"],
   suspenso: ["SUSPENSO"],
@@ -21,16 +21,18 @@ const VISAO_STATUS_COLUMN_MATCHERS: Record<
 };
 
 /**
- * Resolve o `Registro` do status de caso a partir do catálogo,
+ * Resolve os `Registro` dos status de caso a partir do catálogo,
  * batendo `tipo` (case-insensitive / includes) com as keywords da coluna.
+ * Retorna todos os matches (ex.: abertos → ABERTO + EM DESENVOLVIMENTO).
  */
-export function resolveVisaoStatusId(
+export function resolveVisaoStatusIds(
   column: VisaoGeralStatusColumn,
   statusList: StatusItem[] | undefined,
-): string | null {
-  if (!statusList?.length) return null;
+): string[] {
+  if (!statusList?.length) return [];
   const matchers = VISAO_STATUS_COLUMN_MATCHERS[column];
   const casoStatuses = statusList.filter((item) => item.tipo_status === "CASO");
+  const ids: string[] = [];
 
   for (const matcher of matchers) {
     const needle = matcher.toUpperCase();
@@ -38,24 +40,29 @@ export function resolveVisaoStatusId(
       const tipo = (item.tipo ?? "").trim().toUpperCase();
       return tipo === needle || tipo.includes(needle);
     });
-    if (found) return String(found.Registro);
+    if (!found) continue;
+    const id = String(found.Registro);
+    if (!ids.includes(id)) ids.push(id);
   }
 
-  return null;
+  return ids;
 }
 
 /** Monta a URL da listagem de casos com produto, versão e status pré-filtrados. */
 export function buildCasosListagemHref(params: {
   produtoId: string | number;
   versao?: string;
-  statusId: string;
+  statusIds: string[];
 }): string {
   const search = new URLSearchParams();
   search.set("produto", String(params.produtoId));
   if (params.versao?.trim()) {
     search.set("versao", params.versao.trim());
   }
-  search.append("status_id", params.statusId);
+  // nuqs `parseAsArrayOf` espera `status_id=1,2` (não chaves repetidas).
+  if (params.statusIds.length > 0) {
+    search.set("status_id", params.statusIds.join(","));
+  }
   return `/casos?${search.toString()}`;
 }
 

@@ -11,7 +11,7 @@ import {
 import { useStatus } from "@/hooks/catalogos/use-status";
 import {
   buildCasosListagemHref,
-  resolveVisaoStatusId,
+  resolveVisaoStatusIds,
   type VisaoGeralStatusColumn,
 } from "@/components/minha-visão/utils";
 import type {
@@ -146,10 +146,10 @@ export function CasosParaTestarVersoesTable({
     [agruparPor],
   );
 
-  const statusIdByColumn = useMemo(() => {
-    const map = {} as Record<VisaoGeralStatusColumn, string | null>;
+  const statusIdsByColumn = useMemo(() => {
+    const map = {} as Record<VisaoGeralStatusColumn, string[]>;
     for (const column of STATUS_COLUMNS) {
-      map[column.key] = resolveVisaoStatusId(column.key, statusList);
+      map[column.key] = resolveVisaoStatusIds(column.key, statusList);
     }
     return map;
   }, [statusList]);
@@ -175,19 +175,19 @@ export function CasosParaTestarVersoesTable({
   const openListagem = useCallback(
     (item: VisaoGeralItem, column: VisaoGeralStatusColumn, value: number) => {
       if (value <= 0) return;
-      const statusId = statusIdByColumn[column];
-      if (!statusId) return;
+      const statusIds = statusIdsByColumn[column];
+      if (!statusIds.length) return;
 
       const href = buildCasosListagemHref({
         produtoId: item.produto_id,
         ...(agruparPor === "versao" && item.campo
           ? { versao: item.campo }
           : {}),
-        statusId,
+        statusIds,
       });
       window.open(href, "_blank", "noopener,noreferrer");
     },
-    [agruparPor, statusIdByColumn],
+    [agruparPor, statusIdsByColumn],
   );
 
   return (
@@ -223,8 +223,8 @@ export function CasosParaTestarVersoesTable({
                   </TableCell>
                   {STATUS_COLUMNS.map((column) => {
                     const value = column.getValue(item);
-                    const statusId = statusIdByColumn[column.key];
-                    const clickable = value > 0 && Boolean(statusId);
+                    const statusIds = statusIdsByColumn[column.key];
+                    const clickable = value > 0 && statusIds.length > 0;
                     const content = (
                       <>
                         <span
