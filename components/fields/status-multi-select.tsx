@@ -27,6 +27,8 @@ export interface StatusMultiSelectProps {
   onChange: (value: string[]) => void;
   disabled?: boolean;
   label?: string;
+  /** Oculta o label acima do campo (útil em barras de filtro compactas). */
+  hideLabel?: boolean;
   id?: string;
   /** Mensagem quando não há status ou nenhum resultado na busca (como `emptyText` do ComboboxField). */
   emptyText?: string;
@@ -37,6 +39,7 @@ export function StatusMultiSelect({
   onChange,
   disabled = false,
   label = "Status",
+  hideLabel = false,
   id,
   emptyText,
 }: StatusMultiSelectProps) {
@@ -88,17 +91,19 @@ export function StatusMultiSelect({
   );
 
   return (
-    <div className="space-y-2">
-      <Label
-        htmlFor={id}
-        className="text-sm font-medium text-text-label flex items-center gap-1.5"
-      >
-        <CircleDot className="h-3.5 w-3.5 text-muted-foreground" />
-        {label}{" "}
-        <span className="text-muted-foreground font-normal text-xs">
-          (máx. {MAX_STATUS})
-        </span>
-      </Label>
+    <div className={hideLabel ? "space-y-0" : "space-y-2"}>
+      {!hideLabel ? (
+        <Label
+          htmlFor={id}
+          className="text-sm font-medium text-text-label flex items-center gap-1.5"
+        >
+          <CircleDot className="h-3.5 w-3.5 text-muted-foreground" />
+          {label}{" "}
+          <span className="text-muted-foreground font-normal text-xs">
+            (máx. {MAX_STATUS})
+          </span>
+        </Label>
+      ) : null}
       <Combobox
         multiple
         autoHighlight

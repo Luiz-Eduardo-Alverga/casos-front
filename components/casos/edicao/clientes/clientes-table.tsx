@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/painel/empty-state";
 import type { ClienteCasoItem } from "@/interfaces/projeto-memoria";
-import { Check, Copy, Trash2 } from "lucide-react";
+import { Check, Copy, ExternalLink, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { ClientesTableSkeleton } from "./clientes-table-skeleton";
 
@@ -164,7 +165,7 @@ export function ClientesTable({
           <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
             URL
           </TableHead>
-          <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5 w-[80px]">
+          <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5 w-[112px]">
             Ações
           </TableHead>
         </TableRow>
@@ -192,17 +193,36 @@ export function ClientesTable({
               <UrlCell clienteId={item.cliente} urlPorCliente={urlPorCliente} />
             </TableCell>
             <TableCell className="py-3 px-2.5">
-              {canDelete ? (
+              <div className="flex items-center gap-1">
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-8 px-2 text-destructive hover:text-destructive"
-                  onClick={() => onAskDelete(item.sequencia)}
+                  className="h-8 px-2"
+                  asChild
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Link
+                    href={`/clientes/${item.cliente}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Abrir cliente ${item.cliente} em nova aba`}
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
                 </Button>
-              ) : null}
+                {canDelete ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-destructive hover:text-destructive"
+                    onClick={() => onAskDelete(item.sequencia)}
+                    aria-label="Excluir cliente"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                ) : null}
+              </div>
             </TableCell>
           </TableRow>
         ))}

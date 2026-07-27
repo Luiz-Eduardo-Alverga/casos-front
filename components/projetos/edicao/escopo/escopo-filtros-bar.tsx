@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { RefreshCcw } from "lucide-react";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
+import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
@@ -103,13 +104,13 @@ export function EscopoFiltrosBar({
 
   return (
     <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
-      {/* <div className="w-full sm:w-[192px]">
+      <div className="w-full sm:w-[450px]">
         <StatusMultiSelect
           value={statusIds}
           onChange={onStatusIdsChange}
-          label="Status"
+          hideLabel
         />
-      </div> */}
+      </div>
       <NaoPlanejadoFiltroSelect
         value={naoPlanejadoFiltro}
         onValueChange={onNaoPlanejadoFiltroChange}

@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useProjetoMemoria } from "@/hooks/casos/use-projeto-memoria";
 import { getUser } from "@/lib/auth";
-import { ArrowLeftRight, Box, ChevronUp, CircleHelp } from "lucide-react";
+import { ArrowLeftRight, Box, ChevronUp, CircleHelp, RefreshCcw } from "lucide-react";
 import toast from "react-hot-toast";
 import { EmptyState } from "@/components/painel/empty-state";
 import { CasosTabelaSkeleton } from "@/components/casos/layout/casos-tabela-skeleton";
@@ -35,6 +35,7 @@ import { useSetores } from "@/hooks/catalogos/use-setores";
 import { getVersoesQueryKey } from "@/components/casos/shared/versao-combobox";
 import type { Versao } from "@/services/auxiliar/versoes";
 import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
+import { cn } from "@/lib/utils";
 
 interface CasosTabelaProps {
   filtros: CasosFiltrosAplicados;
@@ -79,14 +80,23 @@ export function CasosTabela({ filtros, sort, onSortChange }: CasosTabelaProps) {
     needsVersaoCatalogToResolve(versaoFiltro, versoesCatalogo) &&
     (isVersoesCatalogoLoading || !versoesCatalogo?.length);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useProjetoMemoria(projetoMemoriaParams, {
-      enabled: hasFilters && !aguardandoVersaoCatalogo,
-      refetchInterval:
-        hasFilters && !aguardandoVersaoCatalogo
-          ? AUTO_REFETCH_INTERVAL_MS
-          : false,
-    });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useProjetoMemoria(projetoMemoriaParams, {
+    enabled: hasFilters && !aguardandoVersaoCatalogo,
+    refetchInterval:
+      hasFilters && !aguardandoVersaoCatalogo
+        ? AUTO_REFETCH_INTERVAL_MS
+        : false,
+  });
+
+  const isAtualizando = isFetching && !isFetchingNextPage;
 
   const itens = useMemo(
     () =>
@@ -236,7 +246,21 @@ export function CasosTabela({ filtros, sort, onSortChange }: CasosTabelaProps) {
               </TooltipProvider>
             </div>
 
-            <div>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-9 w-9 shrink-0 rounded-lg border-border-input"
+                onClick={() => void refetch()}
+                disabled={!hasFilters || isAtualizando}
+                aria-label="Atualizar listagem de casos"
+              >
+                <RefreshCcw
+                  className={cn("h-3.5 w-3.5", isAtualizando && "animate-spin")}
+                  aria-hidden
+                />
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
