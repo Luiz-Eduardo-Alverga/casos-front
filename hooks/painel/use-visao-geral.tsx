@@ -6,7 +6,15 @@ import {
   type GetVisaoGeralParams,
 } from "@/services/sprint/get-visao-geral";
 
-export function useVisaoGeral(params: GetVisaoGeralParams = {}) {
+export interface UseVisaoQueryOptions {
+  refetchInterval?: number | false;
+  refetchIntervalInBackground?: boolean;
+}
+
+export function useVisaoGeral(
+  params: GetVisaoGeralParams = {},
+  options?: UseVisaoQueryOptions,
+) {
   const idProjeto = params.id_projeto?.trim() ?? "";
   const produtoId = params.produto_id?.trim() ?? "";
   const setor = params.setor?.trim() ?? "";
@@ -36,5 +44,7 @@ export function useVisaoGeral(params: GetVisaoGeralParams = {}) {
           : {}),
         ...(atribuidoPara ? { atribuido_para: atribuidoPara } : {}),
       }),
+    refetchInterval: options?.refetchInterval,
+    refetchIntervalInBackground: options?.refetchIntervalInBackground ?? true,
   });
 }

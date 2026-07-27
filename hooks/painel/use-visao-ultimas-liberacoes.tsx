@@ -5,9 +5,11 @@ import {
   getVisaoUltimasLiberacoes,
   type GetVisaoUltimasLiberacoesParams,
 } from "@/services/sprint/get-visao-ultimas-liberacoes";
+import type { UseVisaoQueryOptions } from "@/hooks/painel/use-visao-geral";
 
 export function useVisaoUltimasLiberacoes(
   params: GetVisaoUltimasLiberacoesParams = {},
+  options?: UseVisaoQueryOptions,
 ) {
   const produtoId = params.produto_id?.trim() ?? "";
   const setor = params.setor?.trim() ?? "";
@@ -35,5 +37,7 @@ export function useVisaoUltimasLiberacoes(
           : {}),
         ...(diasLiberacao ? { dias_liberacao: diasLiberacao } : {}),
       }),
+    refetchInterval: options?.refetchInterval,
+    refetchIntervalInBackground: options?.refetchIntervalInBackground ?? true,
   });
 }

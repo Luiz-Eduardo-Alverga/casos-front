@@ -5,8 +5,12 @@ import {
   getVisaoDistribuicao,
   type GetVisaoDistribuicaoParams,
 } from "@/services/sprint/get-visao-distribuicao";
+import type { UseVisaoQueryOptions } from "@/hooks/painel/use-visao-geral";
 
-export function useVisaoDistribuicao(params: GetVisaoDistribuicaoParams = {}) {
+export function useVisaoDistribuicao(
+  params: GetVisaoDistribuicaoParams = {},
+  options?: UseVisaoQueryOptions,
+) {
   const idProjeto = params.id_projeto?.trim() ?? "";
   const produtoId = params.produto_id?.trim() ?? "";
   const setor = params.setor?.trim() ?? "";
@@ -34,5 +38,7 @@ export function useVisaoDistribuicao(params: GetVisaoDistribuicaoParams = {}) {
         ...(agruparPor ? { agrupar_por: agruparPor } : {}),
         ...(versao ? { versao } : {}),
       }),
+    refetchInterval: options?.refetchInterval,
+    refetchIntervalInBackground: options?.refetchIntervalInBackground ?? true,
   });
 }

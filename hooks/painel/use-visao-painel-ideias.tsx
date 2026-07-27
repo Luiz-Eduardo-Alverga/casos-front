@@ -5,8 +5,12 @@ import {
   getVisaoPainelIdeias,
   type GetVisaoPainelIdeiasParams,
 } from "@/services/sprint/get-visao-painel-ideias";
+import type { UseVisaoQueryOptions } from "@/hooks/painel/use-visao-geral";
 
-export function useVisaoPainelIdeias(params: GetVisaoPainelIdeiasParams = {}) {
+export function useVisaoPainelIdeias(
+  params: GetVisaoPainelIdeiasParams = {},
+  options?: UseVisaoQueryOptions,
+) {
   const idProjeto = params.id_projeto?.trim() ?? "";
   const produtoId = params.produto_id?.trim() ?? "";
   const setor = params.setor?.trim() ?? "";
@@ -20,5 +24,7 @@ export function useVisaoPainelIdeias(params: GetVisaoPainelIdeiasParams = {}) {
         ...(produtoId ? { produto_id: produtoId } : {}),
         ...(setor ? { setor } : {}),
       }),
+    refetchInterval: options?.refetchInterval,
+    refetchIntervalInBackground: options?.refetchIntervalInBackground ?? true,
   });
 }

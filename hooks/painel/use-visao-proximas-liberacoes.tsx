@@ -5,9 +5,11 @@ import {
   getVisaoProximasLiberacoes,
   type GetVisaoProximasLiberacoesParams,
 } from "@/services/sprint/get-visao-proximas-liberacoes";
+import type { UseVisaoQueryOptions } from "@/hooks/painel/use-visao-geral";
 
 export function useVisaoProximasLiberacoes(
   params: GetVisaoProximasLiberacoesParams = {},
+  options?: UseVisaoQueryOptions,
 ) {
   const produtoId = params.produto_id?.trim() ?? "";
   const setor = params.setor?.trim() ?? "";
@@ -27,5 +29,7 @@ export function useVisaoProximasLiberacoes(
             }
           : {}),
       }),
+    refetchInterval: options?.refetchInterval,
+    refetchIntervalInBackground: options?.refetchIntervalInBackground ?? true,
   });
 }

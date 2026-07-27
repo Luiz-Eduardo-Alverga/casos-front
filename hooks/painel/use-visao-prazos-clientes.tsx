@@ -5,9 +5,11 @@ import {
   getVisaoPrazosClientes,
   type GetVisaoPrazosClientesParams,
 } from "@/services/sprint/get-visao-prazos-clientes";
+import type { UseVisaoQueryOptions } from "@/hooks/painel/use-visao-geral";
 
 export function useVisaoPrazosClientes(
   params: GetVisaoPrazosClientesParams = {},
+  options?: UseVisaoQueryOptions,
 ) {
   const idProjeto = params.id_projeto?.trim() ?? "";
   const produtoId = params.produto_id?.trim() ?? "";
@@ -22,5 +24,7 @@ export function useVisaoPrazosClientes(
         ...(produtoId ? { produto_id: produtoId } : {}),
         ...(setor ? { setor } : {}),
       }),
+    refetchInterval: options?.refetchInterval,
+    refetchIntervalInBackground: options?.refetchIntervalInBackground ?? true,
   });
 }

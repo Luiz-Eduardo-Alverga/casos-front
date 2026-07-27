@@ -33,6 +33,7 @@ import { useVisaoUltimasLiberacoes } from "@/hooks/painel/use-visao-ultimas-libe
 import { useVisaoPainelIdeias } from "@/hooks/painel/use-visao-painel-ideias";
 import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
 import type { VisaoGeralAgruparPor } from "@/services/sprint/get-visao-geral";
+import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
 
 const VERSAO_DEBOUNCE_MS = 300;
 
@@ -100,30 +101,52 @@ export function MinhaVisao() {
   // Próximas/últimas liberações não aceitam id_projeto (apenas produto_id/setor).
   const temFiltroLiberacoes = Boolean(filtros.produto_id || filtros.setor);
 
-  const visaoGeral = useVisaoGeral({
-    ...filtros,
-    agrupar_por: agruparPor,
-    ...(atribuidoPara ? { atribuido_para: atribuidoPara } : {}),
-  });
-  const casosEmProducao = useVisaoCasosEmProducao(filtros);
-  const distribuicao = useVisaoDistribuicao({
-    ...filtros,
-    agrupar_por: agruparPor,
-    ...(debouncedVersao.trim() ? { versao: debouncedVersao.trim() } : {}),
-  });
-  const prazosClientes = useVisaoPrazosClientes(filtros);
-  const proximasLiberacoes = useVisaoProximasLiberacoes({
-    produto_id: filtros.produto_id,
-    setor: filtros.setor,
-    ...(tipoLiberacao !== "todos" ? { tipo_liberacao: tipoLiberacao } : {}),
-  });
-  const ultimasLiberacoes = useVisaoUltimasLiberacoes({
-    produto_id: filtros.produto_id,
-    setor: filtros.setor,
-    ...(tipoLiberacao !== "todos" ? { tipo_liberacao: tipoLiberacao } : {}),
-    dias_liberacao: temFiltroLiberacoes ? "60" : undefined,
-  });
-  const painelIdeias = useVisaoPainelIdeias(filtros);
+  const autoRefetchOptions = {
+    refetchInterval: temFiltroAtivo ? AUTO_REFETCH_INTERVAL_MS : false,
+    refetchIntervalInBackground: true,
+  } as const;
+
+  const autoRefetchLiberacoesOptions = {
+    refetchInterval: temFiltroLiberacoes ? AUTO_REFETCH_INTERVAL_MS : false,
+    refetchIntervalInBackground: true,
+  } as const;
+
+  const visaoGeral = useVisaoGeral(
+    {
+      ...filtros,
+      agrupar_por: agruparPor,
+      ...(atribuidoPara ? { atribuido_para: atribuidoPara } : {}),
+    },
+    autoRefetchOptions,
+  );
+  const casosEmProducao = useVisaoCasosEmProducao(filtros, autoRefetchOptions);
+  const distribuicao = useVisaoDistribuicao(
+    {
+      ...filtros,
+      agrupar_por: agruparPor,
+      ...(debouncedVersao.trim() ? { versao: debouncedVersao.trim() } : {}),
+    },
+    autoRefetchOptions,
+  );
+  const prazosClientes = useVisaoPrazosClientes(filtros, autoRefetchOptions);
+  const proximasLiberacoes = useVisaoProximasLiberacoes(
+    {
+      produto_id: filtros.produto_id,
+      setor: filtros.setor,
+      ...(tipoLiberacao !== "todos" ? { tipo_liberacao: tipoLiberacao } : {}),
+    },
+    autoRefetchLiberacoesOptions,
+  );
+  const ultimasLiberacoes = useVisaoUltimasLiberacoes(
+    {
+      produto_id: filtros.produto_id,
+      setor: filtros.setor,
+      ...(tipoLiberacao !== "todos" ? { tipo_liberacao: tipoLiberacao } : {}),
+      dias_liberacao: temFiltroLiberacoes ? "60" : undefined,
+    },
+    autoRefetchLiberacoesOptions,
+  );
+  const painelIdeias = useVisaoPainelIdeias(filtros, autoRefetchOptions);
 
   const handleAtualizar = useCallback(() => {
     VISAO_QUERY_KEYS.forEach((key) => {
