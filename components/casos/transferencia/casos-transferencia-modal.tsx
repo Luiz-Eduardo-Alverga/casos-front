@@ -132,7 +132,11 @@ export function CasosTransferenciaModal({
                   <CasoFormImportancia tipo="CASO" required={false} />
                 </div>
 
-                <CasoFormProjeto required={false} requireProduto={false} />
+                <CasoFormProjeto
+                  required={false}
+                  requireProduto={false}
+                  autoSelectProjeto="never"
+                />
 
                 {/* <div className="rounded-lg border border-border-divider bg-muted/40 p-3">
                   <div className="flex items-center justify-between gap-4">
