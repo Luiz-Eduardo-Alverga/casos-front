@@ -296,4 +296,5 @@ export interface ProjetoMemoriaParams {
   analise_aprovado?: boolean;
   /** Filtra casos pelo ID do cliente vinculado. */
   cliente?: number;
+  liberacao?: boolean;
 }
