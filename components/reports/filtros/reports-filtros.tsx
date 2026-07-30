@@ -20,9 +20,9 @@ import {
   filtrosToFormDefaults,
   formToFiltrosAplicados,
   hasFiltersApplied,
-} from "@/components/reports/filtros/reports-filtros-mappers";
-import type { ReportsFiltersForm, ReportsFiltrosAplicados } from "./types";
-import { DEFAULT_REPORTS_STATUS_IDS } from "./types";
+} from "./reports-filtros-mappers";
+import type { ReportsFiltersForm, ReportsFiltrosAplicados } from "../types";
+import { DEFAULT_REPORTS_STATUS_IDS } from "../types";
 
 interface ReportsFiltrosProps {
   filtrosAplicados: ReportsFiltrosAplicados;

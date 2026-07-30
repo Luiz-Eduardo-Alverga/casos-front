@@ -2,7 +2,7 @@ import { parseAsArrayOf, parseAsString, parseAsStringLiteral } from "nuqs";
 import {
   DEFAULT_REPORTS_STATUS_IDS,
   type ReportsViewMode,
-} from "@/components/reports/types";
+} from "../types";
 
 export const REPORTS_VIEW_QUERY_KEY = "view";
 

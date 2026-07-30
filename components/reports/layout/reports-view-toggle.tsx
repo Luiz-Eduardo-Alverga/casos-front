@@ -3,7 +3,7 @@
 import { LayoutList, Columns2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { ReportsViewMode } from "./types";
+import type { ReportsViewMode } from "../types";
 
 interface ReportsViewToggleProps {
   viewMode: ReportsViewMode;

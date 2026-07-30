@@ -16,8 +16,8 @@ import { resolveVersaoProdutoForApi } from "@/components/casos/shared/versao-com
 import { importanceOptions } from "@/mocks/teste";
 import { cn } from "@/lib/utils";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
-import type { AprovarReportParams } from "./use-report-acoes";
-import { mapProjetoMemoriaToReportCard } from "./utils";
+import type { AprovarReportParams } from "../hooks/use-report-acoes";
+import { mapProjetoMemoriaToReportCard } from "../utils";
 import { ReportModalInfoBlock } from "./report-modal-info-block";
 
 interface ReportAprovarModalForm {

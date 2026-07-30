@@ -13,7 +13,10 @@ interface PrazosClientesProps {
   isLoading?: boolean;
 }
 
-export function PrazosClientes({ data, isLoading = false }: PrazosClientesProps) {
+export function PrazosClientes({
+  data,
+  isLoading = false,
+}: PrazosClientesProps) {
   if (isLoading) {
     return <PrazosClientesSkeleton />;
   }
@@ -27,9 +30,9 @@ export function PrazosClientes({ data, isLoading = false }: PrazosClientesProps)
             Prazos de clientes
           </CardTitle>
         </div>
-        <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-muted text-text-secondary">
+        {/* <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-muted text-text-secondary">
           {data.length}
-        </span>
+        </span> */}
       </CardHeader>
       <CardContent className="p-0">
         {data.length === 0 ? (

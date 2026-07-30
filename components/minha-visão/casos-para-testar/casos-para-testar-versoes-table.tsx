@@ -14,7 +14,6 @@ import type {
   VisaoGeralItem,
 } from "@/services/sprint/get-visao-geral";
 import {
-  getLabelSortFields,
   getLabelSortOptions,
   VisaoGeralSortableFieldContextMenu,
   VISAO_GERAL_STATUS_SORT_OPTIONS,
@@ -70,33 +69,6 @@ const STATUS_COLUMNS: Array<{
   },
 ];
 
-function getRowLabels(
-  item: VisaoGeralItem,
-  agruparPor: VisaoGeralAgruparPor,
-): { title: string; subtitle?: string } {
-  if (agruparPor === "versao") {
-    return {
-      title: item.produto,
-      subtitle: item.campo ? `v${item.campo}` : undefined,
-    };
-  }
-  if (agruparPor === "produto") {
-    return {
-      title: item.campo || item.produto,
-    };
-  }
-  if (agruparPor === "projeto") {
-    return {
-      title: item.campo || "—",
-      subtitle: item.produto || undefined,
-    };
-  }
-  return {
-    title: item.campo || "—",
-    subtitle: item.produto || undefined,
-  };
-}
-
 function getFooterLabel(
   count: number,
   agruparPor: VisaoGeralAgruparPor,
@@ -135,14 +107,11 @@ export function CasosParaTestarVersoesTable({
     setSort({});
   }, [agruparPor]);
 
-  const labelSortFields = useMemo(
-    () => getLabelSortFields(agruparPor),
-    [agruparPor],
-  );
   const labelSortOptions = useMemo(
     () => getLabelSortOptions(agruparPor),
     [agruparPor],
   );
+  const showProdutoColumn = agruparPor !== "produto";
 
   const statusIdsByColumn = useMemo(() => {
     const map = {} as Record<VisaoGeralStatusColumn, string[]>;
@@ -199,7 +168,11 @@ export function CasosParaTestarVersoesTable({
         <Table>
           <TableBody>
             {sortedData.map((item, idx) => {
-              const labels = getRowLabels(item, agruparPor);
+              const campoLabel =
+                agruparPor === "versao" && item.campo
+                  ? `v${item.campo}`
+                  : item.campo || "—";
+
               return (
                 <TableRow
                   key={`${item.produto_id}-${item.campo}-${idx}`}
@@ -207,23 +180,30 @@ export function CasosParaTestarVersoesTable({
                 >
                   <TableCell className="py-1 px-4 align-middle">
                     <VisaoGeralSortableFieldContextMenu
-                      sortFields={labelSortFields}
+                      sortField="campo"
                       sortOptions={labelSortOptions}
                       sort={sort}
                       onSortChange={setSort}
                     >
-                      <div className="min-w-0">
-                        <div className="text-sm font-semibold text-text-primary truncate">
-                          {labels.title}
-                        </div>
-                        {labels.subtitle ? (
-                          <div className="text-[11px] text-text-secondary">
-                            {labels.subtitle}
-                          </div>
-                        ) : null}
+                      <div className="min-w-0 text-sm font-semibold text-text-primary truncate">
+                        {campoLabel}
                       </div>
                     </VisaoGeralSortableFieldContextMenu>
                   </TableCell>
+                  {showProdutoColumn ? (
+                    <TableCell className="py-1 px-3 align-middle">
+                      <VisaoGeralSortableFieldContextMenu
+                        sortField="produto"
+                        sortOptions={labelSortOptions}
+                        sort={sort}
+                        onSortChange={setSort}
+                      >
+                        <div className="min-w-0 text-[11px] text-text-primary truncate">
+                          {item.produto || "—"}
+                        </div>
+                      </VisaoGeralSortableFieldContextMenu>
+                    </TableCell>
+                  ) : null}
                   {STATUS_COLUMNS.map((column) => {
                     const value = column.getValue(item);
                     const statusIds = statusIdsByColumn[column.key];

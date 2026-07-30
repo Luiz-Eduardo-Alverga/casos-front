@@ -10,7 +10,7 @@ import {
   ReportsListaSkeleton,
 } from "./reports-lista-skeleton";
 import { ReportCard } from "./report-card";
-import { mapProjetoMemoriaToReportCard } from "./utils";
+import { mapProjetoMemoriaToReportCard } from "../utils";
 
 interface ReportsListaProps {
   itens: ProjetoMemoriaItem[];
@@ -41,6 +41,10 @@ export function ReportsLista({
 }: ReportsListaProps) {
   const router = useRouter();
 
+  if (isLoading) {
+    return <ReportsListaSkeleton />;
+  }
+
   if (!hasSetor) {
     return (
       <EmptyState
@@ -49,10 +53,6 @@ export function ReportsLista({
         description="Escolha um setor no filtro para visualizar os reports abertos."
       />
     );
-  }
-
-  if (isLoading) {
-    return <ReportsListaSkeleton />;
   }
 
   if (itens.length === 0) {

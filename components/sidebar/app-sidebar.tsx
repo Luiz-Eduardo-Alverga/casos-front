@@ -229,6 +229,7 @@ export function AppSidebar({
   const rbacReady = permissionsLoaded();
   const canListAcquirer = rbacReady && hasPermission("list-acquirer");
   const canListPainelDev = rbacReady && hasPermission("list-painel-dev");
+  const canListMinhaVisao = rbacReady && hasPermission("list-minha-visao");
   const canListCase =
     rbacReady && hasAnyPermission(["list-case", "list-report"]);
   const canListReport = rbacReady && hasPermission("list-report");
@@ -269,6 +270,15 @@ export function AppSidebar({
       !canListPainelDev &&
       entry.type === "link" &&
       entry.href === "/painel"
+    ) {
+      return false;
+    }
+
+    if (
+      rbacReady &&
+      !canListMinhaVisao &&
+      entry.type === "link" &&
+      entry.href === "/painel/minha-visao"
     ) {
       return false;
     }

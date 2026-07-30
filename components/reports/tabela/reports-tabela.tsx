@@ -14,9 +14,8 @@ import {
 import { EmptyState } from "@/components/painel/empty-state";
 import { cn } from "@/lib/utils";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
-import { mapProjetoMemoriaToReportCard } from "./utils";
-import { getPrioridadeStyle } from "./utils";
-import { ReportCategoriaBadge, ReportPrioridadeBadge } from "./report-badges";
+import { mapProjetoMemoriaToReportCard, getPrioridadeStyle } from "../utils";
+import { ReportCategoriaBadge, ReportPrioridadeBadge } from "../layout/report-badges";
 import { ReportsTabelaDetalhesCaso } from "./reports-tabela-detalhes-caso";
 import {
   ReportsTabelaSkeleton,
@@ -52,6 +51,24 @@ export function ReportsTabela({
     },
     [setScrollRoot],
   );
+
+  if (isLoading) {
+    return (
+      <Card className="bg-card shadow-card rounded-lg flex flex-col lg:min-h-0 lg:flex-1 lg:overflow-hidden">
+        <CardHeader className="p-4 pb-2 border-b border-border-divider shrink-0">
+          <div className="flex items-center gap-2">
+            <FileText className="h-3.5 w-3.5 text-text-primary" />
+            <CardTitle className="text-sm font-semibold text-text-primary">
+              Reports abertos
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4">
+          <ReportsTabelaSkeleton />
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!hasSetor) {
     return (
@@ -89,11 +106,7 @@ export function ReportsTabela({
         ref={scrollRef}
         className="p-0 lg:flex-1 lg:min-h-0 lg:overflow-y-auto"
       >
-        {isLoading ? (
-          <div className="p-4">
-            <ReportsTabelaSkeleton />
-          </div>
-        ) : itens.length === 0 ? (
+        {itens.length === 0 ? (
           <div className="p-6 flex items-center justify-center">
             <EmptyState
               icon={Inbox}

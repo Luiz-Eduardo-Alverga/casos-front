@@ -7,6 +7,7 @@ function hasAny(perms: string[], codes: string[]): boolean {
 /** Primeira rota "home" que o usuário pode acessar (ordem alinhada ao menu). */
 export function getDefaultLandingPath(permissions: string[]): string {
   if (permissions.includes("list-painel-dev")) return "/painel";
+  if (permissions.includes("list-minha-visao")) return "/painel/minha-visao";
   if (hasAny(permissions, ["list-case", "list-report"])) return "/casos";
   if (permissions.includes("list-project")) return "/projetos";
   if (hasAny(permissions, ["audit-all-users", "audit-user"])) {
@@ -20,6 +21,12 @@ export function getDefaultLandingPath(permissions: string[]): string {
 
 /** Verifica se o usuário pode acessar um path (prefixos das rotas protegidas). */
 export function canAccessPath(path: string, permissions: string[]): boolean {
+  if (
+    path === "/painel/minha-visao" ||
+    path.startsWith("/painel/minha-visao/")
+  ) {
+    return permissions.includes("list-minha-visao");
+  }
   if (path === "/painel" || path.startsWith("/painel/")) {
     return permissions.includes("list-painel-dev");
   }

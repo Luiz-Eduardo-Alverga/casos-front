@@ -15,18 +15,18 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/badges/status-badge";
-import type { ReportCardData } from "./types";
+import type { ReportCardData } from "../types";
 import {
   getPrioridadeStyle,
   getReportSlaInfo,
   getSlaSeverityStyle,
   formatDataAbertura,
-} from "./utils";
+} from "../utils";
 import {
   ReportCategoriaBadge,
   ReportIdBadge,
   ReportPrioridadeBadge,
-} from "./report-badges";
+} from "../layout/report-badges";
 
 interface ReportCardProps {
   data: ReportCardData;

@@ -108,15 +108,27 @@ export function CasosParaTestarDistribuicaoTable({
         })}
       </div>
       {totais ? (
-        <div className="px-4 py-2.5 border-t border-border-divider bg-muted/30 flex items-center justify-between text-xs text-text-secondary">
-          <span>Totais</span>
-          <div className="grid grid-cols-4 gap-3 w-[260px] text-right">
+        <div className="px-4 py-2.5 border-t border-border-divider bg-muted/30 flex items-center justify-between gap-4 text-xs text-text-secondary">
+          <span className="w-[240px] shrink-0">Totais</span>
+          <div className="grid grid-cols-6 gap-3 text-right shrink-0 w-[500px]">
+            <span className="font-semibold text-text-primary">
+              {totais.retornos}
+            </span>
+            <span className="font-semibold text-text-primary">
+              {totais.pendentes_qtd}
+            </span>
+            <span className="font-semibold text-text-primary">
+              {totais.estimados_qtd}
+            </span>
+            <span className="font-semibold text-text-primary">
+              {totais.estimados_horas}
+            </span>
             <span className="font-semibold text-text-primary">
               {totais.abertos}
             </span>
-            <span>{totais.estimados_qtd}</span>
-            <span>{totais.estimados_horas}</span>
-            <span>{totais.pendentes_qtd}</span>
+            <span className="font-semibold text-text-primary">
+              {totais.nao_planejados_qtd}
+            </span>
           </div>
         </div>
       ) : null}

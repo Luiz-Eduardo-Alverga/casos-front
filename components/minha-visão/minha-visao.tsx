@@ -186,7 +186,7 @@ export function MinhaVisao() {
         />
       ) : (
         <>
-          {kpisLoading ? (
+          {/* {kpisLoading ? (
             <MinhaVisaoKpisSkeleton />
           ) : (
             <MinhaVisaoKpis
@@ -199,7 +199,7 @@ export function MinhaVisao() {
               proximasLiberacoesTotal={proximasLiberacoesData.length}
               ultimasLiberacoesTotal={ultimasLiberacoesData.length}
             />
-          )}
+          )} */}
 
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex flex-col gap-4 w-full lg:flex-[2] min-w-0">

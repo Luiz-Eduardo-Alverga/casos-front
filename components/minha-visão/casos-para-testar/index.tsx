@@ -161,7 +161,7 @@ export function CasosParaTestar({
         <div className="flex items-center gap-2">
           <Users className="h-3.5 w-3.5 text-text-primary shrink-0" />
           <CardTitle className="text-sm font-semibold text-text-primary">
-            Casos para testar
+            Gerenciamento de casos
           </CardTitle>
         </div>
 

@@ -14,18 +14,18 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/badges/status-badge";
 import { EmptyState } from "@/components/painel/empty-state";
-import type { ReportCardData } from "./types";
+import type { ReportCardData } from "../types";
 import {
   getPrioridadeStyle,
   getReportSlaInfo,
   getSlaSeverityStyle,
   formatDataAbertura,
-} from "./utils";
+} from "../utils";
 import {
   ReportCategoriaBadge,
   ReportIdBadge,
   ReportPrioridadeBadge,
-} from "./report-badges";
+} from "../layout/report-badges";
 
 interface ReportDetalheProps {
   data: ReportCardData | null;

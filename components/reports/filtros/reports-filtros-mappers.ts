@@ -8,11 +8,11 @@ import {
   DEFAULT_REPORTS_STATUS_IDS,
   type ReportsFiltersForm,
   type ReportsFiltrosAplicados,
-} from "@/components/reports/types";
+} from "../types";
 import type {
   ReportsFiltrosNuqsState,
   ReportsFiltrosNuqsUpdate,
-} from "@/components/reports/filtros/reports-filtros-parsers";
+} from "./reports-filtros-parsers";
 
 function normalizeStatusIds(statusIds: string[] | undefined): string[] {
   const normalized = (statusIds ?? [])

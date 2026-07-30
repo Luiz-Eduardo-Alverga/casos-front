@@ -1,11 +1,11 @@
 "use client";
 
-import type { ReportCardData } from "./types";
+import type { ReportCardData } from "../types";
 import {
   ReportCategoriaBadge,
   ReportIdBadge,
   ReportPrioridadeBadge,
-} from "./report-badges";
+} from "../layout/report-badges";
 
 interface ReportModalInfoBlockProps {
   data: ReportCardData;
