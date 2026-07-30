@@ -48,16 +48,20 @@ export function resolveVisaoStatusIds(
   return ids;
 }
 
-/** Monta a URL da listagem de casos com produto, versão e status pré-filtrados. */
+/** Monta a URL da listagem de casos com produto, versão, projeto e status pré-filtrados. */
 export function buildCasosListagemHref(params: {
   produtoId: string | number;
   versao?: string;
+  projetoId?: string;
   statusIds: string[];
 }): string {
   const search = new URLSearchParams();
   search.set("produto", String(params.produtoId));
   if (params.versao?.trim()) {
     search.set("versao", params.versao.trim());
+  }
+  if (params.projetoId?.trim()) {
+    search.set("projeto_id", params.projetoId.trim());
   }
   // nuqs `parseAsArrayOf` espera `status_id=1,2` (não chaves repetidas).
   if (params.statusIds.length > 0) {

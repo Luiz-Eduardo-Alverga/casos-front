@@ -1,5 +1,6 @@
 import type { CasoFiltroField, FiltroResumoItem } from "@/lib/types/filtros-resumo";
 import { DEFAULT_FILTROS_RESUMO } from "@/lib/types/filtros-resumo";
+import type { LiberacaoFiltro } from "@/components/filtros/liberacao-filtro";
 import type { NaoPlanejadoFiltro } from "@/components/filtros/nao-planejado-filtro";
 
 export type { CasoFiltroField, FiltroResumoItem };
@@ -28,6 +29,7 @@ export const FILTROS_RESUMO_CATALOGO: Array<{
   { field: "data_producao_inicio", label: "Produção (início)",  tipo: "Seleção",  defaultColSpan: 1 },
   { field: "data_producao_fim",    label: "Produção (fim)",     tipo: "Seleção",  defaultColSpan: 1 },
   { field: "nao_planejado",        label: "Planejamento",       tipo: "Seleção",  defaultColSpan: 1 },
+  { field: "liberacao",            label: "Liberação",          tipo: "Seleção",  defaultColSpan: 1 },
 ];
 
 export interface CasosFiltrosAplicados {
@@ -48,6 +50,7 @@ export interface CasosFiltrosAplicados {
   data_producao_inicio: string;
   data_producao_fim: string;
   nao_planejado_filtro: NaoPlanejadoFiltro;
+  liberacao_filtro: LiberacaoFiltro;
 }
 
 export interface CasosFiltersForm {
@@ -68,6 +71,7 @@ export interface CasosFiltersForm {
   data_producao_inicio: Date | undefined;
   data_producao_fim: Date | undefined;
   nao_planejado_filtro: NaoPlanejadoFiltro;
+  liberacao_filtro: LiberacaoFiltro;
 }
 
 export const EMPTY_CASOS_FILTERS_FORM: CasosFiltersForm = {
@@ -88,6 +92,7 @@ export const EMPTY_CASOS_FILTERS_FORM: CasosFiltersForm = {
   data_producao_inicio: undefined,
   data_producao_fim: undefined,
   nao_planejado_filtro: "todos",
+  liberacao_filtro: "todos",
 };
 
 export const EMPTY_CASOS_FILTROS: CasosFiltrosAplicados = {
@@ -108,4 +113,5 @@ export const EMPTY_CASOS_FILTROS: CasosFiltrosAplicados = {
   data_producao_inicio: "",
   data_producao_fim: "",
   nao_planejado_filtro: "todos",
+  liberacao_filtro: "todos",
 };

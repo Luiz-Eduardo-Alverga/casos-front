@@ -27,6 +27,7 @@ import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuid
 import { CasoFormQaAtribuido } from "@/components/fields/caso-form-qa-atribuido";
 import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
 import { CasoFormSetor } from "@/components/fields/caso-form-setor";
+import { LiberacaoFiltroSelect } from "@/components/filtros/liberacao-filtro-select";
 import { NaoPlanejadoFiltroSelect } from "@/components/filtros/nao-planejado-filtro-select";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
@@ -181,6 +182,22 @@ function NaoPlanejadoField() {
   );
 }
 
+function LiberacaoField() {
+  const { control } = useFormContext<CasosFiltersForm>();
+  return (
+    <Controller
+      name="liberacao_filtro"
+      control={control}
+      render={({ field }) => (
+        <LiberacaoFiltroSelect
+          value={field.value}
+          onValueChange={field.onChange}
+        />
+      )}
+    />
+  );
+}
+
 function DataProducaoInicioField() {
   const { control } = useFormContext<CasosFiltersForm>();
   return (
@@ -253,6 +270,7 @@ const FILTRO_CAMPO_RENDER: Record<CasoFiltroField, () => ReactNode> = {
   data_producao_inicio: () => <DataProducaoInicioField />,
   data_producao_fim: () => <DataProducaoFimField />,
   nao_planejado: () => <NaoPlanejadoField />,
+  liberacao: () => <LiberacaoField />,
 };
 
 export function CasosFiltros({

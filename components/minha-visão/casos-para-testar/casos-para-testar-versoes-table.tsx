@@ -2,12 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import {
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-} from "@/components/ui/table";
+import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { useStatus } from "@/hooks/catalogos/use-status";
 import {
   buildCasosListagemHref,
@@ -29,6 +24,7 @@ import {
 interface CasosParaTestarVersoesTableProps {
   data: VisaoGeralItem[];
   agruparPor: VisaoGeralAgruparPor;
+  projetoId?: string;
 }
 
 const STATUS_COLUMNS: Array<{
@@ -101,7 +97,10 @@ function getRowLabels(
   };
 }
 
-function getFooterLabel(count: number, agruparPor: VisaoGeralAgruparPor): string {
+function getFooterLabel(
+  count: number,
+  agruparPor: VisaoGeralAgruparPor,
+): string {
   if (agruparPor === "produto") {
     return count === 1
       ? "produto em acompanhamento"
@@ -117,9 +116,7 @@ function getFooterLabel(count: number, agruparPor: VisaoGeralAgruparPor): string
       ? "pessoa em acompanhamento"
       : "pessoas em acompanhamento";
   }
-  return count === 1
-    ? "versão em acompanhamento"
-    : "versões em acompanhamento";
+  return count === 1 ? "versão em acompanhamento" : "versões em acompanhamento";
 }
 
 function compareText(a: string, b: string, direction: number): number {
@@ -129,6 +126,7 @@ function compareText(a: string, b: string, direction: number): number {
 export function CasosParaTestarVersoesTable({
   data,
   agruparPor,
+  projetoId,
 }: CasosParaTestarVersoesTableProps) {
   const { data: statusList } = useStatus();
   const [sort, setSort] = useState<VisaoGeralSortState>({});
@@ -178,16 +176,21 @@ export function CasosParaTestarVersoesTable({
       const statusIds = statusIdsByColumn[column];
       if (!statusIds.length) return;
 
+      const projetoIdTrimmed = projetoId?.trim() ?? "";
+      const incluirProjeto =
+        column !== "aguardando_teste" && Boolean(projetoIdTrimmed);
+
       const href = buildCasosListagemHref({
         produtoId: item.produto_id,
         ...(agruparPor === "versao" && item.campo
           ? { versao: item.campo }
           : {}),
+        ...(incluirProjeto ? { projetoId: projetoIdTrimmed } : {}),
         statusIds,
       });
       window.open(href, "_blank", "noopener,noreferrer");
     },
-    [agruparPor, statusIdsByColumn],
+    [agruparPor, projetoId, statusIdsByColumn],
   );
 
   return (

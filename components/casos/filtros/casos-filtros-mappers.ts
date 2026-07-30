@@ -2,6 +2,8 @@ import type { Categoria } from "@/services/auxiliar/categorias";
 import type { Setor } from "@/services/auxiliar/setores";
 import type { Versao } from "@/services/auxiliar/versoes";
 import { resolveSetorNome } from "@/components/reports/filtros/reports-filtros-mappers";
+import { liberacaoFiltroToApiParam } from "@/components/filtros/liberacao-filtro";
+import type { LiberacaoFiltro } from "@/components/filtros/liberacao-filtro";
 import { naoPlanejadoFiltroToApiParam } from "@/components/filtros/nao-planejado-filtro";
 import type { NaoPlanejadoFiltro } from "@/components/filtros/nao-planejado-filtro";
 import {
@@ -76,6 +78,9 @@ export function parseSearchParamsToFiltros(
     nao_planejado_filtro: parseNaoPlanejadoFiltroParam(
       params.get("nao_planejado_filtro"),
     ),
+    liberacao_filtro: parseLiberacaoFiltroParam(
+      params.get("liberacao_filtro"),
+    ),
   };
 }
 
@@ -83,6 +88,11 @@ function parseNaoPlanejadoFiltroParam(
   value: string | null,
 ): NaoPlanejadoFiltro {
   if (value === "planejado" || value === "nao_planejado") return value;
+  return "todos";
+}
+
+function parseLiberacaoFiltroParam(value: string | null): LiberacaoFiltro {
+  if (value === "com_liberacao" || value === "sem_liberacao") return value;
   return "todos";
 }
 
@@ -117,6 +127,7 @@ export function nuqsStateToFiltrosAplicados(
     data_producao_inicio: state.data_producao_inicio ?? "",
     data_producao_fim: state.data_producao_fim ?? "",
     nao_planejado_filtro: state.nao_planejado_filtro ?? "todos",
+    liberacao_filtro: state.liberacao_filtro ?? "todos",
   };
 }
 
@@ -162,6 +173,8 @@ export function filtrosAplicadosToNuqsState(
       filtros.nao_planejado_filtro !== "todos"
         ? filtros.nao_planejado_filtro
         : null,
+    liberacao_filtro:
+      filtros.liberacao_filtro !== "todos" ? filtros.liberacao_filtro : null,
     status_id:
       filtros.status_ids.length > 0
         ? filtros.status_ids.slice(0, MAX_STATUS_IDS_FILTRO_CASOS)
@@ -231,6 +244,7 @@ export function formToFiltrosAplicados(
     data_producao_inicio: dateToYmd(values.data_producao_inicio) ?? "",
     data_producao_fim: dateToYmd(values.data_producao_fim) ?? "",
     nao_planejado_filtro: values.nao_planejado_filtro ?? "todos",
+    liberacao_filtro: values.liberacao_filtro ?? "todos",
   };
 }
 
@@ -265,6 +279,7 @@ export function filtrosToFormDefaults(
     data_producao_inicio: parseYmdToDate(filtros.data_producao_inicio),
     data_producao_fim: parseYmdToDate(filtros.data_producao_fim),
     nao_planejado_filtro: filtros.nao_planejado_filtro ?? "todos",
+    liberacao_filtro: filtros.liberacao_filtro ?? "todos",
   };
 }
 
@@ -286,7 +301,8 @@ export function hasFiltersApplied(filtros: CasosFiltrosAplicados): boolean {
     !!filtros.data_abertura_final?.trim() ||
     !!filtros.data_producao_inicio?.trim() ||
     !!filtros.data_producao_fim?.trim() ||
-    filtros.nao_planejado_filtro !== "todos"
+    filtros.nao_planejado_filtro !== "todos" ||
+    filtros.liberacao_filtro !== "todos"
   );
 }
 
@@ -328,6 +344,7 @@ export function filtrosToProjetoMemoriaParams(
   const versaoProduto = parseVersaoProduto(filtros.versao, versoes);
   const setorNome = resolveSetorNome(filtros.setor, setores ?? undefined);
   const naoPlanejado = naoPlanejadoFiltroToApiParam(filtros.nao_planejado_filtro);
+  const liberacao = liberacaoFiltroToApiParam(filtros.liberacao_filtro);
 
   return {
     per_page: 15,
@@ -376,6 +393,7 @@ export function filtrosToProjetoMemoriaParams(
       ? { data_producao_fim: filtros.data_producao_fim.trim() }
       : {}),
     ...(naoPlanejado !== undefined ? { nao_planejado: naoPlanejado } : {}),
+    ...(liberacao !== undefined ? { liberacao } : {}),
   };
 }
 
@@ -393,6 +411,7 @@ export function clearSheetFields(
     data_producao_inicio: "",
     data_producao_fim: "",
     nao_planejado_filtro: "todos",
+    liberacao_filtro: "todos",
     tipo_abertura: "",
   };
 }

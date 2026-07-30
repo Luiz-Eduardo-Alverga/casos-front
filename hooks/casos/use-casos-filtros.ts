@@ -68,6 +68,7 @@ export function useCasosFiltros() {
       data_producao_inicio: null,
       data_producao_fim: null,
       nao_planejado_filtro: null,
+      liberacao_filtro: null,
       status_id: null,
       sort_by: null,
       sort_order: null,

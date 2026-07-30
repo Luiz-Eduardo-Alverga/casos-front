@@ -16,7 +16,8 @@ export type CasoFiltroField =
   | "data_abertura_final"
   | "data_producao_inicio"
   | "data_producao_fim"
-  | "nao_planejado";
+  | "nao_planejado"
+  | "liberacao";
 
 /** Um filtro selecionado pelo usuário para exibição, com seu colSpan na grid de 5 colunas. */
 export interface FiltroResumoItem {
@@ -43,4 +44,5 @@ export const DEFAULT_FILTROS_RESUMO: FiltroResumoItem[] = [
   { field: "data_producao_inicio", colSpan: 1 },
   { field: "data_producao_fim", colSpan: 1 },
   { field: "nao_planejado", colSpan: 1 },
+  { field: "liberacao", colSpan: 1 },
 ];

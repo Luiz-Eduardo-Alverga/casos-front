@@ -52,20 +52,12 @@ export function MinhaVisao() {
   const queryClient = useQueryClient();
   const { setCollapsed } = useSidebar();
   const [view, setView] = useState<CasosParaTestarView>("geral");
-  const [agruparPor, setAgruparPor] =
-    useState<VisaoGeralAgruparPor>("versao");
+  const [agruparPor, setAgruparPor] = useState<VisaoGeralAgruparPor>("versao");
   const [atribuidoPara, setAtribuidoPara] = useState("");
   const [versao, setVersao] = useState("");
   const debouncedVersao = useDebouncedValue(versao, VERSAO_DEBOUNCE_MS);
   const [tipoLiberacao, setTipoLiberacao] =
     useState<TipoLiberacaoFiltro>("todos");
-
-  // Colapsa a sidebar apenas enquanto o usuário está na tela Minha Visão.
-  useEffect(() => {
-    setCollapsed(true);
-    return () => setCollapsed(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const filtrosUrl = useMemo(
     () => ({
@@ -220,6 +212,7 @@ export function MinhaVisao() {
                 onAtribuidoParaChange={setAtribuidoPara}
                 versao={versao}
                 onVersaoChange={setVersao}
+                projetoId={filtros.id_projeto}
                 geralData={geralData}
                 distribuicaoData={distribuicaoData}
                 distribuicaoTotais={distribuicaoTotais}

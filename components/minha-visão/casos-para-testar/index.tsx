@@ -64,6 +64,7 @@ interface CasosParaTestarProps {
   onAtribuidoParaChange: (value: string) => void;
   versao: string;
   onVersaoChange: (value: string) => void;
+  projetoId?: string;
   geralData: VisaoGeralItem[];
   distribuicaoData: VisaoDistribuicaoItem[];
   distribuicaoTotais?: VisaoDistribuicaoTotais;
@@ -79,6 +80,7 @@ export function CasosParaTestar({
   onAtribuidoParaChange,
   versao,
   onVersaoChange,
+  projetoId,
   geralData,
   distribuicaoData,
   distribuicaoTotais,
@@ -105,10 +107,7 @@ export function CasosParaTestar({
   }, [atribuidoParaWatch, atribuidoPara, onAtribuidoParaChange]);
 
   useEffect(() => {
-    if (
-      view === "distribuicao" &&
-      !AGRUPAR_POR_DISTRIBUICAO.has(agruparPor)
-    ) {
+    if (view === "distribuicao" && !AGRUPAR_POR_DISTRIBUICAO.has(agruparPor)) {
       onAgruparPorChange(AGRUPAR_POR_DISTRIBUICAO_DEFAULT);
     }
   }, [view, agruparPor, onAgruparPorChange]);
@@ -259,6 +258,7 @@ export function CasosParaTestar({
           <CasosParaTestarVersoesTable
             data={geralData}
             agruparPor={agruparPor}
+            projetoId={projetoId}
           />
         ) : (
           <CasosParaTestarDistribuicaoTable
