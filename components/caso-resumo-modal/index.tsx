@@ -1,26 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import { useProjetoMemoriaById } from "@/hooks/casos/use-projeto-memoria-by-id";
-import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
 import { CasoResumoModalContent } from "@/components/caso-resumo-modal/caso-resumo-modal-content";
-import {
-  CASE_ID_MAX_LENGTH,
-  CASE_SEARCH_DEBOUNCE_MS,
-  formatCaseSearchValue,
-  isCaseSearchReady,
-} from "@/components/caso-resumo-modal/utils";
 import { useCasoProducaoActions } from "@/components/caso-resumo-modal/use-caso-producao-actions";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -31,7 +23,6 @@ const statusFormSchema = z.object({
 interface CasoResumoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  variant: "kanban" | "pesquisa";
   item?: ProjetoMemoriaItem | null;
   initialCaseId?: string | number | null;
 }
@@ -39,81 +30,26 @@ interface CasoResumoModalProps {
 export function CasoResumoModal({
   open,
   onOpenChange,
-  variant,
   item: itemProp,
   initialCaseId,
 }: CasoResumoModalProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [searchInput, setSearchInput] = useState("");
-  const [committedSearchId, setCommittedSearchId] = useState<string | null>(
-    null,
-  );
-  const debouncedSearch = useDebouncedValue(
-    searchInput,
-    CASE_SEARCH_DEBOUNCE_MS,
-  );
 
-  useEffect(() => {
-    if (debouncedSearch !== searchInput) return;
-
-    if (isCaseSearchReady(debouncedSearch)) {
-      setCommittedSearchId(debouncedSearch);
-    } else {
-      setCommittedSearchId(null);
-    }
-  }, [debouncedSearch, searchInput]);
-
-  const isSearchPending =
-    variant === "pesquisa" &&
-    isCaseSearchReady(searchInput) &&
-    searchInput !== committedSearchId;
-
-  const kanbanShouldFetch =
-    variant === "kanban" && open && Boolean(initialCaseId);
+  const shouldFetch = open && Boolean(initialCaseId);
   const kanbanQuery = useProjetoMemoriaById(initialCaseId ?? null, {
-    enabled: kanbanShouldFetch,
+    enabled: shouldFetch,
   });
 
-  const searchQuery = useProjetoMemoriaById(committedSearchId, {
-    enabled: variant === "pesquisa" && open && Boolean(committedSearchId),
-  });
-
-  const loadedItem = useMemo(() => {
-    if (variant === "kanban") {
-      return kanbanQuery.data?.data ?? itemProp ?? null;
-    }
-    if (!committedSearchId || searchInput !== committedSearchId) return null;
-    return searchQuery.data?.data ?? null;
-  }, [
-    variant,
-    itemProp,
-    searchQuery.data,
-    kanbanQuery.data,
-    committedSearchId,
-    searchInput,
-  ]);
-
-  const isLoading =
-    variant === "kanban"
-      ? Boolean(initialCaseId) && kanbanQuery.isLoading
-      : isSearchPending ||
-        (Boolean(committedSearchId) && searchQuery.isLoading);
-
-  const isError =
-    variant === "kanban"
-      ? Boolean(initialCaseId) && kanbanQuery.isError
-      : Boolean(committedSearchId) &&
-        !isSearchPending &&
-        searchQuery.isError;
-  const queryError =
-    variant === "kanban" ? kanbanQuery.error : searchQuery.error;
+  const loadedItem = kanbanQuery.data?.data ?? itemProp ?? null;
+  const isLoading = Boolean(initialCaseId) && kanbanQuery.isLoading;
+  const isError = Boolean(initialCaseId) && kanbanQuery.isError;
+  const queryError = kanbanQuery.error;
 
   const memoriaQueryId = useMemo(() => {
-    if (variant === "pesquisa") return committedSearchId ?? "";
     const fromProp = initialCaseId ?? loadedItem?.caso?.id ?? "";
     return String(fromProp);
-  }, [variant, committedSearchId, initialCaseId, loadedItem]);
+  }, [initialCaseId, loadedItem]);
 
   const statusForm = useForm<{ status?: string }>({
     resolver: zodResolver(statusFormSchema),
@@ -123,12 +59,6 @@ export function CasoResumoModal({
   useEffect(() => {
     statusForm.setValue("status", loadedItem?.caso?.status?.status_id ?? "");
   }, [loadedItem, statusForm]);
-
-  useEffect(() => {
-    if (!open || variant !== "pesquisa") return;
-    setSearchInput("");
-    setCommittedSearchId(null);
-  }, [open, variant]);
 
   const invalidate = () => {
     if (memoriaQueryId) {
@@ -146,27 +76,6 @@ export function CasoResumoModal({
     onOpenChange(false);
     router.push(`/casos/${id}`);
   }, [loadedItem?.caso?.id, onOpenChange, router]);
-
-  const handleSearchInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key !== "Enter") return;
-      if (!isCaseSearchReady(searchInput)) return;
-
-      e.preventDefault();
-
-      if (
-        loadedItem &&
-        searchInput === String(loadedItem.caso?.id) &&
-        !isLoading
-      ) {
-        handleVerCasoCompleto();
-        return;
-      }
-
-      setCommittedSearchId(searchInput);
-    },
-    [searchInput, loadedItem, isLoading, handleVerCasoCompleto],
-  );
 
   const handleRedirecionarParaAbaProducao = useCallback(() => {
     const id = loadedItem?.caso?.id ?? memoriaQueryId;
@@ -202,7 +111,7 @@ export function CasoResumoModal({
     loadedItem?.caso?.status?.status_tempo;
   const showIniciar = tempoStatus === "INICIAR" && statusTempo === "PARADO";
   const showParar = tempoStatus === "PARAR" && statusTempo === "INICIADO";
-  const showProducaoButton = variant === "kanban" && (showIniciar || showParar);
+  const showProducaoButton = showIniciar || showParar;
   const hasAnotations =
     loadedItem?.caso.anotacoes && loadedItem?.caso.anotacoes.length > 0;
 
@@ -227,47 +136,12 @@ export function CasoResumoModal({
             <CasoFormProvider value={providerValue}>
               <div className="bg-card rounded-lg">
                 <CasoResumoModalContent
-                  variant={variant}
                   item={loadedItem}
                   memoriaQueryId={memoriaQueryId}
-                  showEmptyForSearch={
-                    variant === "pesquisa" &&
-                    !isCaseSearchReady(searchInput) &&
-                    !isSearchPending &&
-                    !isLoading
-                  }
                   isLoading={isLoading}
                   isError={isError}
                   error={queryError}
-                  searchedCaseId={
-                    variant === "pesquisa"
-                      ? committedSearchId
-                      : String(initialCaseId ?? "")
-                  }
-                  searchHeader={
-                    variant === "pesquisa" ? (
-                      <div className="px-6 pt-8 pb-4 shrink-0 bg-card">
-                        <Input
-                          value={searchInput}
-                          onChange={(e) =>
-                            setSearchInput(
-                              formatCaseSearchValue(e.target.value),
-                            )
-                          }
-                          onKeyDown={handleSearchInputKeyDown}
-                          maxLength={CASE_ID_MAX_LENGTH}
-                          inputMode="numeric"
-                          placeholder="Digite o número do caso (mín. 5 dígitos)"
-                        />
-                      </div>
-                    ) : null
-                  }
-                  resultBannerText={
-                    variant === "pesquisa" && loadedItem && committedSearchId
-                      ? `1 caso encontrado para o valor ${committedSearchId}`
-                      : undefined
-                  }
-                  onStatusUpdated={invalidate}
+                  searchedCaseId={String(initialCaseId ?? "")}
                   onVerCasoCompleto={handleVerCasoCompleto}
                   showProducaoButton={showProducaoButton}
                   onAcaoProducao={showIniciar ? handleIniciar : handleParar}

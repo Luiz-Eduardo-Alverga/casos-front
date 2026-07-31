@@ -1,96 +1,53 @@
 "use client";
 
-import { useEffect } from "react";
 import { Eye, Info, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/badges/status-badge";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
-import { EmptyState } from "@/components/painel/empty-state";
 import { CasoResumoInfoBox } from "@/components/caso-resumo-modal/caso-resumo-info-box";
-import { CasoResumoStatusActions } from "@/components/caso-resumo-modal/caso-resumo-status-actions";
 import { CasoResumoModalSkeleton } from "@/components/caso-resumo-modal/caso-resumo-modal-skeleton";
 import { CasoProducaoActionButton } from "@/components/caso-resumo-modal/caso-producao-action-button";
 import { isHttpError } from "@/lib/http-error";
 import { CasoNaoEncontrado } from "@/components/casos/edicao/caso-nao-encontrado";
 
 interface CasoResumoModalContentProps {
-  variant: "kanban" | "pesquisa";
   item: ProjetoMemoriaItem | null;
   memoriaQueryId?: string;
-  showEmptyForSearch: boolean;
   isLoading?: boolean;
   isError?: boolean;
   error?: unknown;
   searchedCaseId?: string | null;
-  onStatusUpdated: () => void;
   onVerCasoCompleto: () => void;
   onAcaoProducao?: () => void;
   showProducaoButton?: boolean;
   producaoMode?: "iniciar" | "parar";
   producaoIsPending?: boolean;
   producaoDisabled?: boolean;
-  resultBannerText?: string;
-  searchHeader?: React.ReactNode;
   hasAnotations?: boolean;
   /** Fecha o modal antes da navegação nos CTAs do 404 (mesmo componente da edição). */
   onBeforeNavigate404?: () => void;
 }
 
 export function CasoResumoModalContent({
-  variant,
   item,
   memoriaQueryId,
-  showEmptyForSearch,
   isLoading = false,
   isError = false,
   error,
   searchedCaseId = null,
-  onStatusUpdated,
   onVerCasoCompleto,
   onAcaoProducao,
   showProducaoButton = false,
   producaoMode = "iniciar",
   producaoIsPending = false,
   producaoDisabled = false,
-  resultBannerText,
-  searchHeader,
   hasAnotations,
   onBeforeNavigate404,
 }: CasoResumoModalContentProps) {
-  useEffect(() => {
-    if (variant !== "pesquisa" || !item || isLoading || isError) return;
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Enter") return;
-      if (e.target instanceof HTMLInputElement) return;
-      e.preventDefault();
-      onVerCasoCompleto();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [variant, item, isLoading, isError, onVerCasoCompleto]);
-
-  if (showEmptyForSearch) {
-    return (
-      <div className="flex flex-col">
-        {searchHeader}
-        <div className="flex-1 px-6 pb-6">
-          <EmptyState
-            imageSrc="/images/empty-state-casos-produto.svg"
-            title="Pesquise um caso"
-            description="Digite o número do caso (mínimo 5 dígitos) para carregar a visualização resumida."
-          />
-        </div>
-      </div>
-    );
-  }
-
   if (isLoading) {
     return (
       <div className="flex flex-col">
-        {searchHeader}
         <div className="flex-1 overflow-hidden">
           <CasoResumoModalSkeleton />
         </div>
@@ -104,7 +61,6 @@ export function CasoResumoModalContent({
         (searchedCaseId?.trim() || memoriaQueryId?.trim() || "").trim() || "—";
       return (
         <div className="flex flex-col">
-          {searchHeader}
           <div className="flex min-h-[320px] flex-1 items-center justify-center px-6 pb-8 pt-4">
             <CasoNaoEncontrado
               casoId={id404}
@@ -118,7 +74,6 @@ export function CasoResumoModalContent({
 
     return (
       <div className="flex flex-col">
-        {searchHeader}
         <div className="flex min-h-[200px] items-center justify-center">
           <p className="text-sm font-medium text-destructive">
             Não foi possível carregar o caso.
@@ -134,18 +89,9 @@ export function CasoResumoModalContent({
 
   const caso = item.caso;
   const statusLabel = caso?.status?.status_tipo ?? "Não informado";
-  const statusIdApi = Number(caso?.status?.status_id ?? 0);
 
   return (
     <div className="flex max-h-[90vh] w-full min-w-0 flex-col bg-card">
-      {searchHeader}
-      {resultBannerText && (
-        <div className="w-full bg-muted px-6 py-2.5 shrink-0">
-          <p className="text-sm font-semibold text-foreground">
-            {resultBannerText}
-          </p>
-        </div>
-      )}
       <div className="flex items-center justify-between px-6 pt-8 pb-4 shrink-0">
         <p className="text-2xl font-bold leading-5 text-foreground">
           Caso #{caso?.id}
@@ -202,16 +148,6 @@ export function CasoResumoModalContent({
               </div>
             </CardContent>
           </Card>
-
-          {/* {memoriaQueryId && (
-            <div>
-              <CasoResumoStatusActions
-                statusIdApi={statusIdApi}
-                memoriaQueryId={memoriaQueryId}
-                onStatusUpdated={onStatusUpdated}
-              />
-            </div>
-          )} */}
 
           {hasAnotations && (
             <div className="bg-blue-100 border border-blue-200 flex items-center justify-center h-[55px] px-2 py-0.5 rounded-lg w-full">

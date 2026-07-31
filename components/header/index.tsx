@@ -16,7 +16,7 @@ import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { AvisosDropdown } from "@/components/avisos/avisos-dropdown";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CasoResumoModal } from "@/components/caso-resumo-modal";
+import { CasoSearchModal } from "@/components/caso-search-modal";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import { useTheme } from "next-themes";
@@ -228,10 +228,9 @@ export function Header() {
             <UserDropDown />
           </div>
         </div>
-        <CasoResumoModal
+        <CasoSearchModal
           open={openCaseSearch}
           onOpenChange={setOpenCaseSearch}
-          variant="pesquisa"
         />
       </header>
 

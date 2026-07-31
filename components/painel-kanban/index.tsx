@@ -342,7 +342,6 @@ export function PainelKanban() {
           <CasoResumoModal
             open={openResumo}
             onOpenChange={setOpenResumo}
-            variant="kanban"
             initialCaseId={itemSelecionado?.id}
           />
         </ListagemPageLayout>

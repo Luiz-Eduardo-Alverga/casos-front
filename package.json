@@ -59,6 +59,7 @@
     "react-hook-form": "^7.71.1",
     "react-hot-toast": "^2.6.0",
     "react-imask": "^7.6.1",
+    "react-markdown": "^10.1.0",
     "swagger-ui-react": "^5.31.0",
     "tailwind-merge": "^2.6.0",
     "tunnel-rat": "^0.1.2",

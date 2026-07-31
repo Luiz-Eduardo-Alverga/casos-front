@@ -19,6 +19,7 @@ import {
   CodeXml,
   Settings,
   Smartphone,
+  PackageCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -65,7 +66,7 @@ interface SidebarSubitem {
 }
 
 const STANDALONE_NAV_ORDERS = new Set([20, 21]);
-const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 35, 36, 37, 40]);
+const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 33, 35, 36, 37, 40]);
 const RECURSOS_NAV_ORDERS = new Set([50, 60]);
 
 const CADASTROS_SUBITEMS: SidebarSubitem[] = [
@@ -150,6 +151,13 @@ const MAIN_NAV: MainNavEntry[] = [
     label: "Auditoria de horas",
     href: "/auditoria/horas-colaboradores",
     icon: Clock3,
+  },
+  {
+    type: "link",
+    order: 33,
+    label: "Registro de Liberação",
+    href: "/liberacoes",
+    icon: PackageCheck,
   },
   {
     type: "link",
