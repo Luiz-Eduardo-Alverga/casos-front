@@ -7,7 +7,9 @@ import type { FormAssistantPrompt } from "@/lib/types/form-assistant-prompts";
 export async function GET() {
   return withPermission(["create-case", "create-report"], async () => {
     try {
-      const response = await apiAssistant.get("/api/form-assistant-prompts");
+      const response = await apiAssistant.get("/api/form-assistant-prompts", {
+        params: { tipo: "FORM_ASSISTANT" },
+      });
       const payload = response.data as {
         success?: boolean;
         data?: FormAssistantPrompt[];

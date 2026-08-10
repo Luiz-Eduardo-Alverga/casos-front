@@ -2,15 +2,14 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Filter, FilterX, Layers, ListFilter, PackageSearch } from "lucide-react";
+import { Filter, FilterX, Layers, ListFilter } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
+import { CasoFormProduto } from "@/components/fields/caso-form-produto";
 import { CasoFormVersao } from "@/components/fields/caso-form-versao";
-import { useProdutos } from "@/hooks/catalogos/use-produtos";
 import { useVersoes } from "@/hooks/catalogos/use-versoes";
-import { produtosToOptions } from "@/components/liberacoes/utils";
 import {
   STATUS_LIBERACAO_OPTIONS,
   TIPO_LIBERACAO_OPTIONS,
@@ -51,9 +50,6 @@ export function LiberacoesFiltros({
   onFiltroChange,
   onLimpar,
 }: LiberacoesFiltrosProps) {
-  const { data: produtos, isLoading: isProdutosLoading } = useProdutos();
-  const produtoOptions = useMemo(() => produtosToOptions(produtos), [produtos]);
-
   const methods = useForm<FiltrosFormValues>({
     defaultValues: {
       produto: filtros.produtoId || "",
@@ -76,7 +72,7 @@ export function LiberacoesFiltros({
   const onFiltroChangeRef = useRef(onFiltroChange);
   onFiltroChangeRef.current = onFiltroChange;
 
-  // Mantém `produto` no form só para o CasoFormVersao (fonte da verdade = filtros).
+  // Mantém `produto` no form alinhado com a URL (fonte da verdade = filtros).
   useEffect(() => {
     const atual = methods.getValues("produto");
     if (atual === produtoId) return;
@@ -105,9 +101,21 @@ export function LiberacoesFiltros({
     }
   }, [filtros.versao, versoesCatalog, methods]);
 
-  // Empurra mudanças de versão do form → URL (sem loop).
+  // Empurra mudanças de produto/versão do form → URL (sem loop).
   useEffect(() => {
     const subscription = methods.watch((values, info) => {
+      if (info.name === "produto") {
+        const nextProduto = String(values.produto ?? "").trim();
+        const atualProduto = filtrosRef.current.produtoId || "";
+        if (nextProduto !== atualProduto) {
+          onFiltroChangeRef.current("produtoId", nextProduto);
+          if (filtrosRef.current.versao) {
+            onFiltroChangeRef.current("versao", "");
+          }
+        }
+        return;
+      }
+
       if (info.name != null && info.name !== "versao") return;
 
       const sequencia = String(values.versao ?? "").trim();
@@ -118,10 +126,7 @@ export function LiberacoesFiltros({
         return;
       }
 
-      const texto = resolveVersaoProdutoForApi(
-        sequencia,
-        catalogRef.current,
-      );
+      const texto = resolveVersaoProdutoForApi(sequencia, catalogRef.current);
       if (texto && texto !== atualFiltro) {
         onFiltroChangeRef.current("versao", texto);
       }
@@ -139,13 +144,6 @@ export function LiberacoesFiltros({
     }),
     [methods, produtoId],
   );
-
-  const handleProdutoChange = (value: string) => {
-    onFiltroChange("produtoId", value);
-    if (filtros.versao) onFiltroChange("versao", "");
-    methods.setValue("produto", value, { shouldDirty: false });
-    methods.setValue("versao", "", { shouldDirty: false });
-  };
 
   const handleLimpar = () => {
     methods.reset({ produto: "", versao: "" });
@@ -177,17 +175,9 @@ export function LiberacoesFiltros({
         <FormProvider {...methods}>
           <CasoFormProvider value={providerValue}>
             <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <ComboboxField
-                label="Produto"
-                icon={PackageSearch}
-                options={produtoOptions}
-                value={produtoId}
-                onValueChange={handleProdutoChange}
-                placeholder="Todos os produtos"
-                emptyText="Nenhum produto encontrado."
-                isLoading={isProdutosLoading}
-                controlHeightClassName="h-9"
-              />
+              <CasoFormProduto required={false} />
+
+              <CasoFormVersao required={false} todas />
 
               <ComboboxField
                 label="Status"
@@ -210,8 +200,6 @@ export function LiberacoesFiltros({
                 emptyText="Nenhum tipo encontrado."
                 controlHeightClassName="h-9"
               />
-
-              <CasoFormVersao required={false} todas />
             </div>
           </CasoFormProvider>
         </FormProvider>

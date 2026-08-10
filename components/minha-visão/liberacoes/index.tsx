@@ -106,11 +106,11 @@ export function Liberacoes({
               >
                 <div className="min-w-0">
                   <div className="text-xs font-semibold text-text-primary truncate">
-                    {item.produto}
-                  </div>
-                  <div className="text-[11px] text-text-secondary mt-0.5">
                     v{item.versao} · Previsão:{" "}
                     {item.data || item.versao_final_data_prevista || "—"}
+                  </div>
+                  <div className="text-[11px] text-text-secondary mt-0.5">
+                    {item.produto}
                   </div>
                 </div>
                 <TipoLiberacaoBadge tipo={item.tipo_liberacao} />

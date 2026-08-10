@@ -4,6 +4,7 @@ import type {
   CreateFormAssistantPromptRequest,
   DeleteFormAssistantPromptResponse,
   FormAssistantPrompt,
+  PromptType,
   ResolvedFormAssistantPrompt,
   ToggleFormAssistantPromptData,
   UpdateFormAssistantPromptRequest,
@@ -49,8 +50,13 @@ async function parseAssistantApiMessageResponse(
   return json;
 }
 
-export async function getFormAssistantPrompts(): Promise<FormAssistantPrompt[]> {
-  const response = await fetchWithAuth("/api/form-assistant-prompts", {
+export async function getFormAssistantPrompts(
+  tipo: PromptType = "FORM_ASSISTANT",
+): Promise<FormAssistantPrompt[]> {
+  const url = new URL("/api/form-assistant-prompts", window.location.origin);
+  url.searchParams.set("tipo", tipo);
+
+  const response = await fetchWithAuth(url.toString(), {
     method: "GET",
   });
 
@@ -74,8 +80,16 @@ export async function getSelectableFormAssistantPrompts(): Promise<
   );
 }
 
-export async function getFormAssistantPromptDefault(): Promise<FormAssistantPrompt> {
-  const response = await fetchWithAuth("/api/form-assistant-prompts/default", {
+export async function getFormAssistantPromptDefault(
+  tipo: PromptType = "FORM_ASSISTANT",
+): Promise<FormAssistantPrompt> {
+  const url = new URL(
+    "/api/form-assistant-prompts/default",
+    window.location.origin,
+  );
+  url.searchParams.set("tipo", tipo);
+
+  const response = await fetchWithAuth(url.toString(), {
     method: "GET",
   });
 

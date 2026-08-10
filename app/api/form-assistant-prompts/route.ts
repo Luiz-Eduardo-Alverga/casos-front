@@ -1,11 +1,27 @@
 import { apiAssistant } from "@/lib/axios";
 import { assistantProxyErrorResponse } from "@/lib/api-assistant/proxy-error";
 import { withPermission } from "@/lib/api-db/with-permission";
+import { isPromptType } from "@/lib/types/form-assistant-prompts";
 
-export async function GET() {
+export async function GET(request: Request) {
   return withPermission("list-prompts", async () => {
     try {
-      const response = await apiAssistant.get("/api/form-assistant-prompts");
+      const { searchParams } = new URL(request.url);
+      const tipoParam = searchParams.get("tipo");
+      const params: Record<string, string> = {};
+
+      if (isPromptType(tipoParam)) {
+        params.tipo = tipoParam;
+      }
+
+      const squadSetor = searchParams.get("squadSetor");
+      if (squadSetor) {
+        params.squadSetor = squadSetor;
+      }
+
+      const response = await apiAssistant.get("/api/form-assistant-prompts", {
+        params,
+      });
       return Response.json(response.data, { status: response.status });
     } catch (error) {
       return assistantProxyErrorResponse(

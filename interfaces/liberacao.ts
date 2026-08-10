@@ -184,3 +184,49 @@ export interface GetLiberacaoItensParams {
   limit?: number;
   offset?: number;
 }
+
+/** Item retornado por GET /sprint/liberacoes/{registro}/checklist */
+export interface LiberacaoChecklistItem {
+  id: number;
+  liberacao_id: number;
+  descricao_item: string;
+  checado: boolean;
+  ordenacao: number;
+  observacao: string | null;
+  alteracao_usuario: string;
+  alteracao_datahora: string;
+  id_responsavel: number;
+}
+
+/** Resposta de GET /sprint/liberacoes/{registro}/checklist */
+export interface LiberacaoChecklistResponse {
+  data: LiberacaoChecklistItem[];
+  total: number;
+}
+
+/** Resposta de POST /sprint/liberacoes/{registro}/checklist/carregar */
+export interface CarregarLiberacaoChecklistResponse {
+  data: {
+    adicionados: LiberacaoChecklistItem[];
+    adicionados_count: number;
+    ignorados_count: number;
+    checklist: LiberacaoChecklistItem[];
+  };
+}
+
+/** Body de PUT /sprint/liberacoes/{registro}/checklist/{itemId} */
+export interface UpdateLiberacaoChecklistItemRequest {
+  checado: boolean;
+  observacao?: string | null;
+}
+
+/** Resposta de PUT /sprint/liberacoes/{registro}/checklist/{itemId} */
+export interface UpdateLiberacaoChecklistItemResponse {
+  data: LiberacaoChecklistItem;
+}
+
+/** Resposta normalizada de DELETE /sprint/liberacoes/{registro}/checklist/{itemId} (API retorna 204) */
+export interface DeleteLiberacaoChecklistItemResponse {
+  success: boolean;
+  message?: string;
+}

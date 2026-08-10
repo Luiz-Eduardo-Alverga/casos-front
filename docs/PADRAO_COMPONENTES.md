@@ -225,6 +225,24 @@ Para telas e abas de edição (ex.: `caso-edit/aba-clientes`, campos de `caso-fo
 - Campos individuais (como Comboboxes, Inputs, etc.) devem usar `useFormContext` / `Controller` (ou componentes como `ComboboxField`) em vez de manter estado local com `useState` para valores de formulário.
 - Abas de edição que possuem ações de gravação (ex.: botão “Adicionar”, “Salvar”) devem ler os valores via `form.getValues()` ou receber os dados através de `handleSubmit`.
 
+#### Reutilizar campos existentes (`CasoForm*` / UI compartilhada)
+
+**Regra obrigatória:** antes de montar um `ComboboxField`, `Input` ou picker “do zero” em filtros/formulários, verificar se já existe um componente em `@/components/fields` (ou equivalente compartilhado) para aquele domínio.
+
+| Campo | Componente a reutilizar |
+|-------|-------------------------|
+| Produto | `CasoFormProduto` |
+| Setor | `CasoFormSetor` |
+| Versão | `CasoFormVersao` |
+| Projeto | `CasoFormProjeto` |
+| Status | `CasoFormStatus` |
+| Categoria | `CasoFormCategoria` |
+| Data (calendário) | `DatePickerInput` (`@/components/ui/date-picker-input`) |
+
+- Envolver com `FormProvider` + `CasoFormProvider` (`produto: watch("produto")`, `isDisabled`, etc.) — padrão já usado em Casos, Reports, Liberações e Melhorias.
+- **Não** recriar combobox de produto/setor/versão com `useProdutos`/`useSetores` + `ComboboxField` ad-hoc quando o `CasoForm*` correspondente existir.
+- Só criar campo novo quando não houver equivalente; nesse caso, seguir `docs/COMO_CRIAR_COMBOBOX.md` e colocar em `@/components/fields`.
+
 Exemplo simplificado:
 
 ```tsx
@@ -449,10 +467,11 @@ Badges seguem padrão visual consistente:
 
 ### 4.1. Telas de listagem com filtros
 
-Para telas que exibem listagem com filtros (ex.: Ver Casos em `/casos`):
+Para telas que exibem listagem com filtros (ex.: Ver Casos em `/casos`, Melhorias em `/melhorias`):
 
 - Usar `FormProvider` (react-hook-form) com `useForm` para os valores dos filtros.
-- Usar `CasoFormProvider` com o mesmo `form` e `produto: watch("produto")` para permitir reutilizar os componentes `CasoForm*` (Produto, Versão, Projeto, Relator, Dev, QA, Status, Importância).
+- Usar `CasoFormProvider` com o mesmo `form` e `produto: watch("produto")` para reutilizar os componentes `CasoForm*` (Produto, Versão, Projeto, Relator, Dev, QA, Status, Importância, Setor, Categoria).
+- **Sempre preferir `CasoForm*`** aos comboboxes montados na mão (ver seção 3.4 — Reutilizar campos existentes). Referências: `components/casos/filtros`, `components/liberacoes/filtros`, `components/reports/filtros`, `components/melhorias/filtros`.
 - Card de filtros: mesmo padrão de card (header `p-5 pb-2`, content `p-6 pt-3`), com grid de campos (`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4`).
 - Combobox de **Status**: usar o componente `CasoFormStatus`, que consome o hook `useStatus()` e a API de status (`/api/auxiliar/status`). O valor enviado à API de listagem (ex.: projeto-memoria) é o `Registro` do status (string).
 
@@ -691,6 +710,7 @@ Ao criar uma nova tela, verificar:
 - [ ] Componentes relacionados estão na mesma pasta?
 - [ ] Cada componente com loading tem seu skeleton correspondente?
 - [ ] Interfaces TypeScript estão definidas para props e dados?
+- [ ] Campos de domínio (produto, setor, versão, status, data, etc.) reutilizam `CasoForm*` / componentes existentes em vez de comboboxes novos ad-hoc?
 
 ### Estilização
 - [ ] Cores estão usando variáveis do Tailwind (não hardcoded)?

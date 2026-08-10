@@ -19,11 +19,19 @@ import {
 interface CasoFormVersaoProps {
   required?: boolean;
   todas?: boolean;
+  hideLabel?: boolean;
+  valueLabelPrefix?: string;
+  controlHeightClassName?: string;
+  wrapperClassName?: string;
 }
 
 export function CasoFormVersao({
   required = true,
   todas = false,
+  hideLabel = false,
+  valueLabelPrefix,
+  controlHeightClassName,
+  wrapperClassName,
 }: CasoFormVersaoProps) {
   const {
     produto,
@@ -129,7 +137,7 @@ export function CasoFormVersao({
   ]);
 
   return (
-    <div className="space-y-2">
+    <div className={hideLabel ? undefined : "space-y-2"}>
       <ComboboxField
         name="versao"
         label="Versão do Produto"
@@ -154,6 +162,10 @@ export function CasoFormVersao({
             ? (open) => open && setOptionsRequested(true)
             : undefined
         }
+        hideLabel={hideLabel}
+        valueLabelPrefix={valueLabelPrefix}
+        controlHeightClassName={controlHeightClassName}
+        wrapperClassName={wrapperClassName}
       />
     </div>
   );

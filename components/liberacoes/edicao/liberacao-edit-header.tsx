@@ -1,15 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, CheckCircle2, Loader2, Save, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Loader2,
+  Save,
+  Trash2,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { FecharLiberacaoDialog } from "@/components/liberacoes/edicao/liberacao/fechar-liberacao-dialog";
 import { useDeleteLiberacao } from "@/hooks/liberacoes/use-delete-liberacao";
+import { isLiberacaoStandaloneMode } from "@/lib/liberacao-standalone-url";
 
 const TAB_TRIGGER_CLASS = cn(
   "group shrink-0 rounded-full px-3 py-1.5 text-sm font-medium gap-1.5",
@@ -21,6 +29,7 @@ const TAB_TRIGGER_CLASS = cn(
 const TABS = [
   { value: "liberacao", label: "Liberação" },
   { value: "casos-versao", label: "Casos da versão" },
+  { value: "checklist", label: "Checklist" },
 ] as const;
 
 export interface LiberacaoEditHeaderProps {
@@ -39,17 +48,32 @@ export function LiberacaoEditHeader({
   showSalvar = false,
 }: LiberacaoEditHeaderProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const standalone = isLiberacaoStandaloneMode(searchParams);
   const deleteLiberacao = useDeleteLiberacao();
   const [fecharModal, setFecharModal] = useState(false);
   const [excluirModal, setExcluirModal] = useState(false);
   const isFechada = status === "FECHADO";
   const isBusy = isSaving || deleteLiberacao.isPending;
 
+  const tryCloseTabOrIrLiberacoes = () => {
+    window.close();
+    window.setTimeout(() => {
+      if (document.visibilityState === "visible") {
+        router.push("/liberacoes");
+      }
+    }, 200);
+  };
+
   const handleExcluir = async () => {
     try {
       const response = await deleteLiberacao.mutateAsync(registro);
       toast.success(response.message ?? "Liberação excluída com sucesso.");
-      router.push("/liberacoes");
+      if (standalone) {
+        tryCloseTabOrIrLiberacoes();
+      } else {
+        router.push("/liberacoes");
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Erro ao excluir liberação.",
@@ -84,11 +108,22 @@ export function LiberacaoEditHeader({
             type="button"
             variant="outline"
             className="h-9 min-w-0 flex-1 px-2"
-            onClick={() => router.back()}
+            onClick={() =>
+              standalone ? tryCloseTabOrIrLiberacoes() : router.back()
+            }
             disabled={isBusy}
           >
-            <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">Voltar</span>
+            {standalone ? (
+              <>
+                <X className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Fechar</span>
+              </>
+            ) : (
+              <>
+                <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Voltar</span>
+              </>
+            )}
           </Button>
 
           <Button

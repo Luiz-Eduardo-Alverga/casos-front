@@ -12,6 +12,7 @@ import type { LiberacaoItem } from "@/interfaces/liberacao";
 import { LiberacaoEditHeader } from "@/components/liberacoes/edicao/liberacao-edit-header";
 import { AbaLiberacao } from "@/components/liberacoes/edicao/abas/aba-liberacao";
 import { AbaCasosVersao } from "@/components/liberacoes/edicao/abas/aba-casos-versao";
+import { AbaChecklist } from "@/components/liberacoes/edicao/abas/aba-checklist";
 import {
   LIBERACAO_EDIT_TABS,
   liberacaoEditTabParser,
@@ -117,6 +118,16 @@ export function LiberacaoEditForm({ liberacao }: LiberacaoEditFormProps) {
                     registro={liberacao.registro}
                     versoes={liberacao.versoes}
                     enabled={activeTab === "casos-versao"}
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="checklist" className={TAB_CONTENT_CLASS}>
+                <div className="flex min-h-0 flex-1 flex-col min-w-0">
+                  <AbaChecklist
+                    registro={liberacao.registro}
+                    enabled={activeTab === "checklist"}
+                    disabled={isFechada}
                   />
                 </div>
               </TabsContent>

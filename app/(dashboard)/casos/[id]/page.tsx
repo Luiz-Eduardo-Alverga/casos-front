@@ -18,7 +18,7 @@ export default function CasoEditPage({ params }: CasoEditPageProps) {
   }
 
   return (
-    <div className="px-6 pt-20 py-10 flex-1 flex flex-col lg:min-h-0 lg:overflow-hidden">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden px-6 pt-20 py-10 lg:overflow-hidden">
       <CasoOuReportEditView casoId={id} />
     </div>
   );

@@ -2,6 +2,8 @@
 
 Este documento descreve o padrão para criar novos componentes de Combobox nos formulários de caso, seguindo os exemplos existentes (produto, setor, categoria, origem, etc.).
 
+> **Antes de criar:** confira se já existe um `CasoForm*` em `@/components/fields` (produto, setor, versão, status, categoria, etc.). Em filtros e formulários, **reutilize o componente existente** — não monte um `ComboboxField` ad-hoc para o mesmo domínio. Ver também `docs/PADRAO_COMPONENTES.md` (seção 3.4).
+
 ## Visão geral
 
 Cada Combobox de formulário é um componente que:

@@ -22,7 +22,7 @@ function SkeletonRow() {
       <TableCell className="w-[120px] py-3 px-2.5">
         <Skeleton className="h-4 w-20" />
       </TableCell>
-      <TableCell className="w-[180px] py-3 px-2.5">
+      <TableCell className="w-[220px] py-3 px-2.5">
         <Skeleton className="h-5 w-28" />
       </TableCell>
       <TableCell className="w-[110px] py-3 px-2.5">
@@ -32,9 +32,27 @@ function SkeletonRow() {
         <Skeleton className="h-4 w-24" />
       </TableCell>
       <TableCell className="w-[90px] py-3 px-2.5">
-        <Skeleton className="h-8 w-16 ml-auto" />
+        <div className="flex items-center justify-end gap-2">
+          <Skeleton className="h-4 w-4" />
+          <Skeleton className="h-4 w-4" />
+        </div>
       </TableCell>
     </TableRow>
+  );
+}
+
+/** Linhas de skeleton para append no TableBody (paginação infinita). */
+export function LiberacoesTabelaSkeletonRows({
+  count = 3,
+}: {
+  count?: number;
+}) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <SkeletonRow key={`liberacoes-skeleton-${i}`} />
+      ))}
+    </>
   );
 }
 
@@ -52,7 +70,7 @@ export function LiberacoesTabelaSkeleton({ count = 6 }: { count?: number }) {
           <TableHead className="w-[120px] h-auto py-3 px-2.5 text-sm text-text-primary">
             Tipo
           </TableHead>
-          <TableHead className="w-[180px] h-auto py-3 px-2.5 text-sm text-text-primary">
+          <TableHead className="w-[220px] h-auto py-3 px-2.5 text-sm text-text-primary">
             Versões
           </TableHead>
           <TableHead className="w-[110px] h-auto py-3 px-2.5 text-sm text-text-primary">
@@ -67,9 +85,7 @@ export function LiberacoesTabelaSkeleton({ count = 6 }: { count?: number }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {Array.from({ length: count }).map((_, i) => (
-          <SkeletonRow key={i} />
-        ))}
+        <LiberacoesTabelaSkeletonRows count={count} />
       </TableBody>
     </Table>
   );

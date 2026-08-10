@@ -14,10 +14,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/painel/empty-state";
+import type { PromptType } from "@/lib/types/form-assistant-prompts";
 import type { PromptRow } from "./types";
 
 interface PromptsIaTableProps {
   rows: PromptRow[];
+  tipo: PromptType;
   togglingId?: string | null;
   canEdit?: boolean;
   onToggle: (row: PromptRow) => void;
@@ -25,6 +27,7 @@ interface PromptsIaTableProps {
 
 export function PromptsIaTable({
   rows,
+  tipo,
   togglingId,
   canEdit = false,
   onToggle,
@@ -47,7 +50,9 @@ export function PromptsIaTable({
       <TableHeader>
         <TableRow>
           <TableHead className="w-[35%]">Nome</TableHead>
-          <TableHead className="w-[30%]">Setor</TableHead>
+          <TableHead className="w-[30%]">
+            {tipo === "RELEASE_NOTES" ? "Squad" : "Setor"}
+          </TableHead>
           <TableHead className="w-[15%]">Status</TableHead>
           <TableHead className="w-[20%] text-right">Ações</TableHead>
         </TableRow>
@@ -73,7 +78,8 @@ export function PromptsIaTable({
               </TableCell>
 
               <TableCell className="py-3 text-text-secondary">
-                {row.squadSetor ?? "—"}
+                {row.squadSetor ??
+                  (tipo === "RELEASE_NOTES" ? "Global" : "—")}
               </TableCell>
 
               <TableCell className="py-3">
@@ -105,7 +111,9 @@ export function PromptsIaTable({
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      router.push(`/configuracoes/prompts-ia/${row.id}`)
+                      router.push(
+                        `/configuracoes/prompts-ia/${row.id}?tipo=${tipo}`,
+                      )
                     }
                   >
                     Editar

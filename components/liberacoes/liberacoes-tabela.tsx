@@ -9,7 +9,10 @@ import { LiberacoesTabelaSkeleton } from "@/components/liberacoes/layout/liberac
 import { LiberacoesTabelaTable } from "@/components/liberacoes/tabela/liberacoes-tabela-table";
 import { useLiberacoesInfinite } from "@/hooks/liberacoes/use-liberacoes";
 import { useProdutos } from "@/hooks/catalogos/use-produtos";
-import { filtrosToLiberacoesParams } from "@/components/liberacoes/filtros/liberacoes-filtros-mappers";
+import {
+  filtrosToLiberacoesParams,
+  hasFiltersApplied,
+} from "@/components/liberacoes/filtros/liberacoes-filtros-mappers";
 import type { LiberacoesFiltrosState } from "@/components/liberacoes/filtros/liberacoes-filtros.types";
 
 interface LiberacoesTabelaProps {
@@ -17,11 +20,12 @@ interface LiberacoesTabelaProps {
 }
 
 export function LiberacoesTabela({ filtros }: LiberacoesTabelaProps) {
-  const { data: produtos } = useProdutos();
+  const hasFilters = useMemo(() => hasFiltersApplied(filtros), [filtros]);
+  const { data: produtos } = useProdutos({ enabled: hasFilters });
   const apiParams = useMemo(() => filtrosToLiberacoesParams(filtros), [filtros]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useLiberacoesInfinite(apiParams);
+    useLiberacoesInfinite(apiParams, { enabled: hasFilters });
 
   const itens = useMemo(() => data?.pages.flatMap((p) => p.data) ?? [], [data]);
 
@@ -66,7 +70,13 @@ export function LiberacoesTabela({ filtros }: LiberacoesTabelaProps) {
         </div>
       </CardHeader>
       <CardContent className="p-6 pt-3">
-        {isLoading ? (
+        {!hasFilters ? (
+          <EmptyState
+            icon={PackageCheck}
+            title="Nenhum filtro aplicado"
+            description="Selecione os filtros para visualizar as liberações."
+          />
+        ) : isLoading ? (
           <LiberacoesTabelaSkeleton />
         ) : itens.length === 0 ? (
           <EmptyState
@@ -76,7 +86,11 @@ export function LiberacoesTabela({ filtros }: LiberacoesTabelaProps) {
           />
         ) : (
           <>
-            <LiberacoesTabelaTable itens={itens} produtos={produtos} />
+            <LiberacoesTabelaTable
+              itens={itens}
+              produtos={produtos}
+              isFetchingNextPage={isFetchingNextPage}
+            />
             {hasNextPage && itens.length > 0 && (
               <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />
             )}

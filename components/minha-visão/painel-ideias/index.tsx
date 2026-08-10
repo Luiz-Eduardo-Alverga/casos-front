@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Lightbulb } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -13,19 +14,43 @@ import {
 import { EmptyState } from "@/components/painel/empty-state";
 import { cn } from "@/lib/utils";
 import { PainelIdeiasSkeleton } from "./painel-ideias-skeleton";
+import { toDateInputValue } from "@/components/melhorias/filtros/melhorias-filtros-mappers";
 import type { VisaoPainelIdeiasItem } from "@/services/sprint/get-visao-painel-ideias";
 
 interface PainelIdeiasProps {
   data: VisaoPainelIdeiasItem[];
   total: number;
   isLoading?: boolean;
+  /** Setor ativo nos filtros da Minha Visão (nome), repassado no drill-down. */
+  setor?: string;
+}
+
+function buildMelhoriasHref(
+  item: VisaoPainelIdeiasItem,
+  setor?: string,
+): string {
+  const params = new URLSearchParams();
+  if (item.produto_id != null) {
+    params.set("produtoId", String(item.produto_id));
+  }
+  const dataInicial = toDateInputValue(item.dt_inicial);
+  if (dataInicial) params.set("dataInicial", dataInicial);
+  const dataFinal = toDateInputValue(item.dt_final);
+  if (dataFinal) params.set("dataFinal", dataFinal);
+  if (setor?.trim()) params.set("setor", setor.trim());
+
+  const qs = params.toString();
+  return qs ? `/melhorias?${qs}` : "/melhorias";
 }
 
 export function PainelIdeias({
   data,
   total,
   isLoading = false,
+  setor,
 }: PainelIdeiasProps) {
+  const router = useRouter();
+
   if (isLoading) {
     return <PainelIdeiasSkeleton />;
   }
@@ -73,7 +98,8 @@ export function PainelIdeias({
                 {data.map((item, idx) => (
                   <TableRow
                     key={`${item.produto_id}-${item.competencia}-${idx}`}
-                    className="bg-card border-b border-border-divider hover:bg-muted/40"
+                    className="bg-card border-b border-border-divider hover:bg-muted/40 cursor-pointer"
+                    onClick={() => router.push(buildMelhoriasHref(item, setor))}
                   >
                     <TableCell className="py-2 px-4 text-[11px] text-text-secondary">
                       {item.competencia}

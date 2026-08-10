@@ -35,7 +35,7 @@ import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
 import type { VisaoGeralAgruparPor } from "@/services/sprint/get-visao-geral";
 import { AUTO_REFETCH_INTERVAL_MS } from "@/lib/query-refetch-intervals";
 
-const VERSAO_DEBOUNCE_MS = 300;
+const VERSAO_DEBOUNCE_MS = 800;
 
 const VISAO_QUERY_KEYS = [
   "visao-geral",
@@ -212,6 +212,7 @@ export function MinhaVisao() {
                 onAtribuidoParaChange={setAtribuidoPara}
                 versao={versao}
                 onVersaoChange={setVersao}
+                produtoId={filtros.produto_id}
                 projetoId={filtros.id_projeto}
                 geralData={geralData}
                 distribuicaoData={distribuicaoData}
@@ -241,6 +242,7 @@ export function MinhaVisao() {
                 data={painelIdeiasData}
                 total={painelIdeias.data?.total ?? 0}
                 isLoading={painelIdeias.isLoading}
+                setor={filtros.setor}
               />
             </div>
           </div>

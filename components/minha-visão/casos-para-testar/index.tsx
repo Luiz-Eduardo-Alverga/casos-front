@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,11 +15,17 @@ import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/painel/empty-state";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
-import { CasosParaTestarSkeleton } from "./casos-para-testar-skeleton";
+import { CasoFormVersao } from "@/components/fields/caso-form-versao";
+import { CasosParaTestarContentSkeleton } from "./casos-para-testar-skeleton";
 import { CasosParaTestarVersoesTable } from "./casos-para-testar-versoes-table";
 import { CasosParaTestarDistribuicaoTable } from "./casos-para-testar-distribuicao-table";
 import { cn } from "@/lib/utils";
 import { importanceOptions } from "@/mocks/teste";
+import { useVersoes } from "@/hooks/catalogos/use-versoes";
+import {
+  findSequenciaByVersaoProduto,
+  resolveVersaoProdutoForApi,
+} from "@/components/casos/shared/versao-combobox";
 import type {
   VisaoGeralAgruparPor,
   VisaoGeralItem,
@@ -50,9 +56,11 @@ const AGRUPAR_POR_DISTRIBUICAO = new Set<VisaoGeralAgruparPor>([
 
 const AGRUPAR_POR_DISTRIBUICAO_DEFAULT: VisaoGeralAgruparPor = "atribuido_para";
 
-interface DevFiltroForm {
+interface FiltroForm {
   atribuido_para: string;
   atribuido_para_label: string;
+  versao: string;
+  produto: string;
 }
 
 interface CasosParaTestarProps {
@@ -64,6 +72,7 @@ interface CasosParaTestarProps {
   onAtribuidoParaChange: (value: string) => void;
   versao: string;
   onVersaoChange: (value: string) => void;
+  produtoId?: string;
   projetoId?: string;
   geralData: VisaoGeralItem[];
   distribuicaoData: VisaoDistribuicaoItem[];
@@ -80,22 +89,95 @@ export function CasosParaTestar({
   onAtribuidoParaChange,
   versao,
   onVersaoChange,
+  produtoId = "",
   projetoId,
   geralData,
   distribuicaoData,
   distribuicaoTotais,
   isLoading = false,
 }: CasosParaTestarProps) {
-  const methods = useForm<DevFiltroForm>({
+  const methods = useForm<FiltroForm>({
     defaultValues: {
       atribuido_para: atribuidoPara,
       atribuido_para_label: "",
+      versao: "",
+      produto: produtoId,
     },
   });
+
+  const hasProduto = Boolean(produtoId.trim());
+
+  const { data: versoesCatalog } = useVersoes({
+    produto_id: produtoId,
+    enabled: hasProduto && view === "distribuicao",
+    todas: true,
+  });
+
+  const versaoRef = useRef(versao);
+  versaoRef.current = versao;
+  const catalogRef = useRef(versoesCatalog);
+  catalogRef.current = versoesCatalog;
+  const onVersaoChangeRef = useRef(onVersaoChange);
+  onVersaoChangeRef.current = onVersaoChange;
 
   useEffect(() => {
     methods.setValue("atribuido_para", atribuidoPara);
   }, [atribuidoPara, methods]);
+
+  useEffect(() => {
+    const atual = methods.getValues("produto");
+    if (atual === produtoId) return;
+    methods.setValue("produto", produtoId, { shouldDirty: false });
+    methods.setValue("versao", "", { shouldDirty: false });
+    if (versaoRef.current) {
+      onVersaoChangeRef.current("");
+    }
+  }, [produtoId, methods]);
+
+  useEffect(() => {
+    if (!hasProduto) return;
+
+    const versaoTexto = versao.trim();
+    if (!versaoTexto || !versoesCatalog?.length) {
+      if (!versaoTexto && methods.getValues("versao")) {
+        methods.setValue("versao", "", { shouldDirty: false });
+      }
+      return;
+    }
+
+    const atual = methods.getValues("versao");
+    if (resolveVersaoProdutoForApi(atual, versoesCatalog) === versaoTexto) {
+      return;
+    }
+
+    const sequencia = findSequenciaByVersaoProduto(versoesCatalog, versaoTexto);
+    if (sequencia && sequencia !== atual) {
+      methods.setValue("versao", sequencia, { shouldDirty: false });
+    }
+  }, [hasProduto, versao, versoesCatalog, methods]);
+
+  useEffect(() => {
+    if (!hasProduto) return;
+
+    const subscription = methods.watch((values, info) => {
+      if (info.name != null && info.name !== "versao") return;
+
+      const sequencia = String(values.versao ?? "").trim();
+      const atualFiltro = versaoRef.current || "";
+
+      if (!sequencia) {
+        if (atualFiltro) onVersaoChangeRef.current("");
+        return;
+      }
+
+      const texto = resolveVersaoProdutoForApi(sequencia, catalogRef.current);
+      if (texto && texto !== atualFiltro) {
+        onVersaoChangeRef.current(texto);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [hasProduto, methods]);
 
   const atribuidoParaWatch = methods.watch("atribuido_para");
 
@@ -116,11 +198,11 @@ export function CasosParaTestar({
     () => ({
       form: methods,
       importanceOptions,
-      produto: "",
+      produto: produtoId,
       isDisabled: false,
       lazyLoadComboboxOptions: false,
     }),
-    [methods],
+    [methods, produtoId],
   );
 
   const agruparPorOptions = useMemo(
@@ -147,10 +229,6 @@ export function CasosParaTestar({
     }
     onViewChange(value);
   };
-
-  if (isLoading) {
-    return <CasosParaTestarSkeleton />;
-  }
 
   const isEmpty =
     view === "geral" ? geralData.length === 0 : distribuicaoData.length === 0;
@@ -218,14 +296,31 @@ export function CasosParaTestar({
           </Select>
 
           {view === "distribuicao" ? (
-            <div className="w-full sm:w-[200px]">
-              <Input
-                value={versao}
-                onChange={(e) => onVersaoChange(e.target.value)}
-                placeholder="Filtrar por versão"
-                className="h-8 text-sm"
-              />
-            </div>
+            hasProduto ? (
+              <CasoFormProvider value={providerValue}>
+                <FormProvider {...methods}>
+                  <div className="w-full sm:w-[200px]">
+                    <CasoFormVersao
+                      required={false}
+                      todas
+                      hideLabel
+                      valueLabelPrefix="Versão: "
+                      wrapperClassName="w-full"
+                      controlHeightClassName="h-8"
+                    />
+                  </div>
+                </FormProvider>
+              </CasoFormProvider>
+            ) : (
+              <div className="w-full sm:w-[200px]">
+                <Input
+                  value={versao}
+                  onChange={(e) => onVersaoChange(e.target.value)}
+                  placeholder="Filtrar por versão"
+                  className="h-8 text-sm"
+                />
+              </div>
+            )
           ) : (
             <CasoFormProvider value={providerValue}>
               <FormProvider {...methods}>
@@ -248,7 +343,9 @@ export function CasosParaTestar({
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        {isEmpty ? (
+        {isLoading ? (
+          <CasosParaTestarContentSkeleton />
+        ) : isEmpty ? (
           <EmptyState
             title="Nenhum caso para testar"
             description="Não há casos para testar no momento com os filtros selecionados."

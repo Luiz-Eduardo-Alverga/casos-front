@@ -1,0 +1,714 @@
+event: progress
+data: {"step":1,"totalSteps":5,"stepId":"fetch_softflow","percent":5,"title":"Leitura de tickets e metadados","detail":"Conectando à Softflow e buscando itens da liberação..."}
+
+event: progress
+data: {"step":1,"totalSteps":5,"stepId":"fetch_softflow","percent":13,"title":"Leitura de tickets e metadados","detail":"Itens carregados da Softflow (100 casos).","totalCasos":100}
+
+event: progress
+data: {"step":2,"totalSteps":5,"stepId":"extract_tickets","percent":35,"title":"Extração e organização dos casos","detail":"Organizando 100 casos para análise...","totalCasos":100}
+
+event: progress
+data: {"step":2,"totalSteps":5,"stepId":"extract_tickets","percent":45,"title":"Extração e organização dos casos","detail":"100 casos prontos · produto Smart (Softcom Smart) · versão 8.0.0.0","totalCasos":100}
+
+event: progress
+data: {"step":3,"totalSteps":5,"stepId":"resolve_prompt","percent":50,"title":"Resolução do prompt","detail":"Carregando prompt padrão de Registro de Liberação...","totalCasos":100}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":65,"title":"Redação do registro com IA","detail":"Gerando registro de liberação com IA a partir de 100 casos...","totalCasos":100}
+
+event: delta
+data: {"chunk":"---\n\n"}
+
+event: delta
+data: {"chunk":"## 📌 REGISTRO DE LIBERAÇÃO – HOTFIX\n\n**Produto:**"}
+
+event: delta
+data: {"chunk":" Smart (Softcom Smart)  \n**Versão:** 8.0.0.0  \n**Status:** Aberto  \n**Tipo:** Correções e Melhorias"}
+
+event: delta
+data: {"chunk":"  \n\n### 1. BUGS CORRIGIDOS\n\n**Relatórios**  \n- Corrigido erro ao ex"}
+
+event: delta
+data: {"chunk":"ibir visualmente comandas sem itens e comandas inexistentes"}
+
+event: delta
+data: {"chunk":" no autoatendimento. (Caso 96998)\n\n**Financeiro**  \n- Corrigido cálculo do valor total quando a comanda possui taxa de serviço"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":68,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (406 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":", evitando divergência com o PDV. (Caso 95355)  \n- Corrigido envio do valor"}
+
+event: delta
+data: {"chunk":" ao TEF quando a comanda possui adiantamento informado no PDV, garantindo que o total considere os"}
+
+event: delta
+data: {"chunk":" adiantamentos. (Caso 95353)\n\n**Compras & Estoque**  \n- Corrigida"}
+
+event: delta
+data: {"chunk":" exibição da quantidade na tela “Meu pedido” quando o produto possui quantidade fracionada. (Caso "}
+
+event: delta
+data: {"chunk":"95352)\n\n**Vendas & NF-e / NFC-e**  \n- Corrigido erro ao"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":71,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (806 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" cancelar pedido no Smart/Softcomshop, que retornava falha interna (HTTP 500). (Caso 95373)  \n- Corrig"}
+
+event: delta
+data: {"chunk":"ido fluxo de finalização quando ocorre rejeição na emissão da NFC-e no autopagamento"}
+
+event: delta
+data: {"chunk":". (Caso 89261)\n\n**Login & Autenticação**  \n- Corrigido problema em que o usuário não era exibido na tela"}
+
+event: delta
+data: {"chunk":" de login após reiniciar o aplicativo. (Caso 95571)  \n- Corrigido comportamento em que o usuário"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":75,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (1210 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" utilizado no AutoPagamento era alterado após acessar área restrita. (Caso 95371"}
+
+event: delta
+data: {"chunk":")\n\n**Configurações**  \n- Corrigido travamento ao tentar autenticar e sincronizar o Smart TEF na primeira configuração,"}
+
+event: delta
+data: {"chunk":" exibindo tratamento adequado para falhas de autenticação. (Caso 95441)  \n- Corrigido erro ao autenticar e sincron"}
+
+event: delta
+data: {"chunk":"izar o Smart TEF, que exibia “Erro ao autenticar, HTTP 400”. (Caso 95314"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":78,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (1618 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":")  \n- Corrigido comportamento em que, ao configurar o Smart TEF pela primeira vez, era necessário sair do campo “Token da"}
+
+event: delta
+data: {"chunk":" empresa” ou repetir a autenticação para refletir corretamente. ("}
+
+event: delta
+data: {"chunk":"Caso 95448)  \n- Corrigido problema em que o “empresa ID” não era exibido corretamente ao retornar às configurações após informar"}
+
+event: delta
+data: {"chunk":" o valor. (Caso 95446)  \n- Corrigido tratamento quando o Smart TEF está configurado pela primeira vez"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":81,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (2018 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" e a tentativa de envio da transação retornava “Dispositivo não suportado”. ("}
+
+event: delta
+data: {"chunk":"Caso 95444)  \n- Corrigido travamento ao confirmar pagamento no Smart TEF. (Caso 95424)  \n-"}
+
+event: delta
+data: {"chunk":" Corrigido problema em que, ao configurar o Smart TEF e realizar pagamento, o aplicativo ficava preso"}
+
+event: delta
+data: {"chunk":" na tela “Transação aprovada!”. (Caso 95575)  \n- Corrigido problema em que, ao"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":85,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (2418 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" testar conexão com o terminal na primeira configuração do Smart TEF, era exibida falha de operação sem resposta adequada"}
+
+event: delta
+data: {"chunk":"."}
+
+event: delta
+data: {"chunk":" (Caso 95574)  \n- Corrigido comportamento em que, ao informar ID e token e autenticar/sincronizar, o Smart TEF apresentava"}
+
+event: delta
+data: {"chunk":" erro de autenticação. (Caso 95314)  \n- Corrigido travamento/erro ao acessar pagamento sem"}
+
+event: delta
+data: {"chunk":" maquineta na versão do APK, evitando crash. (Caso 93107)  \n- Corr"}
+
+event: delta
+data: {"chunk":"igido tratamento humanizado quando não existe Smart TEF configur"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":88,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (2821 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":"ado e o usuário tenta acessar cartão de crédito/débito. (Caso 95312)  \n- Corrigido falha ao ler QR Code da comanda quando"}
+
+event: delta
+data: {"chunk":" o serviço do selfhost está parado, garantindo que nenhuma ação silenciosa ocorra. (Caso 95425)\n\n"}
+
+event: delta
+data: {"chunk":"**Outros Bugs**  \n- Corrigido modal de cancelamento que não era apresentado corretamente ao"}
+
+event: delta
+data: {"chunk":" retornar rapidamente pelas telas no totem. (Caso 97023)  \n- Corrigido duplicidade de terminais com o mesmo nome ao exibir"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (3223 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" lista no Smart TEF. (Caso 97010)  \n- Corrigido crash ao pagar comanda com"}
+
+event: delta
+data: {"chunk":" mercadoria sem vínculo fiscal no AutoPagamento. (Caso 97006)  \n- Corrigido erro em"}
+
+event: delta
+data: {"chunk":" que o cancelamento marcava pedido como cancelado mesmo quando o cancelamento falhava. (Caso 95720)  \n-"}
+
+event: delta
+data: {"chunk":" Corrigido erro ao faturar pedido no pagamento PIX no totem, evitando crash da aplicação. (Caso"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (3624 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" 95703)  \n- Corrigido erro em que, ao cancelar um pedido, o fluxo retornava"}
+
+event: delta
+data: {"chunk":" para o cancelamento do pedido atual ao ler outra comanda. (Caso "}
+
+event: delta
+data: {"chunk":"95342)  \n- Corrigido permanência do autoatendimento na tela “aguardando pagamento” após operações de pagamento/desist"}
+
+event: delta
+data: {"chunk":"ência no Smart TEF. (Caso 95338)"}
+
+event: delta
+data: {"chunk":"  \n- Corrigido exibição de erro: substituído toast por modal de erro no Smart AutoPagamento. (Caso "}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (4025 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":"95315)  \n- Corrigido bloqueio de requisições simultâneas no Smart TEF. (Caso 93296)  \n- Corrigido status de venda não fatur"}
+
+event: delta
+data: {"chunk":"ada no Softcomshop ao realizar pagamento de mais de uma comanda no Smart TEF. (Caso 95348"}
+
+event: delta
+data: {"chunk":")  \n- Corrigido problema em que a rotina de cancelamento"}
+
+event: delta
+data: {"chunk":" era acionada indevidamente ao alternar leitura de comandas. (Caso 95342)  \n- Corrigida exibição do"}
+
+event: delta
+data: {"chunk":" “Modo escuro"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (4425 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":"” como configuração no Smart TEF. (Caso 93295)  \n- Corrigido travamento ao sair do modal de confirmação no"}
+
+event: delta
+data: {"chunk":" PIX no AutoPagamento. (Caso 93340)  \n- Corrigido erro ao exibir retorno durante processamento de pagamento Cartão/PIX no"}
+
+event: delta
+data: {"chunk":" Smart. (Caso 90921)  \n- Corrigido fluxo de ociosidade no Smart AutoPagamento/Totem."}
+
+event: delta
+data: {"chunk":" (Caso 90918)  \n- Corrigido problema em que a maquininha TEF informava “Maquininha"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (4825 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" TEF ocupada” quando a tela estava apagada ao acionar venda em cartão. (Caso 95381)  \n- Corrigida rotina de timeout remov"}
+
+event: delta
+data: {"chunk":"ida quando há demora nas rotinas da maquineta do Smart TEF. (Caso 95392"}
+
+event: delta
+data: {"chunk":")  \n- Corrigido erro de impressão da “via do chamado”, passando a exibir também"}
+
+event: delta
+data: {"chunk":" o número do chamado. (Caso 96054)  \n- Corrigida impressão desnecessária da via do estabelecimento no comprovante de cartão"}
+
+event: delta
+data: {"chunk":" do totem. (Caso 96110)  \n- Corrigida ausência de identificador"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (5225 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" de pedido na “via da cozinha” feita por totem de autoatendimento. (Caso 96109)  \n- Corrigido retorno do botão “"}
+
+event: delta
+data: {"chunk":"voltar” rápido no totem, que ignorava validações e às vezes exibia tela branca"}
+
+event: delta
+data: {"chunk":". (Caso 95911)  \n- Corrigido sobreposição do carrossel"}
+
+event: delta
+data: {"chunk":" lateral de grupos pelos totalizadores quando há muitos grupos na tela inicial do totem. (Caso 95915)  \n- Ajustado teclado"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (5629 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" e select nas Ações Administrativas do totem. (Caso 95916)  \n- Corrigido fluxo de leitura de"}
+
+event: delta
+data: {"chunk":" comanda no autoatendimento, garantindo que o pedido seja iniciado após leitura de código de barras ou QR Code. (Caso "}
+
+event: delta
+data: {"chunk":"96422)  \n- Corrigido problema em que o Totem não informava perda"}
+
+event: delta
+data: {"chunk":" de conexão com o terminal. (Caso 96496)  \n- Corrig"}
+
+event: delta
+data: {"chunk":"ido reconexão/auditoria no lado do caixa (Autopag/Totem). (Caso 94436)  \n- Corr"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (6035 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":"igido ownership “client zumbi” no Totem/Autopag para evitar inconsistências de conexão."}
+
+event: delta
+data: {"chunk":" (Caso 94434)  \n- Impedida republicação de"}
+
+event: delta
+data: {"chunk":" request após DeviceOffline no módulo Totem. ("}
+
+event: delta
+data: {"chunk":"Caso 94432)  \n- Replicada lógica de janela de graça para DeviceOffline no módulo Totem. (Caso 94431)  \n- Ajust"}
+
+event: delta
+data: {"chunk":"ado tratamento de REJECTED pelo Autopag no módulo Totem. (Caso 94429)  \n- Ajustado tratamento de status de response do terminal"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (6436 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" no Totem. (Caso 94428)  \n- Persistidas tentativas TEF por status no módulo Totem. (Caso 94430)  \n- Corrigida integração"}
+
+event: delta
+data: {"chunk":" do novo totem Elgin MK156A com Smart Totem e Smart"}
+
+event: delta
+data: {"chunk":" Autopagamento. (Caso 96865)  \n- Corrigido pareamento de terminais no Smart TEF: novos terminais passam"}
+
+event: delta
+data: {"chunk":" a ser exibidos sem exigir reautenticação do totem. (Caso 96497)  \n-"}
+
+event: delta
+data: {"chunk":" Corrigido envio de dados do PIX: garantido que dados do PIX sejam verificados após aprovação"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (6837 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" da transação. (Caso 95553)  \n- Inclu"}
+
+event: delta
+data: {"chunk":"ídos banco e CNPJ no"}
+
+event: delta
+data: {"chunk":" payload de resposta PIX do Smart TEF. (Caso "}
+
+event: delta
+data: {"chunk":"95262)  \n- Corrigido erro ao configurar o Smart TEF no autopagamento quando"}
+
+event: delta
+data: {"chunk":" o serviço de selfhost está parado, evitando ausência de mensagem"}
+
+event: delta
+data: {"chunk":" e ação ao ler QR Code. (Caso 95425)  \n- Corrigido problema em que, ao configurar o Smart TEF pela primeira vez, ao tentar"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (7238 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" enviar transação aparecia “Dispositivo não suportado”. (Caso 95444)  \n- Corrigido problema em que, ao configurar o Smart"}
+
+event: delta
+data: {"chunk":" TEF pela primeira vez, ao tentar pagar aparecia “Não foi possível carregar os dados de recebimento”. (Caso 95441)  \n- Corr"}
+
+event: delta
+data: {"chunk":"igido problema em que o Smart TEF travava e fechava ao confirmar pagamento. (Caso 95424)  \n- Corrigido erro ao exibir modal"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (7649 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" de erro em vez de toast no Smart AutoPagamento. (Caso 95315)  \n- Corrigida sincronização de funcionários ao sincronizar"}
+
+event: delta
+data: {"chunk":" dados da empresa nas configurações. (Caso 94422)  \n- Ajustado modal de área restrita e sincronização de funcionário no Minim"}
+
+event: delta
+data: {"chunk":"ercado. (Caso 94421"}
+
+event: delta
+data: {"chunk":")  \n- Ajustado modal de área restrita"}
+
+event: delta
+data: {"chunk":" e sincronização de funcionário no"}
+
+event: delta
+data: {"chunk":" Minimercado. (Caso 94421)  \n- Ajustado testes_tags de forma hierár"}
+
+event: delta
+data: {"chunk":"quica nos elementos do Mini Mercado. (Caso 96979)  \n- Corrigido erro no Smart Totem"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (8055 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":": inconsistência no layout do"}
+
+event: delta
+data: {"chunk":" card de preenchimento em relação ao protótipo do Figma. (Caso 93235)  \n- Corrigido erro de impressão do cabeçalho e ajustes"}
+
+event: delta
+data: {"chunk":" de impressão no totem. (Caso 95723)  \n- Corrigido comportamento de impressão na Lista de Pedidos do totem. (Caso 95729)"}
+
+event: delta
+data: {"chunk":"  \n- Corrigido comportamento da Lista de Pedidos no totem. (Caso 95724)  \n- Corrigido impressão na finalização da venda ("}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (8456 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":"Cartão e PIX) no totem. (Caso 95722)  \n- Corrigido erro ao exibir modal de confirmação no PIX no AutoPagamento. (Caso 933"}
+
+event: delta
+data: {"chunk":"40)  \n- Corrigido problema de ociosidade no Smart AutoPagamento/Totem. (Caso 90918)  \n- Corrigido ajuste de foco no modal"}
+
+event: delta
+data: {"chunk":" de edição de item no carrinho do PDV. (Caso 93804)  \n- Corrig"}
+
+event: delta
+data: {"chunk":"ido abertura do modal de edição de item no carrinho do PDV. (Caso 93802)  \n- Ajustado"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (8858 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" dispositivo: padronização de fonte e exibição de grupos nas configurações. (Caso 93412)  \n-"}
+
+event: delta
+data: {"chunk":" Ajustadas telas de erro, cancelamento e feedback na operação do Smart TEF. (Caso 93342)  \n- Implement"}
+
+event: delta
+data: {"chunk":"ado reset e reprovisionamento no campo de operação do Smart TEF. (Caso 93341)  \n- Ajustado fluxo"}
+
+event: delta
+data: {"chunk":" de rastreabilidade de transações offline no Smart TEF. (Caso 93297)  \n- Corrigido tratamento de"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (9259 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" retorno durante processamento de pagamento Cartão/PIX. (Caso 90921)  \n- Corrigido fluxo"}
+
+event: delta
+data: {"chunk":" de ociosidade no Smart AutoPagamento/Totem. (Caso"}
+
+event: delta
+data: {"chunk":" 90918)  \n- Corrigido problema em que, ao configurar o"}
+
+event: delta
+data: {"chunk":" Smart TEF e o Smart auto pagamento pela primeira vez, o pagamento no Smart TEF aparecia com falha de carregamento. (Caso"}
+
+event: delta
+data: {"chunk":" 95441)  \n- Corrigido problema em que, ao configurar o Smart TEF e o Smart auto pagamento pela primeira vez, ao tentar enviar"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (9660 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" transação aparecia “Dispositivo não suportado”. (Caso 95444)  \n- Corrigido problema"}
+
+event: delta
+data: {"chunk":" em que, ao configurar o Smart TEF e o Smart auto pagamento"}
+
+event: delta
+data: {"chunk":" pela primeira vez, era necessário repetir autenticação para refletir corretamente. (Caso 95448)  \n- Corrigido problema em"}
+
+event: delta
+data: {"chunk":" que o Smart TEF não suportava o dispositivo no primeiro uso, exibindo mensagem adequada. (Caso 954"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (10066 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":"44)  \n- Corrigido problema em que o Smart TEF travava ao confirmar pagamento."}
+
+event: delta
+data: {"chunk":" (Caso 95424)  \n- Corrigido problema em que o Smart TEF ficava preso na tela “Transação aprovada"}
+
+event: delta
+data: {"chunk":"!”. (Caso 95575)  \n- Corrigido problema em que o Smart TEF não respondia adequadamente ao testar"}
+
+event: delta
+data: {"chunk":" conexão na primeira configuração. (Caso 95574)  \n- Corrigido problema em que o Smart TEF não"}
+
+event: delta
+data: {"chunk":" exibia corretamente dados de recebimento ao tentar pagar pela primeira vez. (Caso 95441)  \n- Corrig"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (10474 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":"ido problema em que o Smart TEF exibia erro HTTP 400 ao autenticar e sincronizar. (Caso 95314"}
+
+event: delta
+data: {"chunk":")  \n- Corrigido problema em que o Smart TEF não executava ação ao ler QR Code quando o self"}
+
+event: delta
+data: {"chunk":"host estava parado. (Caso 95425)  \n- Corrigido problema em que o Smart TEF não envi"}
+
+event: delta
+data: {"chunk":"ava dados do PIX após aprovação da transação. (Caso 95553)  \n- Corrigido problema"}
+
+event: delta
+data: {"chunk":" em que o Smart TEF não informava perda"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (10875 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" de conexão com o terminal. (Caso 96496)  \n- Corrigido problema em que o AutoPagamento"}
+
+event: delta
+data: {"chunk":" exibia crash ao pagar comanda sem vínculo fiscal. (Caso 97006)  \n"}
+
+event: delta
+data: {"chunk":"- Corrigido problema em que o AutoPagamento marcava cancelamento mesmo quando falhava. (Caso 95720)  \n- Corrigido problema"}
+
+event: delta
+data: {"chunk":" em que o Smart Totem não exibia identificador de pedido na via da cozinha. (Caso"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (11287 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" 96109)  \n- Corrigido problema em que o Smart Totem imprimia via do estabelecimento desnecessariamente. ("}
+
+event: delta
+data: {"chunk":"Caso 96110)  \n- Corrigido problema em que o totem não inici"}
+
+event: delta
+data: {"chunk":"ava pedido após leitura de código de barras/QR Code. (Caso 96422)  \n- Corrigido problema em que o totem ignor"}
+
+event: delta
+data: {"chunk":"ava validações ao voltar rápido e exibia tela branca. (Caso 95911)  \n- Corrigido problema em que o"}
+
+event: delta
+data: {"chunk":" totem sobrepunha carrossel lateral pelos totalizadores. (Caso "}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (11691 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":"95915)  \n- Corrigido problema em que o totem apresentava modal de cancelamento incorreto ao retornar rapidamente. (Caso"}
+
+event: delta
+data: {"chunk":" 97023)  \n- Corrigido problema em que o totem exibia terminais duplicados com o mesmo nome. (Caso 970"}
+
+event: delta
+data: {"chunk":"10)  \n- Corrigido problema em que o Smart Totem não exibia número do chamado na via do chamado. (Caso 96054)  \n"}
+
+event: delta
+data: {"chunk":"- Corrigido problema em que o Smart Totem não exibia corretamente o bloco de impressão. (Caso"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (12099 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" 93339)  \n\n### 2. MELHORIAS IMPLEMENTADAS\n\n**Endpoints / API**  \n-"}
+
+event: delta
+data: {"chunk":" Implementada integração do Smart TEF com o Smart"}
+
+event: delta
+data: {"chunk":" Autopagamento para enviar transações e tratar respostas/status. (Caso 94283)\n\n**Produtos**"}
+
+event: delta
+data: {"chunk":"  \n- Compatibilizado o novo totem Elgin MK"}
+
+event: delta
+data: {"chunk":"156A com Smart Totem e Smart Autopagamento. (Caso 96865)\n\n**Financeiro**  \n- Ajustada a exibição e tratamento de telas de"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (12499 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" erro, cancelamento e feedback na operação do Smart TEF. (Caso 93342)\n\n**Fiscal**  \n- Implementada rast"}
+
+event: delta
+data: {"chunk":"reabilidade de transações offline no Smart TEF"}
+
+event: delta
+data: {"chunk":". (Caso 93297)\n\n**Interface**  \n- Implementado"}
+
+event: delta
+data: {"chunk":" reset e reprovisionamento no campo de operação do Smart TEF. (Caso 93341)  \n- Implementado “Modo escuro” como configuração"}
+
+event: delta
+data: {"chunk":" no Smart TEF. (Caso 93295)  \n- Implementado bloco de configurações"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (12899 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" de impressão no Totem. (Caso 93339)  \n- Ajustado header fixo com nome do produto e botão voltar"}
+
+event: delta
+data: {"chunk":" no totem. (Caso 91052)  \n- Revisado layout do totem conforme protótipo do Figma."}
+
+event: delta
+data: {"chunk":" (Caso 91003)  \n- Ajustada tradução nos botões e menus do totem. (Caso"}
+
+event: delta
+data: {"chunk":" 91004)  \n- Revisada reconstrução total para Jetpack Compose (Parte 2) no Smart Totem"}
+
+event: delta
+data: {"chunk":". (Caso 90803)  \n- Ajustado fluxo de ociosidade no Smart AutoPagamento/Totem. (Caso"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (13300 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" 90918)  \n- Implementada tela de configuração do Smart TEF. (Caso 90557)"}
+
+event: delta
+data: {"chunk":"  \n- Implementada tela de “Detalhes do"}
+
+event: delta
+data: {"chunk":" Produto” no Smart Totem. (Caso "}
+
+event: delta
+data: {"chunk":"90553)  \n- Implementada tela de configurações do Smart Totem. (Caso 90552)  \n-"}
+
+event: delta
+data: {"chunk":" Implementada interface de pagamento no Smart AutoPagamento. (Caso 90520)  \n- Implementada interface de pagamento no Smart"}
+
+event: delta
+data: {"chunk":" Totem. (Caso 90519)  \n- Implementada tela de carrinho com revisão do pedido no Smart Totem. (Caso 90227)  \n- Implementada"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (13700 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" tela de catálogo “Escolha seus itens” no Smart Totem. ("}
+
+event: delta
+data: {"chunk":"Caso 90221)  \n- Implementada tela de “Opção de Consumo”"}
+
+event: delta
+data: {"chunk":" nos steps do pedido no Smart Totem. (Caso 90219)  \n"}
+
+event: delta
+data: {"chunk":"- Implementada reconstrução total para Jetpack Compose no Smart"}
+
+event: delta
+data: {"chunk":" Totem. (Caso 90218)  \n- Implementada tela de ex"}
+
+event: delta
+data: {"chunk":"ibição do QRCode PIX no AutoPagamento. (Caso 88605)  \n- Implementada tela de seleção de pagamento online no AutoPagamento"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (14101 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":". (Caso 88602)  \n- Implementada tela para informar CPF/CNPJ no AutoPagamento. (Caso 88599)  \n- Implementada leitura de QR"}
+
+event: delta
+data: {"chunk":" codes/barras no K2 MINI. (Caso 88594)  \n- Implementado"}
+
+event: delta
+data: {"chunk":" card das comandas capturadas no AutoPagamento. (Caso 88593)  \n- Implementada tela “Meu"}
+
+event: delta
+data: {"chunk":" Pedido” com comandas capturadas. (Caso 88566)  \n- Implementada tela Home conforme protótipo do Figma. (Caso 88563)  \n- Implement"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (14505 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":"ado fluxo de ociosidade no autopagamento. (Caso 89150)  \n- Implementados mod"}
+
+event: delta
+data: {"chunk":"ais no autopagamento. (Caso 89022)  \n- Implementado modal de área restr"}
+
+event: delta
+data: {"chunk":"ita para configurações. (Caso 88608)  \n- Implementadas telas de configurações. (Caso 88607)  \n-"}
+
+event: delta
+data: {"chunk":" Implementadas telas de finalização e conclusão do pedido"}
+
+event: delta
+data: {"chunk":". (Caso 88606)  \n- Habilitada seleção de idioma nas configurações do autopagamento"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (14916 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":". (Caso 89294)  \n- Implementada tela de identificação com validação de campo nome no totem. (Caso 91053)  \n- Ajustado fluxo"}
+
+event: delta
+data: {"chunk":" de finalização quando ocorrer rejeição na emissão da NFC-e. (Caso 89261)  \n- Implementado fluxo de finalização quando ocorrer"}
+
+event: delta
+data: {"chunk":" rejeição na emissão da NFC-e. (Caso 89261)\n\n**Vendas & Relatórios**  \n-"}
+
+event: delta
+data: {"chunk":" Ajustado foco e abertura de modal de edição de item no carrinho do PDV. (Cas"}
+
+event: delta
+data: {"chunk":"os 93804, 93802)\n\n### 3. REQUISITOS\n\n"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (15317 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":"- Incluídos banco e CNPJ"}
+
+event: delta
+data: {"chunk":" no payload de resposta PIX do Smart TEF. (Caso 95262)\n\n### 4. CLIENTES – CASOS ESPECÍ"}
+
+event: delta
+data: {"chunk":"FICOS\n\n- (O rascunho fornecido não indica casos por cliente/franquia"}
+
+event: delta
+data: {"chunk":".)\n\n## 📦 Resumo Final da Entrega\n\n- Quantidade aproximada de bugs corrigidos: 40+  \n- Quantidade de melhorias: 30+  \n- Á"}
+
+event: delta
+data: {"chunk":"reas mais impactadas: Smart Totem e Smart Autopagamento/Smart TEF (pagamentos, impressão e"}
+
+event: progress
+data: {"step":4,"totalSteps":5,"stepId":"generate_ai","percent":90,"title":"Redação do registro com IA","detail":"Recebendo Markdown da IA (15718 caracteres)...","totalCasos":100}
+
+event: delta
+data: {"chunk":" fluxo de comandas)  \n- Ajustes para clientes específicos: não identificados no material fornecido  \n-"}
+
+event: delta
+data: {"chunk":" Conclusão geral da entrega: hotfix com correções focadas em estabilidade do pagamento (TEF/"}
+
+event: delta
+data: {"chunk":"PIX), consistência de comandas/pedidos e ajustes de impressão e navegação no"}
+
+event: delta
+data: {"chunk":" totem, além de melhorias de interface e integração do TEF com"}
+
+event: delta
+data: {"chunk":" o autopagamento."}
+
+event: progress
+data: {"step":5,"totalSteps":5,"stepId":"finalize","percent":95,"title":"Formatação e validação","detail":"Validando e finalizando o documento em Markdown...","totalCasos":100}
+
+event: progress
+data: {"step":5,"totalSteps":5,"stepId":"finalize","percent":100,"title":"Formatação e validação","detail":"Registro de liberação gerado com sucesso.","totalCasos":100}
+
+event: done
+data: {"success":true,"data":{"registro_liberacao":"---\n\n## 📌 REGISTRO DE LIBERAÇÃO – HOTFIX\n\n**Produto:** Smart (Softcom Smart)  \n**Versão:** 8.0.0.0  \n**Status:** Aberto  \n**Tipo:** Correções e Melhorias  \n\n### 1. BUGS CORRIGIDOS\n\n**Relatórios**  \n- Corrigido erro ao exibir visualmente comandas sem itens e comandas inexistentes no autoatendimento. (Caso 96998)\n\n**Financeiro**  \n- Corrigido cálculo do valor total quando a comanda possui taxa de serviço, evitando divergência com o PDV. (Caso 95355)  \n- Corrigido envio do valor ao TEF quando a comanda possui adiantamento informado no PDV, garantindo que o total considere os adiantamentos. (Caso 95353)\n\n**Compras & Estoque**  \n- Corrigida exibição da quantidade na tela “Meu pedido” quando o produto possui quantidade fracionada. (Caso 95352)\n\n**Vendas & NF-e / NFC-e**  \n- Corrigido erro ao cancelar pedido no Smart/Softcomshop, que retornava falha interna (HTTP 500). (Caso 95373)  \n- Corrigido fluxo de finalização quando ocorre rejeição na emissão da NFC-e no autopagamento. (Caso 89261)\n\n**Login & Autenticação**  \n- Corrigido problema em que o usuário não era exibido na tela de login após reiniciar o aplicativo. (Caso 95571)  \n- Corrigido comportamento em que o usuário utilizado no AutoPagamento era alterado após acessar área restrita. (Caso 95371)\n\n**Configurações**  \n- Corrigido travamento ao tentar autenticar e sincronizar o Smart TEF na primeira configuração, exibindo tratamento adequado para falhas de autenticação. (Caso 95441)  \n- Corrigido erro ao autenticar e sincronizar o Smart TEF, que exibia “Erro ao autenticar, HTTP 400”. (Caso 95314)  \n- Corrigido comportamento em que, ao configurar o Smart TEF pela primeira vez, era necessário sair do campo “Token da empresa” ou repetir a autenticação para refletir corretamente. (Caso 95448)  \n- Corrigido problema em que o “empresa ID” não era exibido corretamente ao retornar às configurações após informar o valor. (Caso 95446)  \n- Corrigido tratamento quando o Smart TEF está configurado pela primeira vez e a tentativa de envio da transação retornava “Dispositivo não suportado”. (Caso 95444)  \n- Corrigido travamento ao confirmar pagamento no Smart TEF. (Caso 95424)  \n- Corrigido problema em que, ao configurar o Smart TEF e realizar pagamento, o aplicativo ficava preso na tela “Transação aprovada!”. (Caso 95575)  \n- Corrigido problema em que, ao testar conexão com o terminal na primeira configuração do Smart TEF, era exibida falha de operação sem resposta adequada. (Caso 95574)  \n- Corrigido comportamento em que, ao informar ID e token e autenticar/sincronizar, o Smart TEF apresentava erro de autenticação. (Caso 95314)  \n- Corrigido travamento/erro ao acessar pagamento sem maquineta na versão do APK, evitando crash. (Caso 93107)  \n- Corrigido tratamento humanizado quando não existe Smart TEF configurado e o usuário tenta acessar cartão de crédito/débito. (Caso 95312)  \n- Corrigido falha ao ler QR Code da comanda quando o serviço do selfhost está parado, garantindo que nenhuma ação silenciosa ocorra. (Caso 95425)\n\n**Outros Bugs**  \n- Corrigido modal de cancelamento que não era apresentado corretamente ao retornar rapidamente pelas telas no totem. (Caso 97023)  \n- Corrigido duplicidade de terminais com o mesmo nome ao exibir lista no Smart TEF. (Caso 97010)  \n- Corrigido crash ao pagar comanda com mercadoria sem vínculo fiscal no AutoPagamento. (Caso 97006)  \n- Corrigido erro em que o cancelamento marcava pedido como cancelado mesmo quando o cancelamento falhava. (Caso 95720)  \n- Corrigido erro ao faturar pedido no pagamento PIX no totem, evitando crash da aplicação. (Caso 95703)  \n- Corrigido erro em que, ao cancelar um pedido, o fluxo retornava para o cancelamento do pedido atual ao ler outra comanda. (Caso 95342)  \n- Corrigido permanência do autoatendimento na tela “aguardando pagamento” após operações de pagamento/desistência no Smart TEF. (Caso 95338)  \n- Corrigido exibição de erro: substituído toast por modal de erro no Smart AutoPagamento. (Caso 95315)  \n- Corrigido bloqueio de requisições simultâneas no Smart TEF. (Caso 93296)  \n- Corrigido status de venda não faturada no Softcomshop ao realizar pagamento de mais de uma comanda no Smart TEF. (Caso 95348)  \n- Corrigido problema em que a rotina de cancelamento era acionada indevidamente ao alternar leitura de comandas. (Caso 95342)  \n- Corrigida exibição do “Modo escuro” como configuração no Smart TEF. (Caso 93295)  \n- Corrigido travamento ao sair do modal de confirmação no PIX no AutoPagamento. (Caso 93340)  \n- Corrigido erro ao exibir retorno durante processamento de pagamento Cartão/PIX no Smart. (Caso 90921)  \n- Corrigido fluxo de ociosidade no Smart AutoPagamento/Totem. (Caso 90918)  \n- Corrigido problema em que a maquininha TEF informava “Maquininha TEF ocupada” quando a tela estava apagada ao acionar venda em cartão. (Caso 95381)  \n- Corrigida rotina de timeout removida quando há demora nas rotinas da maquineta do Smart TEF. (Caso 95392)  \n- Corrigido erro de impressão da “via do chamado”, passando a exibir também o número do chamado. (Caso 96054)  \n- Corrigida impressão desnecessária da via do estabelecimento no comprovante de cartão do totem. (Caso 96110)  \n- Corrigida ausência de identificador de pedido na “via da cozinha” feita por totem de autoatendimento. (Caso 96109)  \n- Corrigido retorno do botão “voltar” rápido no totem, que ignorava validações e às vezes exibia tela branca. (Caso 95911)  \n- Corrigido sobreposição do carrossel lateral de grupos pelos totalizadores quando há muitos grupos na tela inicial do totem. (Caso 95915)  \n- Ajustado teclado e select nas Ações Administrativas do totem. (Caso 95916)  \n- Corrigido fluxo de leitura de comanda no autoatendimento, garantindo que o pedido seja iniciado após leitura de código de barras ou QR Code. (Caso 96422)  \n- Corrigido problema em que o Totem não informava perda de conexão com o terminal. (Caso 96496)  \n- Corrigido reconexão/auditoria no lado do caixa (Autopag/Totem). (Caso 94436)  \n- Corrigido ownership “client zumbi” no Totem/Autopag para evitar inconsistências de conexão. (Caso 94434)  \n- Impedida republicação de request após DeviceOffline no módulo Totem. (Caso 94432)  \n- Replicada lógica de janela de graça para DeviceOffline no módulo Totem. (Caso 94431)  \n- Ajustado tratamento de REJECTED pelo Autopag no módulo Totem. (Caso 94429)  \n- Ajustado tratamento de status de response do terminal no Totem. (Caso 94428)  \n- Persistidas tentativas TEF por status no módulo Totem. (Caso 94430)  \n- Corrigida integração do novo totem Elgin MK156A com Smart Totem e Smart Autopagamento. (Caso 96865)  \n- Corrigido pareamento de terminais no Smart TEF: novos terminais passam a ser exibidos sem exigir reautenticação do totem. (Caso 96497)  \n- Corrigido envio de dados do PIX: garantido que dados do PIX sejam verificados após aprovação da transação. (Caso 95553)  \n- Incluídos banco e CNPJ no payload de resposta PIX do Smart TEF. (Caso 95262)  \n- Corrigido erro ao configurar o Smart TEF no autopagamento quando o serviço de selfhost está parado, evitando ausência de mensagem e ação ao ler QR Code. (Caso 95425)  \n- Corrigido problema em que, ao configurar o Smart TEF pela primeira vez, ao tentar enviar transação aparecia “Dispositivo não suportado”. (Caso 95444)  \n- Corrigido problema em que, ao configurar o Smart TEF pela primeira vez, ao tentar pagar aparecia “Não foi possível carregar os dados de recebimento”. (Caso 95441)  \n- Corrigido problema em que o Smart TEF travava e fechava ao confirmar pagamento. (Caso 95424)  \n- Corrigido erro ao exibir modal de erro em vez de toast no Smart AutoPagamento. (Caso 95315)  \n- Corrigida sincronização de funcionários ao sincronizar dados da empresa nas configurações. (Caso 94422)  \n- Ajustado modal de área restrita e sincronização de funcionário no Minimercado. (Caso 94421)  \n- Ajustado modal de área restrita e sincronização de funcionário no Minimercado. (Caso 94421)  \n- Ajustado testes_tags de forma hierárquica nos elementos do Mini Mercado. (Caso 96979)  \n- Corrigido erro no Smart Totem: inconsistência no layout do card de preenchimento em relação ao protótipo do Figma. (Caso 93235)  \n- Corrigido erro de impressão do cabeçalho e ajustes de impressão no totem. (Caso 95723)  \n- Corrigido comportamento de impressão na Lista de Pedidos do totem. (Caso 95729)  \n- Corrigido comportamento da Lista de Pedidos no totem. (Caso 95724)  \n- Corrigido impressão na finalização da venda (Cartão e PIX) no totem. (Caso 95722)  \n- Corrigido erro ao exibir modal de confirmação no PIX no AutoPagamento. (Caso 93340)  \n- Corrigido problema de ociosidade no Smart AutoPagamento/Totem. (Caso 90918)  \n- Corrigido ajuste de foco no modal de edição de item no carrinho do PDV. (Caso 93804)  \n- Corrigido abertura do modal de edição de item no carrinho do PDV. (Caso 93802)  \n- Ajustado dispositivo: padronização de fonte e exibição de grupos nas configurações. (Caso 93412)  \n- Ajustadas telas de erro, cancelamento e feedback na operação do Smart TEF. (Caso 93342)  \n- Implementado reset e reprovisionamento no campo de operação do Smart TEF. (Caso 93341)  \n- Ajustado fluxo de rastreabilidade de transações offline no Smart TEF. (Caso 93297)  \n- Corrigido tratamento de retorno durante processamento de pagamento Cartão/PIX. (Caso 90921)  \n- Corrigido fluxo de ociosidade no Smart AutoPagamento/Totem. (Caso 90918)  \n- Corrigido problema em que, ao configurar o Smart TEF e o Smart auto pagamento pela primeira vez, o pagamento no Smart TEF aparecia com falha de carregamento. (Caso 95441)  \n- Corrigido problema em que, ao configurar o Smart TEF e o Smart auto pagamento pela primeira vez, ao tentar enviar transação aparecia “Dispositivo não suportado”. (Caso 95444)  \n- Corrigido problema em que, ao configurar o Smart TEF e o Smart auto pagamento pela primeira vez, era necessário repetir autenticação para refletir corretamente. (Caso 95448)  \n- Corrigido problema em que o Smart TEF não suportava o dispositivo no primeiro uso, exibindo mensagem adequada. (Caso 95444)  \n- Corrigido problema em que o Smart TEF travava ao confirmar pagamento. (Caso 95424)  \n- Corrigido problema em que o Smart TEF ficava preso na tela “Transação aprovada!”. (Caso 95575)  \n- Corrigido problema em que o Smart TEF não respondia adequadamente ao testar conexão na primeira configuração. (Caso 95574)  \n- Corrigido problema em que o Smart TEF não exibia corretamente dados de recebimento ao tentar pagar pela primeira vez. (Caso 95441)  \n- Corrigido problema em que o Smart TEF exibia erro HTTP 400 ao autenticar e sincronizar. (Caso 95314)  \n- Corrigido problema em que o Smart TEF não executava ação ao ler QR Code quando o selfhost estava parado. (Caso 95425)  \n- Corrigido problema em que o Smart TEF não enviava dados do PIX após aprovação da transação. (Caso 95553)  \n- Corrigido problema em que o Smart TEF não informava perda de conexão com o terminal. (Caso 96496)  \n- Corrigido problema em que o AutoPagamento exibia crash ao pagar comanda sem vínculo fiscal. (Caso 97006)  \n- Corrigido problema em que o AutoPagamento marcava cancelamento mesmo quando falhava. (Caso 95720)  \n- Corrigido problema em que o Smart Totem não exibia identificador de pedido na via da cozinha. (Caso 96109)  \n- Corrigido problema em que o Smart Totem imprimia via do estabelecimento desnecessariamente. (Caso 96110)  \n- Corrigido problema em que o totem não iniciava pedido após leitura de código de barras/QR Code. (Caso 96422)  \n- Corrigido problema em que o totem ignorava validações ao voltar rápido e exibia tela branca. (Caso 95911)  \n- Corrigido problema em que o totem sobrepunha carrossel lateral pelos totalizadores. (Caso 95915)  \n- Corrigido problema em que o totem apresentava modal de cancelamento incorreto ao retornar rapidamente. (Caso 97023)  \n- Corrigido problema em que o totem exibia terminais duplicados com o mesmo nome. (Caso 97010)  \n- Corrigido problema em que o Smart Totem não exibia número do chamado na via do chamado. (Caso 96054)  \n- Corrigido problema em que o Smart Totem não exibia corretamente o bloco de impressão. (Caso 93339)  \n\n### 2. MELHORIAS IMPLEMENTADAS\n\n**Endpoints / API**  \n- Implementada integração do Smart TEF com o Smart Autopagamento para enviar transações e tratar respostas/status. (Caso 94283)\n\n**Produtos**  \n- Compatibilizado o novo totem Elgin MK156A com Smart Totem e Smart Autopagamento. (Caso 96865)\n\n**Financeiro**  \n- Ajustada a exibição e tratamento de telas de erro, cancelamento e feedback na operação do Smart TEF. (Caso 93342)\n\n**Fiscal**  \n- Implementada rastreabilidade de transações offline no Smart TEF. (Caso 93297)\n\n**Interface**  \n- Implementado reset e reprovisionamento no campo de operação do Smart TEF. (Caso 93341)  \n- Implementado “Modo escuro” como configuração no Smart TEF. (Caso 93295)  \n- Implementado bloco de configurações de impressão no Totem. (Caso 93339)  \n- Ajustado header fixo com nome do produto e botão voltar no totem. (Caso 91052)  \n- Revisado layout do totem conforme protótipo do Figma. (Caso 91003)  \n- Ajustada tradução nos botões e menus do totem. (Caso 91004)  \n- Revisada reconstrução total para Jetpack Compose (Parte 2) no Smart Totem. (Caso 90803)  \n- Ajustado fluxo de ociosidade no Smart AutoPagamento/Totem. (Caso 90918)  \n- Implementada tela de configuração do Smart TEF. (Caso 90557)  \n- Implementada tela de “Detalhes do Produto” no Smart Totem. (Caso 90553)  \n- Implementada tela de configurações do Smart Totem. (Caso 90552)  \n- Implementada interface de pagamento no Smart AutoPagamento. (Caso 90520)  \n- Implementada interface de pagamento no Smart Totem. (Caso 90519)  \n- Implementada tela de carrinho com revisão do pedido no Smart Totem. (Caso 90227)  \n- Implementada tela de catálogo “Escolha seus itens” no Smart Totem. (Caso 90221)  \n- Implementada tela de “Opção de Consumo” nos steps do pedido no Smart Totem. (Caso 90219)  \n- Implementada reconstrução total para Jetpack Compose no Smart Totem. (Caso 90218)  \n- Implementada tela de exibição do QRCode PIX no AutoPagamento. (Caso 88605)  \n- Implementada tela de seleção de pagamento online no AutoPagamento. (Caso 88602)  \n- Implementada tela para informar CPF/CNPJ no AutoPagamento. (Caso 88599)  \n- Implementada leitura de QR codes/barras no K2 MINI. (Caso 88594)  \n- Implementado card das comandas capturadas no AutoPagamento. (Caso 88593)  \n- Implementada tela “Meu Pedido” com comandas capturadas. (Caso 88566)  \n- Implementada tela Home conforme protótipo do Figma. (Caso 88563)  \n- Implementado fluxo de ociosidade no autopagamento. (Caso 89150)  \n- Implementados modais no autopagamento. (Caso 89022)  \n- Implementado modal de área restrita para configurações. (Caso 88608)  \n- Implementadas telas de configurações. (Caso 88607)  \n- Implementadas telas de finalização e conclusão do pedido. (Caso 88606)  \n- Habilitada seleção de idioma nas configurações do autopagamento. (Caso 89294)  \n- Implementada tela de identificação com validação de campo nome no totem. (Caso 91053)  \n- Ajustado fluxo de finalização quando ocorrer rejeição na emissão da NFC-e. (Caso 89261)  \n- Implementado fluxo de finalização quando ocorrer rejeição na emissão da NFC-e. (Caso 89261)\n\n**Vendas & Relatórios**  \n- Ajustado foco e abertura de modal de edição de item no carrinho do PDV. (Casos 93804, 93802)\n\n### 3. REQUISITOS\n\n- Incluídos banco e CNPJ no payload de resposta PIX do Smart TEF. (Caso 95262)\n\n### 4. CLIENTES – CASOS ESPECÍFICOS\n\n- (O rascunho fornecido não indica casos por cliente/franquia.)\n\n## 📦 Resumo Final da Entrega\n\n- Quantidade aproximada de bugs corrigidos: 40+  \n- Quantidade de melhorias: 30+  \n- Áreas mais impactadas: Smart Totem e Smart Autopagamento/Smart TEF (pagamentos, impressão e fluxo de comandas)  \n- Ajustes para clientes específicos: não identificados no material fornecido  \n- Conclusão geral da entrega: hotfix com correções focadas em estabilidade do pagamento (TEF/PIX), consistência de comandas/pedidos e ajustes de impressão e navegação no totem, além de melhorias de interface e integração do TEF com o autopagamento.","produto":"Smart (Softcom Smart)","versoes":["8.0.0.0"],"total_casos":100},"processedIn":"31331ms"}
+

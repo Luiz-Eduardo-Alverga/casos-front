@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Table,
@@ -9,20 +10,29 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ExternalLink, SquarePen } from "lucide-react";
 import { LiberacaoStatusBadge } from "@/components/liberacoes/liberacao-status-badge";
 import { VersaoChip } from "@/components/liberacoes/versao-chip";
-import { formatLiberacaoDateDisplay, resolveProdutoNome } from "@/components/liberacoes/utils";
+import {
+  formatLiberacaoDateDisplay,
+  resolveProdutoNome,
+} from "@/components/liberacoes/utils";
+import { LiberacoesTabelaSkeletonRows } from "@/components/liberacoes/layout/liberacoes-tabela-skeleton";
+import { buildLiberacaoHrefForNewTab } from "@/lib/liberacao-standalone-url";
 import type { Produto } from "@/services/auxiliar/produtos";
 import type { LiberacaoItem } from "@/interfaces/liberacao";
 
 interface LiberacoesTabelaTableProps {
   itens: LiberacaoItem[];
   produtos: Produto[] | undefined;
+  isFetchingNextPage?: boolean;
 }
 
-export function LiberacoesTabelaTable({ itens, produtos }: LiberacoesTabelaTableProps) {
+export function LiberacoesTabelaTable({
+  itens,
+  produtos,
+  isFetchingNextPage = false,
+}: LiberacoesTabelaTableProps) {
   const router = useRouter();
 
   return (
@@ -89,23 +99,31 @@ export function LiberacoesTabelaTable({ itens, produtos }: LiberacoesTabelaTable
             <TableCell className="py-3 px-2.5 font-mono text-sm text-text-secondary">
               {formatLiberacaoDateDisplay(item.versao_final_data_prevista)}
             </TableCell>
-            <TableCell className="py-3 px-2.5 text-right">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-8 px-3"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/liberacoes/${item.registro}`);
-                }}
-              >
-                Abrir
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Button>
+            <TableCell
+              className="py-3 px-2.5 text-right"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-end gap-2">
+                <Link
+                  href={`/liberacoes/${item.registro}`}
+                  aria-label={`Editar liberação ${item.registro}`}
+                >
+                  <SquarePen className="h-4 w-4 text-text-primary" />
+                </Link>
+                <Link
+                  target="_blank"
+                  href={buildLiberacaoHrefForNewTab(item.registro)}
+                  aria-label={`Abrir liberação ${item.registro} em nova aba`}
+                >
+                  <ExternalLink className="h-4 w-4 text-text-primary" />
+                </Link>
+              </div>
             </TableCell>
           </TableRow>
         ))}
+        {isFetchingNextPage ? (
+          <LiberacoesTabelaSkeletonRows count={3} />
+        ) : null}
       </TableBody>
     </Table>
   );

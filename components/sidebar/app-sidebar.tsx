@@ -20,6 +20,7 @@ import {
   Settings,
   Smartphone,
   PackageCheck,
+  Lightbulb,
 } from "lucide-react";
 import {
   Sidebar,
@@ -66,7 +67,7 @@ interface SidebarSubitem {
 }
 
 const STANDALONE_NAV_ORDERS = new Set([20, 21]);
-const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 33, 35, 36, 37, 40]);
+const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 33, 34, 35, 36, 37, 40]);
 const RECURSOS_NAV_ORDERS = new Set([50, 60]);
 
 const CADASTROS_SUBITEMS: SidebarSubitem[] = [
@@ -126,7 +127,7 @@ const MAIN_NAV: MainNavEntry[] = [
   {
     type: "link",
     order: 21,
-    label: "Minha Visão",
+    label: "Painel Minha Visão",
     href: "/painel/minha-visao",
     icon: Eye,
     exact: true,
@@ -134,7 +135,7 @@ const MAIN_NAV: MainNavEntry[] = [
   {
     type: "link",
     order: 30,
-    label: "Listagem de Casos",
+    label: "Casos",
     href: "/casos",
     icon: FileText,
   },
@@ -155,20 +156,27 @@ const MAIN_NAV: MainNavEntry[] = [
   {
     type: "link",
     order: 33,
-    label: "Registro de Liberação",
+    label: "Liberações",
     href: "/liberacoes",
     icon: PackageCheck,
   },
+  // {
+  //   type: "link",
+  //   order: 34,
+  //   label: "Melhorias",
+  //   href: "/melhorias",
+  //   icon: Lightbulb,
+  // },
   {
     type: "link",
-    order: 35,
-    label: "Ver Projetos",
+    order: 30,
+    label: "Projetos",
     href: "/projetos",
     icon: FolderKanban,
   },
   {
     type: "link",
-    order: 36,
+    order: 32,
     label: "Clientes",
     href: "/clientes",
     icon: Building2,

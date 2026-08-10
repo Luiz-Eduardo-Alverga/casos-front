@@ -4,6 +4,13 @@ import { Filter, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layout";
 import { StatusFilterSelect } from "@/components/cadastros/status-filter-select";
 
@@ -19,6 +26,14 @@ interface CadastroFiltrosCardProps {
     value: string;
     onChange: (value: string) => void;
   };
+  /** Select genérico ao lado do campo de busca. */
+  selectFilter?: {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+    options: { value: string; label: string }[];
+    ariaLabel?: string;
+  };
 }
 
 export function CadastroFiltrosCard({
@@ -28,6 +43,7 @@ export function CadastroFiltrosCard({
   onChange,
   inputAriaLabel,
   statusSelect,
+  selectFilter,
 }: CadastroFiltrosCardProps) {
   return (
     <Card
@@ -58,12 +74,38 @@ export function CadastroFiltrosCard({
               />
             </div>
           </div>
-          {/* {statusSelect ? (
+          {selectFilter ? (
+            <div className="space-y-2 sm:col-span-1 lg:col-span-2">
+              <Label className="text-sm font-medium text-text-label">
+                {selectFilter.label}
+              </Label>
+              <Select
+                value={selectFilter.value}
+                onValueChange={selectFilter.onChange}
+              >
+                <SelectTrigger
+                  className="h-9 rounded-lg border-border-input"
+                  aria-label={
+                    selectFilter.ariaLabel ?? `Filtrar por ${selectFilter.label}`
+                  }
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectFilter.options.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : statusSelect ? (
             <StatusFilterSelect
               value={statusSelect.value}
               onChange={statusSelect.onChange}
             />
-          ) : null} */}
+          ) : null}
         </div>
       </CardContent>
     </Card>

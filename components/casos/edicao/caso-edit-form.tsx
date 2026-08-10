@@ -468,7 +468,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       <Tabs
         value={tabValue}
         onValueChange={setTabValue}
-        className="flex flex-col flex-1 lg:min-h-0 lg:overflow-hidden"
+        className="flex min-w-0 flex-1 flex-col lg:min-h-0 lg:overflow-hidden"
       >
         <CasoEditHeader
           countAnotacoes={countAnotacoes}
@@ -489,12 +489,12 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
           responsavelFeedbackNome={item?.report?.responsavel_feedback_nome}
         />
 
-        <div className="mt-2 flex-1 flex flex-col min-h-0 overflow-auto">
+        <div className="mt-2 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
           <CasoFormProvider value={providerValue}>
             <FormProvider {...methods}>
-              <div className="flex-1">
-                <div className="flex min-h-0 flex-1 flex-col gap-2 lg:flex-row">
-                  <div className="flex min-h-0 flex-1 min-w-0 flex-col gap-6">
+              <div className="min-w-0 flex-1">
+                <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 lg:flex-row">
+                  <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6">
                     <TabsContent
                       value="inicial"
                       className="flex-1 flex flex-col mt-0 min-h-0 data-[state=inactive]:hidden"
@@ -576,14 +576,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
 
                     <TabsContent
                       value="producao"
-                      className="mt-0 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
+                      className="mt-0 flex min-h-0 min-w-0 flex-1 flex-col data-[state=inactive]:hidden"
                     >
                       <fieldset
                         disabled={!canEditCase}
                         className="contents"
                         aria-disabled={!canEditCase}
                       >
-                        <div className="flex-1 flex flex-col gap-6 min-w-0">
+                        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6">
                           <AbaProducao item={item} />
                         </div>
                       </fieldset>

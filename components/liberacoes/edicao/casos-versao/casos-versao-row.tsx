@@ -38,12 +38,12 @@ export function CasosVersaoRow({
   return (
     <Card className="rounded-lg bg-card shadow-card">
       <CardContent className="flex items-start gap-3 p-5">
-        <Checkbox
+        {/* <Checkbox
           checked={selected}
           onCheckedChange={() => onToggleSelected()}
           className="mt-1 shrink-0"
           aria-label={`Selecionar caso #${item.id}`}
-        />
+        /> */}
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
             <ReportIdBadge id={item.id} />

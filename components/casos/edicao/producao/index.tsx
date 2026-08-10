@@ -216,13 +216,13 @@ export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
 
   return (
     <>
-      <Card className="bg-card shadow-card rounded-lg flex flex-col h-full lg:min-h-0 lg:flex-1">
+      <Card className="bg-card shadow-card rounded-lg flex min-w-0 flex-col h-full lg:min-h-0 lg:flex-1">
         <CasoEditTabCardHeader
           title="Produção"
           icon={CARD_HEADER_PRESETS.producao.icon}
           iconClassName={CARD_HEADER_PRESETS.producao.iconClassName}
         />
-        <CardContent className="p-6 pt-3 flex flex-col lg:flex-1 ">
+        <CardContent className="p-6 pt-3 flex min-w-0 flex-col lg:flex-1">
           {!readOnly ? (
             <ProducaoEstimativa
               showForm={showForm}
@@ -240,7 +240,7 @@ export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
             />
           ) : null}
 
-          <div className={readOnly ? "space-y-6" : "space-y-6 pt-4 "}>
+          <div className={readOnly ? "min-w-0 space-y-6" : "min-w-0 space-y-6 pt-4"}>
             <ProducaoControle
               naoPlanejadoFlag={naoPlanejadoFlag}
               estimadoMin={estimadoMin}
@@ -250,29 +250,31 @@ export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
             />
 
             {hasProducao ? (
-              <div className="space-y-2">
+              <div className="min-w-0 space-y-2">
                 <h3 className="text-sm font-semibold text-text-primary">
                   Detalhes da produção
                 </h3>
-                <ProducaoDetalhes
-                  producaoList={producaoList}
-                  agoraAtual={agoraAtual}
-                  editandoSequencia={editandoSequencia}
-                  editandoTipo={editandoTipo}
-                  editandoAbertura={editandoAbertura}
-                  editandoFechamento={editandoFechamento}
-                  onEditandoTipoChange={setEditandoTipo}
-                  onEditandoAberturaChange={setEditandoAbertura}
-                  onEditandoFechamentoChange={setEditandoFechamento}
-                  isSalvandoEdicao={atualizarProducao.isPending}
-                  onIniciarEdicao={handleIniciarEdicao}
-                  onCancelarEdicao={handleCancelarEdicao}
-                  onSalvarEdicao={handleSalvarEdicao}
-                  onAskDelete={(sequencia) =>
-                    setExcluirModal({ open: true, sequencia })
-                  }
-                  readOnly={readOnly}
-                />
+                <div className="w-0 min-w-full overflow-x-auto overscroll-x-contain">
+                  <ProducaoDetalhes
+                    producaoList={producaoList}
+                    agoraAtual={agoraAtual}
+                    editandoSequencia={editandoSequencia}
+                    editandoTipo={editandoTipo}
+                    editandoAbertura={editandoAbertura}
+                    editandoFechamento={editandoFechamento}
+                    onEditandoTipoChange={setEditandoTipo}
+                    onEditandoAberturaChange={setEditandoAbertura}
+                    onEditandoFechamentoChange={setEditandoFechamento}
+                    isSalvandoEdicao={atualizarProducao.isPending}
+                    onIniciarEdicao={handleIniciarEdicao}
+                    onCancelarEdicao={handleCancelarEdicao}
+                    onSalvarEdicao={handleSalvarEdicao}
+                    onAskDelete={(sequencia) =>
+                      setExcluirModal({ open: true, sequencia })
+                    }
+                    readOnly={readOnly}
+                  />
+                </div>
               </div>
             ) : (
               <div className="flex min-h-0 flex-1 flex-col">

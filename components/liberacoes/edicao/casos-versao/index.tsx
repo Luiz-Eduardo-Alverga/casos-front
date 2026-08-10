@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckCheck, FileText, Sparkles } from "lucide-react";
+import { FileText } from "lucide-react";
 import toast from "react-hot-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/painel/empty-state";
 import { useCasosVersao } from "@/components/liberacoes/edicao/casos-versao/use-casos-versao";
 import { CasosVersaoRow } from "@/components/liberacoes/edicao/casos-versao/casos-versao-row";
@@ -17,8 +15,7 @@ import {
   type CasoVersaoRowState,
 } from "@/components/liberacoes/edicao/casos-versao/utils";
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
-import { useGenerateReleaseNotes } from "@/hooks/assistant/use-generate-release-notes";
-import type { ReleaseNotesData } from "@/lib/types/release-notes";
+import { useGenerateReleaseNotesStream } from "@/hooks/assistant/use-generate-release-notes-stream";
 import type { LiberacaoVersao } from "@/interfaces/liberacao";
 
 type SavedCasoVersaoFields = {
@@ -39,7 +36,13 @@ export function AbaCasosVersao({
 }: AbaCasosVersaoProps) {
   const queryClient = useQueryClient();
   const updateCaso = useUpdateCaso();
-  const generateReleaseNotes = useGenerateReleaseNotes();
+  const {
+    generate: generateReleaseNotes,
+    isGenerating: generating,
+    progress,
+    draftMarkdown,
+    resultado,
+  } = useGenerateReleaseNotesStream();
 
   const {
     data,
@@ -72,12 +75,9 @@ export function AbaCasosVersao({
   savedByIdRef.current = savedById;
 
   const [selected, setSelected] = useState<string[]>([]);
-  const [resultado, setResultado] = useState<ReleaseNotesData | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [bulkMarking, setBulkMarking] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  const generating = generateReleaseNotes.isPending;
 
   useEffect(() => {
     const prevById = new Map(rowsRef.current.map((row) => [row.id, row]));
@@ -145,11 +145,10 @@ export function AbaCasosVersao({
     );
 
   const handleGerar = async () => {
-    setResultado(null);
     try {
-      const data = await generateReleaseNotes.mutateAsync(registro);
-      setResultado(data);
+      await generateReleaseNotes(registro);
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       toast.error(
         err instanceof Error
           ? err.message
@@ -300,38 +299,6 @@ export function AbaCasosVersao({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3 px-1">
-        <label className="flex items-center gap-2 text-[12.5px] text-text-secondary">
-          <Checkbox
-            checked={allChecked}
-            onCheckedChange={() => toggleAll()}
-            aria-label="Selecionar todos os casos"
-          />
-          {totalizadorLabel}
-        </label>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={selected.length === 0 || bulkMarking || generating}
-            onClick={() => void handleBulkMarcarLiberacao()}
-          >
-            <CheckCheck className="h-3.5 w-3.5" />
-            Marcar para liberação
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            disabled={generating || bulkMarking}
-            onClick={() => void handleGerar()}
-            className="bg-gradient-to-r from-primary to-violet-500 text-white hover:opacity-90 disabled:opacity-50"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            Gerar descrição com IA
-          </Button>
-        </div>
-      </div>
       <div className="grid grid-cols-1 gap-6 pb-6 lg:grid-cols-[1fr_600px]">
         <div className="space-y-2">
           {rows.map((row) => (
@@ -366,7 +333,14 @@ export function AbaCasosVersao({
           )}
         </div>
 
-        <DescricaoGeradaCard generating={generating} resultado={resultado} />
+        <DescricaoGeradaCard
+          generating={generating}
+          progress={progress}
+          draftMarkdown={draftMarkdown}
+          resultado={resultado}
+          onGerar={() => void handleGerar()}
+          gerarDisabled={bulkMarking}
+        />
       </div>
     </div>
   );

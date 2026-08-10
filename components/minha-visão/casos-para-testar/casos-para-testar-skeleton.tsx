@@ -3,6 +3,22 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+export function CasosParaTestarContentSkeleton() {
+  return (
+    <div className="p-4 space-y-3">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-4">
+          <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+          <Skeleton className="h-4 flex-1" />
+          <Skeleton className="h-4 w-10" />
+          <Skeleton className="h-4 w-10" />
+          <Skeleton className="h-4 w-10" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function CasosParaTestarSkeleton() {
   return (
     <Card className="bg-card shadow-card rounded-lg">
@@ -16,16 +32,8 @@ export function CasosParaTestarSkeleton() {
         </div>
         <Skeleton className="h-8 w-56 rounded-lg shrink-0" />
       </CardHeader>
-      <CardContent className="p-4 space-y-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4">
-            <Skeleton className="h-8 w-8 rounded-full shrink-0" />
-            <Skeleton className="h-4 flex-1" />
-            <Skeleton className="h-4 w-10" />
-            <Skeleton className="h-4 w-10" />
-            <Skeleton className="h-4 w-10" />
-          </div>
-        ))}
+      <CardContent className="p-0">
+        <CasosParaTestarContentSkeleton />
       </CardContent>
     </Card>
   );

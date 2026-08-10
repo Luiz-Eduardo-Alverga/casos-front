@@ -1,7 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -95,7 +101,7 @@ export function ProducaoDetalhes({
   });
 
   return (
-    <Table>
+    <Table className="min-w-max">
       <TableHeader>
         <TableRow className="bg-table-row-bg border-b border-border hover:bg-table-row-hover">
           <TableHead className="font-medium text-sm text-text-primary h-auto py-3 px-2.5">
@@ -178,14 +184,21 @@ export function ProducaoDetalhes({
             </TableCell>
             <TableCell className="py-3 px-2.5">
               {editandoSequencia === row.sequencia ? (
-                <Input
-                  type="text"
+                <Select
                   value={editandoTipo}
-                  onChange={(e) => onEditandoTipoChange(e.target.value)}
-                  placeholder="Tipo"
-                  className="h-9 text-sm"
+                  onValueChange={onEditandoTipoChange}
                   disabled={isSalvandoEdicao}
-                />
+                >
+                  <SelectTrigger className="h-9 text-sm min-w-[160px]">
+                    <SelectValue placeholder="Tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DESENVOLVENDO">DESENVOLVENDO</SelectItem>
+                    <SelectItem value="ANALISANDO">ANALISANDO</SelectItem>
+                    <SelectItem value="RETORNO">RETORNO</SelectItem>
+                    <SelectItem value="TESTANDO">TESTANDO</SelectItem>
+                  </SelectContent>
+                </Select>
               ) : row.tipo ? (
                 <Badge
                   variant="secondary"
