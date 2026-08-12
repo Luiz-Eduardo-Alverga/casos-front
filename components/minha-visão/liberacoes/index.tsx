@@ -14,6 +14,10 @@ import {
 import { EmptyState } from "@/components/painel/empty-state";
 import { CasosFiltrosAnimatedContent } from "@/components/casos/filtros/casos-filtros-animated-content";
 import { cn } from "@/lib/utils";
+import {
+  formatLiberacaoDateDisplay,
+  parseLiberacaoDate,
+} from "@/components/liberacoes/utils";
 import { TipoLiberacaoBadge } from "./tipo-liberacao-badge";
 import { LiberacoesSkeleton } from "./liberacoes-skeleton";
 import type {
@@ -21,6 +25,16 @@ import type {
   VisaoProximasLiberacoesItem,
 } from "@/services/sprint/get-visao-proximas-liberacoes";
 import type { VisaoUltimasLiberacoesItem } from "@/services/sprint/get-visao-ultimas-liberacoes";
+
+function isDataLiberacaoAtrasada(
+  value: string | null | undefined,
+): boolean {
+  const data = parseLiberacaoDate(value);
+  if (!data) return false;
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  return data < hoje;
+}
 
 export type TipoLiberacaoFiltro = TipoLiberacao | "todos";
 
@@ -99,23 +113,31 @@ export function Liberacoes({
           />
         ) : (
           <div className="max-h-[312px] overflow-y-auto px-4 pb-2 space-y-2">
-            {proximas.map((item, idx) => (
-              <div
-                key={`${item.registro}-${idx}`}
-                className="px-3.5 py-2.5 rounded-lg border border-border-divider bg-muted/30 flex items-center justify-between gap-3"
-              >
-                <div className="min-w-0">
-                  <div className="text-xs font-semibold text-text-primary truncate">
-                    v{item.versao} · Previsão:{" "}
-                    {item.data || item.versao_final_data_prevista || "—"}
+            {proximas.map((item, idx) => {
+              const dataPrevisao =
+                item.data || item.versao_final_data_prevista || null;
+              const atrasada = isDataLiberacaoAtrasada(dataPrevisao);
+
+              return (
+                <div
+                  key={`${item.registro}-${idx}`}
+                  className="px-3.5 py-2.5 rounded-lg border border-border-divider bg-muted/30 flex items-center justify-between gap-3"
+                >
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-text-primary truncate">
+                      v{item.versao} · Previsão:{" "}
+                      <span className={cn(atrasada && "text-red-600")}>
+                        {formatLiberacaoDateDisplay(dataPrevisao)}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-text-secondary mt-0.5">
+                      {item.produto}
+                    </div>
                   </div>
-                  <div className="text-[11px] text-text-secondary mt-0.5">
-                    {item.produto}
-                  </div>
+                  <TipoLiberacaoBadge tipo={item.tipo_liberacao} />
                 </div>
-                <TipoLiberacaoBadge tipo={item.tipo_liberacao} />
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
