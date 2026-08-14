@@ -6,14 +6,15 @@ VMID=9000001
 Template=Skadi (1 vCPU / 4GB / 50GB)
 IP=192.168.25.108
 
-# SSH
-# ssh root@192.168.25.108
-# ssh root@sshSquadXp-01.hostsoftcom.cloud
+# SSH público (GitHub Actions). Não use o IP 192.168.25.108 no CI.
+# ssh root@ssh-squad-xp-01.hostsoftcom.cloud
 
-Traefik=http://traefik-squad-xp-01.hostsoftcom.cloud
-Portainer=http://portainer-squad-xp-01.hostsoftcom.cloud
+Traefik=https://traefik-squad-xp-01.hostsoftcom.cloud
+Portainer=https://portainer-squad-xp-01.hostsoftcom.cloud
+App=https://softflow.hostsoftcom.cloud
+Assistant=https://assistant.hostsoftcom.cloud
 
 # Overlay do Traefik nesta VM (docker network ls)
 TRAEFIK_NETWORK=network_public
 TRAEFIK_ENTRYPOINT=web
-TRAEFIK_HOST=softlflow.hostsoftcom.cloud
+TRAEFIK_HOST=softflow.hostsoftcom.cloud

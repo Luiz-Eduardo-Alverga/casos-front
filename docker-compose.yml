@@ -1,8 +1,7 @@
 # Stack Swarm + Traefik (VPS Skadi).
-# A rede pública desta VM é `network_public` (overlay). Não use `docker compose up`:
-# o Swarm não anexa containers avulsos a overlay. Fluxo: build da imagem + stack deploy.
-#
-# Copie `.env.example` para `.env` na VPS (incluindo TRAEFIK_HOST).
+# A rede pública desta VM é `network_public` (overlay). Não use `docker compose up`.
+# Produção: GitHub Actions faz build, publica no GHCR e o script deploy/vps-update.sh
+# faz pull + stack deploy. Copie `.env.example` para `.env` na VPS.
 
 services:
   app:
@@ -15,7 +14,7 @@ services:
         NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
-    image: casos-front:latest
+    image: ${CASOS_IMAGE:-ghcr.io/luiz-eduardo-alverga/casos-front:latest}
     env_file:
       - .env
     environment:
@@ -47,7 +46,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=${TRAEFIK_NETWORK:-network_public}
-        - traefik.http.routers.casos-front.rule=Host(`${TRAEFIK_HOST:-softlflow.hostsoftcom.cloud}`)
+        - traefik.http.routers.casos-front.rule=Host(`${TRAEFIK_HOST:-softflow.hostsoftcom.cloud}`)
         - traefik.http.routers.casos-front.entrypoints=${TRAEFIK_ENTRYPOINT:-web}
         - traefik.http.routers.casos-front.service=casos-front
         - traefik.http.services.casos-front.loadbalancer.server.port=3000

@@ -26,4 +26,4 @@ Copie de [`.env.example`](./.env.example). Principais:
 
 ## Produção (VPS)
 
-A imagem Docker usa `output: "standalone"` (ativado só quando `DOCKER=1`). Deploy em Docker Swarm + Traefik: [docs/DEPLOY_VPS.md](./docs/DEPLOY_VPS.md).
+A imagem Docker usa `output: "standalone"` (ativado só quando `DOCKER=1`). Deploy automático (GHCR + runner na VPS): [docs/DEPLOY_VPS.md](./docs/DEPLOY_VPS.md).

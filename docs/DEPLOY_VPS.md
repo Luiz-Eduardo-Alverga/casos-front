@@ -1,114 +1,76 @@
 # Deploy na VPS (Docker Swarm + Traefik)
 
-A aplicação continua usando **Supabase**, **API Soft Flow** e **Discord** fora da VPS. Só o Next.js sai da Vercel e passa a rodar como **serviço Swarm**, na overlay `network_public`, atrás do Traefik da VM Skadi.
+A aplicação continua usando **Supabase**, **API Soft Flow**, **Assistant** e **Discord** fora do processo Next (Assistant já pode estar na mesma VPS). O front roda como **serviço Swarm** na overlay `network_public`, atrás do Traefik. O Cloudflare Tunnel publica HTTPS em `softflow.hostsoftcom.cloud` para `http://localhost:80`.
 
-Esta VM é um **manager Swarm** (não Docker Compose avulso). `docker compose up` não coloca o container na overlay do Traefik.
+O Traefik da VM **só escuta HTTP na porta 80** (entrypoint `web`). Não use `docker compose up`.
 
-O Traefik desta VM **só escuta HTTP na porta 80** (entrypoint `web`). Não há `:443` nem certificado.
+## Deploy automático (GitHub Actions)
 
-## Pré-requisitos na VPS
+Push em `master` (ou *Run workflow*):
 
-1. Acesso SSH (`root@192.168.25.108` ou `sshSquadXp-01.hostsoftcom.cloud`).
-2. Docker Swarm, Traefik e Portainer no ar.
-3. Rede pública: `network_public` (overlay).
-4. DNS de `softlflow.hostsoftcom.cloud` apontando para esta VM (mesmo padrão do Portainer/Traefik).
-5. Cookie de login: nesta VPS use `COOKIE_SECURE=false` (HTTP). Com `Secure` o browser não envia o cookie.
+1. **GitHub (nuvem):** build da imagem e push para `ghcr.io/luiz-eduardo-alverga/casos-front`.
+2. **Runner na VPS** (`vm-squad-xp-01`): `docker pull` + `docker stack deploy`. Sem SSH de fora.
 
-Hostnames reais já no Traefik:
+O runner precisa estar **Idle** em Settings → Actions → Runners.
 
-- App: `http://softlflow.hostsoftcom.cloud`
-- Portainer: `http://portainer-squad-xp-01.hostsoftcom.cloud`
-- Dashboard Traefik: `http://traefik-squad-xp-01.hostsoftcom.cloud`
+Secrets do repositório (Settings → Secrets and variables → Actions) — **só o que entra no build**:
 
-## Variáveis de ambiente
-
-Na Vercel (Project → Settings → Environment Variables), copie **todas** as de Production para um `.env` **somente na VPS** (não commitar).
-
-Base: [`.env.example`](../.env.example). Além das da aplicação, o stack precisa de:
-
-| Variável | Função |
+| Secret | Valor |
 |---|---|
-| `TRAEFIK_HOST` | `softlflow.hostsoftcom.cloud` |
-| `TRAEFIK_NETWORK` | `network_public` |
-| `TRAEFIK_ENTRYPOINT` | `web` (HTTP :80) |
-| `COOKIE_SECURE` | `false` enquanto não houver HTTPS |
-| `CASOS_APP_BASE_URL` | `http://softlflow.hostsoftcom.cloud` (links do Discord) |
+| `NEXT_PUBLIC_API_BASE_URL` | API Soft Flow |
+| `NEXT_PUBLIC_ASSISTANT_API_URL` | `https://assistant.hostsoftcom.cloud` |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto Supabase |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | chave publishable |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | opcional |
 
-`NEXT_PUBLIC_*` entra no bundle **no `docker build`**. Se mudar URL do Supabase ou da API Soft Flow, é preciso **rebuild** da imagem, não só `stack deploy`.
+Não cadastre senha de root nem `VPS_SSH_KEY`. Runtime (`DATABASE_URL`, Discord, `TRAEFIK_*`, etc.) fica em `/opt/casos-front/.env` na VPS.
 
-## Subir o stack
+### Permissão do `.env` para o runner (uma vez, como root)
 
-Na VPS, no diretório do repositório:
-
-```bash
-git clone https://github.com/Luiz-Eduardo-Alverga/casos-front.git
-cd casos-front
-cp .env.example .env
-# edite .env com os valores de produção
-```
-
-O Swarm **não faz build**. Gere a imagem e depois publique o stack. `--resolve-image never` evita o Swarm tentar puxar `casos-front:latest` do Docker Hub.
+O job roda como `github-runner` e precisa **ler** o `.env`:
 
 ```bash
-docker compose --env-file .env build
-set -a && . ./.env && set +a
-docker stack deploy -c docker-compose.yml --resolve-image never casos-front
-docker service logs -f casos-front_app
+chgrp github-runner /opt/casos-front/.env
+chmod 640 /opt/casos-front/.env
+usermod -aG docker github-runner
+cd /opt/actions-runner && ./svc.sh stop && ./svc.sh start
 ```
 
-`docker stack deploy` **não lê** `.env` sozinho; o `set -a && . ./.env` exporta as variáveis para interpolar `TRAEFIK_*` nas labels.
+O restart do serviço garante que o grupo `docker` valha para o runner.
 
-A VM tem 1 vCPU / 4 GB: o build pode ser lento ou estourar memória. Se o `docker compose build` falhar por OOM:
+## Deploy manual (emergência)
+
+Na VPS, como um usuário no grupo `docker`:
 
 ```bash
-# na VPS, uma vez
-fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+cd /opt/casos-front
+export GHCR_TOKEN=...   # PAT com read:packages, se a imagem for privada
+export GHCR_USER=Luiz-Eduardo-Alverga
+export CASOS_IMAGE=ghcr.io/luiz-eduardo-alverga/casos-front:latest
+bash deploy/vps-update.sh
 ```
 
-Ou faça o build em outra máquina e envie a imagem:
+## Hostnames
 
-```bash
-# na sua máquina, com o .env de produção
-docker compose --env-file .env build
-docker save casos-front:latest | gzip | ssh root@192.168.25.108 "gunzip | docker load"
-```
-
-Na VPS, com o `.env` já preenchido:
-
-```bash
-set -a && . ./.env && set +a
-docker stack deploy -c docker-compose.yml --resolve-image never casos-front
-```
-
-## Conferir
-
-- Serviço: `docker stack services casos-front` (1/1 replicas).
-- Traefik: `http://traefik-squad-xp-01.hostsoftcom.cloud` — router `casos-front`.
-- App: `http://softlflow.hostsoftcom.cloud/login`.
-- Login (cookie **sem** `Secure`).
-- `GET /api/db/ping` autenticado (Postgres/Supabase).
-- Anexos e, se usar, notificação Discord.
-
-Não aponte o DNS de produção (`softflow.softcom.services`) enquanto a Vercel ainda for o destino. Homologue em `softlflow.hostsoftcom.cloud` primeiro.
-
-## Portainer (alternativa)
-
-Em **Stacks → Add stack** (modo **Swarm**), cole o `docker-compose.yml` e preencha as mesmas variáveis do `.env` na UI. A imagem `casos-front:latest` precisa já existir no node (`docker compose build` ou `docker load`).
+- App: `https://softflow.hostsoftcom.cloud`
+- Assistant: `https://assistant.hostsoftcom.cloud`
+- Portainer: `http://portainer-squad-xp-01.hostsoftcom.cloud` (ou HTTPS no Tunnel)
+- Traefik: `http://traefik-squad-xp-01.hostsoftcom.cloud`
 
 ## Labels Traefik
 
-No Swarm as labels ficam em `deploy.labels` (igual ao Portainer desta VM):
+Em `deploy.labels`, iguais ao Portainer:
 
-- `Host(softlflow.hostsoftcom.cloud)`
-- entrypoint `web` (HTTP :80)
-- **sem** `tls=true` (esta VM não tem HTTPS)
+- `Host(softflow.hostsoftcom.cloud)`
+- entrypoint `web`
+- sem `tls=true`
 - porta interna `3000`
 - rede `network_public`
 
 ## O que não vai para a VPS
 
-- Postgres (permanece no Supabase).
-- API Soft Flow / Assistant / Softcom Cloud.
-- Bot Discord.
+- Postgres (Supabase)
+- API Soft Flow / Softcom Cloud
+- Bot Discord
 
-A VPS só precisa **alcançar** esses serviços (rede `192.168.25.x` para a Soft Flow, internet para Supabase e Discord).
+A VPS só precisa **alcançar** esses serviços.
