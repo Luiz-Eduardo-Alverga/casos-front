@@ -3,10 +3,17 @@ import { cookies } from "next/headers";
 /** Nome do cookie HttpOnly onde o token é armazenado (apenas no servidor). */
 export const AUTH_COOKIE_NAME = "casos_token";
 
-/** Opções padrão do cookie de autenticação (HttpOnly, Secure em produção). */
+function isCookieSecure(): boolean {
+  const raw = process.env.COOKIE_SECURE?.trim().toLowerCase();
+  if (raw === "false" || raw === "0") return false;
+  if (raw === "true" || raw === "1") return true;
+  return process.env.NODE_ENV === "production";
+}
+
+/** Opções padrão do cookie de autenticação (HttpOnly; Secure em produção, a menos que COOKIE_SECURE=false). */
 export const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
+  secure: isCookieSecure(),
   sameSite: "lax" as const,
   path: "/",
   maxAge: 60 * 60 * 24 * 7, // 7 dias
