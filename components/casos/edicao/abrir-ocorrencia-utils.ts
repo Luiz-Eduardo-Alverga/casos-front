@@ -3,6 +3,7 @@ import type {
   ClienteCasoItem,
 } from "@/interfaces/projeto-memoria";
 import type { CreateTicketRequest } from "@/interfaces/cliente-ticket";
+import { CASO_STATUS_INCOMPLETO_ID } from "@/components/casos/edicao/report-analise-modal/utils";
 
 /** Retorna a anotação com maior `sequencia` (última informada). */
 export function getUltimaAnotacao(
@@ -78,11 +79,42 @@ export function buildCreateTicketPayload(params: {
 export function getClienteIdsVinculados(
   clientes: ClienteCasoItem[] | null | undefined,
 ): number[] {
+  return getClientesVinculadosUnicos(clientes).map((c) => Number(c.cliente));
+}
+
+/** Clientes únicos por `cliente` (primeiro vínculo encontrado). */
+export function getClientesVinculadosUnicos(
+  clientes: ClienteCasoItem[] | null | undefined,
+): ClienteCasoItem[] {
   const lista = Array.isArray(clientes) ? clientes : [];
-  const ids = lista
-    .map((c) => Number(c.cliente))
-    .filter((id) => Number.isFinite(id) && id > 0);
-  return [...new Set(ids)];
+  const seen = new Set<number>();
+  const unicos: ClienteCasoItem[] = [];
+  for (const item of lista) {
+    const id = Number(item.cliente);
+    if (!Number.isFinite(id) || id <= 0 || seen.has(id)) continue;
+    seen.add(id);
+    unicos.push(item);
+  }
+  return unicos;
+}
+
+/**
+ * Pergunta se deseja abrir ocorrência só na transição para Incompleto (8).
+ * Não pergunta de novo se o caso já estava nesse status.
+ */
+export function devePerguntarAbrirOcorrencia(
+  statusAnterior: number | string | null | undefined,
+  statusFinal: number | string | null | undefined,
+): boolean {
+  const final = Number(statusFinal);
+  if (!Number.isFinite(final) || final !== CASO_STATUS_INCOMPLETO_ID) {
+    return false;
+  }
+  const anterior = Number(statusAnterior);
+  if (Number.isFinite(anterior) && anterior === CASO_STATUS_INCOMPLETO_ID) {
+    return false;
+  }
+  return true;
 }
 
 /** Resolve o id do usuário pelo `nome_suporte` (ex.: responsavel_feedback_nome). */

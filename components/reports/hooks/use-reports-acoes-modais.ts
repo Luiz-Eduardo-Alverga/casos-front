@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
+import type {
+  ClienteCasoItem,
+  ProjetoMemoriaItem,
+} from "@/interfaces/projeto-memoria";
+import { getProjetoMemoriaById } from "@/services/projeto-memoria/get-projeto-memoria";
 import {
   type ReportAcaoAnotacaoTipo,
 } from "../modais/report-acao-anotacao-modal";
@@ -12,6 +16,35 @@ type ReportAcaoModalState = {
   item: ProjetoMemoriaItem;
 } | null;
 
+export type OcorrenciaAposIncompletoState = {
+  casoId: number;
+  clientes: ClienteCasoItem[];
+  descricaoResumo: string | null;
+  ultimaAnotacaoTexto: string;
+  responsavelFeedbackNome: string | null;
+} | null;
+
+async function resolveClientesDoCaso(
+  item: ProjetoMemoriaItem,
+): Promise<ClienteCasoItem[]> {
+  const lista = item.caso.clientes;
+  if (Array.isArray(lista) && lista.length > 0) {
+    return lista;
+  }
+
+  const qtd = item.caso.qtd_clientes_vinculados ?? 0;
+  if (Array.isArray(lista) && lista.length === 0 && qtd === 0) {
+    return [];
+  }
+
+  try {
+    const res = await getProjetoMemoriaById(item.caso.id);
+    return res.data?.caso?.clientes ?? [];
+  } catch {
+    return Array.isArray(lista) ? lista : [];
+  }
+}
+
 export function useReportsAcoesModais() {
   const { aprovar, marcarIncompletoComAnotacao, suspenderComAnotacao, isPending } =
     useReportAcoes();
@@ -20,6 +53,9 @@ export function useReportsAcoesModais() {
     useState<ProjetoMemoriaItem | null>(null);
   const [aprovarModalOpen, setAprovarModalOpen] = useState(false);
   const [acaoModal, setAcaoModal] = useState<ReportAcaoModalState>(null);
+  const [ocorrenciaAposIncompleto, setOcorrenciaAposIncompleto] =
+    useState<OcorrenciaAposIncompletoState>(null);
+  const [resolvendoOcorrencia, setResolvendoOcorrencia] = useState(false);
 
   const handleAbrirAprovar = useCallback((item: ProjetoMemoriaItem) => {
     setItemParaAprovar(item);
@@ -40,7 +76,25 @@ export function useReportsAcoesModais() {
 
       const casoId = acaoModal.item.caso.id;
       if (acaoModal.tipo === "incompleto") {
-        return marcarIncompletoComAnotacao(casoId, anotacao);
+        setResolvendoOcorrencia(true);
+        try {
+          const ok = await marcarIncompletoComAnotacao(casoId, anotacao);
+          if (!ok) return false;
+
+          const clientes = await resolveClientesDoCaso(acaoModal.item);
+          setOcorrenciaAposIncompleto({
+            casoId,
+            clientes,
+            descricaoResumo:
+              acaoModal.item.caso.textos?.descricao_resumo ?? null,
+            ultimaAnotacaoTexto: anotacao,
+            responsavelFeedbackNome:
+              acaoModal.item.report?.responsavel_feedback_nome ?? null,
+          });
+          return true;
+        } finally {
+          setResolvendoOcorrencia(false);
+        }
       }
       return suspenderComAnotacao(casoId, anotacao);
     },
@@ -51,9 +105,13 @@ export function useReportsAcoesModais() {
     if (!open) setAcaoModal(null);
   }, []);
 
+  const fecharOcorrenciaAposIncompleto = useCallback((open: boolean) => {
+    if (!open) setOcorrenciaAposIncompleto(null);
+  }, []);
+
   return {
     aprovar,
-    isPending,
+    isPending: isPending || resolvendoOcorrencia,
     itemParaAprovar,
     aprovarModalOpen,
     setAprovarModalOpen,
@@ -63,5 +121,7 @@ export function useReportsAcoesModais() {
     handleSuspender,
     handleConfirmarAcaoComAnotacao,
     fecharAcaoModal,
+    ocorrenciaAposIncompleto,
+    fecharOcorrenciaAposIncompleto,
   };
 }

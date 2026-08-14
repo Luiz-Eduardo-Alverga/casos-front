@@ -11,6 +11,7 @@ import { ReportDetalhe } from "./detalhe/report-detalhe";
 import { ReportDetalheSkeleton } from "./detalhe/report-detalhe-skeleton";
 import { ReportAprovarModal } from "./modais/report-aprovar-modal";
 import { ReportAcaoAnotacaoModal } from "./modais/report-acao-anotacao-modal";
+import { AbrirOcorrenciaModal } from "@/components/casos/edicao/abrir-ocorrencia-modal";
 import { ReportsViewToggle } from "./layout/reports-view-toggle";
 import { ReportsTotalizador } from "./layout/reports-totalizador";
 import { useReportsFiltros } from "./hooks/use-reports-filtros";
@@ -56,6 +57,8 @@ export function Reports() {
     handleSuspender,
     handleConfirmarAcaoComAnotacao,
     fecharAcaoModal,
+    ocorrenciaAposIncompleto,
+    fecharOcorrenciaAposIncompleto,
   } = useReportsAcoesModais();
 
   const selectedItem = useMemo(() => {
@@ -198,6 +201,20 @@ export function Reports() {
         onConfirm={handleConfirmarAcaoComAnotacao}
         isLoading={isPending}
       />
+
+      {ocorrenciaAposIncompleto ? (
+        <AbrirOcorrenciaModal
+          open
+          onOpenChange={fecharOcorrenciaAposIncompleto}
+          casoId={ocorrenciaAposIncompleto.casoId}
+          clientes={ocorrenciaAposIncompleto.clientes}
+          descricaoResumo={ocorrenciaAposIncompleto.descricaoResumo}
+          ultimaAnotacaoTexto={ocorrenciaAposIncompleto.ultimaAnotacaoTexto}
+          responsavelFeedbackNome={
+            ocorrenciaAposIncompleto.responsavelFeedbackNome
+          }
+        />
+      ) : null}
     </ListagemPageLayout>
   );
 }

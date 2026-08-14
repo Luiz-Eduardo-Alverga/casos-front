@@ -48,6 +48,8 @@ import {
 import { buildCasoEditSnapshot } from "./save/edit-snapshot";
 import { computeCasoEditSave } from "./save/compute-caso-edit-save";
 import { computeCasoEditSync } from "./save/compute-caso-edit-sync";
+import { AbrirOcorrenciaModal } from "./abrir-ocorrencia-modal";
+import { devePerguntarAbrirOcorrencia } from "./abrir-ocorrencia-utils";
 import { AbaHistorico } from "./historico/index";
 import { getUser } from "@/lib/auth";
 import {
@@ -142,6 +144,8 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
     resolveInitialTabFromUrl(tabFromUrl),
   );
   const [novaAnotacaoDraft, setNovaAnotacaoDraft] = useState("");
+  const [abrirOcorrenciaModalOpen, setAbrirOcorrenciaModalOpen] =
+    useState(false);
 
   useEffect(() => {
     if (tabFromUrl !== "producao") return;
@@ -393,6 +397,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       await updateCaso.mutateAsync({ id: casoId, data: payload });
       toast.success("Caso atualizado com sucesso.");
       invalidate();
+      if (
+        devePerguntarAbrirOcorrencia(
+          statusIdApi,
+          saveResult.statusCasoFinal,
+        )
+      ) {
+        setAbrirOcorrenciaModalOpen(true);
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao atualizar caso.");
     }
@@ -618,6 +630,16 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
           </CasoFormProvider>
         </div>
       </Tabs>
+
+      <AbrirOcorrenciaModal
+        open={abrirOcorrenciaModalOpen}
+        onOpenChange={setAbrirOcorrenciaModalOpen}
+        casoId={numeroCaso}
+        clientes={clientes ?? []}
+        descricaoResumo={caso?.textos?.descricao_resumo}
+        anotacoes={anotacoes ?? []}
+        responsavelFeedbackNome={item?.report?.responsavel_feedback_nome}
+      />
     </CasoEditProvider>
   );
 }

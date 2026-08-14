@@ -32,9 +32,6 @@ import toast from "react-hot-toast";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { useClonarCaso } from "@/hooks/casos/use-clonar-caso";
 import { useDeleteCaso } from "@/hooks/casos/use-delete-caso";
-import { useCreateTicket } from "@/hooks/tickets/use-create-ticket";
-import { getUser } from "@/lib/auth";
-import { getUsuarios } from "@/services/auxiliar/usuarios";
 import type {
   AnotacaoCasoItem,
   ClienteCasoItem,
@@ -42,12 +39,7 @@ import type {
 import { useCasoProducaoActions } from "@/components/caso-resumo-modal/use-caso-producao-actions";
 import { CasoProducaoActionButton } from "@/components/caso-resumo-modal/caso-producao-action-button";
 import { useCasoEdit } from "./caso-edit-context";
-import {
-  buildCreateTicketPayload,
-  findUsuarioIdByNome,
-  getClienteIdsVinculados,
-  getUltimaAnotacao,
-} from "./abrir-ocorrencia-utils";
+import { useAbrirOcorrencia } from "./use-abrir-ocorrencia";
 
 export interface CasoEditHeaderProps {
   countAnotacoes: number;
@@ -118,10 +110,19 @@ export function CasoEditHeader({
   } = useCasoEdit();
   const clonarCaso = useClonarCaso();
   const deleteCaso = useDeleteCaso();
-  const createTicket = useCreateTicket();
+  const {
+    abrir: abrirOcorrencia,
+    isPending: abrindoOcorrencia,
+    semClienteModal,
+    setSemClienteModal,
+  } = useAbrirOcorrencia({
+    casoId: numeroCaso,
+    clientes,
+    descricaoResumo,
+    anotacoes,
+    responsavelFeedbackNome,
+  });
   const [excluirCasoModal, setExcluirCasoModal] = useState(false);
-  const [semClienteModal, setSemClienteModal] = useState(false);
-  const [abrindoOcorrencia, setAbrindoOcorrencia] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -235,86 +236,6 @@ export function CasoEditHeader({
 
   const canAbrirOcorrencia = statusIdApi === 8;
 
-  const handleAbrirOcorrencia = async () => {
-    const clienteIds = getClienteIdsVinculados(clientes);
-    if (clienteIds.length === 0) {
-      setSemClienteModal(true);
-      return;
-    }
-
-    const user = getUser();
-    const atendente = user?.nome?.trim();
-    if (!atendente) {
-      toast.error("Usuário não autenticado.");
-      return;
-    }
-
-    const nomeFeedback = responsavelFeedbackNome?.trim();
-    if (!nomeFeedback) {
-      toast.error("Responsável de feedback não informado no caso.");
-      return;
-    }
-
-    const ultima = getUltimaAnotacao(anotacoes);
-    setAbrindoOcorrencia(true);
-    let sucesso = 0;
-    let falhas = 0;
-
-    try {
-      const usuarios = await getUsuarios({
-        search: nomeFeedback,
-        somente_projetos: false,
-      });
-      const suporte = findUsuarioIdByNome(usuarios, nomeFeedback);
-      if (suporte == null) {
-        toast.error(
-          `Usuário "${nomeFeedback}" não encontrado para preencher o suporte.`,
-        );
-        return;
-      }
-
-      for (const clienteId of clienteIds) {
-        try {
-          await createTicket.mutateAsync(
-            buildCreateTicketPayload({
-              clienteId,
-              casoId: numeroCaso,
-              descricaoResumo,
-              ultimaAnotacaoTexto: ultima?.anotacoes,
-              atendente,
-              suporteId: suporte,
-            }),
-          );
-          sucesso += 1;
-        } catch {
-          falhas += 1;
-        }
-      }
-
-      if (falhas === 0) {
-        toast.success(
-          sucesso === 1
-            ? "Ocorrência aberta com sucesso."
-            : `${sucesso} ocorrências abertas com sucesso.`,
-        );
-      } else if (sucesso === 0) {
-        toast.error("Não foi possível abrir a ocorrência.");
-      } else {
-        toast.error(
-          `${sucesso} ocorrência(s) aberta(s), ${falhas} falha(s).`,
-        );
-      }
-    } catch (e) {
-      toast.error(
-        e instanceof Error
-          ? e.message
-          : "Erro ao buscar usuário do responsável de feedback.",
-      );
-    } finally {
-      setAbrindoOcorrencia(false);
-    }
-  };
-
   const tabs: TabItem[] = [
     { value: "inicial", label: "Inicial" },
     { value: "anotacoes", label: "Anotações", count: countAnotacoes },
@@ -395,8 +316,8 @@ export function CasoEditHeader({
               </DropdownMenuItem>
               {canAbrirOcorrencia ? (
                 <DropdownMenuItem
-                  onClick={() => void handleAbrirOcorrencia()}
-                  disabled={abrindoOcorrencia || createTicket.isPending}
+                  onClick={() => void abrirOcorrencia()}
+                  disabled={abrindoOcorrencia}
                 >
                   <Ticket className="h-4 w-4 mr-2" />
                   {abrindoOcorrencia ? "Abrindo..." : "Abrir ocorrência"}
