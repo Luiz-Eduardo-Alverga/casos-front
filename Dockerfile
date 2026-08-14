@@ -9,7 +9,9 @@ FROM node:${NODE_VERSION} AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+# tree-sitter (swagger-ui-react) não entra no lock no Windows; no Linux o npm ci
+# exige o pacote. É optional — o Swagger usa web-tree-sitter no browser.
+RUN npm ci --no-audit --no-fund --omit=optional
 
 # -----------------------------------------------------------------------------
 # Build (standalone)
