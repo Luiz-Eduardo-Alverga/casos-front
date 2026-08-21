@@ -5,7 +5,7 @@ import {
 } from "@/lib/report/report-sla-calendar";
 
 const SAO_PAULO_TZ = "America/Sao_Paulo";
-const EXPEDIENTE_ENCERRA_HORA = 18;
+const EXPEDIENTE_ENCERRA_HORA = 12;
 
 export type { ReportSlaCalendar };
 
@@ -59,14 +59,7 @@ function dateFromSaoPauloParts(
   minute = 0,
   second = 0,
 ): Date {
-  return new Date(
-    parts.year,
-    parts.month - 1,
-    parts.day,
-    hour,
-    minute,
-    second,
-  );
+  return new Date(parts.year, parts.month - 1, parts.day, hour, minute, second);
 }
 
 function advanceCalendarDay(parts: SaoPauloDateParts): SaoPauloDateParts {
@@ -174,11 +167,7 @@ export function computeReportDataLimite(
   const limite =
     slaHours < 24
       ? new Date(base.getTime() + slaHours * 60 * 60 * 1000)
-      : addBusinessDaysFromBase(
-          base,
-          Math.round(slaHours / 24),
-          calendar,
-        );
+      : addBusinessDaysFromBase(base, Math.round(slaHours / 24), calendar);
 
   const { year, month, day } = getSaoPauloParts(limite);
   return formatApiDateTimeFromSaoPauloParts(year, month, day, 23, 59, 59);
