@@ -5,22 +5,23 @@ import { getAppUser, updateAppUserInAuth } from "@/lib/auth";
 import {
   fetchNotificacaoDiscord,
   patchNotificacaoDiscord,
+  type NotificacaoDiscordResponse,
 } from "@/services/db-api/notificacao-discord";
 
 export const notificacaoDiscordQueryKey = ["notificacao-discord"] as const;
 
 export function useNotificacaoDiscord(enabled = true) {
-  return useQuery({
+  return useQuery<NotificacaoDiscordResponse>({
     queryKey: notificacaoDiscordQueryKey,
     enabled,
     queryFn: ({ signal }) => fetchNotificacaoDiscord(signal),
     staleTime: 5 * 60 * 1000,
     retry: 1,
     refetchOnWindowFocus: false,
-    placeholderData: () => ({
+    placeholderData: {
       receberNotificacaoDiscord:
         getAppUser()?.receberNotificacaoDiscord ?? true,
-    }),
+    },
   });
 }
 
