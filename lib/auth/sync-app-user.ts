@@ -31,6 +31,7 @@ export function appUserToSummary(row: AppUserRow): AppUserSummary {
     usuarioGrupoId: row.usuarioGrupoId,
     avatarPath: row.avatarPath,
     avatarUpdatedAt: row.avatarUpdatedAt?.toISOString() ?? null,
+    receberNotificacaoDiscord: row.receberNotificacaoDiscord,
   };
 }
 

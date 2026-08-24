@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, X, ChevronDown, User, Camera } from "lucide-react";
+import { LogOut, X, ChevronDown, User, Camera, Bell } from "lucide-react";
 import { getUser, clearAuthData } from "@/lib/auth";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,6 +15,10 @@ import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useUserAvatarUrl } from "@/hooks/use-user-avatar";
+import {
+  useNotificacaoDiscord,
+  usePatchNotificacaoDiscord,
+} from "@/hooks/use-notificacao-discord";
 import { AlterarFotoPerfilModal } from "@/components/header/alterar-foto-perfil-modal";
 
 export function UserDropDown() {
@@ -24,6 +28,8 @@ export function UserDropDown() {
   const router = useRouter();
   const user = getUser();
   const { data: avatarData } = useUserAvatarUrl(!!user);
+  const { data: notificacaoData } = useNotificacaoDiscord(!!user);
+  const patchNotificacao = usePatchNotificacaoDiscord();
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
@@ -49,6 +55,18 @@ export function UserDropDown() {
 
   const initials = getInitials(user.nome);
   const avatarUrl = avatarData?.avatarUrl ?? null;
+  const receberNotificacaoDiscord =
+    notificacaoData?.receberNotificacaoDiscord ?? true;
+
+  const handleToggleNotificacao = (checked: boolean) => {
+    patchNotificacao.mutate(checked, {
+      onError: () => {
+        toast.error("Não foi possível atualizar a notificação do Discord", {
+          position: "top-right",
+        });
+      },
+    });
+  };
 
   return (
     <>
@@ -139,6 +157,49 @@ export function UserDropDown() {
                         Enviar uma nova imagem
                       </div>
                     </div>
+                  </button>
+                </div>
+
+                <div className="p-2">
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={receberNotificacaoDiscord}
+                    aria-label="Receber notificações no Discord"
+                    onClick={() =>
+                      handleToggleNotificacao(!receberNotificacaoDiscord)
+                    }
+                    onPointerDown={(event) => event.stopPropagation()}
+                    disabled={patchNotificacao.isPending}
+                    className="cursor-pointer w-full flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors text-left disabled:opacity-60"
+                  >
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-primary rounded-full flex items-center justify-center shrink-0">
+                      <Bell className="w-5 h-5 text-text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-sm">
+                        Notificações no Discord
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Receber DM ao abrir caso ou report
+                      </div>
+                    </div>
+                    <span
+                      aria-hidden
+                      className={
+                        receberNotificacaoDiscord
+                          ? "inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent shadow-sm bg-primary transition-colors"
+                          : "inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent shadow-sm bg-input transition-colors"
+                      }
+                    >
+                      <span
+                        className={
+                          receberNotificacaoDiscord
+                            ? "block h-4 w-4 rounded-full bg-background shadow-lg transition-transform translate-x-4"
+                            : "block h-4 w-4 rounded-full bg-background shadow-lg transition-transform translate-x-0"
+                        }
+                      />
+                    </span>
                   </button>
                 </div>
 

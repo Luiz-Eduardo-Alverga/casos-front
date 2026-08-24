@@ -35,6 +35,7 @@ const APP_USER_GROUP_BY = [
   appUsers.usuarioGrupoId,
   appUsers.avatarPath,
   appUsers.avatarUpdatedAt,
+  appUsers.receberNotificacaoDiscord,
   appUsers.createdAt,
   appUsers.updatedAt,
 ] as const;
@@ -404,6 +405,29 @@ export async function updateAppUserAvatar(
 
   const row = rows[0];
   if (!row) throw new Error("updateAppUserAvatar: usuário não encontrado");
+  return row;
+}
+
+export async function updateAppUserReceberNotificacaoDiscord(
+  userId: string,
+  receberNotificacaoDiscord: boolean,
+): Promise<AppUserRow> {
+  const now = new Date();
+  const rows = await db
+    .update(appUsers)
+    .set({
+      receberNotificacaoDiscord,
+      updatedAt: now,
+    })
+    .where(eq(appUsers.id, userId))
+    .returning();
+
+  const row = rows[0];
+  if (!row) {
+    throw new Error(
+      "updateAppUserReceberNotificacaoDiscord: usuário não encontrado",
+    );
+  }
   return row;
 }
 

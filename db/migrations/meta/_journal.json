@@ -57,6 +57,13 @@
       "when": 1782100000000,
       "tag": "0007_app_users_avatar",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1782200000000,
+      "tag": "0008_app_users_discord_notify",
+      "breakpoints": true
     }
   ]
 }

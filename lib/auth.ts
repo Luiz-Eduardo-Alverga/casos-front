@@ -18,6 +18,7 @@ export interface AppUserSummary {
   usuarioGrupoId: string;
   avatarPath?: string | null;
   avatarUpdatedAt?: string | null;
+  receberNotificacaoDiscord?: boolean;
 }
 
 /** Token não é mais exposto ao cliente — fica apenas em cookie HttpOnly no servidor. */

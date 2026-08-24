@@ -1,3 +1,4 @@
+import { getAppUserByLegacyUserId } from "@/lib/db/app-users";
 import { buildCasoDiscordMessage } from "@/lib/discord/build-message";
 import { fetchNotifyContext } from "@/lib/discord/fetch-notify-context";
 import { resolveDiscordRecipient } from "@/lib/discord/resolve-recipient";
@@ -23,6 +24,14 @@ export async function notifyDiscordCasoAberto(
   }
 
   try {
+    const appUser = await getAppUserByLegacyUserId(input.atribuidoPara);
+    if (appUser && !appUser.receberNotificacaoDiscord) {
+      console.info(
+        `[discord] usuário legacy=${input.atribuidoPara} optou por não receber DM; caso #${input.registro}`,
+      );
+      return;
+    }
+
     const context = await fetchNotifyContext(authHeaders, input);
 
     if (!context.usuarioDiscord) {

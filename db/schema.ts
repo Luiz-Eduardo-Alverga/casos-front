@@ -95,6 +95,10 @@ export const appUsers = pgTable("app_users", {
   /** Caminho no Supabase Storage (`user-avatars`); URL assinada gerada na leitura. */
   avatarPath: text("avatar_path"),
   avatarUpdatedAt: timestamp("avatar_updated_at", { withTimezone: true }),
+  /** DM Discord ao abrir/clonar caso ou report. Ausente em `app_users` = envia. */
+  receberNotificacaoDiscord: boolean("receber_notificacao_discord")
+    .notNull()
+    .default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
