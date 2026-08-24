@@ -18,7 +18,16 @@ import type { CasoRelacoes } from "@/interfaces/projeto-memoria";
 import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
 import { formatDatePt } from "@/components/cadastros/format-display";
 import { formatMinutesToHHMM } from "@/lib/utils";
-import { Box, ExternalLink, Paperclip, SquarePen, Users } from "lucide-react";
+import {
+  Box,
+  ClipboardCheck,
+  Code2,
+  ExternalLink,
+  Paperclip,
+  SquarePen,
+  Users,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { SortableFieldContextMenu } from "@/components/projetos/tabela/sortable-field-context-menu";
 import type { ProjetoMemoriaSortState } from "@/components/projetos/tabela/projeto-memoria-sort";
 
@@ -179,10 +188,21 @@ export function ProjetosTabelaRowEscopo({
           </div>
         </SortableFieldContextMenu>
       </TableCell>
-      <TableCell key="desenvolvedor" className="w-[120px] py-3 px-5 align-top">
-        <span className="text-sm font-light text-text-primary line-clamp-2">
-          {row.desenvolvedor?.trim() ? row.desenvolvedor : "—"}
-        </span>
+      <TableCell key="atribuidos" className="w-[140px] py-3 px-5 align-top">
+        <div className="flex flex-col gap-1 text-xs font-normal text-text-secondary">
+          <AtribuidoLinha
+            Icon={Code2}
+            label="Desenvolvedor"
+            nome={row.desenvolvedor}
+            iconClassName="text-emerald-600"
+          />
+          <AtribuidoLinha
+            Icon={ClipboardCheck}
+            label="QA"
+            nome={row.qa}
+            iconClassName="text-sky-600"
+          />
+        </div>
       </TableCell>
       <TableCell key="status" className="min-w-[185px] py-3 px-2 align-top">
         <SortableFieldContextMenu
@@ -218,6 +238,38 @@ export function ProjetosTabelaRowEscopo({
         </div>
       </TableCell>
     </TableRow>
+  );
+}
+
+function AtribuidoLinha({
+  Icon,
+  label,
+  nome,
+  iconClassName,
+}: {
+  Icon: LucideIcon;
+  label: string;
+  nome: string;
+  iconClassName: string;
+}) {
+  const displayName = nome?.trim() ? nome : "—";
+
+  return (
+    <div className="flex min-w-0 items-center gap-1.5">
+      <span className="shrink-0" title={label}>
+        <Icon
+          className={`h-3.5 w-3.5 ${iconClassName}`}
+          aria-hidden
+        />
+      </span>
+      <span className="sr-only">{label}:</span>
+      <span
+        className="min-w-0 truncate text-text-primary"
+        title={`${label}: ${displayName}`}
+      >
+        {displayName}
+      </span>
+    </div>
   );
 }
 

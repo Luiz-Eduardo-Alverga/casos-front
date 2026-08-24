@@ -5,25 +5,21 @@ const TTL_MS = 5 * 60 * 1000;
 type CacheEntry = {
   data: AuxiliarUsuarioDiscord[];
   expiresAt: number;
-  cacheKey: string;
 };
 
-let usuariosCache: CacheEntry | null = null;
+const usuariosCache = new Map<string, CacheEntry>();
 
 export async function getCachedUsuarios(
   cacheKey: string,
   fetcher: () => Promise<AuxiliarUsuarioDiscord[]>,
 ): Promise<AuxiliarUsuarioDiscord[]> {
   const now = Date.now();
-  if (
-    usuariosCache &&
-    usuariosCache.cacheKey === cacheKey &&
-    usuariosCache.expiresAt > now
-  ) {
-    return usuariosCache.data;
+  const cached = usuariosCache.get(cacheKey);
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
   }
 
   const data = await fetcher();
-  usuariosCache = { data, cacheKey, expiresAt: now + TTL_MS };
+  usuariosCache.set(cacheKey, { data, expiresAt: now + TTL_MS });
   return data;
 }

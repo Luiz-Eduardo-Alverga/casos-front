@@ -14,12 +14,24 @@ type AuthHeaders = { Authorization: string };
 
 async function fetchUsuariosFromApi(
   authHeaders: AuthHeaders,
+  somenteProjetos: boolean,
 ): Promise<AuxiliarUsuarioDiscord[]> {
   const response = await api.get<AuxiliarUsuarioDiscord[]>("/auxiliar/usuarios", {
-    params: { somente_projetos: true },
+    params: { somente_projetos: somenteProjetos },
     headers: authHeaders,
   });
   return Array.isArray(response.data) ? response.data : [];
+}
+
+export async function fetchAuxiliarUsuarios(
+  authHeaders: AuthHeaders,
+  somenteProjetos: boolean,
+): Promise<AuxiliarUsuarioDiscord[]> {
+  const suffix = somenteProjetos ? "projetos" : "all";
+  const cacheKey = `${authHeaders.Authorization}:${suffix}`;
+  return getCachedUsuarios(cacheKey, () =>
+    fetchUsuariosFromApi(authHeaders, somenteProjetos),
+  );
 }
 
 function firstNameFromNome(nome: string | null): string | null {
@@ -32,10 +44,7 @@ export async function fetchNotifyContext(
   authHeaders: AuthHeaders,
   input: CasoDiscordNotifyInput,
 ) {
-  const cacheKey = authHeaders.Authorization;
-  const usuarios = await getCachedUsuarios(cacheKey, () =>
-    fetchUsuariosFromApi(authHeaders),
-  );
+  const usuarios = await fetchAuxiliarUsuarios(authHeaders, true);
 
   const atribuidoId = String(input.atribuidoPara);
   const dev = usuarios.find((u) => String(u.id) === atribuidoId);

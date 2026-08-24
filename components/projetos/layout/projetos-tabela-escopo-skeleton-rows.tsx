@@ -58,8 +58,17 @@ function EscopoSkeletonRow({
         <Skeleton className="h-3 w-14" />
       </div>
     </TableCell>,
-    <TableCell key="desenvolvedor" className="w-[120px] py-3 px-5 align-top">
-      <Skeleton className="h-4 w-16" />
+    <TableCell key="atribuidos" className="w-[140px] py-3 px-5 align-top">
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-1.5">
+          <Skeleton className="h-3.5 w-3.5 shrink-0 rounded" />
+          <Skeleton className="h-3 w-16" />
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Skeleton className="h-3.5 w-3.5 shrink-0 rounded" />
+          <Skeleton className="h-3 w-14" />
+        </div>
+      </div>
     </TableCell>,
     <TableCell key="status" className="min-w-[185px] py-3 px-2 align-top">
       <div className="flex flex-col items-start gap-1">

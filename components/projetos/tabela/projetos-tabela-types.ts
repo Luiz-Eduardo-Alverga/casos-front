@@ -22,6 +22,7 @@ export interface ProjetosTabelaEscopoRow {
   estimado_minutos: number;
   realizado_minutos: number;
   desenvolvedor: string;
+  qa: string;
   status: string;
   showNaoPlanejado: boolean;
   showViavel: boolean;

@@ -43,8 +43,8 @@ export function EscopoContentSkeleton() {
             <TableHead className="w-[88px] text-center font-medium text-sm text-text-primary h-auto py-4 px-5">
               Estimativas
             </TableHead>
-            <TableHead className="w-[120px] font-medium text-sm text-text-primary h-auto py-4 px-5">
-              Desenvolvedor
+            <TableHead className="w-[140px] font-medium text-sm text-text-primary h-auto py-4 px-5">
+              Atribuídos
             </TableHead>
             <TableHead className="w-[123px] font-medium text-sm text-text-primary h-auto py-4 px-5">
               Status

@@ -1,6 +1,44 @@
 import { api } from "@/lib/axios";
 import { getAuthorizationHeader } from "@/lib/auth-server";
 import { withPermission } from "@/lib/api-db/with-permission";
+import { CASO_STATUS_CONCLUIDO_ID } from "@/components/casos/edicao/report-analise-modal/utils";
+import { scheduleDiscordReportConcluidoNotify } from "@/lib/discord/schedule-notify";
+import {
+  buildReportConcluidoNotifyInput,
+  shouldNotifyReportConcluido,
+} from "@/lib/discord/notify-report-concluido";
+import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
+
+function parseProjetoMemoriaItem(data: unknown): ProjetoMemoriaItem | null {
+  if (!data || typeof data !== "object") return null;
+  const root = data as { data?: unknown; caso?: unknown };
+  const inner = root.data;
+  if (inner && typeof inner === "object" && "caso" in inner) {
+    return inner as ProjetoMemoriaItem;
+  }
+  if ("caso" in root) {
+    return root as ProjetoMemoriaItem;
+  }
+  return null;
+}
+
+async function fetchCasoSnapshot(
+  id: string,
+  authHeaders: { Authorization: string },
+): Promise<ProjetoMemoriaItem | null> {
+  try {
+    const response = await api.get(`/projeto-memoria/${id}`, {
+      headers: authHeaders,
+    });
+    return parseProjetoMemoriaItem(response.data);
+  } catch (error) {
+    console.warn(
+      `[discord] falha ao ler snapshot do caso ${id} para notificar conclusão:`,
+      error,
+    );
+    return null;
+  }
+}
 
 export async function PATCH(
   request: Request,
@@ -22,6 +60,15 @@ export async function PATCH(
       }
 
       const body = await request.json();
+      const goingToConcluido =
+        Number((body as { status?: unknown })?.status) ===
+        CASO_STATUS_CONCLUIDO_ID;
+
+      const snapshot = goingToConcluido
+        ? await fetchCasoSnapshot(id, {
+            Authorization: authHeaders.Authorization,
+          })
+        : null;
 
       const response = await api.patch(`/projeto-casos/${id}`, body, {
         headers: {
@@ -29,6 +76,20 @@ export async function PATCH(
           ...authHeaders,
         },
       });
+
+      if (
+        goingToConcluido &&
+        response.status >= 200 &&
+        response.status < 300 &&
+        shouldNotifyReportConcluido(snapshot) &&
+        snapshot
+      ) {
+        const registro = Number(snapshot.caso?.id) || Number(id);
+        scheduleDiscordReportConcluidoNotify(
+          { Authorization: authHeaders.Authorization },
+          buildReportConcluidoNotifyInput(snapshot, registro),
+        );
+      }
 
       return Response.json(response.data, {
         status: response.status,

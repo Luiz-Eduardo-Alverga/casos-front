@@ -75,10 +75,10 @@ function ProjetosTabelaTableEscopo({
       className="w-[88px]"
     />,
     <TableHead
-      key="desenvolvedor"
-      className="w-[120px] font-medium text-sm text-text-primary h-auto py-4 px-5"
+      key="atribuidos"
+      className="w-[140px] font-medium text-sm text-text-primary h-auto py-4 px-5"
     >
-      Desenvolvedor
+      Atribuídos
     </TableHead>,
     <ProjetosTabelaSortableHeader
       key="status"

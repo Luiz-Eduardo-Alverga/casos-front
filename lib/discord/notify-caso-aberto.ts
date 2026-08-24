@@ -1,7 +1,6 @@
-import { getAppUserByLegacyUserId } from "@/lib/db/app-users";
 import { buildCasoDiscordMessage } from "@/lib/discord/build-message";
 import { fetchNotifyContext } from "@/lib/discord/fetch-notify-context";
-import { resolveDiscordRecipient } from "@/lib/discord/resolve-recipient";
+import { sendDiscordDmToLegacyUser } from "@/lib/discord/send-dm-to-legacy-user";
 import type { CasoDiscordNotifyInput } from "@/lib/discord/types";
 
 type AuthHeaders = { Authorization: string };
@@ -24,41 +23,19 @@ export async function notifyDiscordCasoAberto(
   }
 
   try {
-    const appUser = await getAppUserByLegacyUserId(input.atribuidoPara);
-    if (appUser && !appUser.receberNotificacaoDiscord) {
-      console.info(
-        `[discord] usuário legacy=${input.atribuidoPara} optou por não receber DM; caso #${input.registro}`,
-      );
-      return;
-    }
-
     const context = await fetchNotifyContext(authHeaders, input);
-
-    if (!context.usuarioDiscord) {
-      console.info(
-        `[discord] usuario_discord vazio para atribuidoPara=${input.atribuidoPara}; caso #${input.registro} sem DM`,
-      );
-      return;
-    }
-
-    const recipient = await resolveDiscordRecipient(context.usuarioDiscord);
-    if (!recipient) {
-      console.warn(
-        `[discord] Não foi possível resolver Discord "${context.usuarioDiscord}" para caso #${input.registro}`,
-      );
-      return;
-    }
-
     const content = buildCasoDiscordMessage(input, {
       produtoLabel: context.produtoLabel,
       projetoLabel: context.projetoLabel,
       abertoPor: context.abertoPor,
     });
 
-    await recipient.send(content);
-    console.info(
-      `[discord] DM enviada para ${recipient.username} (caso #${input.registro})`,
-    );
+    await sendDiscordDmToLegacyUser({
+      legacyUserId: input.atribuidoPara,
+      usuarioDiscord: context.usuarioDiscord,
+      content,
+      logContext: `caso #${input.registro}`,
+    });
   } catch (error) {
     console.error(
       `[discord] Falha ao notificar caso #${input.registro}:`,
