@@ -45,12 +45,18 @@ export function sortAbertosIniciadosPrimeiro(items: PainelKanbanItem[]) {
   );
 }
 
-/** Maior valor de importância primeiro (prioridade mais alta no topo). */
+/** Importância decrescente; em empate, descrição resumo crescente. */
 export function compareKanbanByImportancia(
   a: PainelKanbanItem,
   b: PainelKanbanItem,
 ) {
-  return Number(b.importancia) - Number(a.importancia);
+  const byImportancia = Number(b.importancia) - Number(a.importancia);
+  if (byImportancia !== 0) return byImportancia;
+
+  return (a.descricao ?? "").localeCompare(b.descricao ?? "", "pt-BR", {
+    sensitivity: "base",
+    numeric: true,
+  });
 }
 
 /**

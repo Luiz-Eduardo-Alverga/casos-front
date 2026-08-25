@@ -20,7 +20,7 @@ const VARIANT_CLASSES: Record<PainelContagemStatusVariant, string> = {
   abertos:
     "bg-blue-100 text-blue-700 border-transparent hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-950/40",
   corrigidos:
-    "bg-green-100 text-green-700 border-transparent hover:bg-green-100 dark:bg-green-950/40 dark:text-green-400 dark:hover:bg-green-950/40",
+    "bg-red-50 text-red-700 border-transparent hover:bg-red-50 dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-950/40",
   retornos:
     "bg-orange-100 text-orange-700 border-transparent hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-400 dark:hover:bg-orange-950/40",
   concluidos:

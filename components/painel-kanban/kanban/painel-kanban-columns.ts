@@ -25,10 +25,11 @@ export const PAINEL_KANBAN_COLUMNS: PainelKanbanColumnMeta[] = [
   },
   {
     id: "corrigidos",
-    name: "Corrigidos",
-    dotClass: "bg-green-500",
-    emptyTitle: "Nenhum corrigido",
-    emptyDescription: "Não há casos corrigidos aguardando validação.",
+    name: "Aguardando Teste",
+    dotClass: "bg-red-500 dark:bg-red-400",
+    emptyTitle: "Nenhum caso aguardando teste",
+    emptyDescription:
+      "Não há casos aguardando teste para os filtros selecionados.",
   },
   {
     id: "retornos",

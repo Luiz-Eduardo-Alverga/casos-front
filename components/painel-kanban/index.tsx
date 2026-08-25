@@ -73,6 +73,7 @@ export function PainelKanban() {
   const {
     agendaDevData,
     isAgendaLoading,
+    isAtualizando,
     showKanbanSkeleton,
     queryEnabled,
     agendaRowForFilters,
@@ -276,6 +277,7 @@ export function PainelKanban() {
             <PainelPageActions
               onHorasAnaliticas={() => setIsHorasAnaliticasOpen(true)}
               isLoading={isAgendaLoading}
+              isAtualizando={isAtualizando}
               actionSlot={painelActionsSlot}
             />
           }

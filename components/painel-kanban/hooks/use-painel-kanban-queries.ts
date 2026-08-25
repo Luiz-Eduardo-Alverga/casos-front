@@ -269,10 +269,18 @@ export function usePainelKanbanQueries({
     [abertosQ, corrigidosQ, retornosQ, concluidosQ],
   );
 
+  const isAtualizando =
+    isAgendaFetching ||
+    (abertosQ.isFetching && !abertosQ.isFetchingNextPage) ||
+    (corrigidosQ.isFetching && !corrigidosQ.isFetchingNextPage) ||
+    (retornosQ.isFetching && !retornosQ.isFetchingNextPage) ||
+    (concluidosQ.isFetching && !concluidosQ.isFetchingNextPage);
+
   return {
     agendaDevData,
     isAgendaLoading,
     isAgendaFetching,
+    isAtualizando,
     showKanbanSkeleton,
     queryEnabled: memoriaEnabled,
     agendaRowForFilters,

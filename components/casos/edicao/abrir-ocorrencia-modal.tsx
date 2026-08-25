@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,6 +15,8 @@ import {
   getClientesVinculadosUnicos,
 } from "./abrir-ocorrencia-utils";
 import { useAbrirOcorrencia } from "./use-abrir-ocorrencia";
+
+const AUTO_CONFIRMAR_MS = 5_000;
 
 export interface AbrirOcorrenciaModalProps {
   open: boolean;
@@ -55,6 +57,12 @@ export function AbrirOcorrenciaModal({
     [clientes],
   );
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [segundosRestantes, setSegundosRestantes] = useState<number | null>(
+    null,
+  );
+  const [progress, setProgress] = useState(100);
+  const autoConfirmCanceladoRef = useRef(false);
+  const confirmandoRef = useRef(false);
 
   useEffect(() => {
     if (!open) return;
@@ -62,10 +70,74 @@ export function AbrirOcorrenciaModal({
   }, [open, clientes]);
 
   const hasClientes = clientesUnicos.length > 0;
-  const selectedCount = selectedIds.size;
-  const canSubmit = hasClientes && selectedCount > 0 && !isPending;
+  const canSubmit = hasClientes && selectedIds.size > 0 && !isPending;
+  const autoConfirmAtivo = segundosRestantes != null && !isPending;
+
+  const cancelarAutoConfirm = useCallback(() => {
+    autoConfirmCanceladoRef.current = true;
+    setSegundosRestantes(null);
+  }, []);
+
+  const handleConfirmar = useCallback(async () => {
+    if (
+      !hasClientes ||
+      selectedIds.size === 0 ||
+      isPending ||
+      confirmandoRef.current
+    ) {
+      return;
+    }
+    confirmandoRef.current = true;
+    autoConfirmCanceladoRef.current = true;
+    setSegundosRestantes(null);
+    try {
+      const shouldClose = await abrir([...selectedIds]);
+      if (shouldClose) {
+        onOpenChange(false);
+      }
+    } finally {
+      confirmandoRef.current = false;
+    }
+  }, [abrir, hasClientes, isPending, onOpenChange, selectedIds]);
+
+  const handleConfirmarRef = useRef(handleConfirmar);
+  handleConfirmarRef.current = handleConfirmar;
+
+  useEffect(() => {
+    if (!open || !hasClientes) {
+      autoConfirmCanceladoRef.current = false;
+      setSegundosRestantes(null);
+      setProgress(100);
+      return;
+    }
+
+    autoConfirmCanceladoRef.current = false;
+    confirmandoRef.current = false;
+    setSegundosRestantes(Math.ceil(AUTO_CONFIRMAR_MS / 1000));
+    setProgress(100);
+
+    const startedAt = Date.now();
+    let disparou = false;
+    const intervalId = window.setInterval(() => {
+      if (autoConfirmCanceladoRef.current || disparou) return;
+
+      const remaining = Math.max(0, AUTO_CONFIRMAR_MS - (Date.now() - startedAt));
+      setSegundosRestantes(Math.ceil(remaining / 1000));
+      setProgress((remaining / AUTO_CONFIRMAR_MS) * 100);
+
+      if (remaining <= 0) {
+        disparou = true;
+        void handleConfirmarRef.current();
+      }
+    }, 200);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [open, hasClientes]);
 
   const toggleCliente = (clienteId: number, checked: boolean) => {
+    cancelarAutoConfirm();
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (checked) next.add(clienteId);
@@ -76,15 +148,8 @@ export function AbrirOcorrenciaModal({
 
   const handleClose = (nextOpen: boolean) => {
     if (isPending) return;
+    cancelarAutoConfirm();
     onOpenChange(nextOpen);
-  };
-
-  const handleConfirmar = async () => {
-    if (!canSubmit) return;
-    const shouldClose = await abrir([...selectedIds]);
-    if (shouldClose) {
-      onOpenChange(false);
-    }
   };
 
   return (
@@ -94,8 +159,10 @@ export function AbrirOcorrenciaModal({
       </DialogTitle>
       <DialogContent
         className="max-h-[90vh] w-[min(96vw,560px)] max-w-[560px] min-w-0 gap-0 overflow-y-auto overflow-x-hidden border-border-divider p-0 sm:rounded-2xl"
+        onPointerDownCapture={cancelarAutoConfirm}
+        onKeyDownCapture={cancelarAutoConfirm}
         onPointerDownOutside={(e) => {
-          if (isPending) e.preventDefault();
+          if (isPending || autoConfirmAtivo) e.preventDefault();
         }}
         onEscapeKeyDown={(e) => {
           if (isPending) e.preventDefault();
@@ -173,6 +240,8 @@ export function AbrirOcorrenciaModal({
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       Abrindo...
                     </>
+                  ) : autoConfirmAtivo ? (
+                    `Abrir ocorrência (${segundosRestantes}s)`
                   ) : (
                     "Abrir ocorrência"
                   )}
@@ -190,6 +259,17 @@ export function AbrirOcorrenciaModal({
             )}
           </div>
         </div>
+        {autoConfirmAtivo ? (
+          <div
+            className="absolute bottom-0 left-0 right-0 h-1 overflow-hidden bg-muted"
+            aria-hidden
+          >
+            <div
+              className="h-full bg-primary transition-[width] duration-200 ease-linear"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        ) : null}
       </DialogContent>
     </Dialog>
   );
