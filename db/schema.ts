@@ -23,6 +23,26 @@ export const statusTypeEnum = pgEnum("status_type", [
   "Concluído",
 ]);
 
+export const docStatusEnum = pgEnum("doc_status", [
+  "rascunho",
+  "publicado",
+  "desatualizado",
+]);
+
+export const docLinkTypeEnum = pgEnum("doc_link_type", [
+  "acquirer",
+  "product",
+  "client",
+  "case",
+]);
+
+export const docActionEnum = pgEnum("doc_action", [
+  "created",
+  "updated",
+  "published",
+  "archived",
+]);
+
 export const acquirers = pgTable("acquirers", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
@@ -101,6 +121,103 @@ export const appUsers = pgTable("app_users", {
     .default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+export const docCategories = pgTable("doc_categories", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+export const docs = pgTable(
+  "docs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    summary: text("summary"),
+    contentMd: text("content_md").notNull().default(""),
+    categoryId: uuid("category_id")
+      .notNull()
+      .references(() => docCategories.id, { onDelete: "restrict" }),
+    status: docStatusEnum("status").notNull().default("rascunho"),
+    sector: text("sector"),
+    ownerUserId: uuid("owner_user_id").references(() => appUsers.id, {
+      onDelete: "set null",
+    }),
+    reviewDueAt: date("review_due_at"),
+    createdBy: uuid("created_by").references(() => appUsers.id),
+    updatedBy: uuid("updated_by").references(() => appUsers.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+  (t) => [
+    index("docs_category_id_idx").on(t.categoryId),
+    index("docs_status_idx").on(t.status),
+    index("docs_owner_user_id_idx").on(t.ownerUserId),
+  ],
+);
+
+export const docTags = pgTable("doc_tags", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  label: text("label").notNull().unique(),
+});
+
+export const docTagLinks = pgTable(
+  "doc_tag_links",
+  {
+    docId: uuid("doc_id")
+      .notNull()
+      .references(() => docs.id, { onDelete: "cascade" }),
+    tagId: uuid("tag_id")
+      .notNull()
+      .references(() => docTags.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({
+      columns: [t.docId, t.tagId],
+      name: "doc_tag_links_pkey",
+    }),
+    index("doc_tag_links_tag_id_idx").on(t.tagId),
+  ],
+);
+
+export const docLinks = pgTable(
+  "doc_links",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    docId: uuid("doc_id")
+      .notNull()
+      .references(() => docs.id, { onDelete: "cascade" }),
+    entityType: docLinkTypeEnum("entity_type").notNull(),
+    /**
+     * `entity_id` é texto e não FK de propósito: produto, cliente e caso vivem
+     * na API Soft Flow legada. `entity_label` é cache para listar sem N chamadas.
+     */
+    entityId: text("entity_id").notNull(),
+    entityLabel: text("entity_label").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (t) => [
+    index("doc_links_doc_id_idx").on(t.docId),
+    index("doc_links_entity_type_entity_id_idx").on(
+      t.entityType,
+      t.entityId,
+    ),
+  ],
+);
+
+export const docActivity = pgTable("doc_activity", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  docId: uuid("doc_id")
+    .notNull()
+    .references(() => docs.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => appUsers.id),
+  action: docActionEnum("action").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
 /** Módulo/categoria para agrupar permissões na UI (matriz por papel). */

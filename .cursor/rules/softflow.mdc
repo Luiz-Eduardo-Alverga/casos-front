@@ -1,0 +1,47 @@
+---
+description: Padrões do Softflow (casos-front)
+alwaysApply: true
+---
+
+# Softflow — regras de implementação
+
+## Não recriar
+- A casca da aplicação JÁ EXISTE: `components/sidebar/app-sidebar.tsx` e o layout de `app/(dashboard)`.
+  Nunca criar novo AppShell, Sidebar ou Header. Telas novas são apenas o conteúdo dentro do layout existente.
+- Casos, Reports, Projetos e Liberações já existem. Não reimplementar.
+
+## Cores
+- PROIBIDO hex/hsl hardcoded em componente (`bg-[#fff]`, `text-black`, `bg-white`).
+- Usar sempre tokens semânticos do Tailwind: `bg-card`, `text-foreground`, `text-muted-foreground`,
+  `border-border`, `border-border-divider`, `bg-destructive/10`, etc.
+- Token faltando? Adicionar variável CSS em `app/globals.css` E registrar em `tailwind.config.ts`.
+  Nunca resolver no componente.
+
+## Espaçamento
+- Escala 8 / 16 / 24. Evitar 12, 18, 20.
+- Entre cards na mesma coluna: `gap-2` (8px). Entre colunas: `gap-6` (24px).
+- Coluna lateral: ~360px. Grid de filtros: 1 → 2 (sm) → 4 (lg), `gap-4`.
+- Card: header `p-4 pb-2` com borda inferior `border-border-divider`; content `px-6 pb-6 pt-2`.
+- Ícone no header do card: 14px, gap 8px. Ícone em botão: 16px.
+
+## Dados
+- Postgres/Supabase → rotas `/api/db/*` com Drizzle. Camadas obrigatórias:
+  `db/schema.ts` → `lib/db/<recurso>.ts` (só Drizzle) → `lib/validators/db/<recurso>.ts` (só Zod)
+  → `app/api/db/.../route.ts` (só orquestração).
+- Sem SQL/Drizzle dentro da route além da orquestração.
+- Sucesso: `jsonOk` → `{ data: T }`. Erro: `jsonError` → `{ error: { message } }`. DELETE → 204.
+- Rotas sensíveis usam `withPermission`, não só `withSession`.
+- Front: service com `fetchWithAuth` → hook em `hooks/<modulo>/` com TanStack Query.
+  Hooks nunca dentro de `components/`.
+
+## UI
+- pt-BR em tudo.
+- Toda listagem/aba com fetch precisa de skeleton que espelha a estrutura real + empty state.
+- Desktop: scroll dentro dos cards. Mobile: coluna única.
+- Botão primário é escuro (`primary`), não amarelo.
+- Permissões verificadas no entrypoint da tela (`RequirePermission`) e nas ações (`hasPermission`).
+
+## Organização
+- Feature folder com `index.tsx` como entrypoint (hooks + estado + handlers).
+- `*.types.ts` para tipos, `utils.ts` só funções puras, `schema.ts` para Zod.
+- Seguir `docs/PADRAO_CASOS.md` e `docs/PADRAO_PROJETOS.md` como modelo de estrutura.
