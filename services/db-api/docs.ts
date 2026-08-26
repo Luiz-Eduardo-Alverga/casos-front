@@ -97,6 +97,7 @@ export interface DocWriteInput {
 }
 
 export type DocUpdateInput = Partial<DocWriteInput>;
+export type DocMutationResult = Pick<Doc, "id" | "status">;
 
 async function parseData<T>(response: Response): Promise<T> {
   const body = (await response.json().catch(() => ({}))) as {
@@ -135,8 +136,10 @@ export async function getDocClient(id: string): Promise<Doc> {
   return parseData<Doc>(await fetchWithAuth(`/api/db/docs/${id}`));
 }
 
-export async function createDocClient(input: DocWriteInput): Promise<Doc> {
-  return parseData<Doc>(
+export async function createDocClient(
+  input: DocWriteInput,
+): Promise<DocMutationResult> {
+  return parseData<DocMutationResult>(
     await fetchWithAuth("/api/db/docs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -148,8 +151,8 @@ export async function createDocClient(input: DocWriteInput): Promise<Doc> {
 export async function updateDocClient(
   id: string,
   input: DocUpdateInput,
-): Promise<Doc> {
-  return parseData<Doc>(
+): Promise<DocMutationResult> {
+  return parseData<DocMutationResult>(
     await fetchWithAuth(`/api/db/docs/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

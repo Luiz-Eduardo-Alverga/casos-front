@@ -11,9 +11,8 @@ export function useCreateDoc() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: DocWriteInput) => createDocClient(input),
-    onSuccess: (doc) => {
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["docs"] });
-      queryClient.setQueryData(["doc", doc.id], doc);
       toast.success("Documento criado com sucesso");
     },
     onError: (error) => {
