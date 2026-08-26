@@ -7,9 +7,11 @@ import { ChevronUp, Lightbulb } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
 import { MelhoriasTabelaSkeleton } from "@/components/melhorias/tabela/melhorias-tabela-skeleton";
 import { MelhoriasTabelaTable } from "@/components/melhorias/tabela/melhorias-tabela-table";
+import { AvaliarMelhoriaModal } from "@/components/melhorias/avaliar-modal";
 import { usePainelIdeiasInfinite } from "@/hooks/painel/use-painel-ideias";
 import { filtrosToPainelIdeiasParams } from "@/components/melhorias/filtros/melhorias-filtros-mappers";
 import type { MelhoriasFiltrosState } from "@/components/melhorias/filtros/melhorias-filtros.types";
+import type { PainelIdeiaItem } from "@/services/painel-ideias/get-painel-ideias";
 
 interface MelhoriasTabelaProps {
   filtros: MelhoriasFiltrosState;
@@ -31,6 +33,9 @@ export function MelhoriasTabela({ filtros }: MelhoriasTabelaProps) {
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [itemAvaliando, setItemAvaliando] = useState<PainelIdeiaItem | null>(
+    null,
+  );
 
   useEffect(() => {
     const onScroll = () => {
@@ -80,13 +85,23 @@ export function MelhoriasTabela({ filtros }: MelhoriasTabelaProps) {
           />
         ) : (
           <>
-            <MelhoriasTabelaTable itens={itens} />
+            <MelhoriasTabelaTable
+              itens={itens}
+              onAvaliar={setItemAvaliando}
+            />
             {hasNextPage && itens.length > 0 && (
               <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />
             )}
           </>
         )}
       </CardContent>
+      <AvaliarMelhoriaModal
+        open={itemAvaliando != null}
+        item={itemAvaliando}
+        onOpenChange={(open) => {
+          if (!open) setItemAvaliando(null);
+        }}
+      />
       {showScrollTop && (
         <Button
           type="button"

@@ -3,17 +3,21 @@
 import type { ReactNode } from "react";
 import { Box } from "lucide-react";
 import { TableRow, TableCell } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { CategoriaBadge } from "@/components/casos/tabela/categoria-badge";
 import { formatLiberacaoDateDisplay } from "@/components/liberacoes/utils";
+import { isMelhoriaPendente } from "@/components/melhorias/melhoria-status";
+import { MelhoriasSituacaoBadges } from "@/components/melhorias/tabela/melhorias-situacao-badges";
 import type { PainelIdeiaItem } from "@/services/painel-ideias/get-painel-ideias";
 
 export interface MelhoriasTabelaRowProps {
   item: PainelIdeiaItem;
+  onAvaliar: (item: PainelIdeiaItem) => void;
 }
 
 function MetaChip({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex w-fit items-center rounded-full border border-border-divider bg-muted/90 px-1.5 py-0 text-[10px] font-semibold text-text-secondary">
+    <span className="inline-flex w-fit items-center rounded-full border border-border-divider bg-muted/90 px-1.5 py-0 text-xs font-semibold text-text-secondary">
       {children}
     </span>
   );
@@ -27,17 +31,10 @@ function MetaSeparator() {
   );
 }
 
-/**
- * Normaliza SIM/NÃO/null da API para exibição.
- * `null` ou vazio → "NÃO"; demais valores mantêm o texto (ex.: "SIM", "NÃO").
- */
-function displaySituacaoValue(value: string | null | undefined): string {
-  if (value == null) return "NÃO";
-  const trimmed = String(value).trim();
-  return trimmed.length > 0 ? trimmed : "NÃO";
-}
-
-export function MelhoriasTabelaRow({ item }: MelhoriasTabelaRowProps) {
+export function MelhoriasTabelaRow({
+  item,
+  onAvaliar,
+}: MelhoriasTabelaRowProps) {
   const descricao =
     item.descricao_resumo_tratada?.trim() ||
     item.descricao_resumo?.trim() ||
@@ -48,8 +45,9 @@ export function MelhoriasTabelaRow({ item }: MelhoriasTabelaRowProps) {
   const casoLabel =
     item.numero_caso != null ? `Caso #${item.numero_caso}` : null;
   const importancia = item.importancia?.trim() || "";
-  const aprovado = displaySituacaoValue(item.status);
-  const concluido = displaySituacaoValue(item.concluido);
+  const actionLabel = isMelhoriaPendente(item.status)
+    ? "Avaliar"
+    : "Reavaliar";
 
   return (
     <TableRow className="bg-background border-t border-border-strong hover:bg-muted/30">
@@ -100,15 +98,23 @@ export function MelhoriasTabelaRow({ item }: MelhoriasTabelaRowProps) {
         </div>
       </TableCell>
 
-      <TableCell className="min-w-[140px] w-[160px] py-3 px-2 align-top">
-        <div className="flex flex-col items-start gap-1">
-          <span className="text-xs font-semibold text-text-secondary whitespace-nowrap">
-            Aprovado: {aprovado}
-          </span>
-          <span className="text-xs font-semibold text-text-secondary whitespace-nowrap">
-            Concluído: {concluido}
-          </span>
-        </div>
+      <TableCell className="min-w-[150px] w-[170px] py-3 px-2 align-top">
+        <MelhoriasSituacaoBadges
+          status={item.status}
+          concluido={item.concluido}
+        />
+      </TableCell>
+
+      <TableCell className="w-[108px] min-w-[108px] py-3 px-2 align-top">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 px-3 font-medium"
+          onClick={() => onAvaliar(item)}
+        >
+          {actionLabel}
+        </Button>
       </TableCell>
     </TableRow>
   );

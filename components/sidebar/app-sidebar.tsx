@@ -160,13 +160,13 @@ const MAIN_NAV: MainNavEntry[] = [
     href: "/liberacoes",
     icon: PackageCheck,
   },
-  // {
-  //   type: "link",
-  //   order: 34,
-  //   label: "Melhorias",
-  //   href: "/melhorias",
-  //   icon: Lightbulb,
-  // },
+  {
+    type: "link",
+    order: 34,
+    label: "Melhorias",
+    href: "/melhorias",
+    icon: Lightbulb,
+  },
   {
     type: "link",
     order: 30,

@@ -28,11 +28,11 @@ function SkeletonRow() {
           <Skeleton className="h-3 w-1/2 max-w-[280px]" />
         </div>
       </TableCell>
-      <TableCell className="min-w-[140px] w-[160px] py-3 px-2 align-top">
-        <div className="flex flex-col gap-1">
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="h-3 w-28" />
-        </div>
+      <TableCell className="min-w-[150px] w-[170px] py-3 px-2 align-top">
+        <Skeleton className="h-5 w-32 rounded-full" />
+      </TableCell>
+      <TableCell className="w-[108px] min-w-[108px] py-3 px-2 align-top">
+        <Skeleton className="h-8 w-20 rounded-md" />
       </TableCell>
     </TableRow>
   );
@@ -49,8 +49,11 @@ export function MelhoriasTabelaSkeleton({ count = 6 }: { count?: number }) {
           <TableHead className="min-w-0 flex-1 font-medium text-sm text-text-primary h-auto py-4 px-2">
             Detalhes
           </TableHead>
-          <TableHead className="min-w-[140px] w-[160px] font-medium text-sm text-text-primary h-auto py-4 px-2">
+          <TableHead className="min-w-[150px] w-[170px] font-medium text-sm text-text-primary h-auto py-4 px-2">
             Situação
+          </TableHead>
+          <TableHead className="w-[108px] min-w-[108px] font-medium text-sm text-text-primary h-auto py-4 px-2">
+            Ação
           </TableHead>
         </TableRow>
       </TableHeader>
