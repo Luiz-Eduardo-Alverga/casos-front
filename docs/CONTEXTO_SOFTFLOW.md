@@ -91,13 +91,14 @@ Navegação em três blocos: **painéis pessoais**, **gerenciar** e **recursos**
 
 - **Projetos** (`/projetos`) — listagem, cadastro (`/projetos/novo`) e edição (`/projetos/[id]`) com abas: **Abertura, Escopo, Risco, Stakeholders, Cronograma**. Escopo lista casos/reports da memória do projeto (badges de status, origem caso vs report). Padrão de pastas em `PADRAO_PROJETOS.md`.
 - **Liberações** (`/liberacoes`) — registro de release: versões piloto vs final e casos vinculados por produto. Detalhe em `/liberacoes/[registro]` com abas **Liberação** (identidade, piloto, versão final, flags, encerrar), **Casos da versão** e **Checklist**.
-- **Melhorias** (`/melhorias`) — tela de ideias/melhorias por produto, setor e período. Existe no código; o item do menu está **comentado** (feature em evolução / ainda não promovida no nav).
+- **Melhorias** (`/melhorias`) — tela de ideias/melhorias por produto, setor e período, disponível na navegação principal.
 
 ### Clientes e cadastros Smart
 
 - **Clientes** (`/clientes`) — busca por nome (obrigatória para listar). Detalhe (`/clientes/[id]`): dados gerais, contato, endereço, produtos/URLs, abas de **casos** e **tickets**.
 - **Cadastros Smart** — Adquirentes, Versões, Dispositivos (CRUD em Postgres próprio).
 - **Kanban Adquirentes** (`/cadastros/adquirentes/status`) — board do status de homologação/integração de adquirentes.
+- **Documentação** (`/documentacao`) — base de conhecimento técnico e de processo, com categorias, tags, vínculos com entidades do Softflow, histórico e conteúdo Markdown sanitizado. Cadastro e edição exigem permissões próprias. Padrão de pastas em `PADRAO_DOCUMENTACAO.md`.
 
 ### Gestão
 
@@ -150,7 +151,7 @@ Protótipos devem parecer **tela nativa do Softflow**, não um redesign da marca
 - Front: **Next.js (App Router) + React + TypeScript + Tailwind + shadcn/ui + TanStack Query + react-hook-form + Zod**.
 - Duas origens de dados:
   1. **API Soft Flow** (legado): casos, reports, projetos, usuários, catálogos (produtos, versões, status, clientes Softcom, visão gerencial, etc.). O Next faz proxy (`/api/...`). Ver `PADRAO_REQUISICOES.md`.
-  2. **Postgres (Supabase) via `/api/db`**: cadastros Smart, RBAC, anexos, prompts, dados nativos do Softflow. Ver `API_DB_ARQUITETURA.md`.
+  2. **Postgres (Supabase) via `/api/db`**: cadastros Smart, RBAC, documentação, anexos, prompts e dados nativos do Softflow. Ver `API_DB_ARQUITETURA.md`.
 - Auth: login na API Soft Flow → cookie HttpOnly `casos_token` + permissões no cliente. Ver `FLUXO_AUTENTICACAO_LOGIN.md`.
 
 Ao prototipar, respeitar o que o sistema já sabe persistir. Fluxos novos podem exigir API nova — deixar isso explícito no protótipo (campo/ação vs. “ainda não existe no backend”).
@@ -174,10 +175,10 @@ Ao trabalhar a partir daqui:
 
 ## Estado atual relevante para o roadmap
 
-- Casos, Reports, Projetos, Liberações, Painel Dev, Minha Visão, Clientes, Cadastros Smart, Auditoria, Avisos, RBAC e Prompts IA **já estão no ar**.
-- **Melhorias** está implementada como tela, mas **ainda não está no menu**.
+- Casos, Reports, Projetos, Liberações, Painel Dev, Minha Visão, Clientes, Cadastros Smart, Documentação, Auditoria, Avisos, RBAC e Prompts IA **já estão implementados**.
+- **Melhorias** está implementada como tela e disponível no menu.
 - Qualquer proposta nova deve encaixar nesse sistema visual e nesse vocabulário — não em um produto paralelo.
 
 ---
 
-**Referências:** `BRIEF_CLAUDE_DESIGN.md`, `DESIGN_SYSTEM.md`, `PADRAO_COMPONENTES.md`, `PADRAO_ESPACAMENTOS.md`, `PADRAO_CASOS.md`, `PADRAO_PROJETOS.md`, `RBAC_PERMISSOES.md`, `KANBAN_PAINEL_DESENVOLVEDOR.md`
+**Referências:** `BRIEF_CLAUDE_DESIGN.md`, `DESIGN_SYSTEM.md`, `PADRAO_COMPONENTES.md`, `PADRAO_ESPACAMENTOS.md`, `PADRAO_CASOS.md`, `PADRAO_PROJETOS.md`, `PADRAO_DOCUMENTACAO.md`, `RBAC_PERMISSOES.md`, `KANBAN_PAINEL_DESENVOLVEDOR.md`

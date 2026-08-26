@@ -21,6 +21,7 @@ import {
   Smartphone,
   PackageCheck,
   Lightbulb,
+  BookText,
 } from "lucide-react";
 import {
   Sidebar,
@@ -68,7 +69,7 @@ interface SidebarSubitem {
 
 const STANDALONE_NAV_ORDERS = new Set([20, 21]);
 const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 33, 34, 35, 36, 37, 40]);
-const RECURSOS_NAV_ORDERS = new Set([50, 60]);
+const RECURSOS_NAV_ORDERS = new Set([50, 55, 60]);
 
 const CADASTROS_SUBITEMS: SidebarSubitem[] = [
   {
@@ -202,6 +203,13 @@ const MAIN_NAV: MainNavEntry[] = [
     })),
   },
   {
+    type: "link",
+    order: 55,
+    label: "Documentação",
+    href: "/documentacao",
+    icon: BookText,
+  },
+  {
     type: "group",
     order: 60,
     key: "configuracoes",
@@ -250,6 +258,7 @@ export function AppSidebar({
     rbacReady && hasAnyPermission(["list-case", "list-report"]);
   const canListReport = rbacReady && hasPermission("list-report");
   const canListProject = rbacReady && hasPermission("list-project");
+  const canListDoc = rbacReady && hasPermission("list-doc");
   const canAudit =
     rbacReady && hasAnyPermission(["audit-all-users", "audit-user"]);
   const canAssignUserRole = rbacReady && hasPermission("assign-user-role");
@@ -322,6 +331,15 @@ export function AppSidebar({
       !canListProject &&
       entry.type === "link" &&
       entry.href === "/projetos"
+    ) {
+      return false;
+    }
+
+    if (
+      rbacReady &&
+      !canListDoc &&
+      entry.type === "link" &&
+      entry.href === "/documentacao"
     ) {
       return false;
     }
