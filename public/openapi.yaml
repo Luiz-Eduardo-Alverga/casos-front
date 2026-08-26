@@ -37,6 +37,8 @@ tags:
     description: Módulos de permissão, catálogo de permissões, papéis e vínculos (administração)
   - name: CaseAttachments
     description: Anexos de caso (metadados em Postgres; arquivos no Supabase Storage)
+  - name: Docs
+    description: Base de conhecimento e categorias de documentação
 
 security:
   - sessionCookie: []
@@ -1080,6 +1082,113 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/CompatibleDevice"
+
+    DocLink:
+      type: object
+      required: [entityType, entityId, entityLabel]
+      properties:
+        id:
+          type: string
+          format: uuid
+        entityType:
+          type: string
+          enum: [acquirer, product, client, case]
+        entityId:
+          type: string
+        entityLabel:
+          type: string
+
+    DocWrite:
+      type: object
+      required: [title, categoryId]
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 200
+        summary:
+          type: string
+          maxLength: 400
+        contentMd:
+          type: string
+          default: ""
+        categoryId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [rascunho, publicado, desatualizado]
+          default: rascunho
+        sector:
+          type: string
+        ownerUserId:
+          type: string
+          format: uuid
+        reviewDueAt:
+          type: string
+          format: date
+          nullable: true
+        tags:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocLink"
+
+    Doc:
+      allOf:
+        - $ref: "#/components/schemas/DocWrite"
+        - type: object
+          required: [id, status, createdAt, updatedAt]
+          properties:
+            id:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    DocCategory:
+      type: object
+      required: [id, name, slug, sortOrder]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        sortOrder:
+          type: integer
+
+    DocActivity:
+      type: object
+      required: [id, docId, userId, userName, action]
+      properties:
+        id:
+          type: string
+          format: uuid
+        docId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        userName:
+          type: string
+        action:
+          type: string
+          enum: [created, updated, published, archived]
+        createdAt:
+          type: string
+          format: date-time
 
   parameters:
     ListSearchQuery:
@@ -2724,3 +2833,148 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "500":
           $ref: "#/components/responses/InternalError"
+
+  /api/db/docs:
+    get:
+      tags: [Docs]
+      summary: Listar documentos
+      operationId: listDocs
+      parameters:
+        - { name: search, in: query, schema: { type: string } }
+        - { name: categoryId, in: query, schema: { type: string, format: uuid } }
+        - { name: status, in: query, schema: { type: string, enum: [rascunho, publicado, desatualizado] } }
+        - { name: sector, in: query, schema: { type: string } }
+        - { name: tag, in: query, schema: { type: string } }
+        - { name: entityType, in: query, schema: { type: string, enum: [acquirer, product, client, case] } }
+        - { name: entityId, in: query, schema: { type: string } }
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, default: 20, maximum: 50 } }
+      responses:
+        "200":
+          description: Página de documentos em `data.items`, com `nextCursor` e `total`.
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    post:
+      tags: [Docs]
+      summary: Criar documento
+      operationId: createDoc
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DocWrite" }
+      responses:
+        "201":
+          description: Documento criado.
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/db/docs/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Docs]
+      summary: Obter documento
+      operationId: getDoc
+      responses:
+        "200":
+          description: Documento completo.
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    patch:
+      tags: [Docs]
+      summary: Atualizar documento
+      operationId: updateDoc
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DocWrite" }
+      responses:
+        "200": { description: Documento atualizado. }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    delete:
+      tags: [Docs]
+      summary: Excluir documento
+      operationId: deleteDoc
+      responses:
+        "204": { description: Documento removido; sem corpo. }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/db/docs/{id}/activity:
+    get:
+      tags: [Docs]
+      summary: Listar histórico do documento
+      operationId: listDocActivity
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Atividades mais recentes primeiro. }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/db/doc-categories:
+    get:
+      tags: [Docs]
+      summary: Listar categorias
+      operationId: listDocCategories
+      responses:
+        "200": { description: Categorias ordenadas. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    post:
+      tags: [Docs]
+      summary: Criar categoria
+      operationId: createDocCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug]
+              properties:
+                name: { type: string }
+                slug: { type: string }
+                sortOrder: { type: integer, default: 0 }
+      responses:
+        "201": { description: Categoria criada. }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/db/doc-tags:
+    get:
+      tags: [Docs]
+      summary: Buscar tags
+      operationId: searchDocTags
+      parameters:
+        - { name: search, in: query, schema: { type: string } }
+      responses:
+        "200": { description: Até 20 tags ordenadas. }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/InternalError" }

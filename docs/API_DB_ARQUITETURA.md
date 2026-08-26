@@ -23,6 +23,10 @@ Componente / Hook
 
 Tabelas em [`db/schema.ts`](../db/schema.ts): `app_users` (espelho do usuário Soft Flow por `legacy_user_id` único), **`permission_modules`** (agrupamento da matriz na UI: slug, nome, ordem), **`permissions`** (`module_id`, `code`, `label`, `sort_order`, `description`), **`roles`**, **`role_permissions`**, **`user_roles`**. Permissões efetivas vêm sempre do join papel → permissão; usuários novos podem ficar sem papéis até atribuição em `user_roles` (lista de códigos vazia).
 
+## Documentação
+
+O módulo usa `doc_categories`, `docs`, `doc_tags`, `doc_tag_links`, `doc_links` e `doc_activity`. A coluna gerada `docs.search_tsv` mantém o índice full-text em português e não é mapeada no Drizzle. Vínculos com adquirentes, produtos, clientes e casos guardam `entity_id` como texto porque parte dessas entidades vive na API Soft Flow legada.
+
 **Cliente:** [`services/db-api/rbac.ts`](../services/db-api/rbac.ts) — chamadas `fetchWithAuth` para CRUD de módulos, permissões, papéis, vínculos papel↔permissão e usuário↔papel.
 
 - **Login:** [`POST /api/login`](../app/api/login/route.ts) autentica na Soft Flow, **só então** grava o cookie `casos_token` e responde com `user`, `permissions` (códigos) e `appUser` (resumo do registro em `app_users`), após upsert via [`lib/auth/sync-app-user.ts`](../lib/auth/sync-app-user.ts). Se o sync com o Postgres falhar, o cookie **não** é definido.
@@ -100,6 +104,7 @@ O histórico foi consolidado em **uma** migração inicial — apenas `public` (
 | `npm run db:apply` | Aplica migrações pendentes (`drizzle-kit migrate`), lendo `DATABASE_URL` de `.env.local` ou `.env`. |
 | [`db/scripts/reset-supabase-dev.sql`](../db/scripts/reset-supabase-dev.sql) | Em dev: apaga tabelas da app, tipo `status_type` e schema `drizzle`. Rode no SQL Editor do Supabase se quiser recriar do zero; em seguida `npm run db:apply`. |
 | [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql) | Opcional: insere módulo `case-attachments` e permissões `list/create/delete-case-attachment` no RBAC. Depois vincule aos papéis na UI. |
+| [`db/scripts/seed-docs-rbac.sql`](../db/scripts/seed-docs-rbac.sql) | Insere o módulo `docs` e suas permissões de listagem, criação, edição, exclusão e categorias. |
 
 Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` deve listar pelo menos `0000_initial_supabase_public` após o primeiro `db:apply` bem-sucedido.
 
@@ -164,6 +169,15 @@ Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` 
 | GET | `/api/db/acquirer-compatible-devices?statusId=` | Lista por `statusId` (equivalente ao GET aninhado) |
 | POST | `/api/db/acquirer-compatible-devices` | Vincula com corpo `{ statusId, deviceId, androidVersion? }` |
 | DELETE | `/api/db/acquirer-compatible-devices?statusId=&deviceId=` | Remove vínculo |
+| GET | `/api/db/docs` | Lista documentos com filtros, busca full-text e paginação por cursor |
+| POST | `/api/db/docs` | Cria documento e registra atividade |
+| GET | `/api/db/docs/[id]` | Detalha documento, categoria, responsável, tags e vínculos |
+| PATCH | `/api/db/docs/[id]` | Atualiza documento, sincroniza tags/vínculos e registra atividade |
+| DELETE | `/api/db/docs/[id]` | Exclui documento |
+| GET | `/api/db/docs/[id]/activity` | Lista o histórico do documento |
+| GET | `/api/db/doc-categories` | Lista categorias de documentação |
+| POST | `/api/db/doc-categories` | Cria categoria de documentação |
+| GET | `/api/db/doc-tags?search=` | Busca tags para autocomplete |
 
 ## Códigos HTTP
 
