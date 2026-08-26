@@ -154,6 +154,11 @@ const config: Config = {
         "table-row-hover": "hsl(var(--table-row-hover))",
         "surface-elevated": "hsl(var(--surface-elevated))",
 
+        // Status semânticos compartilhados
+        "status-success": "hsl(var(--status-success))",
+        "status-warning": "hsl(var(--status-warning))",
+        "status-info": "hsl(var(--status-info))",
+
         // Auditoria Squad
         "audit-conforme": "hsl(var(--audit-conforme))",
         "audit-conforme-bg": "hsl(var(--audit-conforme-bg) / 0.1)",

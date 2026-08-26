@@ -133,6 +133,11 @@
     --table-row-hover: 220 14% 97%;
     --surface-elevated: 0 0% 100%;
 
+    /* Status semânticos compartilhados */
+    --status-success: 152 69% 39%;
+    --status-warning: 38 91% 45%;
+    --status-info: 214 95% 40%;
+
     /* Auditoria Squad — status */
     --audit-conforme: 152 69% 39%;
     --audit-conforme-bg: 152 69% 39%;
@@ -271,6 +276,11 @@
     --public-info-text: 214 100% 75%;
     --public-danger-bg: 0 35% 18%;
     --public-danger-text: 0 84% 75%;
+
+    /* Status semânticos compartilhados */
+    --status-success: 152 69% 55%;
+    --status-warning: 38 91% 60%;
+    --status-info: 214 100% 75%;
 
     /* Auditoria Squad - dark mode */
     --audit-conforme: 152 69% 55%;
