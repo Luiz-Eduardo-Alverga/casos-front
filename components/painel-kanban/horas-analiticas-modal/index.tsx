@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Clock3, RefreshCcw } from "lucide-react";
 import {
@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormProduto } from "@/components/fields/caso-form-produto";
 import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
@@ -22,7 +21,13 @@ import {
   type ProducaoHorasAnaliticasParams,
 } from "@/hooks/producao/use-producao-horas-analiticas";
 import type { HorasAnaliticasModalProps } from "./types";
-import { getTodayYmd, parseHorasAnaliticasData } from "./utils";
+import {
+  dateToYmdString,
+  getTodayDate,
+  getTodayYmd,
+  parseHorasAnaliticasData,
+  ymdStringToDate,
+} from "./utils";
 import { HorasAnaliticasSummaryCards } from "./horas-analiticas-summary-cards";
 import { HorasAnaliticasCasesList } from "./horas-analiticas-cases-list";
 import { HorasAnaliticasCommitBox } from "./horas-analiticas-commit-box";
@@ -39,39 +44,30 @@ interface HorasAnaliticasFiltersForm {
   devAtribuidoLabel: string;
 }
 
-function getTodayDate(): Date {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-}
-
-function dateToYmdString(date: Date | undefined): string | undefined {
-  if (!date) return undefined;
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
 export function HorasAnaliticasModal({
   open,
   onOpenChange,
   projetoId,
   usuarioId,
+  colaboradorLabel = "",
+  dataProducaoInicial,
+  autoAplicarFiltros = false,
 }: HorasAnaliticasModalProps) {
   const rbacReady = permissionsLoaded();
   const canAuditAllUsers = !rbacReady || hasPermission("audit-all-users");
+  const autoAppliedRef = useRef(false);
 
   const methods = useForm<HorasAnaliticasFiltersForm>({
     defaultValues: {
       versao: "",
       projeto: projetoId,
       devAtribuido: usuarioId,
-      devAtribuidoLabel: "",
+      devAtribuidoLabel: colaboradorLabel,
     },
   });
 
-  const [dataProducao, setDataProducao] = useState<Date | undefined>(
-    getTodayDate(),
+  const [dataProducao, setDataProducao] = useState<Date | undefined>(() =>
+    ymdStringToDate(dataProducaoInicial) ?? getTodayDate(),
   );
   const dataProducaoYmd = useMemo(
     () => dateToYmdString(dataProducao) ?? getTodayYmd(),
@@ -85,10 +81,6 @@ export function HorasAnaliticasModal({
     useState<ProducaoHorasAnaliticasParams | null>(null);
   const [commitDescription, setCommitDescription] = useState("");
 
-  // useEffect(() => {
-  //   methods.setValue("produto", produtoId || "");
-  // }, [methods, produtoId]);
-
   useEffect(() => {
     methods.setValue("projeto", projetoId || "");
   }, [methods, projetoId]);
@@ -96,6 +88,10 @@ export function HorasAnaliticasModal({
   useEffect(() => {
     methods.setValue("devAtribuido", usuarioId || "");
   }, [methods, usuarioId]);
+
+  useEffect(() => {
+    methods.setValue("devAtribuidoLabel", colaboradorLabel || "");
+  }, [methods, colaboradorLabel]);
 
   const canFetch =
     Boolean(open) &&
@@ -113,6 +109,50 @@ export function HorasAnaliticasModal({
     if (!filtrosAplicados) return;
     void refetch();
   }, [filtrosAplicados, refetch]);
+
+  useEffect(() => {
+    if (!open) {
+      autoAppliedRef.current = false;
+      setFiltrosAplicados(null);
+      setCommitDescription("");
+      return;
+    }
+
+    const initialDate =
+      ymdStringToDate(dataProducaoInicial) ?? getTodayDate();
+    setDataProducao(initialDate);
+
+    if (!autoAplicarFiltros || autoAppliedRef.current) return;
+
+    const projeto = (projetoId || "").trim();
+    const usuario = (usuarioId || "").trim();
+    const dataYmd =
+      dataProducaoInicial?.trim() ||
+      dateToYmdString(initialDate) ||
+      getTodayYmd();
+
+    if (!projeto && !usuario) return;
+
+    autoAppliedRef.current = true;
+    methods.setValue("projeto", projeto);
+    methods.setValue("devAtribuido", usuario);
+    methods.setValue("devAtribuidoLabel", colaboradorLabel || "");
+
+    setFiltrosAplicados({
+      projeto_id: projeto || undefined,
+      usuario: usuario || undefined,
+      data_producao_inicio: dataYmd,
+      data_producao_fim: dataYmd,
+    });
+  }, [
+    open,
+    autoAplicarFiltros,
+    dataProducaoInicial,
+    projetoId,
+    usuarioId,
+    colaboradorLabel,
+    methods,
+  ]);
 
   const handleAtualizar = () => {
     if (!canFetch) return;

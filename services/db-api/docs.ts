@@ -23,6 +23,7 @@ export interface DocLink {
 
 export interface DocOwner {
   id: string;
+  legacyUserId: number;
   nome: string;
   email: string;
   setor: string;

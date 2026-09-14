@@ -53,6 +53,8 @@ interface ComboboxFieldProps {
   valueLabelPrefix?: string;
   /** Chamado após o react-hook-form atualizar o valor (modo `name`). */
   onAfterValueChange?: (value: string) => void;
+  /** Permite limpar a seleção pelo botão lateral. */
+  clearable?: boolean;
 }
 
 /**
@@ -115,6 +117,7 @@ export function ComboboxField({
   controlHeightClassName = "h-9",
   valueLabelPrefix,
   onAfterValueChange,
+  clearable = true,
 }: ComboboxFieldProps) {
   const isControlled = typeof onValueChange === "function";
 
@@ -153,7 +156,7 @@ export function ComboboxField({
             valueLabelPrefix={valueLabelPrefix}
             className={controlHeightClassName}
             suffix={
-              value ? (
+              value && clearable ? (
                 <ClearButton
                   onClear={() => onValueChange("")}
                   disabled={disabled}
@@ -187,6 +190,7 @@ export function ComboboxField({
           controlHeightClassName={controlHeightClassName}
           valueLabelPrefix={valueLabelPrefix}
           onAfterValueChange={onAfterValueChange}
+          clearable={clearable}
         />
       ) : null}
     </div>
@@ -215,6 +219,7 @@ function RHFComboboxField({
   controlHeightClassName = "h-9",
   valueLabelPrefix,
   onAfterValueChange,
+  clearable,
 }: Omit<
   ComboboxFieldProps,
   "icon" | "value" | "onValueChange" | "wrapperClassName"
@@ -271,7 +276,7 @@ function RHFComboboxField({
             valueLabelPrefix={valueLabelPrefix}
             className={controlHeightClassName}
             suffix={
-              field.value ? (
+              field.value && clearable ? (
                 <ClearButton
                   onClear={() => field.onChange("")}
                   disabled={disabled}

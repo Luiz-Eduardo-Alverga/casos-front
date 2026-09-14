@@ -2,17 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, X } from "lucide-react";
+import { Link2, Plus, X } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useProdutos } from "@/hooks/catalogos/use-produtos";
 import { useClientes } from "@/hooks/catalogos/use-clientes";
 import { listAcquirersClient } from "@/services/db-api/list-cadastros";
@@ -122,24 +116,23 @@ export function LinksField() {
       ))}
       {adding ? (
         <div className="space-y-2 rounded-lg border border-border p-2">
-          <Select
+          <ComboboxField
+            label="Tipo de vínculo"
+            icon={Link2}
+            options={Object.entries(labels).map(([value, label]) => ({
+              value,
+              label,
+            }))}
             value={type}
             onValueChange={(value) => {
+              if (!value) return;
               setType(value as DocLinkType);
               setSearch("");
             }}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(labels).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            placeholder="Selecione o tipo..."
+            emptyText="Nenhum tipo encontrado."
+            clearable={false}
+          />
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}

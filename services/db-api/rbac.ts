@@ -323,7 +323,8 @@ export async function listAppUsersClient(
   search?: string,
 ): Promise<AppUserListRow[]> {
   const res = await fetchWithAuth(withSearch("/api/db/app-users", search));
-  return parseSuccessWithData<AppUserListRow[]>(res);
+  const page = await parseSuccessWithData<ListAppUsersPageResult>(res);
+  return page.items;
 }
 
 export async function listAppUsersInfiniteClient(params: {

@@ -11,31 +11,23 @@ import {
   FileText,
   Link2,
   MoreHorizontal,
+  Paperclip,
   Pencil,
   Tag,
   Trash2,
+  History,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { useDoc } from "@/hooks/docs/use-doc";
@@ -123,7 +115,10 @@ function Ficha({ doc }: { doc: Doc }) {
   return (
     <div className="space-y-2">
       {rows.map(([label, value]) => (
-        <div key={label} className="flex items-start justify-between gap-4 text-sm">
+        <div
+          key={label}
+          className="flex items-start justify-between gap-4 text-sm"
+        >
           <span className="text-muted-foreground">{label}</span>
           <span className="text-right font-medium capitalize">{value}</span>
         </div>
@@ -187,22 +182,19 @@ export function DocDetalhe({ docId }: { docId: string }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-6 px-6 pb-10 pt-20">
-      <header className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
-        <div className="flex min-w-0 items-start gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/documentacao" aria-label="Voltar">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div className="min-w-0 space-y-2">
-            <h1 className="text-2xl font-bold text-foreground">{doc.title}</h1>
-            <div className="flex flex-wrap gap-2">
-              <DocCategoriaBadge name={doc.category.name} />
-              <DocStatusBadge status={doc.status} />
-            </div>
-          </div>
+      <header className="flex flex-col justify-between gap-4 lg:flex-row md:items-center">
+        <div className="min-w-0 space-y-2 flex gap-2 items-center">
+          <h1 className="text-2xl font-bold text-foreground">{doc.title}</h1>
+          <DocCategoriaBadge name={doc.category.name} />
+          <DocStatusBadge status={doc.status} />
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/documentacao">
+              <ArrowLeft className="h-4 w-4" />
+              Voltar
+            </Link>
+          </Button>
           {canEdit ? (
             <Button variant="outline" asChild>
               <Link href={`/documentacao/${doc.id}/editar`}>
@@ -232,9 +224,7 @@ export function DocDetalhe({ docId }: { docId: string }) {
                   disabled={
                     doc.status === "desatualizado" || updateDoc.isPending
                   }
-                  onSelect={() =>
-                    updateDoc.mutate({ status: "desatualizado" })
-                  }
+                  onSelect={() => updateDoc.mutate({ status: "desatualizado" })}
                 >
                   Marcar como desatualizado
                 </DropdownMenuItem>
@@ -260,11 +250,29 @@ export function DocDetalhe({ docId }: { docId: string }) {
             onValueChange={setActiveTab}
             className="flex h-full min-h-0 flex-col"
           >
-            <CardHeader className="border-b border-border-divider p-4 pb-2">
-              <TabsList>
-                <TabsTrigger value="documento">Documento</TabsTrigger>
-                <TabsTrigger value="anexos">Anexos</TabsTrigger>
-                <TabsTrigger value="historico">Histórico</TabsTrigger>
+            <CardHeader className="border-b border-border-divider p-0">
+              <TabsList className="h-auto w-full justify-start rounded-none bg-transparent px-4 py-0">
+                <TabsTrigger
+                  value="documento"
+                  className="gap-2 rounded-none border-b-2 border-transparent bg-transparent px-2 py-4 shadow-none data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Documento
+                </TabsTrigger>
+                <TabsTrigger
+                  value="anexos"
+                  className="gap-2 rounded-none border-b-2 border-transparent bg-transparent px-2 py-4 shadow-none data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                >
+                  <Paperclip className="h-3.5 w-3.5" />
+                  Anexos
+                </TabsTrigger>
+                <TabsTrigger
+                  value="historico"
+                  className="gap-2 rounded-none border-b-2 border-transparent bg-transparent px-2 py-4 shadow-none data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                >
+                  <History className="h-3.5 w-3.5" />
+                  Histórico
+                </TabsTrigger>
               </TabsList>
             </CardHeader>
             <CardContent className="min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-2">

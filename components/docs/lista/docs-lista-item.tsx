@@ -28,28 +28,29 @@ export function DocsListaItem({ doc }: { doc: DocListItem }) {
             {doc.title}
           </span>
           <DocCategoriaBadge name={doc.categoryName} />
-          <DocStatusBadge status={doc.status} />
+          {doc.status !== "publicado" ? (
+            <DocStatusBadge status={doc.status} />
+          ) : null}
+          {doc.tags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-muted px-2.5 py-1"
+            >
+              <span className="size-1 shrink-0 rounded-full bg-muted-foreground" />
+              <span className="whitespace-nowrap text-xs font-semibold text-muted-foreground">
+                {tag}
+              </span>
+            </span>
+          ))}
         </div>
         <p className="mt-2 truncate text-sm text-muted-foreground">
           {doc.summary || "Sem resumo"}
         </p>
-        <div className="mt-2 flex items-center justify-between gap-4">
-          <div className="flex min-w-0 flex-wrap gap-2">
-            {doc.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-          <span className="shrink-0 text-xs text-muted-foreground">
-            Atualizado por {doc.updatedByName ?? "usuário desconhecido"} ·{" "}
-            {relativeDate}
-          </span>
-        </div>
       </div>
+      <span className="shrink-0 text-xs text-muted-foreground">
+        Atualizado por {doc.updatedByName ?? "usuário desconhecido"} ·{" "}
+        {relativeDate}
+      </span>
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
     </Link>
   );

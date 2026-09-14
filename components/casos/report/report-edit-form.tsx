@@ -357,16 +357,10 @@ export function ReportEditForm({ item, casoId }: ReportEditFormProps) {
                       value="relacoes"
                       className="mt-0 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
                     >
-                      <fieldset
-                        disabled={!canEditCase}
-                        className="contents"
-                        aria-disabled={!canEditCase}
-                      >
-                        <div className="flex-1 flex flex-col gap-6 min-w-0">
-                          <AbaRelacoes relacoes={relacoes ?? []} />
-                          <CasoEditCardClassificacao />
-                        </div>
-                      </fieldset>
+                      <div className="flex-1 flex flex-col gap-6 min-w-0">
+                        <AbaRelacoes relacoes={relacoes ?? []} />
+                        <CasoEditCardClassificacao />
+                      </div>
                     </TabsContent>
 
                     <TabsContent

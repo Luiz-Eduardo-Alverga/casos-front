@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Inbox } from "lucide-react";
 import { EmptyState } from "@/components/painel/empty-state";
 import { buildCasoEditHref } from "@/lib/caso-edit-layout";
@@ -39,8 +38,6 @@ export function ReportsLista({
   onSuspender,
   scrollable = false,
 }: ReportsListaProps) {
-  const router = useRouter();
-
   if (isLoading) {
     return <ReportsListaSkeleton />;
   }
@@ -84,7 +81,11 @@ export function ReportsLista({
             onMarcarIncompleto={() => onMarcarIncompleto(item)}
             onSuspender={() => onSuspender(item)}
             onVerCaso={() =>
-              router.push(buildCasoEditHref(cardData.id, "case"))
+              window.open(
+                buildCasoEditHref(cardData.id, "case", { standalone: true }),
+                "_blank",
+                "noopener,noreferrer",
+              )
             }
           />
         );

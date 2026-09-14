@@ -1,12 +1,17 @@
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export function DocCategoriaBadge({ name }: { name: string }) {
   return (
-    <Badge
-      variant="outline"
-      className="border-status-info/30 bg-status-info/10 px-2 py-0 text-xs text-status-info"
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1",
+        "border-status-info/30 bg-status-info/10",
+      )}
     >
-      {name}
-    </Badge>
+      <span className="size-1 shrink-0 rounded-full bg-status-info" />
+      <span className="whitespace-nowrap text-xs font-semibold text-status-info">
+        {name}
+      </span>
+    </span>
   );
 }

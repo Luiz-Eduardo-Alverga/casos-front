@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, User } from "lucide-react";
+import { Clock3, ExternalLink, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -13,6 +13,7 @@ export function AuditoriaColaboradorRow({
   colaborador,
   projetoLabel,
   onOpenDetail,
+  onOpenHorasAnaliticas,
 }: AuditoriaColaboradorRowProps) {
   const statusConfig = getAuditStatusConfig(colaborador.status);
   const StatusIcon = statusConfig.icon;
@@ -86,17 +87,29 @@ export function AuditoriaColaboradorRow({
         </Badge>
       </TableCell>
 
-      <TableCell className="py-3 px-6 w-[80px]">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          aria-label={`Ver detalhes de ${colaborador.nome_suporte}`}
-          onClick={() => onOpenDetail(colaborador)}
-        >
-          <ExternalLink className="h-4 w-4 text-text-secondary" />
-        </Button>
+      <TableCell className="py-3 px-6 w-[100px]">
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            aria-label={`Ver horas analíticas de ${colaborador.nome_suporte}`}
+            onClick={() => onOpenHorasAnaliticas(colaborador)}
+          >
+            <Clock3 className="h-4 w-4 text-text-secondary" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            aria-label={`Ver detalhes de ${colaborador.nome_suporte}`}
+            onClick={() => onOpenDetail(colaborador)}
+          >
+            <ExternalLink className="h-4 w-4 text-text-secondary" />
+          </Button>
+        </div>
       </TableCell>
     </TableRow>
   );

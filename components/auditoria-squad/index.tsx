@@ -5,9 +5,13 @@ import { useForm } from "react-hook-form";
 import { FilterX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
+import { HorasAnaliticasModal } from "@/components/painel-kanban/horas-analiticas-modal";
+import { findUsuarioIdByNome } from "@/components/casos/edicao/abrir-ocorrencia-utils";
 import { useProjetos } from "@/hooks/catalogos/use-projetos";
+import { useUsuarios } from "@/hooks/catalogos/use-usuarios";
 import {
   useProductionAnalysis,
+  type ProductionAnalysisColaborador,
   type ProductionAnalysisParams,
 } from "@/hooks/producao/use-production-analysis";
 import { getUser } from "@/lib/auth";
@@ -46,6 +50,10 @@ export function AuditoriaSquad() {
   const [filtrosAplicados, setFiltrosAplicados] =
     useState<ProductionAnalysisParams | null>(null);
   const [isAuditing, setIsAuditing] = useState(false);
+  const [isHorasAnaliticasOpen, setIsHorasAnaliticasOpen] = useState(false);
+  const [horasAnaliticasUsuarioId, setHorasAnaliticasUsuarioId] = useState("");
+  const [horasAnaliticasColaboradorLabel, setHorasAnaliticasColaboradorLabel] =
+    useState("");
 
   const projetoSelecionado = form.watch("projeto")?.trim() ?? "";
   const colaboradorSelecionado = form.watch("devAtribuido")?.trim() ?? "";
@@ -175,6 +183,28 @@ export function AuditoriaSquad() {
   const mostrarResultados =
     Boolean(filtrosAplicados) && !isLoadingResults && colaboradores.length > 0;
 
+  const { data: usuarios = [] } = useUsuarios({
+    enabled: mostrarResultados,
+  });
+
+  const horasAnaliticasProjetoId = String(
+    filtrosAplicados?.projeto_id ?? "",
+  ).trim();
+  const horasAnaliticasData =
+    filtrosAplicados?.data_producao_inicio?.trim() ?? "";
+
+  const handleOpenHorasAnaliticas = (
+    colaborador: ProductionAnalysisColaborador,
+  ) => {
+    const label = colaborador.nome_suporte?.trim() ?? "";
+    const resolvedId = findUsuarioIdByNome(usuarios, label);
+    setHorasAnaliticasColaboradorLabel(label);
+    setHorasAnaliticasUsuarioId(
+      resolvedId != null ? String(resolvedId) : "",
+    );
+    setIsHorasAnaliticasOpen(true);
+  };
+
   return (
     <ListagemPageLayout
       title="Auditoria Squad"
@@ -214,6 +244,7 @@ export function AuditoriaSquad() {
             <AuditoriaColaboradoresTable
               colaboradores={colaboradores}
               projetoLabel={projetoLabel}
+              onOpenHorasAnaliticas={handleOpenHorasAnaliticas}
             />
           </div>
         ) : null}
@@ -226,6 +257,19 @@ export function AuditoriaSquad() {
           </p>
         ) : null}
       </div>
+
+      <HorasAnaliticasModal
+        open={isHorasAnaliticasOpen}
+        onOpenChange={setIsHorasAnaliticasOpen}
+        produtoId=""
+        produtoLabel=""
+        colaboradorLabel={horasAnaliticasColaboradorLabel}
+        projetoId={horasAnaliticasProjetoId}
+        projetoLabel={projetoLabel}
+        usuarioId={horasAnaliticasUsuarioId}
+        dataProducaoInicial={horasAnaliticasData}
+        autoAplicarFiltros
+      />
     </ListagemPageLayout>
   );
 }

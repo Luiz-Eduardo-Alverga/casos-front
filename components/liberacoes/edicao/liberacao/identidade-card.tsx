@@ -1,19 +1,17 @@
 "use client";
 
 import { useMemo } from "react";
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { IdCard, Layers } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { LiberacaoCardHeader } from "@/components/liberacoes/liberacao-card-header";
 import { useProdutos } from "@/hooks/catalogos/use-produtos";
-import {
-  formatLiberacaoDateDisplay,
-  produtosToOptions,
-} from "@/components/liberacoes/utils";
+import { produtosToOptions } from "@/components/liberacoes/utils";
 import { TIPO_LIBERACAO_OPTIONS } from "@/components/liberacoes/constants";
 import type { LiberacaoItem } from "@/interfaces/liberacao";
 import type { LiberacaoEditFormData } from "@/components/liberacoes/edicao/schema";
@@ -29,7 +27,7 @@ const TIPO_OPTIONS = TIPO_LIBERACAO_OPTIONS.map((o) => ({
 }));
 
 export function IdentidadeCard({ liberacao, disabled }: IdentidadeCardProps) {
-  const { register } = useFormContext<LiberacaoEditFormData>();
+  const { control, register } = useFormContext<LiberacaoEditFormData>();
   const { data: produtos, isLoading: isProdutosLoading } = useProdutos();
   const produtoOptions = useMemo(() => produtosToOptions(produtos), [produtos]);
 
@@ -48,16 +46,20 @@ export function IdentidadeCard({ liberacao, disabled }: IdentidadeCardProps) {
               className="h-9 rounded-lg"
             />
           </div>
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-text-label">
-              Aberto em
-            </Label>
-            <Input
-              value={formatLiberacaoDateDisplay(liberacao.datas)}
-              disabled
-              className="h-9 rounded-lg"
-            />
-          </div>
+          <Controller
+            control={control}
+            name="datas"
+            render={({ field }) => (
+              <DatePickerInput
+                label="Aberto em"
+                value={field.value}
+                onChange={field.onChange}
+                disabled={disabled}
+                required
+                controlHeightClassName="h-9"
+              />
+            )}
+          />
         </div>
 
         <div className="grid grid-cols-2 items-end gap-4">

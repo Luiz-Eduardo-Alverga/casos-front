@@ -6,6 +6,7 @@ export function liberacaoToFormValues(lib: LiberacaoItem): LiberacaoEditFormData
   return {
     produtoId: String(lib.produto_id),
     tipoLiberacao: lib.tipo_liberacao,
+    datas: parseLiberacaoDate(lib.datas) as Date,
     observacao: lib.observacao ?? "",
     linkVideo: lib.link_video ?? "",
     linkPdf: lib.link_pdf ?? "",
@@ -27,6 +28,7 @@ export function buildUpdateLiberacaoPayload(
   return {
     produto_id: Number(data.produtoId),
     tipo_liberacao: data.tipoLiberacao,
+    datas: formatLiberacaoDateApi(data.datas),
     observacao: data.observacao?.trim() || null,
     link_video: data.linkVideo?.trim() || null,
     link_pdf: data.linkPdf?.trim() || null,

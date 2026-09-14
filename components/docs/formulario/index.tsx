@@ -4,8 +4,20 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import { FileText, Settings, Tag, Link2, CalendarDays } from "lucide-react";
+import toast from "react-hot-toast";
+import {
+  ArrowLeft,
+  CalendarDays,
+  CircleDot,
+  FileText,
+  Folder,
+  Link2,
+  Settings,
+  Tag,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
+import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import {
   Card,
   CardContent,
@@ -15,21 +27,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
-import { CasoFormSetor } from "@/components/fields";
+import {
+  CasoFormSetor,
+  CasoFormUsuarioAbertura,
+} from "@/components/fields";
 import { useDoc } from "@/hooks/docs/use-doc";
 import { useDocCategories } from "@/hooks/docs/use-doc-categories";
 import { useCreateDoc } from "@/hooks/docs/use-create-doc";
 import { useUpdateDoc } from "@/hooks/docs/use-update-doc";
 import { useSetores } from "@/hooks/catalogos/use-setores";
-import { useDbAppUsers } from "@/hooks/configuracoes/use-db-app-users";
+import { useDbAppUsersInfinite } from "@/hooks/configuracoes/use-db-app-users";
 import { DocDetalheSkeleton } from "../detalhe/doc-detalhe-skeleton";
 import { MarkdownEditor } from "./markdown-editor";
 import { TagsField } from "./tags-field";
@@ -45,6 +54,7 @@ const defaultValues: DocFormValues = {
   status: "rascunho",
   sector: "",
   ownerUserId: "",
+  ownerLegacyUserId: "",
   reviewDueAt: "",
   tags: [],
   links: [],
@@ -88,7 +98,7 @@ export function DocForm({
   const source = useDoc(sourceId);
   const categories = useDocCategories();
   const sectors = useSetores();
-  const users = useDbAppUsers();
+  const users = useDbAppUsersInfinite();
   const createDoc = useCreateDoc();
   const updateDoc = useUpdateDoc(docId ?? "");
   const methods = useForm<DocFormValues>({
@@ -104,6 +114,20 @@ export function DocForm({
     formState: { errors, isDirty },
   } = methods;
   const summary = watch("summary");
+  const appUsers = useMemo(
+    () => users.data?.pages.flatMap((page) => page.items) ?? [],
+    [users.data],
+  );
+
+  useEffect(() => {
+    if (users.hasNextPage && !users.isFetchingNextPage) {
+      void users.fetchNextPage();
+    }
+  }, [
+    users.fetchNextPage,
+    users.hasNextPage,
+    users.isFetchingNextPage,
+  ]);
 
   useEffect(() => {
     if (!source.data) return;
@@ -118,6 +142,9 @@ export function DocForm({
       status: mode === "create" ? "rascunho" : source.data.status,
       sector: sectorId ? String(sectorId) : "",
       ownerUserId: source.data.ownerUserId ?? "",
+      ownerLegacyUserId: source.data.owner?.legacyUserId
+        ? String(source.data.owner.legacyUserId)
+        : "",
       reviewDueAt: source.data.reviewDueAt ?? "",
       tags: source.data.tags,
       links: source.data.links.map((link) => ({
@@ -155,8 +182,26 @@ export function DocForm({
     const selectedSector = sectors.data?.find(
       (item) => String(item.id) === values.sector,
     )?.nome;
+    const selectedOwner = values.ownerLegacyUserId
+      ? appUsers.find(
+          (user) =>
+            String(user.legacyUserId) === values.ownerLegacyUserId,
+        )
+      : undefined;
+    if (values.ownerLegacyUserId && !selectedOwner) {
+      toast.error(
+        "O responsável selecionado ainda não está sincronizado no Softflow.",
+      );
+      return;
+    }
     const payload = {
-      ...buildDocPayload(values, selectedSector),
+      ...buildDocPayload(
+        {
+          ...values,
+          ownerUserId: selectedOwner?.id ?? values.ownerUserId,
+        },
+        selectedSector,
+      ),
       ...(status ? { status } : {}),
     };
     const result =
@@ -188,19 +233,57 @@ export function DocForm({
   return (
     <FormProvider {...methods}>
       <CasoFormProvider value={contextValue}>
-        <form
-          className="flex flex-1 flex-col px-6 pb-24 pt-20"
-          onSubmit={handleSubmit((values) => save(values))}
+        <ListagemPageLayout
+          title={mode === "edit" ? "Editar documento" : "Novo documento"}
+          subtitle="Organize o conhecimento técnico e de processo do time."
+          className="flex-1 overflow-auto pb-12"
+          actions={
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full px-4 sm:w-auto"
+                onClick={cancel}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar
+              </Button>
+              {mode === "create" ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={pending}
+                    onClick={handleSubmit((values) =>
+                      save(values, "rascunho"),
+                    )}
+                  >
+                    Salvar rascunho
+                  </Button>
+                  <Button
+                    type="button"
+                    disabled={pending}
+                    onClick={handleSubmit((values) =>
+                      save(values, "publicado"),
+                    )}
+                  >
+                    Publicar
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  type="button"
+                  disabled={pending}
+                  onClick={handleSubmit((values) => save(values))}
+                >
+                  Salvar alterações
+                </Button>
+              )}
+            </>
+          }
         >
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold">
-              {mode === "edit" ? "Editar documento" : "Novo documento"}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Organize o conhecimento técnico e de processo do time.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <form onSubmit={handleSubmit((values) => save(values))}>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
             <main className="space-y-2">
               <FormCard title="Documento" icon={FileText}>
                 <div className="space-y-2">
@@ -237,88 +320,38 @@ export function DocForm({
             </main>
             <aside className="space-y-2">
               <FormCard title="Classificação" icon={Settings}>
-                <Controller
-                  control={control}
+                <ComboboxField
                   name="categoryId"
-                  render={({ field }) => (
-                    <div className="space-y-2">
-                      <Label>Categoria</Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a categoria" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(categories.data ?? []).map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {errors.categoryId ? (
-                        <p className="text-xs text-destructive">
-                          {errors.categoryId.message}
-                        </p>
-                      ) : null}
-                    </div>
-                  )}
+                  label="Categoria"
+                  icon={Folder}
+                  options={(categories.data ?? []).map((category) => ({
+                    value: category.id,
+                    label: category.name,
+                  }))}
+                  placeholder="Selecione a categoria..."
+                  emptyText="Nenhuma categoria encontrada."
+                  isLoading={categories.isLoading}
+                  required
                 />
-                <Controller
-                  control={control}
+                <ComboboxField
                   name="status"
-                  render={({ field }) => (
-                    <div className="space-y-2">
-                      <Label>Status</Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="rascunho">Rascunho</SelectItem>
-                          <SelectItem value="publicado">Publicado</SelectItem>
-                          <SelectItem value="desatualizado">
-                            Desatualizado
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
+                  label="Status"
+                  icon={CircleDot}
+                  options={[
+                    { value: "rascunho", label: "Rascunho" },
+                    { value: "publicado", label: "Publicado" },
+                    { value: "desatualizado", label: "Desatualizado" },
+                  ]}
+                  placeholder="Selecione o status..."
+                  emptyText="Nenhum status encontrado."
+                  required
                 />
                 <CasoFormSetor />
-                <Controller
-                  control={control}
-                  name="ownerUserId"
-                  render={({ field }) => (
-                    <div className="space-y-2">
-                      <Label>Responsável</Label>
-                      <Select
-                        value={field.value || "__none__"}
-                        onValueChange={(value) =>
-                          field.onChange(value === "__none__" ? "" : value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o responsável" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="__none__">
-                            Sem responsável
-                          </SelectItem>
-                          {(users.data ?? []).map((user) => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
+                <CasoFormUsuarioAbertura
+                  name="ownerLegacyUserId"
+                  label="Responsável"
+                  placeholder="Selecione o responsável..."
+                  required={false}
                 />
               </FormCard>
               <FormCard title="Tags" icon={Tag}>
@@ -328,13 +361,33 @@ export function DocForm({
                 <LinksField />
               </FormCard>
               <FormCard title="Revisão" icon={CalendarDays}>
-                <div className="space-y-2">
-                  <Label htmlFor="review-due-at">Revisar até</Label>
-                  <Input
-                    id="review-due-at"
-                    type="date"
-                    {...register("reviewDueAt")}
-                  />
+                <Controller
+                  control={control}
+                  name="reviewDueAt"
+                  render={({ field }) => (
+                    <DatePickerInput
+                      id="review-due-at"
+                      label="Revisar até"
+                      value={
+                        field.value
+                          ? new Date(`${field.value}T00:00:00`)
+                          : undefined
+                      }
+                      onChange={(date) =>
+                        field.onChange(
+                          date
+                            ? `${date.getFullYear()}-${String(
+                                date.getMonth() + 1,
+                              ).padStart(2, "0")}-${String(
+                                date.getDate(),
+                              ).padStart(2, "0")}`
+                            : "",
+                        )
+                      }
+                    />
+                  )}
+                />
+                <div>
                   <p className="text-xs text-muted-foreground">
                     O documento será marcado como desatualizado após esta data
                   </p>
@@ -342,36 +395,8 @@ export function DocForm({
               </FormCard>
             </aside>
           </div>
-
-          <footer className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-between border-t border-border-divider bg-card px-6 py-4 shadow-lg md:left-16 lg:left-64">
-            <Button type="button" variant="ghost" onClick={cancel}>
-              Cancelar
-            </Button>
-            {mode === "create" ? (
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={pending}
-                  onClick={handleSubmit((values) => save(values, "rascunho"))}
-                >
-                  Salvar rascunho
-                </Button>
-                <Button
-                  type="button"
-                  disabled={pending}
-                  onClick={handleSubmit((values) => save(values, "publicado"))}
-                >
-                  Publicar
-                </Button>
-              </div>
-            ) : (
-              <Button type="submit" disabled={pending}>
-                Salvar alterações
-              </Button>
-            )}
-          </footer>
-        </form>
+          </form>
+        </ListagemPageLayout>
       </CasoFormProvider>
     </FormProvider>
   );

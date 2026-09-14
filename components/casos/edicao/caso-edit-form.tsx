@@ -499,6 +499,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
           descricaoResumo={caso?.textos?.descricao_resumo}
           anotacoes={anotacoes ?? []}
           responsavelFeedbackNome={item?.report?.responsavel_feedback_nome}
+          cronogramaId={item?.projeto?.id}
         />
 
         <div className="mt-2 flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
@@ -574,16 +575,10 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                       value="relacoes"
                       className="mt-0 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
                     >
-                      <fieldset
-                        disabled={!canEditCase}
-                        className="contents"
-                        aria-disabled={!canEditCase}
-                      >
-                        <div className="flex-1 flex flex-col gap-2 min-w-0">
-                          <AbaRelacoes relacoes={relacoes ?? []} />
-                          <CasoEditCardClassificacao />
-                        </div>
-                      </fieldset>
+                      <div className="flex-1 flex flex-col gap-2 min-w-0">
+                        <AbaRelacoes relacoes={relacoes ?? []} />
+                        <CasoEditCardClassificacao />
+                      </div>
                     </TabsContent>
 
                     <TabsContent

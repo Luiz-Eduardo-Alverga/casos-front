@@ -12,10 +12,16 @@ import { useUsuarios } from "@/hooks/catalogos/use-usuarios";
 
 interface CasoFormUsuarioAberturaProps {
   required?: boolean;
+  name?: string;
+  label?: string;
+  placeholder?: string;
 }
 
 export function CasoFormUsuarioAbertura({
   required = true,
+  name = "usuario_abertura_id",
+  label = "Aberto por",
+  placeholder = "Quem abriu o caso...",
 }: CasoFormUsuarioAberturaProps) {
   const {
     isDisabled,
@@ -25,7 +31,7 @@ export function CasoFormUsuarioAbertura({
   } = useCasoForm();
   const lazyLoad = resolveComboboxLazyLoad(
     { lazyLoadComboboxOptions, eagerLoadComboboxFieldNames },
-    "usuario_abertura_id",
+    name,
   );
   const [optionsRequested, setOptionsRequested] = useState(!lazyLoad);
 
@@ -60,11 +66,11 @@ export function CasoFormUsuarioAbertura({
   return (
     <div className="space-y-2">
       <ComboboxField
-        name="usuario_abertura_id"
-        label="Aberto por"
+        name={name}
+        label={label}
         icon={User}
         options={usuarioOptions}
-        placeholder="Quem abriu o caso..."
+        placeholder={placeholder}
         emptyText="Nenhum usuário encontrado."
         isLoading={optionsRequested && isUsuariosLoading}
         searchDebounceMs={450}

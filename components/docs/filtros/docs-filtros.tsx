@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Filter, Search } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { CircleDot, Filter, Folder, Search } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -9,22 +10,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ComboboxField } from "@/components/reports-form/combobox-field";
 import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
 import { useDocCategories } from "@/hooks/docs/use-doc-categories";
 import { useSetores } from "@/hooks/catalogos/use-setores";
+import { CasoFormSetor } from "@/components/fields";
+import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { DocsFiltrosAplicadosBadges } from "./docs-filtros-aplicados-badges";
 import { DOC_STATUS_OPTIONS } from "./constants";
 import type { DocsFiltrosProps } from "./docs-filtros.types";
 import type { DocStatus } from "@/services/db-api/docs";
-
-const ALL = "__all__";
 
 export function DocsFiltros({
   filtros,
@@ -35,6 +30,23 @@ export function DocsFiltros({
   const debouncedSearch = useDebouncedValue(search, 400);
   const { data: categories = [] } = useDocCategories();
   const { data: sectors = [] } = useSetores();
+  const sectorForm = useForm<{ setor: string }>({
+    defaultValues: { setor: "" },
+  });
+  const selectedSectorId = useWatch({
+    control: sectorForm.control,
+    name: "setor",
+  });
+  const syncingSectorRef = useRef(false);
+  const sectorFormContext = useMemo(
+    () => ({
+      form: sectorForm,
+      importanceOptions: [],
+      isDisabled: false,
+      lazyLoadComboboxOptions: false,
+    }),
+    [sectorForm],
+  );
 
   useEffect(() => setSearch(filtros.search ?? ""), [filtros.search]);
   useEffect(() => {
@@ -42,6 +54,35 @@ export function DocsFiltros({
       onChange("search", debouncedSearch || undefined);
     }
   }, [debouncedSearch, filtros.search, onChange]);
+
+  useEffect(() => {
+    if (sectors.length === 0) return;
+    const desiredId = filtros.sector
+      ? String(
+          sectors.find((sector) => sector.nome === filtros.sector)?.id ?? "",
+        )
+      : "";
+    if (sectorForm.getValues("setor") !== desiredId) {
+      syncingSectorRef.current = true;
+      sectorForm.setValue("setor", desiredId);
+    }
+  }, [filtros.sector, sectorForm, sectors]);
+
+  useEffect(() => {
+    if (sectors.length === 0) return;
+    if (syncingSectorRef.current) {
+      syncingSectorRef.current = false;
+      return;
+    }
+    const sectorName = selectedSectorId
+      ? sectors.find(
+          (sector) => String(sector.id) === selectedSectorId,
+        )?.nome
+      : undefined;
+    if (sectorName !== filtros.sector) {
+      onChange("sector", sectorName);
+    }
+  }, [filtros.sector, onChange, sectors, selectedSectorId]);
 
   return (
     <Card className="rounded-lg bg-card shadow-card">
@@ -63,63 +104,41 @@ export function DocsFiltros({
               aria-label="Buscar documentos"
             />
           </div>
-          <Select
-            value={filtros.categoryId ?? ALL}
+          <ComboboxField
+            label="Categoria"
+            icon={Folder}
+            options={categories.map((category) => ({
+              value: category.id,
+              label: category.name,
+            }))}
+            value={filtros.categoryId ?? ""}
             onValueChange={(value) =>
-              onChange("categoryId", value === ALL ? undefined : value)
+              onChange("categoryId", value || undefined)
             }
-          >
-            <SelectTrigger aria-label="Filtrar por categoria">
-              <SelectValue placeholder="Categoria" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Todas as categorias</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={filtros.status ?? ALL}
+            placeholder="Categoria"
+            emptyText="Nenhuma categoria encontrada."
+            hideLabel
+          />
+          <ComboboxField
+            label="Status"
+            icon={CircleDot}
+            options={DOC_STATUS_OPTIONS}
+            value={filtros.status ?? ""}
             onValueChange={(value) =>
               onChange(
                 "status",
-                value === ALL ? undefined : (value as DocStatus),
+                value ? (value as DocStatus) : undefined,
               )
             }
-          >
-            <SelectTrigger aria-label="Filtrar por status">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Todos os status</SelectItem>
-              {DOC_STATUS_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={filtros.sector ?? ALL}
-            onValueChange={(value) =>
-              onChange("sector", value === ALL ? undefined : value)
-            }
-          >
-            <SelectTrigger aria-label="Filtrar por setor">
-              <SelectValue placeholder="Setor" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Todos os setores</SelectItem>
-              {sectors.map((sector) => (
-                <SelectItem key={sector.id} value={sector.nome}>
-                  {sector.nome}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            placeholder="Status"
+            emptyText="Nenhum status encontrado."
+            hideLabel
+          />
+          <FormProvider {...sectorForm}>
+            <CasoFormProvider value={sectorFormContext}>
+              <CasoFormSetor hideLabel />
+            </CasoFormProvider>
+          </FormProvider>
         </div>
         <DocsFiltrosAplicadosBadges
           filtros={filtros}

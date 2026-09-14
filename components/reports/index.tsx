@@ -20,10 +20,8 @@ import { useReportsAcoesModais } from "./hooks/use-reports-acoes-modais";
 import { mapProjetoMemoriaToReportCard } from "./utils";
 import { cn } from "@/lib/utils";
 import { buildCasoEditHref } from "@/lib/caso-edit-layout";
-import { useRouter } from "next/navigation";
 
 export function Reports() {
-  const router = useRouter();
   const {
     filtrosAplicados,
     aplicarFiltros,
@@ -159,7 +157,13 @@ export function Reports() {
                 }}
                 onVerCaso={() => {
                   if (selectedItem) {
-                    router.push(buildCasoEditHref(selectedItem.id, "case"));
+                    window.open(
+                      buildCasoEditHref(selectedItem.id, "case", {
+                        standalone: true,
+                      }),
+                      "_blank",
+                      "noopener,noreferrer",
+                    );
                   }
                 }}
               />

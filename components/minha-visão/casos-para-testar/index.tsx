@@ -54,6 +54,7 @@ const AGRUPAR_POR_DISTRIBUICAO = new Set<VisaoGeralAgruparPor>([
   "atribuido_para",
 ]);
 
+const AGRUPAR_POR_GERAL_DEFAULT: VisaoGeralAgruparPor = "versao";
 const AGRUPAR_POR_DISTRIBUICAO_DEFAULT: VisaoGeralAgruparPor = "atribuido_para";
 
 interface FiltroForm {
@@ -226,6 +227,8 @@ export function CasosParaTestar({
   const handleViewChange = (value: CasosParaTestarView) => {
     if (value === "distribuicao") {
       onAgruparPorChange(AGRUPAR_POR_DISTRIBUICAO_DEFAULT);
+    } else {
+      onAgruparPorChange(AGRUPAR_POR_GERAL_DEFAULT);
     }
     onViewChange(value);
   };

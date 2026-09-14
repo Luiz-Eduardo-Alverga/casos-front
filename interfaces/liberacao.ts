@@ -85,6 +85,7 @@ export interface UpdateLiberacaoRequest {
   produto_id?: number;
   tipo_liberacao?: string;
   status?: string;
+  datas?: string | null;
   observacao?: string | null;
   link_video?: string | null;
   link_pdf?: string | null;

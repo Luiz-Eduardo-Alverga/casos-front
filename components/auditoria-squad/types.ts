@@ -34,12 +34,18 @@ export interface AuditoriaSummaryCardsProps {
 export interface AuditoriaColaboradoresTableProps {
   colaboradores: ProductionAnalysisColaborador[];
   projetoLabel: string;
+  onOpenHorasAnaliticas: (
+    colaborador: ProductionAnalysisColaborador,
+  ) => void;
 }
 
 export interface AuditoriaColaboradorRowProps {
   colaborador: ProductionAnalysisColaborador;
   projetoLabel: string;
   onOpenDetail: (colaborador: ProductionAnalysisColaborador) => void;
+  onOpenHorasAnaliticas: (
+    colaborador: ProductionAnalysisColaborador,
+  ) => void;
 }
 
 export interface AuditoriaDetailDialogProps {

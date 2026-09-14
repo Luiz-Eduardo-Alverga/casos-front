@@ -204,7 +204,7 @@ const MAIN_NAV: MainNavEntry[] = [
   },
   {
     type: "link",
-    order: 55,
+    order: 40,
     label: "Documentação",
     href: "/documentacao",
     icon: BookText,

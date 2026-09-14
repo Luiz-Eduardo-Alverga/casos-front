@@ -44,6 +44,24 @@ export function dateToYmdString(date: Date | undefined): string | undefined {
   return `${year}-${month}-${day}`;
 }
 
+/** Converte YYYY-MM-DD em Date local (meia-noite). */
+export function ymdStringToDate(ymd: string | undefined): Date | undefined {
+  const trimmed = ymd?.trim() ?? "";
+  if (!trimmed) return undefined;
+  const [yearStr, monthStr, dayStr] = trimmed.split("-");
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month) ||
+    !Number.isFinite(day)
+  ) {
+    return undefined;
+  }
+  return new Date(year, month - 1, day);
+}
+
 export function formatMinutesLabel(minutes: number): string {
   const unit = minutes === 1 ? "minuto" : "minutos";
   return `${minutes} ${unit}`;

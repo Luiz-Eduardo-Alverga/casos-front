@@ -18,6 +18,7 @@ import type { ProductionAnalysisColaborador } from "@/hooks/producao/use-product
 export function AuditoriaColaboradoresTable({
   colaboradores,
   projetoLabel,
+  onOpenHorasAnaliticas,
 }: AuditoriaColaboradoresTableProps) {
   const [detailColaborador, setDetailColaborador] =
     useState<ProductionAnalysisColaborador | null>(null);
@@ -56,7 +57,7 @@ export function AuditoriaColaboradoresTable({
                   <TableHead className="py-4 px-6 w-[200px] text-xs font-semibold uppercase tracking-[0.6px] text-text-secondary">
                     Status
                   </TableHead>
-                  <TableHead className="py-4 px-6 w-[80px] text-xs font-semibold uppercase tracking-[0.6px] text-text-secondary">
+                  <TableHead className="py-4 px-6 w-[100px] text-xs font-semibold uppercase tracking-[0.6px] text-text-secondary">
                     Ações
                   </TableHead>
                 </TableRow>
@@ -68,6 +69,7 @@ export function AuditoriaColaboradoresTable({
                     colaborador={colaborador}
                     projetoLabel={projetoLabel}
                     onOpenDetail={handleOpenDetail}
+                    onOpenHorasAnaliticas={onOpenHorasAnaliticas}
                   />
                 ))}
               </TableBody>

@@ -9,6 +9,10 @@ export interface HorasAnaliticasModalProps {
   projetoId: string;
   projetoLabel: string;
   usuarioId: string;
+  /** Data inicial em YYYY-MM-DD. */
+  dataProducaoInicial?: string;
+  /** Se true, aplica filtros e busca ao abrir o modal. */
+  autoAplicarFiltros?: boolean;
 }
 
 export interface HorasAnaliticasResumo {

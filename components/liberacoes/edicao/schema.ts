@@ -3,6 +3,7 @@ import { z } from "zod";
 export const liberacaoEditFormSchema = z.object({
   produtoId: z.string().min(1, "Produto é obrigatório"),
   tipoLiberacao: z.string().min(1, "Tipo de liberação é obrigatório"),
+  datas: z.date({ required_error: "Data de abertura é obrigatória" }),
   observacao: z.string().optional(),
   linkVideo: z.string().optional(),
   linkPdf: z.string().optional(),

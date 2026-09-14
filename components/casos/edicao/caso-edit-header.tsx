@@ -7,6 +7,7 @@ import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowLeft,
   Copy,
+  CopyPlus,
   Loader2,
   MoreHorizontal,
   Save,
@@ -25,6 +26,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -32,6 +34,7 @@ import toast from "react-hot-toast";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { useClonarCaso } from "@/hooks/casos/use-clonar-caso";
 import { useDeleteCaso } from "@/hooks/casos/use-delete-caso";
+import { useTransferirProjeto } from "@/hooks/casos/use-transferir-projeto";
 import type {
   AnotacaoCasoItem,
   ClienteCasoItem,
@@ -58,6 +61,8 @@ export interface CasoEditHeaderProps {
   anotacoes?: AnotacaoCasoItem[];
   /** Nome em `report.responsavel_feedback_nome` — usado para resolver suporteId. */
   responsavelFeedbackNome?: string | null;
+  /** Cronograma atual do caso (`projeto.id` em projeto-memória). */
+  cronogramaId?: number | null;
 }
 
 const TAB_TRIGGER_CLASS = cn(
@@ -95,6 +100,7 @@ export function CasoEditHeader({
   descricaoResumo,
   anotacoes,
   responsavelFeedbackNome,
+  cronogramaId,
 }: CasoEditHeaderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -110,6 +116,7 @@ export function CasoEditHeader({
   } = useCasoEdit();
   const clonarCaso = useClonarCaso();
   const deleteCaso = useDeleteCaso();
+  const transferirProjeto = useTransferirProjeto();
   const {
     abrir: abrirOcorrencia,
     isPending: abrindoOcorrencia,
@@ -123,6 +130,7 @@ export function CasoEditHeader({
     responsavelFeedbackNome,
   });
   const [excluirCasoModal, setExcluirCasoModal] = useState(false);
+  const [duplicarCasoModal, setDuplicarCasoModal] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -131,6 +139,9 @@ export function CasoEditHeader({
   const [isMobile, setIsMobile] = useState(false);
   const rbacReady = permissionsLoaded();
   const canDeleteCase = !rbacReady || hasPermission("delete-case");
+  const cronogramaDestino = Number(cronogramaId);
+  const canDuplicar =
+    canEditCase && Number.isFinite(cronogramaDestino) && cronogramaDestino > 0;
 
   const disabled = isSaving || !canEditCase;
   const showIniciar = tempoStatus === "INICIAR" && statusTempo === "PARADO";
@@ -185,6 +196,35 @@ export function CasoEditHeader({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+        return;
+      }
+      if (event.key.toLowerCase() !== "d" || event.repeat) return;
+      if (
+        !canDuplicar ||
+        transferirProjeto.isPending ||
+        duplicarCasoModal ||
+        excluirCasoModal
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      setDuplicarCasoModal(true);
+    };
+
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, [
+    canDuplicar,
+    duplicarCasoModal,
+    excluirCasoModal,
+    transferirProjeto.isPending,
+  ]);
+
   const pinnedStyle = isPinned
     ? {
         top: `${APP_HEADER_HEIGHT}px`,
@@ -216,6 +256,30 @@ export function CasoEditHeader({
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao clonar caso.");
+    }
+  };
+
+  const handleDuplicarCaso = async () => {
+    if (!canDuplicar) {
+      toast.error("Não foi possível identificar o projeto do caso.");
+      return;
+    }
+
+    try {
+      const res = await transferirProjeto.mutateAsync({
+        id: Number(memoriaQueryId),
+        cronograma_destino: cronogramaDestino,
+        duplicar: true,
+      });
+      toast.success(res.message ?? "Caso duplicado com sucesso.");
+      invalidate();
+      const novoRegistro = res.data?.[0]?.registro;
+      if (novoRegistro) {
+        const path = `/casos/${novoRegistro}`;
+        router.push(standalone ? appendStandaloneToCasoPath(path) : path);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao duplicar caso.");
     }
   };
 
@@ -314,6 +378,15 @@ export function CasoEditHeader({
                 <Copy className="h-4 w-4 mr-2" />
                 {clonarCaso.isPending ? "Clonando..." : "Clonar"}
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setDuplicarCasoModal(true)}
+                disabled={transferirProjeto.isPending || !canDuplicar}
+              >
+                <CopyPlus className="h-4 w-4 mr-2" />
+                {transferirProjeto.isPending
+                  ? "Duplicando..."
+                  : "Duplicar Caso "}
+              </DropdownMenuItem>
               {canAbrirOcorrencia ? (
                 <DropdownMenuItem
                   onClick={() => void abrirOcorrencia()}
@@ -397,6 +470,17 @@ export function CasoEditHeader({
           </Button>
         </div>
       </div>
+
+      <ConfirmacaoModal
+        open={duplicarCasoModal}
+        onOpenChange={setDuplicarCasoModal}
+        titulo="Duplicar caso"
+        descricao="Tem certeza que deseja duplicar este caso?"
+        confirmarLabel="Duplicar"
+        cancelarLabel="Cancelar"
+        onConfirm={handleDuplicarCaso}
+        isLoading={transferirProjeto.isPending}
+      />
 
       <ConfirmacaoModal
         open={excluirCasoModal}
