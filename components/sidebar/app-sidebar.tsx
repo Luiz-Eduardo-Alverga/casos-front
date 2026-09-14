@@ -22,6 +22,7 @@ import {
   PackageCheck,
   Lightbulb,
   BookText,
+  BarChart3,
 } from "lucide-react";
 import {
   Sidebar,
@@ -67,7 +68,7 @@ interface SidebarSubitem {
   exact?: boolean;
 }
 
-const STANDALONE_NAV_ORDERS = new Set([20, 21]);
+const STANDALONE_NAV_ORDERS = new Set([20, 21, 22]);
 const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 33, 34, 35, 36, 37, 40]);
 const RECURSOS_NAV_ORDERS = new Set([50, 55, 60]);
 
@@ -123,6 +124,14 @@ const MAIN_NAV: MainNavEntry[] = [
     label: "Painel do desenvolvedor",
     href: "/painel",
     icon: CodeXml,
+    exact: true,
+  },
+  {
+    type: "link",
+    order: 22,
+    label: "Indicadores",
+    href: "/painel/indicadores",
+    icon: BarChart3,
     exact: true,
   },
   {
