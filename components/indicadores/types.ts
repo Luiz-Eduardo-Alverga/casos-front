@@ -67,3 +67,30 @@ export interface IndicadoresDetalheDialogProps {
   isRecalculating: boolean;
   onRecalcular: (item: ColaboradorIndicador) => void;
 }
+
+export type RecalcularTodosStatus = "fila" | "agora" | "concluido" | "erro";
+
+export interface RecalcularTodosLinha {
+  id: number;
+  nomes: string;
+  area: string;
+  unidade: string;
+  status: RecalcularTodosStatus;
+  valorIndicador?: number;
+  erroMensagem?: string;
+}
+
+export interface RecalcularIndicadoresTodosContexto {
+  suporte_id: number;
+  data_inicial: string;
+  data_final: string;
+}
+
+export interface IndicadoresRecalcularTodosDialogProps {
+  open: boolean;
+  running: boolean;
+  linhas: RecalcularTodosLinha[];
+  premiacao?: IndicadoresPremiacao;
+  onAtualizarTela: () => void;
+  onClose: () => void;
+}

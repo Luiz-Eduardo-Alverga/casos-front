@@ -2,10 +2,8 @@
 
 import { FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  StatusBadge,
-  type StatusBadgeConfigItem,
-} from "@/components/badges/status-badge";
+import { StatusBadge } from "@/components/badges/status-badge";
+import { CLIENTE_SITUACAO_BADGE_CONFIG } from "@/components/clientes/cliente-situacao-badge-config";
 import { CasoEditCardHeader } from "@/components/casos/edicao/caso-edit-card-header";
 import { ClienteDetailField } from "../cliente-detail-field";
 import {
@@ -14,33 +12,6 @@ import {
   formatDataCadastro,
 } from "@/components/clientes/utils";
 import type { ClienteDetalhe } from "@/services/clientes/get-cliente-by-id";
-
-const CLIENTE_SITUACAO_BADGE_CONFIG: StatusBadgeConfigItem[] = [
-  {
-    values: ["ATIVO"],
-    style: {
-      container: "bg-green-50 border-green-200 dark:bg-green-950/40 dark:border-green-800",
-      dot: "bg-green-500 dark:bg-green-400",
-      text: "text-green-700 dark:text-green-400",
-    },
-  },
-  {
-    values: ["INATIVO"],
-    style: {
-      container: "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700",
-      dot: "bg-gray-500 dark:bg-gray-400",
-      text: "text-gray-700 dark:text-gray-300",
-    },
-  },
-  {
-    values: [],
-    style: {
-      container: "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700",
-      dot: "bg-gray-500 dark:bg-gray-400",
-      text: "text-gray-700 dark:text-gray-300",
-    },
-  },
-];
 
 interface ClienteDadosGeraisCardProps {
   cliente: ClienteDetalhe;

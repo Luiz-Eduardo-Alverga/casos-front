@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import { useColaboradoresIndicadores } from "@/hooks/rh/use-colaboradores-indicadores";
+import { useRecalcularIndicadoresTodos } from "@/hooks/rh/use-recalcular-indicadores-todos";
 import { useUpdateIndicadorBaseline } from "@/hooks/rh/use-update-indicador-baseline";
 import { getUser } from "@/lib/auth";
 import { hasPermission, permissionsLoaded } from "@/lib/rbac-client";
@@ -16,6 +17,7 @@ import { IndicadoresPremiacao } from "./indicadores-premiacao";
 import { IndicadoresColuna } from "./indicadores-coluna";
 import { IndicadoresMobileTabs } from "./indicadores-mobile-tabs";
 import { IndicadoresDetalheDialog } from "./indicadores-detalhe-dialog";
+import { IndicadoresRecalcularTodosDialog } from "./indicadores-recalcular-todos-dialog";
 import { IndicadoresSkeleton } from "./indicadores-skeleton";
 import type { IndicadorAtalho, IndicadoresFiltrosForm } from "./types";
 import {
@@ -96,6 +98,7 @@ export function Indicadores() {
     data_final: dataFinalYmd,
   });
   const recalc = useUpdateIndicadorBaseline();
+  const recalcTodos = useRecalcularIndicadoresTodos();
 
   const items = query.data?.data ?? [];
   const { alcancou, resta } = splitIndicadores(items);
@@ -160,6 +163,7 @@ export function Indicadores() {
 
   const handleRecalcular = (item: ColaboradorIndicador) => {
     if (!suporteId || !dataInicialYmd || !dataFinalYmd) return;
+    if (recalcTodos.running) return;
     recalc.mutate(
       {
         id: item.id,
@@ -189,19 +193,44 @@ export function Indicadores() {
       title="Indicadores"
       subtitle="Premiação e metas do período"
       actions={
-        <Button
-          type="button"
-          className="w-full sm:w-auto"
-          disabled={isLoading || query.isFetching}
-          onClick={() => void query.refetch()}
-        >
-          {query.isFetching ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="h-4 w-4" />
-          )}
-          Atualizar
-        </Button>
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            disabled={
+              isLoading || items.length === 0 || recalcTodos.running
+            }
+            onClick={() => {
+              if (!suporteId || !dataInicialYmd || !dataFinalYmd) return;
+              void recalcTodos.start(items, {
+                suporte_id: Number(suporteId),
+                data_inicial: dataInicialYmd,
+                data_final: dataFinalYmd,
+              });
+            }}
+          >
+            {recalcTodos.running ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            Recalcular todos
+          </Button>
+          <Button
+            type="button"
+            className="w-full sm:w-auto"
+            disabled={isLoading || query.isFetching || recalcTodos.running}
+            onClick={() => void query.refetch()}
+          >
+            {query.isFetching ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            Atualizar
+          </Button>
+        </>
       }
     >
       <div className="flex w-full flex-col gap-2">
@@ -284,6 +313,18 @@ export function Indicadores() {
           Boolean(selectedItem) && recalculatingId === selectedItem?.id
         }
         onRecalcular={handleRecalcular}
+      />
+
+      <IndicadoresRecalcularTodosDialog
+        open={recalcTodos.open}
+        running={recalcTodos.running}
+        linhas={recalcTodos.linhas}
+        premiacao={premiacao}
+        onAtualizarTela={() => {
+          recalcTodos.close();
+          toast.success("Números atualizados");
+        }}
+        onClose={recalcTodos.close}
       />
     </ListagemPageLayout>
   );

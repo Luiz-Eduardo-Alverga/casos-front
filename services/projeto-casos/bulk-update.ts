@@ -7,6 +7,7 @@ export interface BulkUpdateCasosRequest {
   Prioridade?: number;
   cronograma_id?: number;
   VersaoProduto?: string;
+  duplicar?: boolean;
 }
 
 export interface BulkUpdateCasosResponse {

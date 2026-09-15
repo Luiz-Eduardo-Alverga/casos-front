@@ -12,8 +12,7 @@ import { CasoFormImportancia } from "@/components/fields/caso-form-importancia";
 import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { importanceOptions } from "@/mocks/teste";
 import type { CasosTransferenciaFormValues } from "./types";
@@ -138,33 +137,34 @@ export function CasosTransferenciaModal({
                   autoSelectProjeto="never"
                 />
 
-                {/* <div className="rounded-lg border border-border-divider bg-muted/40 p-3">
+                <label
+                  htmlFor="duplicar-casos"
+                  className={cn(
+                    "block cursor-pointer rounded-lg border border-border-divider bg-muted/40 p-3 transition-colors hover:bg-muted/60",
+                    isSubmitting && "pointer-events-none cursor-not-allowed opacity-70",
+                  )}
+                >
                   <div className="flex items-center justify-between gap-4">
-                    <div className="space-y-0.5">
-                      <Label
-                        htmlFor="duplicar-casos"
-                        className="text-xs font-semibold text-text-primary"
-                      >
-                        Duplicar casos ao inves de transferir
-                      </Label>
-                      <p className="text-[11px] text-muted-foreground">
+                    <div className="min-w-0 space-y-0.5">
+                      <span className="text-xs font-semibold text-text-primary">
+                        Duplicar casos em vez de transferir
+                      </span>
+                      <p className="text-xs text-text-secondary">
                         Os casos originais serão mantidos e cópias serão criadas
                         no destino.
                       </p>
                     </div>
-                    <Checkbox
+                    <Switch
                       id="duplicar-casos"
                       checked={Boolean(form.watch("duplicarCasos"))}
                       onCheckedChange={(checked) =>
-                        form.setValue("duplicarCasos", Boolean(checked))
+                        form.setValue("duplicarCasos", checked)
                       }
-                      className={cn(
-                        "h-5 w-9 rounded-full data-[state=checked]:bg-foreground",
-                        "data-[state=checked]:text-background",
-                      )}
+                      disabled={isSubmitting}
+                      className="shrink-0"
                     />
                   </div>
-                </div> */}
+                </label>
               </div>
 
               <div className="border-t border-border-divider px-6 py-4">

@@ -32,6 +32,7 @@ export function buildBulkTransferPayload(
 
   const payload: BulkUpdateCasosRequest = {
     ids,
+    duplicar: formValues.duplicarCasos,
     ...(AtribuidoPara != null ? { AtribuidoPara } : {}),
     ...(atribuido_qa != null ? { atribuido_qa } : {}),
     ...(Prioridade != null ? { Prioridade } : {}),

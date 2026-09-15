@@ -2,10 +2,8 @@
 
 import { Building2, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  StatusBadge,
-  type StatusBadgeConfigItem,
-} from "@/components/badges/status-badge";
+import { StatusBadge } from "@/components/badges/status-badge";
+import { CLIENTE_SITUACAO_BADGE_CONFIG } from "@/components/clientes/cliente-situacao-badge-config";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -27,36 +25,6 @@ interface ClientesTableProps {
   rows: ClienteListItem[];
   isFetchingNextPage?: boolean;
 }
-
-const CLIENTE_SITUACAO_BADGE_CONFIG: StatusBadgeConfigItem[] = [
-  {
-    values: ["INATIVO"],
-    style: {
-      container:
-        "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700",
-      dot: "bg-gray-500 dark:bg-gray-400",
-      text: "text-gray-700 dark:text-gray-300",
-    },
-  },
-  {
-    values: ["BLOQUEADO"],
-    style: {
-      container:
-        "bg-red-50 border-red-200 dark:bg-red-950/40 dark:border-red-800",
-      dot: "bg-red-500 dark:bg-red-400",
-      text: "text-red-700 dark:text-red-400",
-    },
-  },
-  {
-    values: [],
-    style: {
-      container:
-        "bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700",
-      dot: "bg-gray-500 dark:bg-gray-400",
-      text: "text-gray-700 dark:text-gray-300",
-    },
-  },
-];
 
 const TABLE_COLUMN_COUNT = 7;
 
