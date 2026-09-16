@@ -5,7 +5,7 @@ import { FileText, Film, ImageIcon, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DocAnexosDropzoneProps {
-  inputRef: RefObject<HTMLInputElement | null>;
+  inputRef: RefObject<HTMLInputElement>;
   dragOver: boolean;
   setDragOver: (value: boolean) => void;
   canInteract: boolean;
