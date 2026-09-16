@@ -17,6 +17,10 @@ import { PlusCircle } from "lucide-react";
 import { TIPO_RELACAO_VALUES } from "./utils";
 import type { RelacaoFormValues } from "./types";
 import { useProjetoMemoriaById } from "@/hooks/casos/use-projeto-memoria-by-id";
+import {
+  CASE_ID_MAX_LENGTH,
+  formatCaseSearchValue,
+} from "@/components/caso-search-modal/utils";
 
 export interface RelacoesFormProps {
   methods: UseFormReturn<RelacaoFormValues>;
@@ -105,9 +109,13 @@ export function RelacoesForm({
         </Label>
         <Input
           id="caso-relacionado"
-          maxLength={5}
+          maxLength={CASE_ID_MAX_LENGTH}
           inputMode="numeric"
-          {...methods.register("caso_relacionado")}
+          {...methods.register("caso_relacionado", {
+            onChange: (e) => {
+              e.target.value = formatCaseSearchValue(e.target.value);
+            },
+          })}
           placeholder="Caso numero..."
           className="h-9 rounded-lg border-border-input px-[17px] py-3"
           disabled={isDisabled}

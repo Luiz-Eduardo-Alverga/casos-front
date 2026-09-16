@@ -26,6 +26,10 @@ import {
 import { Pencil, Search, Trash2 } from "lucide-react";
 import { TIPO_RELACAO_VALUES, isTipoRelacaoCaso } from "./utils";
 import { useRouter } from "next/navigation";
+import {
+  CASE_ID_MAX_LENGTH,
+  formatCaseSearchValue,
+} from "@/components/caso-search-modal/utils";
 
 export interface RelacoesTableProps {
   relacoes: CasoRelacoes[];
@@ -151,10 +155,14 @@ export function RelacoesTable({
               <TableCell className="py-3 px-2.5">
                 {isEditingRow && !readOnly ? (
                   <Input
-                    type="number"
-                    min={1}
+                    inputMode="numeric"
+                    maxLength={CASE_ID_MAX_LENGTH}
                     value={editCasoRelacionado}
-                    onChange={(e) => onChangeCasoRelacionado(e.target.value)}
+                    onChange={(e) =>
+                      onChangeCasoRelacionado(
+                        formatCaseSearchValue(e.target.value),
+                      )
+                    }
                     placeholder="Caso numero..."
                     className="h-9 rounded-lg border-border-input px-[17px]"
                     disabled={isSaving}
