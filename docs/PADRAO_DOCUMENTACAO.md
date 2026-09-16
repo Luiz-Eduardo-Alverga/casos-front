@@ -32,7 +32,12 @@ components/docs/
 │   └── docs-lista-skeleton.tsx
 ├── detalhe/
 │   ├── index.tsx
-│   └── doc-detalhe-skeleton.tsx
+│   ├── doc-detalhe-skeleton.tsx
+│   ├── doc-anexos.tsx
+│   ├── doc-anexos-upload.tsx
+│   ├── doc-anexos-dropzone.tsx
+│   ├── doc-anexos-skeleton.tsx
+│   └── doc-anexos-utils.ts
 ├── formulario/
 │   ├── index.tsx
 │   ├── schema.ts
@@ -52,20 +57,25 @@ hooks/docs/
 ├── use-docs-filtros.tsx
 ├── use-create-doc.tsx
 ├── use-update-doc.tsx
-└── use-delete-doc.tsx
+├── use-delete-doc.tsx
+└── use-doc-attachments.tsx
 ```
 
 Dados:
 
 ```text
 db/schema.ts
+db/schema-doc-attachments.ts
 lib/validators/db/doc.ts
+lib/validators/db/doc-attachments.ts
 lib/db/docs-utils.ts
 lib/db/docs.ts
+lib/db/doc-attachments.ts
 app/api/db/docs/**
 app/api/db/doc-categories/route.ts
 app/api/db/doc-tags/route.ts
 services/db-api/docs.ts
+services/db-api/doc-attachments.ts
 ```
 
 ## 3. Responsabilidades
@@ -73,9 +83,11 @@ services/db-api/docs.ts
 - `components/docs/index.tsx`: orquestra filtros, permissões de ação e listagem.
 - `docs-lista.tsx`: infinite query, contador, skeleton e empty state.
 - `detalhe/index.tsx`: leitura, abas, ficha, tags, vínculos e ações.
+- `detalhe/doc-anexos.tsx`: listagem e upload de anexos no mesmo bucket `casos-anexos`.
 - `formulario/index.tsx`: RHF, estado de create/edit, submit e proteção contra saída.
 - `shared/markdown-view.tsx`: única implementação de renderização Markdown; sempre usa `remark-gfm` e `rehype-sanitize`.
 - `services/db-api/docs.ts`: único acesso do browser a `/api/db/docs`.
+- `services/db-api/doc-attachments.ts`: único acesso do browser a `/api/db/docs/[id]/anexos`.
 - `hooks/docs/`: cache TanStack Query; hooks nunca ficam em `components/`.
 - `lib/db/docs.ts`: somente Drizzle e transações; rotas não contêm queries.
 
@@ -85,7 +97,8 @@ services/db-api/docs.ts
 - Tipos do contrato HTTP ficam em `services/db-api/docs.ts`; tipos de formulário ficam em `formulario/schema.ts`.
 - Tags são persistidas normalizadas em minúsculo, sem acento e com hífen.
 - Filtros são refletidos na query string e fazem parte da chave `["docs", filtros]`.
-- Histórico só busca dados quando a aba está ativa.
+- Histórico e anexos só buscam dados quando a aba está ativa.
+- Anexos de documento usam o bucket `casos-anexos` com path `docs/{docId}/…`; metadados ficam em `doc_attachments`.
 - Markdown escrito por usuário nunca é renderizado sem sanitização.
 - Vínculos legados guardam `entityId` como texto e `entityLabel` como cache.
 
@@ -93,10 +106,10 @@ services/db-api/docs.ts
 
 | Código | Uso |
 | --- | --- |
-| `list-doc` | Listagem, detalhe, categorias, tags e histórico |
+| `list-doc` | Listagem, detalhe, categorias, tags, histórico e anexos |
 | `create-doc` | Novo documento e duplicação |
-| `edit-doc` | Edição e mudança de status |
-| `delete-doc` | Exclusão |
+| `edit-doc` | Edição, mudança de status e gestão de anexos |
+| `delete-doc` | Exclusão (também remove anexos do Storage) |
 | `manage-doc-category` | Cadastro de categorias |
 
 As páginas usam `RequirePermission`; as ações usam `hasPermission`; todas as rotas usam `withPermission`.

@@ -1,11 +1,19 @@
-import type { CaseAttachmentListItem } from "@/services/db-api/case-attachments";
+export type AttachmentDisplayItem = {
+  id: string;
+  filenameOriginal: string;
+  mimeType: string;
+  sizeBytes: number;
+  kind: string;
+  downloadUrl: string;
+};
 
 export interface AnexosListProps {
-  items: CaseAttachmentListItem[];
+  items: AttachmentDisplayItem[];
   isLoading?: boolean;
   canDelete?: boolean;
   onDelete: (id: string) => Promise<void>;
   isDeleting?: boolean;
+  emptyMessage?: string;
 }
 
 export type ViewMode = "grid" | "list";

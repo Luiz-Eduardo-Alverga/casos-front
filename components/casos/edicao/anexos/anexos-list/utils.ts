@@ -6,7 +6,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import type { CaseAttachmentListItem } from "@/services/db-api/case-attachments";
+import type { AttachmentDisplayItem } from "./types";
 
 export function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;
@@ -44,11 +44,11 @@ export async function downloadAttachment(
   }
 }
 
-export function isImageRow(row: CaseAttachmentListItem): boolean {
+export function isImageRow(row: AttachmentDisplayItem): boolean {
   return row.kind === "image" || row.mimeType.startsWith("image/");
 }
 
-export function pickRowIcon(row: CaseAttachmentListItem): LucideIcon {
+export function pickRowIcon(row: AttachmentDisplayItem): LucideIcon {
   if (isImageRow(row)) return ImageIcon;
   if (row.kind === "pdf" || row.mimeType === "application/pdf") return FileText;
   if (row.kind === "video" || row.mimeType.startsWith("video/")) return Film;

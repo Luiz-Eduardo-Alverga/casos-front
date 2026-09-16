@@ -81,12 +81,12 @@ A Soft Flow deve expor **`GET /auth/me`** com o mesmo formato de objeto `user` d
 
 Variável de ambiente necessária no servidor: **`DATABASE_URL`** (connection string do Postgres do Supabase).
 
-Para **anexos de caso** (upload direto do navegador para o Supabase Storage + metadados em `case_attachments`), configure também:
+Para **anexos de caso e de documentação** (upload direto do navegador para o Supabase Storage + metadados em `case_attachments` / `doc_attachments`), configure também:
 
 - **`NEXT_PUBLIC_SUPABASE_URL`** — URL do projeto Supabase.
-- **`SUPABASE_SERVICE_ROLE_KEY`** — chave **service_role** (apenas servidor; nunca no client). Usada nas rotas `/api/db/casos/.../anexos` para assinar URLs e validar objetos.
+- **`SUPABASE_SERVICE_ROLE_KEY`** — chave **service_role** (apenas servidor; nunca no client). Usada nas rotas `/api/db/casos/.../anexos` e `/api/db/docs/.../anexos` para assinar URLs e validar objetos.
 
-No dashboard do Supabase: criar bucket **privado** chamado **`casos-anexos`**. Se o `PUT` a partir de `localhost` falhar por CORS, em **Storage → Configuration** inclua a origem do app (ex.: `http://localhost:3000`).
+No dashboard do Supabase: criar bucket **privado** chamado **`casos-anexos`**. Anexos de documento usam o mesmo bucket, com prefixo `docs/{docId}/`. Se o `PUT` a partir de `localhost` falhar por CORS, em **Storage → Configuration** inclua a origem do app (ex.: `http://localhost:3000`).
 
 ## Documentação OpenAPI / Swagger
 
@@ -173,8 +173,12 @@ Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` 
 | POST | `/api/db/docs` | Cria documento e registra atividade |
 | GET | `/api/db/docs/[id]` | Detalha documento, categoria, responsável, tags e vínculos |
 | PATCH | `/api/db/docs/[id]` | Atualiza documento, sincroniza tags/vínculos e registra atividade |
-| DELETE | `/api/db/docs/[id]` | Exclui documento |
+| DELETE | `/api/db/docs/[id]` | Exclui documento e remove anexos do Storage |
 | GET | `/api/db/docs/[id]/activity` | Lista o histórico do documento |
+| POST | `/api/db/docs/[id]/anexos/presign-upload` | Gera URL assinada de upload (`edit-doc`; bucket `casos-anexos`) |
+| GET | `/api/db/docs/[id]/anexos` | Lista anexos do documento com URL de download assinada (`list-doc`) |
+| POST | `/api/db/docs/[id]/anexos` | Finaliza anexo após `PUT` no Storage (`edit-doc`) |
+| DELETE | `/api/db/docs/[id]/anexos/[anexoId]` | Remove anexo do Storage e do Postgres (`edit-doc`) |
 | GET | `/api/db/doc-categories` | Lista categorias de documentação |
 | POST | `/api/db/doc-categories` | Cria categoria de documentação |
 | GET | `/api/db/doc-tags?search=` | Busca tags para autocomplete |

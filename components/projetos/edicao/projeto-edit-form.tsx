@@ -202,6 +202,7 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
                   <div className="flex min-h-0 flex-1 flex-col min-w-0">
                     <AbaEscopoTab
                       projetoId={cadastro.registro}
+                      setorProjeto={cadastro.setor}
                       enabled={activeTab === "escopo"}
                     />
                   </div>

@@ -292,6 +292,74 @@ components:
         data:
           $ref: "#/components/schemas/CaseAttachmentWithDownload"
 
+    DocAttachmentRow:
+      type: object
+      required:
+        - id
+        - docId
+        - bucket
+        - path
+        - filenameOriginal
+        - mimeType
+        - sizeBytes
+        - kind
+      properties:
+        id:
+          type: string
+          format: uuid
+        docId:
+          type: string
+          format: uuid
+        bucket:
+          type: string
+        path:
+          type: string
+          description: Caminho no bucket `casos-anexos` (ex. `docs/{docId}/uuid.png`).
+        filenameOriginal:
+          type: string
+        mimeType:
+          type: string
+        sizeBytes:
+          type: integer
+        kind:
+          type: string
+          enum: [image, pdf, video, other]
+        createdBy:
+          type: string
+          format: uuid
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    DocAttachmentWithDownload:
+      allOf:
+        - $ref: "#/components/schemas/DocAttachmentRow"
+        - type: object
+          required: [downloadUrl]
+          properties:
+            downloadUrl:
+              type: string
+              format: uri
+              description: URL assinada temporária para download/visualização.
+
+    DocAttachmentListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocAttachmentWithDownload"
+
+    DocAttachmentOneResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/DocAttachmentWithDownload"
+
     PingData:
       type: object
       required: [ok]
@@ -2930,6 +2998,100 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/db/docs/{id}/anexos/presign-upload:
+    post:
+      tags: [Docs]
+      summary: URL assinada para upload de anexo do documento
+      description: |
+        Permissão `edit-doc`. Usa o mesmo bucket `casos-anexos` dos anexos de caso, com path `docs/{id}/…`.
+        O cliente deve fazer `PUT` em `data.uploadUrl` e, em seguida, chamar `POST /api/db/docs/{id}/anexos`.
+      operationId: presignDocAttachmentUpload
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseAttachmentPresignRequest"
+      responses:
+        "200":
+          description: URL de upload gerada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseAttachmentPresignResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/db/docs/{id}/anexos:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Docs]
+      summary: Listar anexos do documento
+      description: Permissão `list-doc`. Cada item inclui `downloadUrl` assinada (curta duração).
+      operationId: listDocAttachments
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocAttachmentListResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    post:
+      tags: [Docs]
+      summary: Finalizar anexo de documento após upload no Storage
+      description: |
+        Permissão `edit-doc`. Confere o objeto no bucket `casos-anexos` e insere linha em `doc_attachments`.
+      operationId: finalizeDocAttachment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaseAttachmentFinalizeRequest"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocAttachmentOneResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "502": { $ref: "#/components/responses/BadGateway" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/db/docs/{id}/anexos/{anexoId}:
+    delete:
+      tags: [Docs]
+      summary: Remover anexo do documento
+      description: Permissão `edit-doc`. Remove o objeto do Storage (best-effort) e a linha em `doc_attachments`.
+      operationId: deleteDocAttachment
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: anexoId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Removido; sem corpo. }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
         "500": { $ref: "#/components/responses/InternalError" }
 
   /api/db/doc-categories:

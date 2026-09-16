@@ -39,6 +39,7 @@ import { isHttpError } from "@/lib/http-error";
 import { DocCategoriaBadge } from "../lista/doc-categoria-badge";
 import { DocStatusBadge } from "../lista/doc-status-badge";
 import { MarkdownView } from "../shared/markdown-view";
+import { DocAnexos } from "./doc-anexos";
 import { DocDetalheSkeleton } from "./doc-detalhe-skeleton";
 import type { Doc, DocLink } from "@/services/db-api/docs";
 
@@ -285,16 +286,11 @@ export function DocDetalhe({ docId }: { docId: string }) {
                 <MarkdownView content={doc.contentMd} />
               </TabsContent>
               <TabsContent value="anexos" className="mt-0">
-                <div className="flex min-h-[280px] flex-col items-center justify-center gap-2 text-center">
-                  <FileText className="h-8 w-8 text-muted-foreground" />
-                  <p className="text-sm font-semibold">
-                    Anexos de documentação
-                  </p>
-                  <p className="max-w-md text-sm text-muted-foreground">
-                    TODO: adaptar o endpoint de anexos de casos para documentos
-                    antes de habilitar upload.
-                  </p>
-                </div>
+                <DocAnexos
+                  docId={doc.id}
+                  canEdit={canEdit}
+                  enabled={activeTab === "anexos"}
+                />
               </TabsContent>
               <TabsContent value="historico" className="mt-0">
                 {activity.isLoading ? (
@@ -378,7 +374,7 @@ export function DocDetalhe({ docId }: { docId: string }) {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         titulo="Excluir documento?"
-        descricao="Esta ação é permanente e também remove tags, vínculos e histórico associados."
+        descricao="Esta ação é permanente e também remove tags, vínculos, anexos e histórico associados."
         confirmarLabel="Excluir"
         variant="danger"
         isLoading={deleteDoc.isPending}

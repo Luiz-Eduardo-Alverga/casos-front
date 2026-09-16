@@ -5,7 +5,6 @@ import { LayoutGrid, List } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
-import type { CaseAttachmentListItem } from "@/services/db-api/case-attachments";
 import { cn } from "@/lib/utils";
 
 import { AttachmentGridCard } from "./attachment-grid-card";
@@ -22,13 +21,14 @@ export function AnexosList({
   canDelete = false,
   onDelete,
   isDeleting = false,
+  emptyMessage = "Nenhum anexo neste caso ainda.",
 }: AnexosListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [preview, setPreview] = useState<AttachmentPreviewState | null>(null);
 
   const handleDownload = useCallback(
-    (e: React.MouseEvent | undefined, row: CaseAttachmentListItem) => {
+    (e: React.MouseEvent | undefined, row: { downloadUrl: string; filenameOriginal: string }) => {
       e?.preventDefault();
       e?.stopPropagation();
       void downloadAttachment(row.downloadUrl, row.filenameOriginal);
@@ -44,9 +44,7 @@ export function AnexosList({
 
   if (items.length === 0) {
     return (
-      <p className="text-sm text-text-secondary py-4">
-        Nenhum anexo neste caso ainda.
-      </p>
+      <p className="text-sm text-text-secondary py-4">{emptyMessage}</p>
     );
   }
 

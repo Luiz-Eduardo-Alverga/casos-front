@@ -4,6 +4,7 @@ import {
   ALLOWED_EXTENSIONS,
   IMAGE_MIMES,
   MAX_ATTACHMENTS_PER_CASE,
+  MAX_ATTACHMENTS_PER_DOC,
   MAX_BYTES_IMAGE,
   MAX_BYTES_PDF,
   MAX_BYTES_VIDEO,
@@ -128,4 +129,4 @@ export function classifyAttachmentKind(
   return "other";
 }
 
-export { MAX_ATTACHMENTS_PER_CASE };
+export { MAX_ATTACHMENTS_PER_CASE, MAX_ATTACHMENTS_PER_DOC };

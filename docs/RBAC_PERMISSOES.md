@@ -196,6 +196,8 @@ Exemplo já implementado:
 - `list-case-attachment`: listar e obter URL de download de anexos de caso
 - `create-case-attachment`: gerar URL de upload e registrar anexo após envio ao Storage
 - `delete-case-attachment`: remover anexo (Storage + metadados)
+- `list-doc`: listar documentos e anexos de documentação
+- `edit-doc`: editar documento e anexar/remover arquivos
 
 Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql), [`db/scripts/seed-list-project-rbac.sql`](../db/scripts/seed-list-project-rbac.sql), [`db/scripts/seed-create-project-rbac.sql`](../db/scripts/seed-create-project-rbac.sql), [`db/scripts/seed-edit-project-rbac.sql`](../db/scripts/seed-edit-project-rbac.sql).
 

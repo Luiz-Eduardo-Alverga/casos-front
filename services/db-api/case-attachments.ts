@@ -42,7 +42,7 @@ async function parseJsonOk<T>(res: Response): Promise<T> {
   return json.data as T;
 }
 
-function inferMimeFromFile(file: File): string | null {
+export function inferMimeFromFile(file: File): string | null {
   if (file.type && file.type.trim()) return file.type.trim();
   const name = file.name.toLowerCase();
   if (name.endsWith(".png")) return "image/png";

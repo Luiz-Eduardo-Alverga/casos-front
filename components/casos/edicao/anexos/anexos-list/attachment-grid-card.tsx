@@ -3,19 +3,17 @@
 import { Download, Eye, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import type { CaseAttachmentListItem } from "@/services/db-api/case-attachments";
 import { cn } from "@/lib/utils";
-
-import type { AttachmentPreviewState } from "./types";
+import type { AttachmentDisplayItem, AttachmentPreviewState } from "./types";
 import { formatBytes, isImageRow, pickRowIcon } from "./utils";
 
 export interface AttachmentGridCardProps {
-  row: CaseAttachmentListItem;
+  row: AttachmentDisplayItem;
   canDelete: boolean;
   onPreview: (state: AttachmentPreviewState) => void;
   onDownload: (
     e: React.MouseEvent | undefined,
-    row: CaseAttachmentListItem,
+    row: AttachmentDisplayItem,
   ) => void;
   onDeleteClick: () => void;
 }

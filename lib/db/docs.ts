@@ -216,6 +216,15 @@ export type DocDetailRow = typeof docs.$inferSelect & {
   links: (typeof docLinks.$inferSelect)[];
 };
 
+export async function docExists(id: string): Promise<boolean> {
+  const rows = await db
+    .select({ id: docs.id })
+    .from(docs)
+    .where(eq(docs.id, id))
+    .limit(1);
+  return rows.length > 0;
+}
+
 export async function getDocById(
   id: string,
 ): Promise<DocDetailRow | undefined> {

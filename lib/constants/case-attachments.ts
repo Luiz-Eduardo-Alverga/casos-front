@@ -2,6 +2,7 @@
 export const CASE_ATTACHMENTS_BUCKET = "casos-anexos";
 
 export const MAX_ATTACHMENTS_PER_CASE = 10;
+export const MAX_ATTACHMENTS_PER_DOC = 10;
 
 /** TTL (segundos) das URLs assinadas de upload e download. */
 export const SIGNED_UPLOAD_TTL_SEC = 300;
