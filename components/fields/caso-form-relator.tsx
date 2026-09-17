@@ -56,21 +56,25 @@ export function CasoFormRelator({
     // Adiciona usuários da API (apenas se não foram adicionados ainda)
     if (usuarios && Array.isArray(usuarios)) {
       usuarios.forEach((u) => {
-        if (!valuesAdded.has(u.id)) {
+        const usuarioId = String(u.id);
+        if (!valuesAdded.has(usuarioId)) {
           options.push({
-            value: u.id,
+            value: usuarioId,
             label: u.nome_suporte,
           });
-          valuesAdded.add(u.id);
+          valuesAdded.add(usuarioId);
         }
       });
     }
-    
+
     if (relator && relatorSelecionado) {
-      const relatorValue = relatorSelecionado.id;
-      if (!valuesAdded.has(relatorValue)) {
-        options.unshift({ value: relatorValue, label: relatorSelecionado.nome_suporte });
-        valuesAdded.add(relatorValue);
+      const relatorSelecionadoId = String(relatorSelecionado.id);
+      if (!valuesAdded.has(relatorSelecionadoId)) {
+        options.unshift({
+          value: relatorSelecionadoId,
+          label: relatorSelecionado.nome_suporte,
+        });
+        valuesAdded.add(relatorSelecionadoId);
       }
     }
 
@@ -80,16 +84,15 @@ export function CasoFormRelator({
       (name === "reportResponsavelSuporteId"
         ? editCaseItem?.report?.responsavel_feedback_nome?.trim()
         : undefined) ||
-      editCaseItem?.caso?.usuarios?.relator?.nome?.trim();
+      (name === "relator"
+        ? editCaseItem?.caso?.usuarios?.relator?.nome?.trim()
+        : undefined);
 
-    if (lazyLoadComboboxOptions && relatorValue && nomeEdicao) {
-      const existingIdx = options.findIndex((o) => o.value === relatorValue);
-      if (existingIdx >= 0) {
-        options[existingIdx] = { value: relatorValue, label: nomeEdicao };
-      } else if (!valuesAdded.has(relatorValue)) {
-        options.unshift({ value: relatorValue, label: nomeEdicao });
-        valuesAdded.add(relatorValue);
-      }
+    // Só injeta o rótulo salvo quando o valor ainda não está no catálogo.
+    // Sobrescrever a opção atual fazia a combobox continuar mostrando o nome antigo.
+    if (relatorValue && nomeEdicao && !valuesAdded.has(relatorValue)) {
+      options.unshift({ value: relatorValue, label: nomeEdicao });
+      valuesAdded.add(relatorValue);
     }
 
     return options;
@@ -98,7 +101,6 @@ export function CasoFormRelator({
     relator,
     relatorSelecionado,
     user,
-    lazyLoadComboboxOptions,
     editCaseItem,
     name,
     selectedLabelOverride,
@@ -107,7 +109,9 @@ export function CasoFormRelator({
   // Quando relator é selecionado, buscar e salvar os dados completos
   useEffect(() => {
     if (relator && usuarios && Array.isArray(usuarios)) {
-      const relatorEncontrado = usuarios.find(u => u.id === relator);
+      const relatorEncontrado = usuarios.find(
+        (u) => String(u.id) === String(relator),
+      );
       if (relatorEncontrado) {
         setRelatorSelecionado(relatorEncontrado);
       }

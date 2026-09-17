@@ -10,6 +10,7 @@ export function getDefaultLandingPath(permissions: string[]): string {
   if (permissions.includes("list-minha-visao")) return "/painel/minha-visao";
   if (hasAny(permissions, ["list-case", "list-report"])) return "/casos";
   if (permissions.includes("list-project")) return "/projetos";
+  if (permissions.includes("list-product")) return "/produtos";
   if (hasAny(permissions, ["audit-all-users", "audit-user"])) {
     return "/auditoria/horas-colaboradores";
   }
@@ -35,6 +36,12 @@ export function canAccessPath(path: string, permissions: string[]): boolean {
   }
   if (path === "/projetos" || path.startsWith("/projetos/")) {
     return permissions.includes("list-project");
+  }
+  if (path === "/produtos/novo" || path.startsWith("/produtos/novo/")) {
+    return permissions.includes("create-product");
+  }
+  if (path === "/produtos" || path.startsWith("/produtos/")) {
+    return permissions.includes("list-product");
   }
   if (path.startsWith("/auditoria/")) {
     return hasAny(permissions, ["audit-all-users", "audit-user"]);

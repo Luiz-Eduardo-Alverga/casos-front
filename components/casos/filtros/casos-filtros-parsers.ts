@@ -1,5 +1,6 @@
 import { parseAsArrayOf, parseAsString, parseAsStringLiteral } from "nuqs";
 import { MAX_STATUS_IDS_FILTRO_CASOS } from "@/components/casos/filtros/constants";
+import { ESTIMADO_FILTRO_OPTIONS } from "@/components/filtros/estimado-filtro";
 import { LIBERACAO_FILTRO_OPTIONS } from "@/components/filtros/liberacao-filtro";
 import { NAO_PLANEJADO_FILTRO_OPTIONS } from "@/components/filtros/nao-planejado-filtro";
 
@@ -15,6 +16,13 @@ export const LIBERACAO_FILTRO_VALUES = LIBERACAO_FILTRO_OPTIONS.map(
 ) as [
   (typeof LIBERACAO_FILTRO_OPTIONS)[number]["value"],
   ...(typeof LIBERACAO_FILTRO_OPTIONS)[number]["value"][],
+];
+
+export const ESTIMADO_FILTRO_VALUES = ESTIMADO_FILTRO_OPTIONS.map(
+  (opt) => opt.value,
+) as [
+  (typeof ESTIMADO_FILTRO_OPTIONS)[number]["value"],
+  ...(typeof ESTIMADO_FILTRO_OPTIONS)[number]["value"][],
 ];
 
 export const CASOS_SORT_BY_VALUES = [
@@ -49,6 +57,9 @@ export const casosFiltrosParsers = {
   liberacao_filtro: parseAsStringLiteral(LIBERACAO_FILTRO_VALUES).withDefault(
     "todos",
   ),
+  estimado_filtro: parseAsStringLiteral(ESTIMADO_FILTRO_VALUES).withDefault(
+    "todos",
+  ),
   status_id: parseAsArrayOf(parseAsString).withDefault([]),
   sort_by: parseAsStringLiteral(CASOS_SORT_BY_VALUES),
   sort_order: parseAsStringLiteral(CASOS_SORT_ORDER_VALUES),
@@ -73,6 +84,7 @@ export type CasosFiltrosNuqsState = {
   data_producao_fim: string;
   nao_planejado_filtro: (typeof NAO_PLANEJADO_FILTRO_VALUES)[number];
   liberacao_filtro: (typeof LIBERACAO_FILTRO_VALUES)[number];
+  estimado_filtro: (typeof ESTIMADO_FILTRO_VALUES)[number];
   status_id: string[];
   sort_by: (typeof CASOS_SORT_BY_VALUES)[number] | null;
   sort_order: (typeof CASOS_SORT_ORDER_VALUES)[number] | null;

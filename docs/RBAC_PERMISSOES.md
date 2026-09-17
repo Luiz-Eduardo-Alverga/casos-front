@@ -193,13 +193,17 @@ Exemplo já implementado:
 - `list-project`: acessar tela **Ver Projetos** (`/projetos`) e listar cadastros SGP (`GET /api/sgp-cadastros`)
 - `create-project`: acessar tela **Adicionar Novo Projeto** (`/projetos/novo`) e cadastrar via `POST /api/sgp-cadastros`
 - `edit-project`: salvar alterações da aba Abertura na edição (`PUT /api/sgp-cadastros/{id}`)
+- `list-product`: acessar tela **Produtos** (`/produtos`) e listar cadastros via `GET /api/produtos`
+- `create-product`: acessar tela **Novo produto** (`/produtos/novo`) e cadastrar via `POST /api/produtos`
+- `edit-product`: alterar produto, versões, módulos, checklist e scripts via fachada `/api/produtos`
+- `delete-product`: excluir versões, módulos, itens de checklist e scripts
 - `list-case-attachment`: listar e obter URL de download de anexos de caso
 - `create-case-attachment`: gerar URL de upload e registrar anexo após envio ao Storage
 - `delete-case-attachment`: remover anexo (Storage + metadados)
 - `list-doc`: listar documentos e anexos de documentação
 - `edit-doc`: editar documento e anexar/remover arquivos
 
-Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql), [`db/scripts/seed-list-project-rbac.sql`](../db/scripts/seed-list-project-rbac.sql), [`db/scripts/seed-create-project-rbac.sql`](../db/scripts/seed-create-project-rbac.sql), [`db/scripts/seed-edit-project-rbac.sql`](../db/scripts/seed-edit-project-rbac.sql).
+Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql), [`db/scripts/seed-list-project-rbac.sql`](../db/scripts/seed-list-project-rbac.sql), [`db/scripts/seed-create-project-rbac.sql`](../db/scripts/seed-create-project-rbac.sql), [`db/scripts/seed-edit-project-rbac.sql`](../db/scripts/seed-edit-project-rbac.sql), [`db/scripts/seed-produtos-rbac.sql`](../db/scripts/seed-produtos-rbac.sql).
 
 ---
 

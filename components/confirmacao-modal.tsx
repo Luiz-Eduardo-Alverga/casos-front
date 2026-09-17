@@ -18,6 +18,7 @@ export interface ConfirmacaoModalProps {
   onCancel?: () => void;
   variant?: "danger" | "default";
   isLoading?: boolean;
+  aviso?: string;
 }
 
 export function ConfirmacaoModal({
@@ -31,6 +32,7 @@ export function ConfirmacaoModal({
   onCancel,
   variant = "default",
   isLoading = false,
+  aviso,
 }: ConfirmacaoModalProps) {
   const handleConfirm = async () => {
     await onConfirm();
@@ -68,6 +70,11 @@ export function ConfirmacaoModal({
             <div>
               <h1 className="text-xl font-bold">{titulo}</h1>
               <p className=" mt-2 text-text-secondary">{descricao}</p>
+              {aviso ? (
+                <p className="mt-4 rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                  {aviso}
+                </p>
+              ) : null}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">

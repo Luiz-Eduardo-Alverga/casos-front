@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#F1F3F5}
+a{color:#1E2A3A;text-decoration:none}
+a:hover{color:#0F1720}
+input,select,textarea,button{font-family:inherit}
+@keyframes sf-shimmer{0%{opacity:.55}50%{opacity:1}100%{opacity:.55}}
+@keyframes sf-toast{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes sf-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#F1F3F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#1E2A3A;-webkit-font-smoothing:antialiased">
+
+  <sc-if value="{{ drawerOpen }}">
+    <div onClick="{{ closeDrawer }}" style="position:fixed;inset:0;background:rgba(15,23,32,0.45);z-index:45"></div>
+  </sc-if>
+
+  <aside style="position:fixed;top:0;left:0;bottom:0;width:{{ sidebarW }};transform:{{ sidebarTx }};background:#263344;z-index:50;display:flex;flex-direction:column;overflow:hidden;transition:width .18s ease,transform .18s ease">
+    <div style="height:64px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px">
+      <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:24px;height:24px;border-radius:8px;background:#F5C842;display:flex;align-items:center;justify-content:center;flex:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#263344" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"></path></svg>
+          </div>
+          <span style="color:#F7F9FB;font-size:15px;font-weight:600;letter-spacing:-0.01em">Softflow</span>
+        </div>
+      </sc-if>
+      <button onClick="{{ toggleSidebar }}" title="Recolher menu" style="width:28px;height:28px;flex:none;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:#8B93A7;cursor:pointer" style-hover="background:#2F3E52;color:#C5CAD3">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ collapseIcon }}"></path></svg>
+      </button>
+    </div>
+
+    <nav style="flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+          <div style="color:#4A5168;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;padding:8px 16px 4px">Painéis</div>
+        </sc-if>
+        <a href="#" title="Avisos" style="display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;color:#C5CAD3;font-size:13px;font-weight:500;white-space:nowrap" style-hover="background:#2F3E52;color:#EEF1F5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span>Avisos</span></sc-if>
+        </a>
+        <a href="#" title="Indicadores" style="display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;color:#C5CAD3;font-size:13px;font-weight:500;white-space:nowrap" style-hover="background:#2F3E52;color:#EEF1F5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span>Indicadores</span></sc-if>
+        </a>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+          <div style="color:#4A5168;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;padding:8px 16px 4px">Gerenciar</div>
+        </sc-if>
+        <a href="#" title="Casos" style="display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;color:#C5CAD3;font-size:13px;font-weight:500;white-space:nowrap" style-hover="background:#2F3E52;color:#EEF1F5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect width="8" height="4" x="8" y="2" rx="1"></rect><path d="M8 12h8"></path><path d="M8 17h5"></path></svg>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span>Casos</span></sc-if>
+        </a>
+        <a href="#" title="Liberações" style="display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;color:#C5CAD3;font-size:13px;font-weight:500;white-space:nowrap" style-hover="background:#2F3E52;color:#EEF1F5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="m7.5 4.27 9 5.15"></path><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span>Liberações</span></sc-if>
+        </a>
+        <a href="#" title="Projetos" style="display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;color:#C5CAD3;font-size:13px;font-weight:500;white-space:nowrap" style-hover="background:#2F3E52;color:#EEF1F5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span>Projetos</span></sc-if>
+        </a>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+          <div style="color:#4A5168;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;padding:8px 16px 4px">Cadastros</div>
+        </sc-if>
+        <a href="#" title="Produtos" style="position:relative;display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;background:#31415699;color:#F7F9FB;font-size:13px;font-weight:600;white-space:nowrap">
+          <span style="position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:2px;background:#F5C842"></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F7F9FB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span>Produtos</span></sc-if>
+        </a>
+        <a href="#" title="Clientes" style="display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;color:#C5CAD3;font-size:13px;font-weight:500;white-space:nowrap" style-hover="background:#2F3E52;color:#EEF1F5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span>Clientes</span></sc-if>
+        </a>
+        <a href="#" title="Documentação" style="display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;color:#C5CAD3;font-size:13px;font-weight:500;white-space:nowrap" style-hover="background:#2F3E52;color:#EEF1F5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span>Documentação</span></sc-if>
+        </a>
+        <button onClick="{{ toggleConfig }}" title="Configurações" style="display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;border-radius:8px;color:#C5CAD3;font-size:13px;font-weight:500;white-space:nowrap;background:transparent;border:none;cursor:pointer;text-align:left;width:100%" style-hover="background:#2F3E52;color:#EEF1F5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M20 7h-9"></path><path d="M14 17H5"></path><circle cx="17" cy="17" r="3"></circle><circle cx="7" cy="7" r="3"></circle></svg>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span style="flex:1">Configurações</span></sc-if>
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ configChevron }}"></path></svg>
+          </sc-if>
+        </button>
+        <sc-if value="{{ configOpen }}">
+          <div style="display:flex;flex-direction:column;gap:2px;padding-left:24px">
+            <a href="#" style="display:flex;align-items:center;height:32px;padding:0 16px;border-radius:8px;color:#8B93A7;font-size:13px;white-space:nowrap" style-hover="background:#2F3E52;color:#C5CAD3">Setores</a>
+            <a href="#" style="display:flex;align-items:center;height:32px;padding:0 16px;border-radius:8px;color:#8B93A7;font-size:13px;white-space:nowrap" style-hover="background:#2F3E52;color:#C5CAD3">Usuários</a>
+            <a href="#" style="display:flex;align-items:center;height:32px;padding:0 16px;border-radius:8px;color:#8B93A7;font-size:13px;white-space:nowrap" style-hover="background:#2F3E52;color:#C5CAD3">Perfis de acesso</a>
+          </div>
+        </sc-if>
+      </div>
+    </nav>
+
+    <div style="flex:none;padding:8px;border-top:1px solid #31415680">
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 16px">
+        <div style="width:28px;height:28px;flex:none;border-radius:999px;background:#3B82F6;color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">LF</div>
+        <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+          <div style="min-width:0">
+            <div style="color:#EEF1F5;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Luiz Ferreira</div>
+            <div style="color:#8B93A7;font-size:11px;white-space:nowrap">{{ papelLabel }} · Squad XP</div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </aside>
+
+  <header style="position:fixed;top:0;right:0;left:{{ shellML }};height:64px;background:#FFFFFF;border-bottom:1px solid #E2E5EA;box-shadow:0 1px 3px rgba(0,0,0,0.05);z-index:40;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 24px;transition:left .18s ease">
+    <div style="display:flex;align-items:center;gap:8px;min-width:0">
+      <sc-if value="{{ narrow }}">
+        <button onClick="{{ openDrawer }}" style="width:36px;height:36px;flex:none;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #E2E5EA;border-radius:8px;color:#1E2A3A;cursor:pointer" style-hover="background:#F1F3F5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"></path><path d="M4 12h16"></path><path d="M4 18h16"></path></svg>
+        </button>
+      </sc-if>
+      <nav style="display:flex;align-items:center;gap:8px;font-size:13px;color:#667788;white-space:nowrap;overflow:hidden">
+        <span>Cadastros</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C0C7D0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="m9 18 6-6-6-6"></path></svg>
+        <a href="#" onClick="{{ goLista }}" style="color:{{ crumbProdColor }};font-weight:{{ crumbProdWeight }};cursor:pointer">Produtos</a>
+        <sc-if value="{{ crumbLeafOn }}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C0C7D0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="m9 18 6-6-6-6"></path></svg>
+          <span style="color:#1E2A3A;font-weight:600;overflow:hidden;text-overflow:ellipsis">{{ crumbLeaf }}</span>
+        </sc-if>
+      </nav>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;flex:none">
+      <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+        <div style="position:relative;width:280px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:10px"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          <input type="text" placeholder="Buscar no Softflow…" style="width:100%;height:36px;padding:0 8px 0 34px;border:1px solid #E2E5EA;border-radius:8px;background:#F8F9FB;font-size:13px;color:#1E2A3A;outline:none" style-focus="background:#fff;border-color:#C6CDD6">
+        </div>
+      </sc-if>
+      <button style="position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:#667788;cursor:pointer" style-hover="background:#F1F3F5">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>
+        <span style="position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:999px;background:#EF4444;border:1.5px solid #fff"></span>
+      </button>
+      <div style="width:32px;height:32px;border-radius:999px;background:#3B82F6;color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center">LF</div>
+    </div>
+  </header>
+
+  <main style="margin-left:{{ shellML }};padding:80px 24px {{ mainPB }};transition:margin-left .18s ease">
+
+    <sc-if value="{{ isLista }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+        <div style="min-width:0">
+          <h1 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-0.02em">Produtos</h1>
+          <p style="margin:4px 0 0;font-size:14px;color:#667788;text-wrap:pretty">Linhas de software Softcom e suas versões, módulos e rotinas de liberação</p>
+        </div>
+        <sc-if value="{{ podeCriar }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ goNovo }}" style="display:flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 16px;flex:{{ btnFlex }};margin-left:auto;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="background:#141922">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+            Novo produto
+          </button>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isNovo }}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+        <div style="min-width:0">
+          <h1 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-0.02em">Novo produto</h1>
+          <p style="margin:4px 0 0;font-size:14px;color:#667788;text-wrap:pretty">Cadastre a linha de software; versões, módulos, checklist e scripts entram depois</p>
+        </div>
+        <button onClick="{{ goLista }}" style="flex:none;margin-left:auto;display:flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 16px;background:#fff;border:1px solid #E2E5EA;border-radius:8px;font-size:14px;font-weight:600;color:#1E2A3A;cursor:pointer;margin-top:2px" style-hover="background:#F8F9FB">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+          Voltar
+        </button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDetalhe }}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+        <div style="display:flex;align-items:flex-start;gap:8px;min-width:0">
+          <div style="min-width:0">
+            <h1 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-0.02em;text-wrap:pretty">{{ prodNome }} <span style="font-size:18px;font-weight:600;color:#667788">{{ prodRegistro }}</span></h1>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
+              <span style="display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:{{ statusBg }};color:{{ statusColor }};font-size:12px;font-weight:600">{{ statusLabel }}</span>
+              <sc-if value="{{ vacaOn }}" hint-placeholder-val="{{ true }}">
+                <span style="display:inline-flex;align-items:center;gap:8px;height:20px;padding:0 8px;border-radius:999px;background:#F1F3F5;color:#475569;font-size:12px;font-weight:600">
+                  <span style="width:6px;height:6px;border-radius:999px;background:#F5C842"></span>
+                  Vaca leiteira
+                </span>
+              </sc-if>
+              <sc-if value="{{ soLeitura }}">
+                <span style="display:inline-flex;align-items:center;gap:8px;height:20px;padding:0 8px;border-radius:999px;background:#F1F3F5;color:#667788;font-size:12px;font-weight:600">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  Somente leitura
+                </span>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+        <button onClick="{{ goLista }}" style="flex:none;margin-left:auto;display:flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 16px;background:#fff;border:1px solid #E2E5EA;border-radius:8px;font-size:14px;font-weight:600;color:#1E2A3A;cursor:pointer;margin-top:2px" style-hover="background:#F8F9FB">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+          Voltar
+        </button>
+      </div>
+    </sc-if>
+
+    <div style="display:grid;grid-template-columns:{{ bodyCols }};gap:24px;align-items:start">
+      <div style="min-width:0;display:flex;flex-direction:column;gap:8px">
+        <sc-if value="{{ isLista }}" hint-placeholder-val="{{ true }}">
+          <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);padding:16px">
+            <div style="display:grid;grid-template-columns:{{ filterCols }};gap:16px">
+              <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                <span style="font-size:12px;font-weight:600;color:#475569">Nome do produto</span>
+                <div style="position:relative">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:10px"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                  <input type="text" value="{{ fNome }}" onChange="{{ onFNome }}" placeholder="Buscar por nome…" style="width:100%;height:36px;padding:0 34px 0 34px;border:1px solid #E2E5EA;border-radius:8px;background:#fff;font-size:14px;color:#1E2A3A;outline:none" style-focus="border-color:#8B93A7">
+                  <sc-if value="{{ fNomeSet }}">
+                    <button onClick="{{ clearFNome }}" title="Limpar" style="position:absolute;right:6px;top:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:999px;color:#8B93A7;cursor:pointer" style-hover="background:#F1F3F5;color:#1E2A3A">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    </button>
+                  </sc-if>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                <span style="font-size:12px;font-weight:600;color:#475569">Setor</span>
+                <div style="position:relative">
+                  <select value="{{ fSetor }}" onChange="{{ onFSetor }}" style="width:100%;height:36px;padding:0 56px 0 12px;border:1px solid #E2E5EA;border-radius:8px;background:#fff;font-size:14px;color:#1E2A3A;outline:none;appearance:none;cursor:pointer" style-focus="border-color:#8B93A7">
+                    <option value="">Todos os setores</option>
+                    <sc-for list="{{ setores }}" as="s" hint-placeholder-count="3">
+                      <option value="{{ s.v }}">{{ s.v }}</option>
+                    </sc-for>
+                  </select>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;right:12px;top:11px;pointer-events:none"><path d="m6 9 6 6 6-6"></path></svg>
+                  <sc-if value="{{ fSetorSet }}">
+                    <button onClick="{{ clearFSetor }}" title="Limpar" style="position:absolute;right:32px;top:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:999px;color:#8B93A7;cursor:pointer" style-hover="background:#F1F3F5;color:#1E2A3A">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    </button>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);overflow:hidden">
+            <sc-if value="{{ isSkeleton }}">
+              <div>
+                <sc-for list="{{ skelRows }}" as="r" hint-placeholder-count="6">
+                  <div style="display:grid;grid-template-columns:{{ skelCols }};gap:16px;align-items:center;padding:14px 16px;border-bottom:1px solid #EEF1F5">
+                    <span style="height:12px;border-radius:999px;background:#E8EBF0;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="height:12px;border-radius:999px;background:#E8EBF0;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="height:12px;border-radius:999px;background:#EEF1F5;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="height:20px;border-radius:999px;background:#EEF1F5;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isErro }}">
+              <div style="min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:48px 24px;text-align:center">
+                <div style="width:40px;height:40px;border-radius:999px;background:#FEE2E2;display:flex;align-items:center;justify-content:center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+                </div>
+                <div style="font-size:15px;font-weight:600">Não foi possível carregar</div>
+                <div style="font-size:13px;color:#667788;max-width:320px;text-wrap:pretty">A lista de produtos não respondeu. Tente novamente em alguns instantes.</div>
+                <button onClick="{{ tentarNovamente }}" style="margin-top:8px;height:36px;padding:0 16px;background:#fff;border:1px solid #E2E5EA;border-radius:8px;font-size:14px;font-weight:600;color:#1E2A3A;cursor:pointer" style-hover="background:#F8F9FB">Tentar novamente</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ listaVazia }}">
+              <div style="min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:48px 24px;text-align:center">
+                <div style="width:40px;height:40px;border-radius:999px;background:#F1F3F5;display:flex;align-items:center;justify-content:center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path></svg>
+                </div>
+                <div style="font-size:15px;font-weight:600;text-wrap:pretty">{{ vazioTitulo }}</div>
+                <div style="font-size:13px;color:#667788;max-width:340px;text-wrap:pretty">{{ vazioTexto }}</div>
+                <sc-if value="{{ filtroAtivo }}">
+                  <button onClick="{{ limparFiltros }}" style="margin-top:8px;height:36px;padding:0 16px;background:transparent;border:none;border-radius:8px;font-size:14px;font-weight:600;color:#1E2A3A;cursor:pointer" style-hover="background:#F1F3F5">Limpar filtros</button>
+                </sc-if>
+                <sc-if value="{{ vazioNovoOn }}">
+                  <button onClick="{{ goNovo }}" style="margin-top:8px;display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#141922">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                    Novo produto
+                  </button>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ linhasWide }}" hint-placeholder-val="{{ true }}">
+              <div style="overflow-x:auto">
+               <div style="min-width:980px">
+                <div style="display:grid;grid-template-columns:{{ listaCols }};gap:16px;padding:12px 16px;border-bottom:1px solid #E2E5EA;background:#F8F9FB;font-size:11px;font-weight:600;color:#667788;text-transform:uppercase;letter-spacing:0.05em">
+                  <span>Registro</span>
+                  <span>Nome</span>
+                  <span>Setor</span>
+                  <span>PO</span>
+                  <span>Scrum Master</span>
+                  <span>Data</span>
+                  <span style="text-align:right">Status</span>
+                </div>
+                <sc-for list="{{ produtos }}" as="p" hint-placeholder-count="6">
+                <div onClick="{{ p.open }}" style="display:grid;grid-template-columns:{{ listaCols }};gap:16px;align-items:center;padding:12px 16px;border-bottom:1px solid #EEF1F5;cursor:pointer;font-size:14px" style-hover="background:#F8F9FB">
+                  <span style="font-variant-numeric:tabular-nums;font-size:13px;color:{{ p.subColor }}">{{ p.registro }}</span>
+                  <span style="display:flex;align-items:center;gap:8px;min-width:0">
+                    <span style="font-weight:600;color:{{ p.inkColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.nome }}</span>
+                    <sc-if value="{{ p.vaca }}">
+                      <span style="flex:none;display:inline-flex;align-items:center;height:18px;padding:0 8px;border-radius:999px;background:#FEF6E0;color:#8A6B18;font-size:11px;font-weight:600">Vaca leiteira</span>
+                    </sc-if>
+                  </span>
+                  <span style="font-size:13px;color:{{ p.subColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.setor }}</span>
+                  <span style="display:flex;align-items:center;gap:8px;min-width:0">
+                    <span style="width:22px;height:22px;flex:none;border-radius:999px;background:{{ p.poColor }};color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ p.poIni }}</span>
+                    <span style="font-size:13px;color:{{ p.inkColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.po }}</span>
+                  </span>
+                  <span style="display:flex;align-items:center;gap:8px;min-width:0">
+                    <span style="width:22px;height:22px;flex:none;border-radius:999px;background:{{ p.smColor }};color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ p.smIni }}</span>
+                    <span style="font-size:13px;color:{{ p.inkColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.sm }}</span>
+                  </span>
+                  <span style="font-size:13px;font-variant-numeric:tabular-nums;color:{{ p.subColor }}">{{ p.data }}</span>
+                  <span style="display:flex;justify-content:flex-end">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:96px;height:22px;border-radius:999px;background:{{ p.stBg }};color:{{ p.stColor }};font-size:12px;font-weight:600">{{ p.stLabel }}</span>
+                  </span>
+                </div>
+                </sc-for>
+               </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ linhasNarrow }}">
+              <sc-for list="{{ produtos }}" as="p" hint-placeholder-count="4">
+                <div onClick="{{ p.open }}" style="display:flex;flex-direction:column;gap:8px;padding:16px;border-bottom:1px solid #EEF1F5;cursor:pointer" style-hover="background:#F8F9FB">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+                    <span style="font-size:15px;font-weight:600;color:{{ p.inkColor }};text-wrap:pretty">{{ p.nome }}</span>
+                    <span style="flex:none;display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:{{ p.stBg }};color:{{ p.stColor }};font-size:11px;font-weight:600">{{ p.stLabel }}</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:{{ p.subColor }};font-variant-numeric:tabular-nums">
+                    <span>{{ p.registro }}</span>
+                    <span>·</span>
+                    <span>{{ p.setor }}</span>
+                    <span>·</span>
+                    <span>{{ p.data }}</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+                    <span style="display:flex;align-items:center;gap:8px">
+                      <span style="width:20px;height:20px;border-radius:999px;background:{{ p.poColor }};color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ p.poIni }}</span>
+                      <span style="font-size:12px;color:#667788">PO {{ p.po }}</span>
+                    </span>
+                    <span style="display:flex;align-items:center;gap:8px">
+                      <span style="width:20px;height:20px;border-radius:999px;background:{{ p.smColor }};color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ p.smIni }}</span>
+                      <span style="font-size:12px;color:#667788">SM {{ p.sm }}</span>
+                    </span>
+                  </div>
+                </div>
+              </sc-for>
+            </sc-if>
+
+            <sc-if value="{{ isDados }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:16px;font-size:12px;color:#667788">
+                <span style="width:14px;height:14px;border:2px solid #E2E5EA;border-top-color:#8B93A7;border-radius:999px;animation:sf-spin .7s linear infinite"></span>
+                Carregando mais…
+              </div>
+            </sc-if>
+          </section>
+        </sc-if>
+        <sc-if value="{{ mobResumoOn }}">
+          <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);padding:16px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px">
+              <sc-for list="{{ resumoMob }}" as="r" hint-placeholder-count="4">
+                <div style="min-width:0">
+                  <div style="font-size:11px;font-weight:600;color:#667788;text-transform:uppercase;letter-spacing:0.04em">{{ r.label }}</div>
+                  <div style="font-size:13px;color:#1E2A3A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.value }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ podeEditarProd }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ abrirDesativar }}" style="width:100%;height:40px;background:#fff;border:1px solid {{ desativarBorder }};border-radius:8px;font-size:14px;font-weight:600;color:{{ desativarColor }};cursor:pointer" style-hover="background:#F8F9FB">{{ desativarLabel }}</button>
+            </sc-if>
+          </section>
+        </sc-if>
+        <sc-if value="{{ tabsOn }}">
+          <div style="display:flex;align-items:stretch;gap:24px;border-bottom:1px solid #E2E5EA;overflow-x:auto;margin-bottom:8px">
+            <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+              <button onClick="{{ t.onClick }}" style="flex:none;padding:0 2px 10px;background:transparent;border:none;border-bottom:{{ t.border }};margin-bottom:-1px;font-size:14px;font-weight:{{ t.weight }};color:{{ t.color }};cursor:pointer;white-space:nowrap" style-hover="color:#1E2A3A">{{ t.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ formOn }}">
+          <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);padding:16px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+              <h2 style="margin:0;font-size:15px;font-weight:600">Identificação</h2>
+            </div>
+            <sc-if value="{{ metaOn }}">
+              <div style="display:flex;align-items:center;gap:24px;padding:12px 16px;border-radius:8px;background:#F8F9FB;margin-bottom:16px;flex-wrap:wrap">
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:#667788;text-transform:uppercase;letter-spacing:0.04em">Registro</div>
+                  <div style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">#205</div>
+                </div>
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:#667788;text-transform:uppercase;letter-spacing:0.04em">Data do cadastro</div>
+                  <div style="font-size:13px;font-variant-numeric:tabular-nums">19/06/2020 13:41</div>
+                </div>
+                <div style="font-size:12px;color:#667788">Gerados pelo servidor</div>
+              </div>
+            </sc-if>
+            <div style="display:grid;grid-template-columns:{{ formCols }};gap:16px">
+              <sc-for list="{{ idFields }}" as="fd" hint-placeholder-count="6">
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0;grid-column:{{ fd.span }}">
+                  <span style="font-size:12px;font-weight:600;color:#475569">{{ fd.label }}<sc-if value="{{ fd.req }}"><span style="color:#EF4444"> *</span></sc-if></span>
+                  <sc-if value="{{ fd.isInput }}" hint-placeholder-val="{{ true }}">
+                    <input type="{{ fd.tipo }}" value="{{ fd.value }}" onChange="{{ fd.onChange }}" placeholder="{{ fd.placeholder }}" style="width:100%;height:36px;padding:0 12px;border:1px solid {{ fd.borderColor }};border-radius:8px;background:#fff;font-size:14px;color:#1E2A3A;outline:none" style-focus="border-color:#8B93A7">
+                  </sc-if>
+                  <sc-if value="{{ fd.isSelect }}">
+                    <div style="position:relative">
+                      <select value="{{ fd.value }}" onChange="{{ fd.onChange }}" style="width:100%;height:36px;padding:0 36px 0 12px;border:1px solid {{ fd.borderColor }};border-radius:8px;background:#fff;font-size:14px;color:#1E2A3A;outline:none;appearance:none;cursor:pointer" style-focus="border-color:#8B93A7">
+                        <option value="">{{ fd.emptyOpt }}</option>
+                        <sc-for list="{{ fd.options }}" as="o" hint-placeholder-count="3">
+                          <option value="{{ o.v }}">{{ o.v }}</option>
+                        </sc-for>
+                      </select>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;right:12px;top:11px;pointer-events:none"><path d="m6 9 6 6 6-6"></path></svg>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ fd.isText }}">
+                    <div style="min-height:36px;display:flex;align-items:center;gap:8px;font-size:14px;color:#1E2A3A;padding:0 2px">
+                      <sc-if value="{{ fd.chipOn }}">
+                        <span style="width:22px;height:22px;flex:none;border-radius:999px;background:{{ fd.chipColor }};color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ fd.chipIni }}</span>
+                      </sc-if>
+                      <span style="text-wrap:pretty">{{ fd.display }}</span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ fd.errOn }}">
+                    <span style="font-size:12px;color:#EF4444">{{ fd.errMsg }}</span>
+                  </sc-if>
+                  <sc-if value="{{ fd.hintOn }}">
+                    <span style="font-size:12px;color:#667788;text-wrap:pretty">{{ fd.hint }}</span>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+
+          <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);padding:16px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path></svg>
+              <h2 style="margin:0;font-size:15px;font-weight:600">Responsáveis</h2>
+            </div>
+            <div style="display:grid;grid-template-columns:{{ formCols }};gap:16px">
+              <sc-for list="{{ respFields }}" as="fd" hint-placeholder-count="4">
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0;grid-column:{{ fd.span }}">
+                  <span style="font-size:12px;font-weight:600;color:#475569">{{ fd.label }}<sc-if value="{{ fd.req }}"><span style="color:#EF4444"> *</span></sc-if></span>
+                  <sc-if value="{{ fd.isSelect }}" hint-placeholder-val="{{ true }}">
+                    <div style="position:relative">
+                      <select value="{{ fd.value }}" onChange="{{ fd.onChange }}" style="width:100%;height:36px;padding:0 36px 0 12px;border:1px solid {{ fd.borderColor }};border-radius:8px;background:#fff;font-size:14px;color:#1E2A3A;outline:none;appearance:none;cursor:pointer" style-focus="border-color:#8B93A7">
+                        <option value="">{{ fd.emptyOpt }}</option>
+                        <sc-for list="{{ fd.options }}" as="o" hint-placeholder-count="3">
+                          <option value="{{ o.v }}">{{ o.v }}</option>
+                        </sc-for>
+                      </select>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;right:12px;top:11px;pointer-events:none"><path d="m6 9 6 6 6-6"></path></svg>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ fd.isText }}">
+                    <div style="min-height:36px;display:flex;align-items:center;gap:8px;font-size:14px;color:#1E2A3A;padding:0 2px">
+                      <sc-if value="{{ fd.chipOn }}">
+                        <span style="width:22px;height:22px;flex:none;border-radius:999px;background:{{ fd.chipColor }};color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ fd.chipIni }}</span>
+                      </sc-if>
+                      <span style="text-wrap:pretty">{{ fd.display }}</span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ fd.errOn }}">
+                    <span style="font-size:12px;color:#EF4444">{{ fd.errMsg }}</span>
+                  </sc-if>
+                  <sc-if value="{{ fd.hintOn }}">
+                    <span style="font-size:12px;color:#667788;text-wrap:pretty">{{ fd.hint }}</span>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+
+          <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);padding:16px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>
+              <h2 style="margin:0;font-size:15px;font-weight:600">Informações técnicas</h2>
+              <span style="font-size:12px;color:#667788">Opcional</span>
+            </div>
+            <sc-if value="{{ tecEdit }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <textarea value="{{ tecValue }}" onChange="{{ tecChange }}" placeholder="Stack, dependências, particularidades de instalação…" rows="6" style="width:100%;min-height:132px;padding:12px;border:1px solid #E2E5EA;border-radius:8px;background:#fff;font-size:14px;line-height:1.55;color:#1E2A3A;outline:none;resize:vertical" style-focus="border-color:#8B93A7"></textarea>
+                <span style="align-self:flex-end;font-size:12px;color:#667788;font-variant-numeric:tabular-nums">{{ tecCount }}</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ tecRead }}">
+              <p style="margin:0;font-size:14px;line-height:1.6;color:#1E2A3A;text-wrap:pretty">{{ tecDisplay }}</p>
+            </sc-if>
+          </section>
+
+          <sc-if value="{{ switchesInline }}">
+            <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);padding:16px">
+              <h2 style="margin:0 0 16px;font-size:15px;font-weight:600">Exibição e controle</h2>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ switches }}" as="sw" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:8px 0;border-top:1px solid {{ sw.sep }}">
+                    <div style="min-width:0">
+                      <div style="font-size:14px;font-weight:500">{{ sw.label }}</div>
+                      <div style="font-size:12px;color:#667788;text-wrap:pretty">{{ sw.hint }}</div>
+                    </div>
+                    <sc-if value="{{ sw.editavel }}" hint-placeholder-val="{{ true }}">
+                      <button onClick="{{ sw.toggle }}" title="{{ sw.label }}" style="flex:none;width:38px;height:22px;margin-top:2px;border:none;border-radius:999px;background:{{ sw.trackBg }};cursor:pointer;position:relative;transition:background .15s ease">
+                        <span style="position:absolute;top:3px;left:{{ sw.knobX }};width:16px;height:16px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.2);transition:left .15s ease"></span>
+                      </button>
+                    </sc-if>
+                    <sc-if value="{{ sw.leitura }}">
+                      <span style="flex:none;font-size:13px;font-weight:600;color:{{ sw.simColor }}">{{ sw.simLabel }}</span>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </section>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ abaVersoes }}">
+          <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px;border-bottom:1px solid #E2E5EA">
+              <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><circle cx="12" cy="18" r="3"></circle><path d="M8 7l4-4 4 4"></path></svg>
+                <h2 style="margin:0;font-size:15px;font-weight:600">Versões</h2>
+              </div>
+              <sc-if value="{{ podeEditarProd }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ novaVersao }}" style="flex:none;display:flex;align-items:center;gap:8px;height:32px;padding:0 12px;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#141922">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                  Nova versão
+                </button>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ abaSkeleton }}">
+              <div>
+                <sc-for list="{{ skelRows }}" as="r" hint-placeholder-count="5">
+                  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:center;padding:14px 16px;border-bottom:1px solid #EEF1F5">
+                    <span style="height:12px;border-radius:999px;background:#E8EBF0;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="height:20px;border-radius:999px;background:#EEF1F5;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="height:12px;border-radius:999px;background:#EEF1F5;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="height:12px;border-radius:999px;background:#E8EBF0;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ abaVazia }}">
+              <div style="min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:48px 24px;text-align:center">
+                <div style="width:40px;height:40px;border-radius:999px;background:#F1F3F5;display:flex;align-items:center;justify-content:center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><circle cx="12" cy="18" r="3"></circle><path d="M8 7l4-4 4 4"></path></svg>
+                </div>
+                <div style="font-size:15px;font-weight:600">Nenhuma versão cadastrada</div>
+                <div style="font-size:13px;color:#667788;max-width:320px;text-wrap:pretty">As versões organizam casos e liberações deste produto.</div>
+                <sc-if value="{{ podeEditarProd }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ novaVersao }}" style="margin-top:8px;height:36px;padding:0 16px;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#141922">Nova versão</button>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ versoesWide }}" hint-placeholder-val="{{ true }}">
+              <div style="overflow-x:auto">
+                <div style="min-width:960px">
+                  <div style="display:grid;grid-template-columns:{{ verCols }};gap:16px;padding:12px 16px;border-bottom:1px solid #E2E5EA;background:#F8F9FB;font-size:11px;font-weight:600;color:#667788;text-transform:uppercase;letter-spacing:0.05em">
+                    <span>Versão</span>
+                    <span>Status</span>
+                    <span>Abertura</span>
+                    <span>Fechamento</span>
+                    <span>Notas</span>
+                    <span style="text-align:center">Helptools</span>
+                    <span>Testador</span>
+                    <span></span>
+                  </div>
+                  <sc-for list="{{ versoes }}" as="v" hint-placeholder-count="4">
+                    <div onClick="{{ v.editar }}" style="display:grid;grid-template-columns:{{ verCols }};gap:16px;align-items:center;padding:12px 16px;border-bottom:1px solid #EEF1F5;font-size:14px;cursor:pointer" style-hover="background:#F8F9FB">
+                      <span style="font-weight:600;font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">{{ v.versao }}</span>
+                      <span>
+                        <span style="display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:{{ v.stBg }};color:{{ v.stColor }};font-size:11px;font-weight:600;letter-spacing:0.03em">{{ v.status }}</span>
+                      </span>
+                      <span style="font-size:13px;font-variant-numeric:tabular-nums">{{ v.abertura }}</span>
+                      <span style="font-size:13px;font-variant-numeric:tabular-nums;color:{{ v.fechColor }}" title="{{ v.fechTitle }}">{{ v.fechamento }}</span>
+                      <span style="font-size:13px;color:#667788;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ v.notas }}">{{ v.notas }}</span>
+                      <span style="display:flex;justify-content:center;color:{{ v.htColor }}">
+                        <sc-if value="{{ v.helptools }}">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"></path></svg>
+                        </sc-if>
+                        <sc-if value="{{ v.semHelptools }}">
+                          <span style="color:#C0C7D0">—</span>
+                        </sc-if>
+                      </span>
+                      <span style="display:flex;align-items:center;gap:8px;min-width:0">
+                        <sc-if value="{{ v.temTestador }}">
+                          <span style="width:22px;height:22px;flex:none;border-radius:999px;background:{{ v.testColor }};color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ v.testIni }}</span>
+                        </sc-if>
+                        <span style="font-size:13px;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ v.testador }}</span>
+                      </span>
+                      <span style="display:flex;justify-content:flex-end;position:relative">
+                        <sc-if value="{{ v.acoesOn }}">
+                          <button onClick="{{ v.abrirMenu }}" title="Ações" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:#8B93A7;cursor:pointer" style-hover="background:#F1F3F5;color:#1E2A3A">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg>
+                          </button>
+                        </sc-if>
+                        <sc-if value="{{ v.menuOn }}">
+                          <div style="position:absolute;top:30px;right:0;z-index:30;min-width:184px;background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 8px 24px rgba(15,23,32,0.12);padding:4px;display:flex;flex-direction:column">
+                            <button onClick="{{ v.editar }}" style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;background:transparent;border:none;border-radius:8px;font-size:13px;color:#1E2A3A;cursor:pointer;text-align:left" style-hover="background:#F1F3F5">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"></path></svg>
+                              Editar
+                            </button>
+                            <button onClick="{{ v.alternar }}" style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;background:transparent;border:none;border-radius:8px;font-size:13px;color:#1E2A3A;cursor:pointer;text-align:left" style-hover="background:#F1F3F5">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"></rect><path d="{{ v.lockPath }}"></path></svg>
+                              {{ v.alternarLabel }}
+                            </button>
+                            <sc-if value="{{ v.excluirOn }}">
+                              <button onClick="{{ v.excluir }}" style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;background:transparent;border:none;border-radius:8px;font-size:13px;color:#DC2626;cursor:pointer;text-align:left" style-hover="background:#FEF2F2">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                Excluir
+                              </button>
+                            </sc-if>
+                          </div>
+                        </sc-if>
+                      </span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ versoesNarrow }}">
+              <sc-for list="{{ versoes }}" as="v" hint-placeholder-count="4">
+                <div onClick="{{ v.editar }}" style="display:flex;flex-direction:column;gap:8px;padding:16px;border-bottom:1px solid #EEF1F5;cursor:pointer">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                    <span style="font-size:15px;font-weight:600;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">{{ v.versao }}</span>
+                    <span style="display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:{{ v.stBg }};color:{{ v.stColor }};font-size:11px;font-weight:600">{{ v.status }}</span>
+                  </div>
+                  <div style="font-size:12px;color:#667788;font-variant-numeric:tabular-nums">Abertura {{ v.abertura }} · {{ v.fechLabelMob }}</div>
+                  <sc-if value="{{ v.temNotas }}">
+                    <div style="font-size:13px;color:#475569;text-wrap:pretty">{{ v.notas }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </sc-if>
+
+            <sc-if value="{{ abaComDados }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:16px;font-size:12px;color:#667788">
+                <span style="width:14px;height:14px;border:2px solid #E2E5EA;border-top-color:#8B93A7;border-radius:999px;animation:sf-spin .7s linear infinite"></span>
+                Carregando mais…
+              </div>
+            </sc-if>
+          </section>
+        </sc-if>
+        <sc-if value="{{ abaModulos }}">
+          <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px;border-bottom:1px solid #E2E5EA">
+              <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg>
+                <h2 style="margin:0;font-size:15px;font-weight:600">Módulos</h2>
+              </div>
+              <sc-if value="{{ podeEditarProd }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ novoModulo }}" style="flex:none;display:flex;align-items:center;gap:8px;height:32px;padding:0 12px;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#141922">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                  Novo módulo
+                </button>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ abaSkeleton }}">
+              <div>
+                <sc-for list="{{ skelRows }}" as="r" hint-placeholder-count="5">
+                  <div style="display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-bottom:1px solid #EEF1F5">
+                    <span style="width:38%;height:12px;border-radius:999px;background:#E8EBF0;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="width:62%;height:10px;border-radius:999px;background:#EEF1F5;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ abaVazia }}">
+              <div style="min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:48px 24px;text-align:center">
+                <div style="width:40px;height:40px;border-radius:999px;background:#F1F3F5;display:flex;align-items:center;justify-content:center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg>
+                </div>
+                <div style="font-size:15px;font-weight:600">Nenhum módulo cadastrado</div>
+                <div style="font-size:13px;color:#667788;max-width:320px;text-wrap:pretty">Módulos definem o que é versionado e atualizado na liberação.</div>
+                <sc-if value="{{ podeEditarProd }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ novoModulo }}" style="margin-top:8px;height:36px;padding:0 16px;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#141922">Novo módulo</button>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ abaComDados }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ modulos }}" as="m" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #EEF1F5;position:relative" style-hover="background:#F8F9FB">
+                  <div style="flex:1;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <span style="font-size:14px;font-weight:600;letter-spacing:0.01em">{{ m.nome }}</span>
+                    <sc-if value="{{ m.versionado }}">
+                      <span style="display:inline-flex;align-items:center;height:18px;padding:0 8px;border-radius:999px;background:#F1F3F5;color:#475569;font-size:11px;font-weight:600">Versionado</span>
+                    </sc-if>
+                    <sc-if value="{{ m.atualizador }}">
+                      <span style="display:inline-flex;align-items:center;height:18px;padding:0 8px;border-radius:999px;background:#F1F3F5;color:#475569;font-size:11px;font-weight:600">Atualizador</span>
+                    </sc-if>
+                  </div>
+                  <span style="flex:none;font-size:12px;color:#667788;font-variant-numeric:tabular-nums;white-space:nowrap">{{ m.ordem }}</span>
+                  <sc-if value="{{ m.acoesOn }}">
+                    <div style="flex:none;position:relative">
+                      <button onClick="{{ m.abrirMenu }}" title="Ações" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:#8B93A7;cursor:pointer" style-hover="background:#F1F3F5;color:#1E2A3A">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg>
+                      </button>
+                      <sc-if value="{{ m.menuOn }}">
+                        <div style="position:absolute;top:30px;right:0;z-index:30;min-width:200px;background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 8px 24px rgba(15,23,32,0.12);padding:4px;display:flex;flex-direction:column">
+                          <button onClick="{{ m.editar }}" style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;background:transparent;border:none;border-radius:8px;font-size:13px;color:#1E2A3A;cursor:pointer;text-align:left" style-hover="background:#F1F3F5">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"></path></svg>
+                            Editar
+                          </button>
+                          <sc-if value="{{ m.excluirOn }}">
+                            <button onClick="{{ m.excluir }}" style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;background:transparent;border:none;border-radius:8px;font-size:13px;color:#DC2626;cursor:pointer;text-align:left" style-hover="background:#FEF2F2">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                              Excluir
+                            </button>
+                          </sc-if>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </sc-if>
+          </section>
+        </sc-if>
+        <sc-if value="{{ abaChecklist }}">
+          <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);overflow:hidden">
+            <div style="padding:16px;border-bottom:1px solid #E2E5EA">
+              <div style="display:flex;align-items:center;gap:8px">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 12h10"></path><path d="M11 18h10"></path><path d="M11 6h10"></path><path d="m3 12 2 2 4-4"></path><path d="m3 5 2 2 4-4"></path></svg>
+                <h2 style="margin:0;font-size:15px;font-weight:600">Checklist</h2>
+              </div>
+              <p style="margin:4px 0 0;font-size:13px;color:#667788">Rotina executada na liberação deste produto</p>
+            </div>
+
+            <sc-if value="{{ abaSkeleton }}">
+              <div>
+                <sc-for list="{{ skelRows }}" as="r" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:16px;padding:14px 16px;border-bottom:1px solid #EEF1F5">
+                    <span style="width:22px;height:22px;flex:none;border-radius:999px;background:#EEF1F5;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="flex:1;height:12px;border-radius:999px;background:#E8EBF0;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="width:104px;height:20px;flex:none;border-radius:999px;background:#EEF1F5;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ checklistOn }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <sc-if value="{{ checkVazio }}">
+                  <div style="min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:32px 24px;text-align:center">
+                    <div style="font-size:15px;font-weight:600">Nenhum item no checklist</div>
+                    <div style="font-size:13px;color:#667788;max-width:320px;text-wrap:pretty">Adicione os passos da rotina de liberação abaixo.</div>
+                  </div>
+                </sc-if>
+                <sc-for list="{{ checklist }}" as="c" hint-placeholder-count="3">
+                  <div draggable="{{ c.arrastavel }}" onDragStart="{{ c.onDragStart }}" onDragOver="{{ c.onDragOver }}" onDragEnd="{{ c.onDragEnd }}" onDrop="{{ c.onDrop }}" style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid #EEF1F5;border-top:{{ c.dropBorder }};background:{{ c.rowBg }};box-shadow:{{ c.rowShadow }};opacity:{{ c.rowOpacity }}" style-hover="background:#F8F9FB">
+                    <sc-if value="{{ c.arrastavel }}">
+                      <span title="Arrastar para reordenar" style="flex:none;width:20px;display:flex;align-items:center;justify-content:center;color:#C0C7D0;cursor:grab">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>
+                      </span>
+                    </sc-if>
+                    <span style="flex:none;width:22px;height:22px;border-radius:999px;background:#F1F3F5;color:#475569;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums">{{ c.ordem }}</span>
+                    <sc-if value="{{ c.editando }}">
+                      <div style="flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0">
+                        <input type="text" value="{{ c.editTxt }}" onChange="{{ c.onEditTxt }}" style="flex:1;min-width:180px;height:36px;padding:0 12px;border:1px solid #8B93A7;border-radius:8px;font-size:14px;color:#1E2A3A;outline:none">
+                        <div style="position:relative;flex:none">
+                          <select value="{{ c.editResp }}" onChange="{{ c.onEditResp }}" style="height:36px;padding:0 36px 0 12px;border:1px solid #E2E5EA;border-radius:8px;background:#fff;font-size:13px;color:#1E2A3A;outline:none;appearance:none;cursor:pointer">
+                            <sc-for list="{{ colabOpts }}" as="o" hint-placeholder-count="3">
+                              <option value="{{ o.v }}">{{ o.v }}</option>
+                            </sc-for>
+                          </select>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;right:12px;top:11px;pointer-events:none"><path d="m6 9 6 6 6-6"></path></svg>
+                        </div>
+                        <button onClick="{{ c.salvarEdit }}" style="flex:none;height:36px;padding:0 12px;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#141922">Salvar</button>
+                        <button onClick="{{ c.cancelarEdit }}" style="flex:none;height:36px;padding:0 12px;background:transparent;border:none;border-radius:8px;font-size:13px;font-weight:600;color:#667788;cursor:pointer" style-hover="background:#F1F3F5">Cancelar</button>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ c.exibindo }}">
+                      <span style="flex:1;min-width:0;font-size:14px;color:#1E2A3A;text-wrap:pretty">{{ c.texto }}</span>
+                    </sc-if>
+                    <sc-if value="{{ c.exibindo }}">
+                      <span style="flex:none;display:flex;align-items:center;gap:8px;height:24px;padding:0 8px 0 2px;border-radius:999px;background:#F8F9FB;border:1px solid #EEF1F5">
+                        <span style="width:20px;height:20px;border-radius:999px;background:{{ c.respColor }};color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ c.respIni }}</span>
+                        <span style="font-size:12px;color:#475569;white-space:nowrap">{{ c.resp }}</span>
+                      </span>
+                    </sc-if>
+                    <sc-if value="{{ c.acoesOn }}">
+                      <span style="flex:none;display:flex;align-items:center;gap:2px">
+                        <button onClick="{{ c.editar }}" title="Editar" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:#8B93A7;cursor:pointer" style-hover="background:#F1F3F5;color:#1E2A3A">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"></path></svg>
+                        </button>
+                        <sc-if value="{{ c.excluirOn }}">
+                          <button onClick="{{ c.excluir }}" title="Excluir" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:#8B93A7;cursor:pointer" style-hover="background:#FEF2F2;color:#DC2626">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                          </button>
+                        </sc-if>
+                      </span>
+                    </sc-if>
+                  </div>
+                </sc-for>
+
+                <sc-if value="{{ podeEditarProd }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#F8F9FB;flex-wrap:wrap">
+                    <span style="flex:none;width:22px;height:22px;border-radius:999px;border:1px dashed #C0C7D0;color:#8B93A7;font-size:12px;display:flex;align-items:center;justify-content:center">+</span>
+                    <input type="text" value="{{ novoTxt }}" onChange="{{ onNovoTxt }}" onKeyDown="{{ onNovoKey }}" placeholder="Novo item…" style="flex:1;min-width:180px;height:36px;padding:0 12px;border:1px solid #E2E5EA;border-radius:8px;background:#fff;font-size:14px;color:#1E2A3A;outline:none" style-focus="border-color:#8B93A7">
+                    <div style="position:relative;flex:none">
+                      <select value="{{ novoResp }}" onChange="{{ onNovoResp }}" style="height:36px;padding:0 36px 0 12px;border:1px solid #E2E5EA;border-radius:8px;background:#fff;font-size:13px;color:#1E2A3A;outline:none;appearance:none;cursor:pointer">
+                        <sc-for list="{{ colabOpts }}" as="o" hint-placeholder-count="3">
+                          <option value="{{ o.v }}">{{ o.v }}</option>
+                        </sc-for>
+                      </select>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;right:12px;top:11px;pointer-events:none"><path d="m6 9 6 6 6-6"></path></svg>
+                    </div>
+                    <button onClick="{{ addItem }}" style="flex:none;height:36px;padding:0 16px;background:#fff;border:1px solid #E2E5EA;border-radius:8px;font-size:13px;font-weight:600;color:#1E2A3A;cursor:pointer" style-hover="background:#F1F3F5">Adicionar</button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+          </section>
+        </sc-if>
+        <sc-if value="{{ abaScripts }}">
+          <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px;border-bottom:1px solid #E2E5EA">
+              <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6 4 4-4 4"></path><path d="M14 14h4"></path><rect width="20" height="18" x="2" y="3" rx="2"></rect></svg>
+                <h2 style="margin:0;font-size:15px;font-weight:600">Scripts</h2>
+              </div>
+              <sc-if value="{{ podeEditarProd }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ novoScript }}" style="flex:none;display:flex;align-items:center;gap:8px;height:32px;padding:0 12px;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#141922">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                  Novo script
+                </button>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ abaSkeleton }}">
+              <div>
+                <sc-for list="{{ skelRows }}" as="r" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:16px;padding:16px;border-bottom:1px solid #EEF1F5">
+                    <span style="width:22px;height:22px;flex:none;border-radius:999px;background:#EEF1F5;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="flex:1;height:12px;border-radius:999px;background:#E8EBF0;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                    <span style="width:16px;height:12px;flex:none;border-radius:999px;background:#EEF1F5;animation:sf-shimmer 1.4s ease-in-out infinite;animation-delay:{{ r.d }}"></span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ abaVazia }}">
+              <div style="min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:48px 24px;text-align:center">
+                <div style="width:40px;height:40px;border-radius:999px;background:#F1F3F5;display:flex;align-items:center;justify-content:center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6 4 4-4 4"></path><path d="M14 14h4"></path><rect width="20" height="18" x="2" y="3" rx="2"></rect></svg>
+                </div>
+                <div style="font-size:15px;font-weight:600">Nenhum script cadastrado</div>
+                <div style="font-size:13px;color:#667788;max-width:320px;text-wrap:pretty">Registre os procedimentos de ambiente e testes deste produto.</div>
+                <sc-if value="{{ podeEditarProd }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ novoScript }}" style="margin-top:8px;height:36px;padding:0 16px;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#141922">Novo script</button>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ abaComDados }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ scripts }}" as="s" hint-placeholder-count="5">
+                <div style="border-bottom:1px solid #EEF1F5">
+                  <sc-if value="{{ s.divisorOn }}">
+                    <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;background:#F8F9FB;font-size:11px;font-weight:600;color:#667788;text-transform:uppercase;letter-spacing:0.05em">Sem ordem</div>
+                  </sc-if>
+                  <div style="display:flex;align-items:center;gap:8px;padding:12px 16px" style-hover="background:#F8F9FB">
+                    <button onClick="{{ s.toggle }}" style="flex:1;display:flex;align-items:center;gap:8px;min-width:0;background:transparent;border:none;padding:0;cursor:pointer;text-align:left">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="{{ s.chevron }}"></path></svg>
+                      <span style="flex:none;width:22px;height:22px;border-radius:999px;background:#F1F3F5;color:#475569;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums">{{ s.ordem }}</span>
+                      <span style="font-size:14px;font-weight:500;color:#1E2A3A;text-wrap:pretty">{{ s.titulo }}</span>
+                    </button>
+                    <sc-if value="{{ s.acoesOn }}">
+                      <span style="flex:none;display:flex;align-items:center;gap:2px">
+                        <button onClick="{{ s.editar }}" title="Editar" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:#8B93A7;cursor:pointer" style-hover="background:#F1F3F5;color:#1E2A3A">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"></path></svg>
+                        </button>
+                        <sc-if value="{{ s.excluirOn }}">
+                          <button onClick="{{ s.excluir }}" title="Excluir" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:#8B93A7;cursor:pointer" style-hover="background:#FEF2F2;color:#DC2626">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                          </button>
+                        </sc-if>
+                      </span>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ s.aberto }}">
+                    <div style="padding:0 16px 16px 44px">
+                      <div style="position:relative;border:1px solid #E2E5EA;border-radius:8px;background:#F8F9FB">
+                        <button onClick="{{ s.copiar }}" style="position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:8px;height:28px;padding:0 8px;background:#fff;border:1px solid #E2E5EA;border-radius:8px;font-size:12px;font-weight:600;color:{{ s.copiarColor }};cursor:pointer" style-hover="background:#F1F3F5">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                          {{ s.copiarLabel }}
+                        </button>
+                        <pre style="margin:0;padding:16px 104px 16px 16px;max-height:280px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.7;color:#334155;white-space:pre-wrap;word-break:break-word">{{ s.corpo }}</pre>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </sc-if>
+          </section>
+        </sc-if>
+      </div>
+      <sc-if value="{{ sideOn }}" hint-placeholder-val="{{ true }}">
+        <aside style="min-width:0;display:flex;flex-direction:column;gap:8px;position:{{ sidePos }};top:88px">
+          <sc-if value="{{ sideSwitchesOn }}">
+            <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);padding:16px">
+              <h2 style="margin:0 0 4px;font-size:15px;font-weight:600">Exibição e controle</h2>
+              <p style="margin:0 0 16px;font-size:12px;color:#667788;text-wrap:pretty">O produto nasce ativo; estas chaves podem mudar depois.</p>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ switches }}" as="sw" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:12px 0;border-top:1px solid {{ sw.sep }}">
+                    <div style="min-width:0">
+                      <div style="font-size:14px;font-weight:500">{{ sw.label }}</div>
+                      <div style="font-size:12px;color:#667788;text-wrap:pretty">{{ sw.hint }}</div>
+                    </div>
+                    <button onClick="{{ sw.toggle }}" title="{{ sw.label }}" style="flex:none;width:38px;height:22px;margin-top:2px;border:none;border-radius:999px;background:{{ sw.trackBg }};cursor:pointer;position:relative;transition:background .15s ease">
+                      <span style="position:absolute;top:3px;left:{{ sw.knobX }};width:16px;height:16px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.2);transition:left .15s ease"></span>
+                    </button>
+                  </div>
+                </sc-for>
+              </div>
+            </section>
+          </sc-if>
+
+          <sc-if value="{{ sideResumoOn }}">
+            <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);padding:16px">
+              <h2 style="margin:0 0 16px;font-size:15px;font-weight:600">Resumo</h2>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ resumo }}" as="r" hint-placeholder-count="8">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0;border-top:1px solid {{ r.sep }};min-width:0">
+                    <span style="flex:none;font-size:12px;color:#667788">{{ r.label }}</span>
+                    <sc-if value="{{ r.badgeOn }}">
+                      <span style="display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:{{ r.badgeBg }};color:{{ r.badgeColor }};font-size:12px;font-weight:600">{{ r.value }}</span>
+                    </sc-if>
+                    <sc-if value="{{ r.chipOn }}">
+                      <span style="display:flex;align-items:center;gap:8px;min-width:0">
+                        <span style="width:20px;height:20px;flex:none;border-radius:999px;background:{{ r.chipColor }};color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ r.chipIni }}</span>
+                        <span style="font-size:13px;color:#1E2A3A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.value }}</span>
+                      </span>
+                    </sc-if>
+                    <sc-if value="{{ r.textoOn }}">
+                      <span style="font-size:13px;color:#1E2A3A;text-align:right;min-width:0;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.value }}</span>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </section>
+          </sc-if>
+
+          <sc-if value="{{ sideAcoesOn }}">
+            <section style="background:#fff;border:1px solid #E2E5EA;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.04);padding:16px">
+              <h2 style="margin:0 0 4px;font-size:15px;font-weight:600">Ações</h2>
+              <p style="margin:0 0 16px;font-size:12px;color:#667788;text-wrap:pretty">{{ desativarAjuda }}</p>
+              <button onClick="{{ abrirDesativar }}" style="width:100%;height:36px;background:#fff;border:1px solid {{ desativarBorder }};border-radius:8px;font-size:14px;font-weight:600;color:{{ desativarColor }};cursor:pointer" style-hover="background:#F8F9FB">{{ desativarLabel }}</button>
+            </section>
+          </sc-if>
+        </aside>
+      </sc-if>
+    </div>
+  </main>
+  <sc-if value="{{ footerOn }}">
+    <div style="position:fixed;bottom:0;right:0;left:{{ shellML }};z-index:35;background:#fff;border-top:1px solid #E2E5EA;box-shadow:0 -2px 8px rgba(15,23,32,0.06);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;transition:left .18s ease">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:{{ footerMsgColor }};min-width:0">
+        <sc-if value="{{ footerDotOn }}">
+          <span style="width:7px;height:7px;flex:none;border-radius:999px;background:#F5C842"></span>
+        </sc-if>
+        <span style="text-wrap:pretty">{{ footerMsg }}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex:{{ footerBtnsFlex }}">
+        <button onClick="{{ footerCancel }}" style="flex:{{ btnFlex }};height:36px;padding:0 16px;background:{{ cancelBg }};border:{{ cancelBorder }};border-radius:8px;font-size:14px;font-weight:600;color:#475569;cursor:pointer" style-hover="background:#F1F3F5">{{ footerCancelLabel }}</button>
+        <button onClick="{{ footerSave }}" style="flex:{{ btnFlex }};display:flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 16px;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;opacity:{{ footerSaveOpacity }}" style-hover="background:#141922">
+          <sc-if value="{{ footerSpinner }}">
+            <span style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:999px;animation:sf-spin .7s linear infinite"></span>
+          </sc-if>
+          {{ footerSaveLabel }}
+        </button>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ modalOn }}">
+    <div style="position:fixed;inset:0;z-index:70;background:rgba(15,23,32,0.45);display:flex;align-items:{{ modalAlign }};justify-content:center;padding:{{ modalPad }}">
+      <div style="width:100%;max-width:{{ modalMax }};max-height:{{ modalMaxH }};background:#fff;border-radius:{{ modalRadius }};box-shadow:0 16px 48px rgba(15,23,32,0.24);display:flex;flex-direction:column;overflow:hidden">
+        <div style="flex:none;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:16px;border-bottom:1px solid #E2E5EA">
+          <div style="min-width:0">
+            <h3 style="margin:0;font-size:16px;font-weight:600;text-wrap:pretty">{{ modalTitulo }}</h3>
+            <sc-if value="{{ modalSubOn }}">
+              <p style="margin:4px 0 0;font-size:12px;color:#667788;font-variant-numeric:tabular-nums">{{ modalSub }}</p>
+            </sc-if>
+          </div>
+          <button onClick="{{ fecharModal }}" title="Fechar" style="flex:none;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:#8B93A7;cursor:pointer" style-hover="background:#F1F3F5;color:#1E2A3A">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+          </button>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:16px">
+          <div style="display:grid;grid-template-columns:{{ modalCols }};gap:16px">
+            <sc-for list="{{ modalFields }}" as="fd" hint-placeholder-count="6">
+              <div style="display:flex;flex-direction:column;gap:4px;min-width:0;grid-column:{{ fd.span }}">
+                <sc-if value="{{ fd.isSwitch }}">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 12px;border:1px solid #EEF1F5;border-radius:8px;background:#F8F9FB">
+                    <span style="font-size:13px;font-weight:500">{{ fd.label }}</span>
+                    <button onClick="{{ fd.toggle }}" title="{{ fd.label }}" style="flex:none;width:38px;height:22px;border:none;border-radius:999px;background:{{ fd.trackBg }};cursor:pointer;position:relative">
+                      <span style="position:absolute;top:3px;left:{{ fd.knobX }};width:16px;height:16px;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.2);transition:left .15s ease"></span>
+                    </button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ fd.labelOn }}">
+                  <span style="font-size:12px;font-weight:600;color:#475569">{{ fd.label }}<span style="color:#EF4444">{{ fd.reqMark }}</span></span>
+                </sc-if>
+                <sc-if value="{{ fd.isInput }}">
+                  <input type="{{ fd.tipo }}" value="{{ fd.value }}" onChange="{{ fd.onChange }}" placeholder="{{ fd.placeholder }}" style="width:100%;height:36px;padding:0 12px;border:1px solid {{ fd.borderColor }};border-radius:8px;background:#fff;font-size:14px;font-family:{{ fd.fonte }};color:#1E2A3A;outline:none" style-focus="border-color:#8B93A7">
+                </sc-if>
+                <sc-if value="{{ fd.isSelect }}">
+                  <div style="position:relative">
+                    <select value="{{ fd.value }}" onChange="{{ fd.onChange }}" style="width:100%;height:36px;padding:0 36px 0 12px;border:1px solid {{ fd.borderColor }};border-radius:8px;background:#fff;font-size:14px;color:#1E2A3A;outline:none;appearance:none;cursor:pointer" style-focus="border-color:#8B93A7">
+                      <sc-if value="{{ fd.emptyOn }}">
+                        <option value="">{{ fd.emptyOpt }}</option>
+                      </sc-if>
+                      <sc-for list="{{ fd.options }}" as="o" hint-placeholder-count="3">
+                        <option value="{{ o.v }}">{{ o.v }}</option>
+                      </sc-for>
+                    </select>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B93A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;right:12px;top:11px;pointer-events:none"><path d="m6 9 6 6 6-6"></path></svg>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ fd.isArea }}">
+                  <textarea value="{{ fd.value }}" onChange="{{ fd.onChange }}" placeholder="{{ fd.placeholder }}" rows="{{ fd.rows }}" style="width:100%;min-height:{{ fd.minH }};padding:12px;border:1px solid {{ fd.borderColor }};border-radius:8px;background:#fff;font-size:13.5px;font-family:{{ fd.fonte }};line-height:1.6;color:#1E2A3A;outline:none;resize:vertical" style-focus="border-color:#8B93A7"></textarea>
+                </sc-if>
+                <sc-if value="{{ fd.isReadonly }}">
+                  
+                </sc-if>
+                <sc-if value="{{ fd.errOn }}">
+                  <span style="font-size:12px;color:#EF4444;text-wrap:pretty">{{ fd.errMsg }}</span>
+                </sc-if>
+                <sc-if value="{{ fd.hintOn }}">
+                  
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex:none;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:16px;border-top:1px solid #E2E5EA;background:#F8F9FB">
+          <button onClick="{{ fecharModal }}" style="flex:{{ btnFlex }};height:36px;padding:0 16px;background:#fff;border:1px solid #E2E5EA;border-radius:8px;font-size:14px;font-weight:600;color:#475569;cursor:pointer" style-hover="background:#F1F3F5">Cancelar</button>
+          <button onClick="{{ salvarModal }}" style="flex:{{ btnFlex }};display:flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 16px;background:#1E2430;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;opacity:{{ modalSaveOpacity }}" style-hover="background:#141922">
+            <sc-if value="{{ modalSaving }}">
+              <span style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:999px;animation:sf-spin .7s linear infinite"></span>
+            </sc-if>
+            {{ modalSaveLabel }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ dialogOn }}">
+    <div style="position:fixed;inset:0;z-index:75;background:rgba(15,23,32,0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+      <div style="width:100%;max-width:460px;background:#fff;border-radius:8px;box-shadow:0 16px 48px rgba(15,23,32,0.24);padding:24px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="flex:none;width:36px;height:36px;border-radius:999px;background:{{ dialogIconBg }};display:flex;align-items:center;justify-content:center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ dialogIconColor }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ dialogIconPath }}"></path><path d="{{ dialogIconPath2 }}"></path></svg>
+          </div>
+          <div style="min-width:0">
+            <h3 style="margin:0;font-size:16px;font-weight:600;text-wrap:pretty">{{ dialogTitulo }}</h3>
+            <p style="margin:4px 0 0;font-size:13px;line-height:1.55;color:#667788;text-wrap:pretty">{{ dialogTexto }}</p>
+          </div>
+        </div>
+        <sc-if value="{{ dialogAvisoOn }}">
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:12px;border-radius:8px;background:{{ dialogAvisoBg }};font-size:12.5px;line-height:1.5;color:{{ dialogAvisoColor }};text-wrap:pretty">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+            <span>{{ dialogAviso }}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ dialogDataOn }}">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:12px;font-weight:600;color:#475569">Fechada em</span>
+            <input type="date" value="{{ dialogData }}" onChange="{{ onDialogData }}" style="width:100%;height:36px;padding:0 12px;border:1px solid #E2E5EA;border-radius:8px;background:#fff;font-size:14px;color:#1E2A3A;outline:none" style-focus="border-color:#8B93A7">
+          </div>
+        </sc-if>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap">
+          <button onClick="{{ fecharDialog }}" style="flex:{{ btnFlex }};height:36px;padding:0 16px;background:#fff;border:1px solid #E2E5EA;border-radius:8px;font-size:14px;font-weight:600;color:#475569;cursor:pointer" style-hover="background:#F1F3F5">{{ dialogCancelLabel }}</button>
+          <sc-if value="{{ dialogConfirmOn }}">
+            <button onClick="{{ confirmarDialog }}" style="flex:{{ btnFlex }};height:36px;padding:0 16px;background:{{ dialogConfirmBg }};color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" style-hover="opacity:.9">{{ dialogConfirmLabel }}</button>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastOn }}">
+    <div style="position:fixed;right:24px;bottom:{{ toastBottom }};z-index:80;display:flex;align-items:flex-start;gap:8px;max-width:360px;background:#1E2A3A;color:#F7F9FB;padding:12px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(15,23,32,0.22);font-size:13px;font-weight:500;line-height:1.45;animation:sf-toast .18s ease-out">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ toastColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><circle cx="12" cy="12" r="10"></circle><path d="{{ toastP1 }}"></path><path d="{{ toastP2 }}"></path></svg>
+      <span style="text-wrap:pretty">{{ toastMsg }}</span>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;tela&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Listagem&quot;,&quot;Novo produto&quot;,&quot;Detalhe&quot;],&quot;default&quot;:&quot;Listagem&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Protótipo&quot;},&quot;aba&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Dados gerais&quot;,&quot;Versões&quot;,&quot;Módulos&quot;,&quot;Checklist&quot;,&quot;Scripts&quot;],&quot;default&quot;:&quot;Dados gerais&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Protótipo&quot;},&quot;estado&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Com dados&quot;,&quot;Skeleton&quot;,&quot;Vazio&quot;,&quot;Vazio por filtro&quot;,&quot;Erro&quot;],&quot;default&quot;:&quot;Com dados&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Protótipo&quot;},&quot;permissao&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Pode editar&quot;,&quot;Somente leitura&quot;],&quot;default&quot;:&quot;Pode editar&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Protótipo&quot;},&quot;viewport&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Desktop&quot;,&quot;Mobile&quot;],&quot;default&quot;:&quot;Desktop&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Casca&quot;},&quot;sidebar&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Expandida&quot;,&quot;Colapsada&quot;],&quot;default&quot;:&quot;Expandida&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Casca&quot;}}">
+class Component extends DCLogic {
+  state = {
+    tela: null, aba: null, estado: null, perm: null, viewport: null, collapsed: null,
+    drawer: false, configOpen: false, winW: 1440,
+    fNome: '', fSetor: '',
+    form: null, dirty: false, submitted: false, saving: false, criando: false,
+    ativo: true,
+    versoes: null, modulos: null, checklist: null, scripts: null,
+    menu: null, modal: null, mv: null, mvErr: false, mvSaving: false,
+    dialog: null,
+    accordion: null, copied: null,
+    dragId: null, overId: null,
+    novoTxt: '', novoResp: 'Ana Ribeiro', editId: null, editTxt: '', editResp: '',
+    toast: null, toastKind: 'ok'
+  };
+
+  COLABS = ['Ana Ribeiro', 'Bruno Tavares', 'Carla Nunes', 'Diego Moraes', 'Elisa Prado'];
+  SETORES = ['SQUAD XP', 'SQUAD ALPHA', 'SQUAD PAY', 'SQUAD BACKOFFICE', 'SUPORTE TÉCNICO', 'PARAMETRIZAÇÃO'];
+
+  PRODUTOS = [
+    [205, 'Smart (Softcom Smart)', 'SQUAD XP', 'Luiz', 'Mendonça', '19/06/2020', true, true],
+    [318, 'Smart Express', 'SQUAD XP', 'Luiz', 'Mendonça', '04/02/2021', true, false],
+    [402, 'API Smart TEF', 'SQUAD PAY', 'Carla', 'Diego', '11/08/2021', true, false],
+    [417, 'Smart Totem', 'SQUAD ALPHA', 'Ana', 'Bruno', '23/03/2022', true, false],
+    [423, 'Smart AutoPagamento', 'SQUAD PAY', 'Carla', 'Diego', '15/07/2022', true, false],
+    [451, 'Smart Comanda', 'SQUAD ALPHA', 'Ana', 'Bruno', '02/12/2022', true, true],
+    [468, 'Smart Minimercado', 'SQUAD XP', 'Luiz', 'Mendonça', '19/05/2023', true, false],
+    [472, 'Softcom Retaguarda', 'SQUAD BACKOFFICE', 'Elisa', 'Diego', '08/09/2023', true, false],
+    [488, 'Smart Delivery', 'SQUAD ALPHA', 'Ana', 'Bruno', '27/01/2024', true, false],
+    [494, 'Smart Fidelidade', 'SQUAD PAY', 'Carla', 'Elisa', '14/06/2024', false, false],
+    [501, 'Portal do Parceiro', 'SQUAD BACKOFFICE', 'Elisa', 'Diego', '30/10/2024', true, false],
+    [509, 'Smart TEF Legado', 'SQUAD PAY', 'Carla', 'Diego', '22/02/2025', false, false]
+  ];
+
+  SMART = {
+    nome: 'Smart (Softcom Smart)', setor: 'SQUAD XP', po: 'Ana Ribeiro', sm: 'Diego Moraes',
+    vinc: 'Nenhum', nec: '4192', sup: 'SUPORTE TÉCNICO', par: 'PARAMETRIZAÇÃO',
+    bugs: 'Bruno Tavares', mel: 'Carla Nunes',
+    tec: 'Stack: Java 17 + PostgreSQL 14. Integração fiscal via serviço próprio de impressão. TEF homologado com as adquirentes ativas. Atualizador roda em janela noturna, com rollback por versão de banco.',
+    consulta: true, teste: true, faq: true, burndown: true, vaca: true
+  };
+  VAZIO = {
+    nome: '', setor: '', po: '', sm: '', vinc: 'Nenhum', nec: '', sup: '', par: '',
+    bugs: '', mel: '', tec: '', consulta: true, teste: false, faq: false, burndown: true, vaca: false
+  };
+
+  componentDidMount() {
+    this._onResize = () => this.setState({ winW: window.innerWidth });
+    this._onResize();
+    window.addEventListener('resize', this._onResize);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this._onResize);
+    clearTimeout(this._t); clearTimeout(this._t2); clearTimeout(this._t3);
+  }
+  componentDidUpdate(prev) {
+    const p = prev || {}, patch = {};
+    if (p.tela !== this.props.tela) { patch.tela = null; patch.form = null; patch.dirty = false; patch.submitted = false; patch.modal = null; patch.dialog = null; }
+    if (p.aba !== this.props.aba) { patch.aba = null; patch.modal = null; patch.dialog = null; }
+    if (p.estado !== this.props.estado) patch.estado = null;
+    if (p.permissao !== this.props.permissao) { patch.perm = null; patch.menu = null; }
+    if (p.viewport !== this.props.viewport) patch.viewport = null;
+    if (p.sidebar !== this.props.sidebar) patch.collapsed = null;
+    if (Object.keys(patch).length) this.setState(patch);
+  }
+
+  toast(msg, kind) {
+    this.setState({ toast: msg, toastKind: kind || 'ok' });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 3200);
+  }
+  ini(nome) {
+    if (!nome) return '--';
+    const p = String(nome).trim().split(/\s+/).filter(Boolean);
+    const a = (p[0] || '').charAt(0);
+    const b = p.length > 1 ? (p[p.length - 1] || '').charAt(0) : '';
+    return (a + b).toUpperCase();
+  }
+  chipColor(nome) {
+    const cores = ['#3B82F6', '#475569', '#667788', '#16A34A', '#8B93A7'];
+    let s = 0;
+    for (let i = 0; i < String(nome).length; i++) s += String(nome).charCodeAt(i);
+    return cores[s % cores.length];
+  }
+  telaAtual() { return this.state.tela ?? (this.props.tela ?? 'Listagem'); }
+  abaAtual() { return this.state.aba ?? (this.props.aba ?? 'Dados gerais'); }
+  estadoAtual() { return this.state.estado ?? (this.props.estado ?? 'Com dados'); }
+  podeEditarAtual() { return (this.state.perm ?? (this.props.permissao ?? 'Pode editar')) === 'Pode editar'; }
+  formVals() { return this.state.form ?? (this.telaAtual() === 'Novo produto' ? this.VAZIO : this.SMART); }
+  setForm(k, v) {
+    const base = this.formVals();
+    this.setState({ form: Object.assign({}, base, { [k]: v }), dirty: this.telaAtual() !== 'Novo produto' });
+  }
+
+  goLista = (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ tela: 'Listagem', form: null, dirty: false, submitted: false, menu: null }); };
+  goNovo = () => this.setState({ tela: 'Novo produto', form: null, submitted: false, dirty: false });
+  goDetalhe = (aba) => this.setState({ tela: 'Detalhe', aba: aba || 'Dados gerais', form: null, dirty: false, submitted: false, menu: null });
+
+  renderVals() {
+    const tela = this.telaAtual();
+    const aba = this.abaAtual();
+    const estado = this.estadoAtual();
+    const podeEditar = this.podeEditarAtual();
+    const vp = this.state.viewport ?? (this.props.viewport ?? 'Desktop');
+    const narrow = vp === 'Mobile' || this.state.winW < 700;
+    const stack = narrow || this.state.winW < 1180;
+    const collapsed = this.state.collapsed ?? (this.props.sidebar === 'Colapsada');
+    const expanded = !collapsed || narrow;
+
+    const isLista = tela === 'Listagem', isNovo = tela === 'Novo produto', isDetalhe = tela === 'Detalhe';
+    const f = this.formVals();
+
+    let filtrados = this.PRODUTOS;
+    const fn = this.state.fNome.trim().toLowerCase();
+    if (fn) filtrados = filtrados.filter((p) => p[1].toLowerCase().indexOf(fn) >= 0);
+    if (this.state.fSetor) filtrados = filtrados.filter((p) => p[2] === this.state.fSetor);
+    const filtroAtivo = !!fn || !!this.state.fSetor || estado === 'Vazio por filtro';
+    if (estado === 'Vazio' || estado === 'Vazio por filtro') filtrados = [];
+
+    const produtos = filtrados.map((p) => ({
+      registro: '#' + p[0],
+      nome: p[1], setor: p[2], po: p[3], sm: p[4], data: p[5],
+      vaca: p[7],
+      inkColor: p[6] ? '#1E2A3A' : '#5C6676',
+      subColor: '#667788',
+      stLabel: p[6] ? 'Ativo' : 'Desativado',
+      stBg: p[6] ? '#DCFCE7' : '#F1F3F5',
+      stColor: p[6] ? '#16A34A' : '#667788',
+      poIni: this.ini(p[3]), smIni: this.ini(p[4]),
+      poColor: this.chipColor(p[3]), smColor: this.chipColor(p[4]),
+      open: () => this.goDetalhe('Dados gerais')
+    }));
+
+    const dirty = this.state.dirty;
+    const footerOn = isNovo || (isDetalhe && aba === 'Dados gerais' && podeEditar && dirty);
+
+    const ctx = { tela, aba, estado, podeEditar, narrow, stack, wide: !narrow, f, isLista, isNovo, isDetalhe };
+    const base = {
+      expanded, narrow, wide: !narrow,
+      drawerOpen: narrow && this.state.drawer,
+      sidebarW: narrow ? '256px' : (collapsed ? '64px' : '256px'),
+      sidebarTx: narrow ? (this.state.drawer ? 'translateX(0)' : 'translateX(-100%)') : 'translateX(0)',
+      shellML: narrow ? '0px' : (collapsed ? '64px' : '256px'),
+      collapseIcon: collapsed ? 'm9 18 6-6-6-6' : 'm15 18-6-6 6-6',
+      configChevron: this.state.configOpen ? 'm18 15-6-6-6 6' : 'm6 9 6 6 6-6',
+      configOpen: this.state.configOpen,
+      papelLabel: podeEditar ? 'Gestor do squad' : 'Analista de suporte',
+      toggleSidebar: () => this.setState({ collapsed: !collapsed }),
+      toggleConfig: () => this.setState((s) => ({ configOpen: !s.configOpen })),
+      openDrawer: () => this.setState({ drawer: true }),
+      closeDrawer: () => this.setState({ drawer: false }),
+
+      isLista, isNovo, isDetalhe,
+      goLista: this.goLista, goNovo: this.goNovo,
+      podeCriar: podeEditar,
+      btnFlex: narrow ? '1 1 100%' : 'none',
+      mainPB: footerOn ? '104px' : '48px',
+      bodyCols: (stack || isLista) ? '1fr' : 'minmax(0,1fr) 362px',
+      sidePos: stack ? 'static' : 'sticky',
+      crumbProdColor: isLista ? '#1E2A3A' : '#667788',
+      crumbProdWeight: isLista ? '600' : '400',
+      crumbLeafOn: !isLista,
+      crumbLeaf: isNovo ? 'Novo produto' : this.SMART.nome,
+
+      prodNome: this.SMART.nome,
+      prodRegistro: '#205',
+      statusLabel: this.state.ativo ? 'Ativo' : 'Desativado',
+      statusBg: this.state.ativo ? '#DCFCE7' : '#F1F3F5',
+      statusColor: this.state.ativo ? '#16A34A' : '#667788',
+      vacaOn: f.vaca,
+      soLeitura: !podeEditar,
+
+      produtos,
+      listaVazia: produtos.length === 0 && estado !== 'Skeleton' && estado !== 'Erro',
+      isSkeleton: estado === 'Skeleton',
+      isErro: estado === 'Erro',
+      isDados: estado === 'Com dados',
+      filtroAtivo,
+      vazioTitulo: filtroAtivo ? 'Nenhum produto encontrado para esses filtros' : 'Nenhum produto cadastrado',
+      vazioTexto: filtroAtivo ? 'Ajuste o nome ou o setor para ampliar a busca.' : 'Cadastre a primeira linha de software para começar a registrar versões e liberações.',
+      fNome: this.state.fNome,
+      fNomeSet: !!this.state.fNome,
+      fSetor: this.state.fSetor,
+      fSetorSet: !!this.state.fSetor,
+      onFNome: (e) => this.setState({ fNome: e.target.value }),
+      onFSetor: (e) => this.setState({ fSetor: e.target.value }),
+      clearFNome: () => this.setState({ fNome: '' }),
+      clearFSetor: () => this.setState({ fSetor: '' }),
+      limparFiltros: () => this.setState({ fNome: '', fSetor: '' }),
+      setores: this.SETORES.map((s) => ({ v: s })),
+      filterCols: narrow ? '1fr' : 'repeat(2,minmax(0,1fr))',
+      listaCols: '76px minmax(0,1fr) 150px 116px 116px 104px 100px',
+      skelRows: [{ d: '0s' }, { d: '.08s' }, { d: '.16s' }, { d: '.24s' }, { d: '.32s' }, { d: '.4s' }],
+      tentarNovamente: () => this.toast('Lista atualizada'),
+
+      footerOn,
+      toastOn: !!this.state.toast,
+      toastMsg: this.state.toast || '',
+      toastBottom: footerOn ? '84px' : '24px',
+      toastColor: this.state.toastKind === 'erro' ? '#EF4444' : '#16A34A',
+      toastP1: this.state.toastKind === 'erro' ? 'M12 8v4' : 'm9 12 2 2 4-4',
+      toastP2: this.state.toastKind === 'erro' ? 'M12 16h.01' : '',
+
+      vazioNovoOn: !filtroAtivo && podeEditar,
+      linhasWide: !narrow && produtos.length > 0,
+      linhasNarrow: narrow && produtos.length > 0,
+      skelCols: narrow ? 'minmax(0,1fr) 96px' : '96px minmax(0,1fr) 180px 104px',
+      podeEditarProd: podeEditar,
+      colabOpts: this.COLABS.map((c) => ({ v: c })),
+      abaSkeleton: estado === 'Skeleton' && isDetalhe,
+      abaVazia: (estado === 'Vazio' || estado === 'Vazio por filtro') && isDetalhe,
+      abaComDados: isDetalhe && estado !== 'Skeleton' && estado !== 'Vazio' && estado !== 'Vazio por filtro'
+    };
+    return Object.assign(base,
+      this.valsTabs(ctx), this.valsForm(ctx), this.valsSide(ctx), this.valsFooter(ctx),
+      this.valsVersoes(ctx), this.valsModulos(ctx), this.valsChecklist(ctx), this.valsScripts(ctx),
+      this.valsModal(ctx), this.valsDialog(ctx));
+  }
+
+  // ---------- abas ----------
+  valsTabs(c) {
+    const guard = c.isDetalhe && c.aba === 'Dados gerais' && c.podeEditar && this.state.dirty;
+    const tabs = ['Dados gerais', 'Versões', 'Módulos', 'Checklist', 'Scripts'].map((t) => ({
+      label: t,
+      color: t === c.aba ? '#1E2A3A' : '#667788',
+      weight: t === c.aba ? '600' : '500',
+      border: t === c.aba ? '2px solid #1E2430' : '2px solid transparent',
+      onClick: () => {
+        if (t === c.aba) return;
+        if (guard) this.setState({ dialog: { kind: 'descartar', prox: t } });
+        else this.setState({ aba: t, menu: null, modal: null });
+      }
+    }));
+    return { tabsOn: c.isDetalhe, tabs };
+  }
+
+  // ---------- formulário ----------
+  mkField(o, ro) {
+    const f = this.formVals();
+    const raw = f[o.k];
+    const val = raw === undefined || raw === null ? '' : String(raw);
+    const err = !ro && this.state.submitted && o.req && !val.trim();
+    const isSel = o.tipo === 'select';
+    return {
+      label: o.label, req: !!o.req && !ro, span: o.span ? '1 / -1' : 'auto',
+      value: val, display: val || '—',
+      isText: !!ro, isInput: !ro && !isSel, isSelect: !ro && isSel,
+      chipOn: !!ro && !!o.chip && !!val, chipIni: this.ini(val), chipColor: this.chipColor(val),
+      placeholder: o.ph || '', tipo: o.numero ? 'number' : 'text',
+      options: (o.options || []).map((v) => ({ v })), emptyOpt: o.emptyOpt || 'Selecione…',
+      errOn: err, errMsg: 'Campo obrigatório',
+      hint: o.hint || '', hintOn: !!o.hint && !err,
+      borderColor: err ? '#EF4444' : '#E2E5EA',
+      onChange: (e) => this.setForm(o.k, e.target.value)
+    };
+  }
+
+  valsForm(c) {
+    const formOn = c.isNovo || (c.isDetalhe && c.aba === 'Dados gerais');
+    const ro = c.isDetalhe && !c.podeEditar;
+    const produtosOpts = this.PRODUTOS.map((p) => p[1]).filter((n) => n !== this.SMART.nome);
+    const idFields = [
+      this.mkField({ k: 'nome', label: 'Nome do produto', req: true, ph: 'Ex.: Smart Express' }, ro),
+      this.mkField({ k: 'setor', label: 'Setor', req: true, tipo: 'select', options: this.SETORES }, ro),
+      this.mkField({ k: 'po', label: 'Product Owner', req: true, tipo: 'select', options: this.COLABS, chip: true }, ro),
+      this.mkField({ k: 'sm', label: 'Scrum Master', req: true, tipo: 'select', options: this.COLABS, chip: true }, ro),
+      this.mkField({ k: 'vinc', label: 'Vinculado a', tipo: 'select', options: produtosOpts, emptyOpt: 'Nenhum' }, ro),
+      this.mkField({ k: 'nec', label: 'Necessidade comercial', numero: true, ph: 'ID', hint: 'Opcional — ID da necessidade no comercial' }, ro)
+    ];
+    const respFields = [
+      this.mkField({ k: 'sup', label: 'Responsável suporte', req: true, tipo: 'select', options: this.SETORES }, ro),
+      this.mkField({ k: 'par', label: 'Responsável parametrização', req: true, tipo: 'select', options: this.SETORES }, ro),
+      this.mkField({ k: 'bugs', label: 'Responsável bugs (suporte)', tipo: 'select', options: this.COLABS, emptyOpt: 'Nenhum', chip: true }, ro),
+      this.mkField({ k: 'mel', label: 'Responsável melhorias (suporte)', tipo: 'select', options: this.COLABS, emptyOpt: 'Nenhum', chip: true }, ro)
+    ];
+    const swDefs = [
+      ['consulta', 'Mostrar na consulta', 'Aparece nas seleções de produto do Softflow'],
+      ['teste', 'Mostrar em teste', 'Disponível nos ambientes de teste'],
+      ['faq', 'Exibir FAQ', 'Mostra a base de perguntas na documentação'],
+      ['burndown', 'Calcular burndown', 'Entra no gráfico de progresso das versões'],
+      ['vaca', 'Vaca leiteira', 'Produto maduro, em manutenção']
+    ];
+    const switches = swDefs.map((s, i) => {
+      const on = !!c.f[s[0]];
+      return {
+        label: s[1], hint: s[2], sep: i === 0 ? 'transparent' : '#EEF1F5',
+        editavel: !ro, leitura: ro,
+        trackBg: on ? '#1E2430' : '#D7DCE3', knobX: on ? '19px' : '3px',
+        simLabel: on ? 'Sim' : 'Não', simColor: on ? '#1E2A3A' : '#8B93A7',
+        toggle: () => this.setForm(s[0], !on)
+      };
+    });
+    const tec = c.f.tec || '';
+    return {
+      formOn, metaOn: c.isDetalhe, formCols: (c.narrow || c.stack) ? '1fr' : 'repeat(2,minmax(0,1fr))',
+      idFields, respFields, switches,
+      switchesInline: formOn && (c.isNovo ? c.narrow : true),
+      tecEdit: !ro, tecRead: ro, tecValue: tec,
+      tecDisplay: tec || '—',
+      tecCount: tec.length + ' caracteres',
+      tecChange: (e) => this.setForm('tec', e.target.value)
+    };
+  }
+
+  // ---------- lateral ----------
+  valsSide(c) {
+    const sideOn = !c.narrow && (c.isNovo || c.isDetalhe);
+    const rows = [
+      { label: 'Status', badge: true },
+      { label: 'Product Owner', value: c.f.po, chip: true },
+      { label: 'Scrum Master', value: c.f.sm, chip: true },
+      { label: 'Setor', value: c.f.setor },
+      { label: 'Resp. suporte', value: c.f.sup },
+      { label: 'Resp. parametrização', value: c.f.par },
+      { label: 'Resp. bugs', value: c.f.bugs, chip: true },
+      { label: 'Resp. melhorias', value: c.f.mel, chip: true },
+      { label: 'Vinculado a', value: c.f.vinc === 'Nenhum' ? '—' : c.f.vinc },
+      { label: 'Data do cadastro', value: '19/06/2020 13:41' }
+    ];
+    const ativo = this.state.ativo;
+    const resumo = rows.map((r, i) => {
+      const val = r.badge ? (ativo ? 'Ativo' : 'Desativado') : (r.value || '—');
+      const chipOn = !!r.chip && !!r.value;
+      return {
+        label: r.label, value: val, sep: i === 0 ? 'transparent' : '#EEF1F5',
+        badgeOn: !!r.badge, badgeBg: ativo ? '#DCFCE7' : '#F1F3F5', badgeColor: ativo ? '#16A34A' : '#667788',
+        chipOn, chipIni: this.ini(r.value), chipColor: this.chipColor(r.value),
+        textoOn: !r.badge && !chipOn
+      };
+    });
+    return {
+      sideOn,
+      sideSwitchesOn: c.isNovo,
+      sideResumoOn: c.isDetalhe,
+      sideAcoesOn: c.isDetalhe && c.podeEditar,
+      resumo,
+      mobResumoOn: c.narrow && c.isDetalhe,
+      resumoMob: [
+        { label: 'Status', value: ativo ? 'Ativo' : 'Desativado' },
+        { label: 'Setor', value: c.f.setor || '—' },
+        { label: 'Product Owner', value: c.f.po || '—' },
+        { label: 'Scrum Master', value: c.f.sm || '—' }
+      ],
+      desativarLabel: ativo ? 'Desativar produto' : 'Reativar produto',
+      desativarColor: ativo ? '#DC2626' : '#1E2A3A',
+      desativarBorder: ativo ? '#FCA5A5' : '#E2E5EA',
+      desativarAjuda: ativo
+        ? 'Produtos desativados somem das seleções, mas o histórico é mantido.'
+        : 'Reativar volta a exibir o produto nas seleções.',
+      abrirDesativar: () => this.setState({ dialog: { kind: ativo ? 'desativar' : 'reativar' } })
+    };
+  }
+
+  // ---------- rodapé ----------
+  valsFooter(c) {
+    const isNovo = c.isNovo;
+    const salvando = isNovo ? this.state.criando : this.state.saving;
+    return {
+      footerMsg: isNovo ? 'Registro e data do cadastro são gerados ao salvar' : 'Alterações não salvas',
+      footerMsgColor: isNovo ? '#8B93A7' : '#475569',
+      footerDotOn: !isNovo,
+      footerBtnsFlex: c.narrow ? '1 1 100%' : 'none',
+      cancelBg: isNovo ? '#fff' : 'transparent',
+      cancelBorder: isNovo ? '1px solid #E2E5EA' : '1px solid transparent',
+      footerCancelLabel: isNovo ? 'Cancelar' : 'Descartar',
+      footerSaveLabel: isNovo ? (salvando ? 'Criando…' : 'Criar produto') : (salvando ? 'Salvando…' : 'Salvar alterações'),
+      footerSaveOpacity: salvando ? '0.75' : '1',
+      footerSpinner: salvando,
+      footerCancel: () => {
+        if (isNovo) this.goLista();
+        else this.setState({ form: null, dirty: false, submitted: false });
+      },
+      footerSave: () => {
+        if (salvando) return;
+        if (isNovo) {
+          const f = this.formVals();
+          const faltando = ['nome', 'setor', 'po', 'sm', 'sup', 'par'].some((k) => !String(f[k] || '').trim());
+          if (faltando) { this.setState({ submitted: true }); this.toast('Revise os campos obrigatórios', 'erro'); return; }
+          this.setState({ criando: true });
+          clearTimeout(this._t2);
+          this._t2 = setTimeout(() => {
+            this.setState({ criando: false, tela: 'Detalhe', aba: 'Versões', form: null, dirty: false, submitted: false });
+            this.toast('Produto criado');
+          }, 1000);
+        } else {
+          this.setState({ saving: true });
+          clearTimeout(this._t2);
+          this._t2 = setTimeout(() => { this.setState({ saving: false, dirty: false }); this.toast('Alterações salvas'); }, 900);
+        }
+      }
+    };
+  }
+
+  // ---------- versões ----------
+  VERSOES = [
+    { v: '8.1.1.0', st: 'ABERTO', rel: '1', ab: '16/09/2026', fe: '', notas: '', ht: false, test: '' },
+    { v: '8.0.2.0', st: 'ABERTO', rel: '2', ab: '15/09/2026', fe: '30/09/2027', notas: 'Serviço de Impressão + Desconto na Comanda', ht: true, test: 'Ana Ribeiro' },
+    { v: '7.1.3.0', st: 'FECHADO', rel: '3', ab: '14/07/2026', fe: '05/08/2026', notas: 'REPORTS', ht: false, test: 'Bruno Tavares' },
+    { v: '8.0.0.0', st: 'FECHADO', rel: '1', ab: '19/03/2026', fe: '01/09/2026', notas: 'Totem + Smart TEF + AutoPagamento', ht: true, test: 'Carla Nunes' }
+  ];
+
+  valsVersoes(c) {
+    const abaOn = c.isDetalhe && c.aba === 'Versões';
+    const dados = c.estado !== 'Skeleton' && c.estado !== 'Vazio' && c.estado !== 'Vazio por filtro';
+    const versoes = this.VERSOES.map((v) => {
+      const aberto = v.st === 'ABERTO';
+      const menuId = 'v:' + v.v;
+      return {
+        versao: v.v, status: v.st, release: v.rel, abertura: v.ab,
+        stBg: aberto ? '#DBEAFE' : '#F1F3F5', stColor: aberto ? '#1D4ED8' : '#475569',
+        fechamento: v.fe ? (aberto ? 'Previsão ' + v.fe : v.fe) : '—',
+        fechColor: v.fe ? (aberto ? '#667788' : '#1E2A3A') : '#C0C7D0',
+        fechTitle: v.fe ? (aberto ? 'Previsão de fechamento' : 'Fechada em ' + v.fe) : 'Sem previsão',
+        fechLabelMob: v.fe ? (aberto ? 'Previsão ' + v.fe : 'Fechada em ' + v.fe) : 'Sem previsão',
+        notas: v.notas || '—', temNotas: !!v.notas,
+        helptools: v.ht, semHelptools: !v.ht,
+        testador: v.test || '—', temTestador: !!v.test,
+        testIni: this.ini(v.test), testColor: this.chipColor(v.test),
+        acoesOn: c.podeEditar, excluirOn: c.podeEditar,
+        menuOn: this.state.menu === menuId,
+        lockPath: aberto ? 'M7 11V7a5 5 0 0 1 10 0v4' : 'M7 11V7a5 5 0 0 1 9.9-1',
+        alternarLabel: aberto ? 'Fechar versão' : 'Reabrir versão',
+        abrirMenu: (e) => { if (e) e.stopPropagation(); this.setState({ menu: this.state.menu === menuId ? null : menuId }); },
+        editar: (e) => {
+          if (e) e.stopPropagation();
+          if (!c.podeEditar) return;
+          this.abrirModal('versao', {
+            versao: v.v, release: v.rel, status: v.st, abertura: this.iso(v.ab), fechamento: this.iso(v.fe),
+            testador: v.test, hd: '', banco: '14.2', mesas: '3.1', notas: v.notas,
+            planejamento: true, helptools: v.ht, ideias: false, seq: '#4734', dataVersao: '19/03/2026 09:12'
+          });
+        },
+        alternar: (e) => {
+          if (e) e.stopPropagation();
+          this.setState({ menu: null, dialog: { kind: aberto ? 'fecharVersao' : 'reabrirVersao', alvo: v.v, data: '2026-09-16' } });
+        },
+        excluir: (e) => {
+          if (e) e.stopPropagation();
+          this.setState({ menu: null, dialog: { kind: aberto ? 'excluirVersao' : 'conflitoVersao', alvo: v.v } });
+        }
+      };
+    });
+    return {
+      abaVersoes: abaOn, versoes, verCols: '104px 104px 116px 152px minmax(120px,1fr) 92px 140px 44px',
+      versoesWide: abaOn && c.wide && dados, versoesNarrow: abaOn && c.narrow && dados,
+      novaVersao: () => this.abrirModal('versao', { status: 'ABERTO', abertura: '2026-09-16', planejamento: true, helptools: false, ideias: false })
+    };
+  }
+
+  iso(br) {
+    if (!br) return '';
+    const p = br.split('/');
+    return p.length === 3 ? p[2] + '-' + p[1] + '-' + p[0] : '';
+  }
+
+  // ---------- módulos ----------
+  MODULOS = [
+    { n: 'SMART PDV', ver: true, at: true, o: 1 },
+    { n: 'SMART AUTOPAGAMENTO', ver: true, at: true, o: 2 },
+    { n: 'SMART TEF', ver: true, at: false, o: 3 },
+    { n: 'SMART COMANDA', ver: true, at: true, o: 4 },
+    { n: 'COMANDA MOBILE', ver: true, at: false, o: 5 },
+    { n: 'SMART MINIMERCADO', ver: false, at: false, o: 6 },
+    { n: 'SMART PRE-VENDA', ver: true, at: false, o: 7 },
+    { n: 'SMART PADRÃO', ver: false, at: false, o: 8 },
+    { n: 'SMART TOTEM', ver: true, at: true, o: 9 },
+    { n: 'TODOS', ver: false, at: false, o: null }
+  ];
+
+  valsModulos(c) {
+    const modulos = this.MODULOS.map((m) => {
+      const menuId = 'm:' + m.n;
+      return {
+        nome: m.n, versionado: m.ver, atualizador: m.at,
+        ordem: m.o ? 'Impressão ' + m.o : 'Sem ordem',
+        acoesOn: c.podeEditar, excluirOn: c.podeEditar,
+        menuOn: this.state.menu === menuId,
+        abrirMenu: () => this.setState({ menu: this.state.menu === menuId ? null : menuId }),
+        editar: () => this.abrirModal('modulo', { nome: m.n, ordem: m.o ? String(m.o) : '', versionado: m.ver, atualizador: m.at }),
+        excluir: () => this.setState({ menu: null, dialog: { kind: 'excluirModulo', alvo: m.n } })
+      };
+    });
+    return {
+      abaModulos: c.isDetalhe && c.aba === 'Módulos', modulos,
+      novoModulo: () => this.abrirModal('modulo', { versionado: true, atualizador: false })
+    };
+  }
+
+  // ---------- checklist ----------
+  CHECK = [
+    { id: 1, t: 'Rodar roteiro de automação de testes', r: 'Ana Ribeiro' },
+    { id: 2, t: 'Subir APK no Helptools', r: 'Bruno Tavares' },
+    { id: 3, t: 'Lançar comunicado de liberação', r: 'Bruno Tavares' }
+  ];
+
+  checkList() { return this.state.checklist || this.CHECK; }
+
+  moverCheck(destinoId) {
+    const lista = this.checkList().slice();
+    const de = lista.findIndex((i) => i.id === this.state.dragId);
+    const para = lista.findIndex((i) => i.id === destinoId);
+    if (de < 0 || para < 0 || de === para) { this.setState({ dragId: null, overId: null }); return; }
+    const [item] = lista.splice(de, 1);
+    lista.splice(para, 0, item);
+    this.setState({ checklist: lista, dragId: null, overId: null });
+    this.toast('Ordem atualizada');
+  }
+
+  valsChecklist(c) {
+    const abaOn = c.isDetalhe && c.aba === 'Checklist';
+    const vazioEstado = c.estado === 'Vazio' || c.estado === 'Vazio por filtro';
+    const lista = vazioEstado ? [] : this.checkList();
+    const checklist = lista.map((it, i) => {
+      const editando = this.state.editId === it.id;
+      return {
+        ordem: i + 1, texto: it.t, resp: it.r,
+        respIni: this.ini(it.r), respColor: this.chipColor(it.r),
+        arrastavel: c.podeEditar && !editando,
+        acoesOn: c.podeEditar && !editando, excluirOn: c.podeEditar,
+        editando, exibindo: !editando,
+        editTxt: this.state.editTxt, editResp: this.state.editResp,
+        dropBorder: this.state.overId === it.id && this.state.dragId && this.state.dragId !== it.id ? '2px dashed #8B93A7' : '1px solid transparent',
+        rowBg: this.state.dragId === it.id ? '#fff' : 'transparent',
+        rowShadow: this.state.dragId === it.id ? '0 8px 20px rgba(15,23,32,0.16)' : 'none',
+        rowOpacity: this.state.dragId === it.id ? '0.92' : '1',
+        onDragStart: (e) => { if (e && e.dataTransfer) e.dataTransfer.effectAllowed = 'move'; this.setState({ dragId: it.id }); },
+        onDragOver: (e) => { if (e) e.preventDefault(); if (this.state.overId !== it.id) this.setState({ overId: it.id }); },
+        onDrop: (e) => { if (e) e.preventDefault(); this.moverCheck(it.id); },
+        onDragEnd: () => this.setState({ dragId: null, overId: null }),
+        onEditTxt: (e) => this.setState({ editTxt: e.target.value }),
+        onEditResp: (e) => this.setState({ editResp: e.target.value }),
+        editar: () => this.setState({ editId: it.id, editTxt: it.t, editResp: it.r }),
+        cancelarEdit: () => this.setState({ editId: null }),
+        salvarEdit: () => {
+          if (!this.state.editTxt.trim()) { this.toast('Descreva o item do checklist', 'erro'); return; }
+          const nova = this.checkList().map((x) => (x.id === it.id ? { id: x.id, t: this.state.editTxt, r: this.state.editResp } : x));
+          this.setState({ checklist: nova, editId: null });
+          this.toast('Item atualizado');
+        },
+        excluir: () => this.setState({ dialog: { kind: 'excluirCheck', alvo: it.t, id: it.id } })
+      };
+    });
+    return {
+      abaChecklist: abaOn, checklist,
+      checklistOn: abaOn && c.estado !== 'Skeleton',
+      checkVazio: checklist.length === 0,
+      novoTxt: this.state.novoTxt, novoResp: this.state.novoResp,
+      onNovoTxt: (e) => this.setState({ novoTxt: e.target.value }),
+      onNovoResp: (e) => this.setState({ novoResp: e.target.value }),
+      onNovoKey: (e) => { if (e.key === 'Enter') this.addChecklistItem(); },
+      addItem: () => this.addChecklistItem()
+    };
+  }
+
+  addChecklistItem() {
+    const txt = this.state.novoTxt.trim();
+    if (!txt) { this.toast('Descreva o item antes de adicionar', 'erro'); return; }
+    const lista = this.checkList().concat([{ id: Date.now(), t: txt, r: this.state.novoResp }]);
+    this.setState({ checklist: lista, novoTxt: '' });
+    this.toast('Item adicionado ao checklist');
+  }
+
+  // ---------- scripts ----------
+  SCRIPTS = [
+    { o: '1', t: 'Como Levantar o Ambiente de Teste', c: '1. Solicite o acesso de teste ao time de infraestrutura.\n2. Instale o pacote do produto na versão que será testada.\n3. Aponte a aplicação para https://exemplo.softcom.services\n4. Informe usuário e senha de teste na primeira execução.\n5. Confirme que o serviço de impressão sobe junto com a aplicação.\n6. Rode o roteiro de automação e anexe o resultado ao caso.' },
+    { o: '2', t: 'Endereço do servidor de Testes e Banco de Dados', c: 'Aplicação: https://exemplo.softcom.services\nBanco de dados: solicitar endereço ao time de infraestrutura\nCredenciais: usuário e senha pessoais, pelo cofre de senhas\n\nNunca registre credenciais neste script — use sempre o cofre.' },
+    { o: '3', t: 'Substituir o banco de dados atual por um zerado', c: '1. Pare a aplicação antes de qualquer operação no banco.\n2. Gere um backup do banco atual e guarde o arquivo.\n3. Restaure o dump zerado disponibilizado pelo time de dados.\n4. Rode o atualizador de versão do produto.\n5. Suba a aplicação e valide o login.\n6. Registre no caso qual dump foi utilizado.' },
+    { o: '4', t: 'Organizar Estoque Geral', c: '1. Abra a retaguarda com usuário de teste.\n2. Importe a planilha de produtos de exemplo.\n3. Ajuste o saldo das lojas de teste para 100 unidades.\n4. Rode o fechamento de estoque.\n5. Confira o relatório de divergências — deve sair vazio.' },
+    { o: '', t: 'Levantar Ambiente de Teste (Alternativo)', c: '1. Use este roteiro quando o ambiente padrão estiver indisponível.\n2. Suba a aplicação localmente com o pacote da versão em teste.\n3. Aponte para o banco de testes local.\n4. Valide apenas os fluxos de PDV e TEF.\n5. Sinalize no caso que o teste foi feito em ambiente alternativo.' }
+  ];
+
+  valsScripts(c) {
+    const semOrdemIdx = this.SCRIPTS.findIndex((s) => !s.o);
+    const scripts = this.SCRIPTS.map((s, i) => ({
+      titulo: s.t, corpo: s.c, ordem: s.o || '—',
+      aberto: (this.state.accordion ?? 0) === i,
+      chevron: (this.state.accordion ?? 0) === i ? 'm18 15-6-6-6 6' : 'm9 18 6-6-6-6',
+      divisorOn: i === semOrdemIdx && semOrdemIdx > 0,
+      acoesOn: c.podeEditar, excluirOn: c.podeEditar,
+      copiarLabel: this.state.copied === i ? 'Copiado' : 'Copiar',
+      copiarColor: this.state.copied === i ? '#16A34A' : '#475569',
+      toggle: () => this.setState({ accordion: (this.state.accordion ?? 0) === i ? -1 : i }),
+      copiar: () => {
+        try { if (navigator.clipboard) navigator.clipboard.writeText(s.c); } catch (err) { /* ignore */ }
+        this.setState({ copied: i });
+        clearTimeout(this._t3);
+        this._t3 = setTimeout(() => this.setState({ copied: null }), 1600);
+      },
+      editar: () => this.abrirModal('script', { titulo: s.t, ordem: s.o, corpo: s.c }),
+      excluir: () => this.setState({ dialog: { kind: 'excluirScript', alvo: s.t } })
+    }));
+    return { abaScripts: c.isDetalhe && c.aba === 'Scripts', scripts, novoScript: () => this.abrirModal('script', {}) };
+  }
+
+  // ---------- modais ----------
+  abrirModal(kind, dados) { this.setState({ modal: kind, mv: dados || {}, mvErr: false, mvSaving: false, menu: null }); }
+  setMv(k, v) { this.setState((s) => ({ mv: Object.assign({}, s.mv, { [k]: v }) })); }
+
+  mkMField(o) {
+    const mv = this.state.mv || {};
+    const raw = mv[o.k];
+    if (o.tipo === 'switch') {
+      const on = !!raw;
+      return {
+        isSwitch: true, label: o.label, span: o.span ? '1 / -1' : 'auto',
+        trackBg: on ? '#1E2430' : '#D7DCE3', knobX: on ? '19px' : '3px',
+        toggle: () => this.setMv(o.k, !on)
+      };
+    }
+    const val = raw === undefined || raw === null ? '' : String(raw);
+    let msg = '';
+    if (this.state.mvErr) {
+      if (o.req && !val.trim()) msg = 'Campo obrigatório';
+      else if (o.valida) msg = o.valida(val, mv) || '';
+    }
+    const isSel = o.tipo === 'select', isArea = o.tipo === 'area', isRo = o.tipo === 'readonly';
+    return {
+      labelOn: true, label: o.label, req: !!o.req, reqMark: o.req ? ' *' : '', span: o.span ? '1 / -1' : 'auto',
+      value: val, display: val || '—',
+      isInput: !isSel && !isArea && !isRo, isSelect: isSel, isArea, isReadonly: isRo,
+      tipo: o.tipo === 'date' ? 'date' : (o.numero ? 'number' : 'text'),
+      fonte: o.mono ? 'ui-monospace,SFMono-Regular,Menlo,monospace' : 'inherit',
+      placeholder: o.ph || '', rows: o.rows || 4, minH: o.minH || '96px',
+      options: (o.options || []).map((v) => ({ v })),
+      emptyOn: !!o.emptyOpt, emptyOpt: o.emptyOpt || '',
+      errOn: !!msg, errMsg: msg,
+      hint: o.hint || '', hintOn: !!o.hint && !msg,
+      borderColor: msg ? '#EF4444' : '#E2E5EA',
+      onChange: (e) => this.setMv(o.k, e.target.value)
+    };
+  }
+
+  valsModal(c) {
+    const kind = this.state.modal;
+    const mv = this.state.mv || {};
+    const edit = kind === 'versao' ? !!mv.seq : (kind === 'modulo' ? !!mv.nome : !!mv.titulo);
+    let fields = [], titulo = '', sub = '', max = '640px', cols = c.narrow ? '1fr' : 'repeat(2,minmax(0,1fr))';
+
+    if (kind === 'versao') {
+      const fechado = mv.status === 'FECHADO';
+      titulo = edit ? 'Editar versão' : 'Nova versão';
+      sub = edit ? 'Sequência ' + mv.seq : '';
+      fields = [
+        this.mkMField({ k: 'versao', label: 'Versão', req: true, ph: '0.0.0.0', mono: true, valida: (v) => (/^\d+(\.\d+)*$/.test(v) ? '' : 'Use apenas números e pontos, como 8.1.1.0') }),
+        this.mkMField({ k: 'status', label: 'Status', req: true, tipo: 'select', options: ['ABERTO', 'FECHADO'] }),
+        this.mkMField({ k: 'abertura', label: 'Data de abertura', req: true, tipo: 'date' }),
+        this.mkMField({
+          k: 'fechamento', label: fechado ? 'Data de fechamento' : 'Previsão de fechamento', tipo: 'date',
+          hint: fechado ? '' : 'Em versão aberta a data é apenas previsão',
+          valida: (v, m) => (v && m.abertura && v < m.abertura ? 'Não pode ser anterior à data de abertura' : '')
+        }),
+        this.mkMField({ k: 'testador', label: 'Testador', tipo: 'select', options: this.COLABS, emptyOpt: 'Nenhum' }),
+        this.mkMField({ k: 'notas', label: 'Notas da versão', tipo: 'area', span: true, ph: 'O que entra nesta versão…' }),
+        this.mkMField({ k: 'helptools', label: 'Hotfix', tipo: 'switch' }),
+        this.mkMField({ k: 'ideias', label: 'Estacionamento de ideias', tipo: 'switch' })
+      ];
+      if (edit) fields.push(this.mkMField({ k: 'dataVersao', label: 'Data da versão', tipo: 'readonly', hint: 'Gerada pelo servidor' }));
+    } else if (kind === 'modulo') {
+      titulo = edit ? 'Editar módulo' : 'Novo módulo';
+      max = '560px';
+      fields = [
+        this.mkMField({ k: 'nome', label: 'Nome do módulo', req: true, ph: 'SMART PDV', hint: 'Use caixa alta, como os módulos existentes', span: true }),
+        this.mkMField({ k: 'ordem', label: 'Ordem de impressão', numero: true, hint: 'Opcional', span: true })
+      ];
+    } else if (kind === 'script') {
+      titulo = edit ? 'Editar script' : 'Novo script';
+      max = '720px';
+      fields = [
+        this.mkMField({ k: 'titulo', label: 'Título', req: true, ph: 'Como levantar o ambiente de teste', span: true }),
+        this.mkMField({ k: 'ordem', label: 'Ordem', numero: true, hint: 'Vazio = aparece no fim' }),
+        this.mkMField({ k: 'corpo', label: 'Procedimento', req: true, tipo: 'area', mono: true, rows: 12, minH: '260px', span: true, ph: 'Um passo por linha. Nunca inclua senhas ou endereços internos.' })
+      ];
+    }
+
+    return {
+      modalOn: !!kind, modalTitulo: titulo, modalSub: sub, modalSubOn: !!sub,
+      modalFields: fields, modalCols: kind === 'script' ? '1fr' : cols,
+      modalMax: c.narrow ? '100%' : max,
+      modalMaxH: c.narrow ? '100%' : 'calc(100vh - 96px)',
+      modalRadius: c.narrow ? '0px' : '8px',
+      modalAlign: c.narrow ? 'stretch' : 'center',
+      modalPad: c.narrow ? '0px' : '48px 24px',
+      modalSaving: this.state.mvSaving,
+      modalSaveLabel: this.state.mvSaving ? 'Salvando…' : 'Salvar',
+      modalSaveOpacity: this.state.mvSaving ? '0.75' : '1',
+      fecharModal: () => this.setState({ modal: null, mv: null, mvErr: false }),
+      salvarModal: () => {
+        if (this.state.mvSaving) return;
+        const invalidos = fields.filter((fd) => fd.labelOn && fd.req && !String(fd.value).trim()).length;
+        const erroFormato = kind === 'versao' && mv.versao && !/^\d+(\.\d+)*$/.test(String(mv.versao));
+        const erroData = kind === 'versao' && mv.fechamento && mv.abertura && mv.fechamento < mv.abertura;
+        if (invalidos || erroFormato || erroData) { this.setState({ mvErr: true }); this.toast('Revise os campos destacados', 'erro'); return; }
+        this.setState({ mvSaving: true });
+        clearTimeout(this._t2);
+        this._t2 = setTimeout(() => {
+          this.setState({ mvSaving: false, modal: null, mv: null, mvErr: false });
+          this.toast(kind === 'versao' ? 'Versão salva' : (kind === 'modulo' ? 'Módulo salvo' : 'Script salvo'));
+        }, 800);
+      }
+    };
+  }
+
+  // ---------- diálogos ----------
+  valsDialog(c) {
+    const d = this.state.dialog;
+    const fechar = () => this.setState({ dialog: null });
+    if (!d) return { dialogOn: false, fecharDialog: fechar, confirmarDialog: fechar, onDialogData: fechar };
+
+    const D = {
+      descartar: {
+        t: 'Descartar alterações?', x: 'As alterações feitas em Dados gerais não foram salvas e serão perdidas.',
+        cancel: 'Continuar editando', ok: 'Descartar', destr: true,
+        run: () => this.setState({ dialog: null, form: null, dirty: false, submitted: false, aba: d.prox || c.aba })
+      },
+      desativar: {
+        t: 'Desativar ' + this.SMART.nome + '?', x: 'O produto deixa de aparecer nas seleções, mas o histórico de casos e liberações é mantido.',
+        cancel: 'Cancelar', ok: 'Desativar', destr: true,
+        run: () => { this.setState({ dialog: null, ativo: false }); this.toast('Produto desativado'); }
+      },
+      reativar: {
+        t: 'Reativar ' + this.SMART.nome + '?', x: 'O produto volta a aparecer nas seleções de produto do Softflow.',
+        cancel: 'Cancelar', ok: 'Reativar',
+        run: () => { this.setState({ dialog: null, ativo: true }); this.toast('Produto reativado'); }
+      },
+      fecharVersao: {
+        t: 'Fechar versão ' + d.alvo + '?', x: 'A versão deixa de receber casos novos. Informe a data de fechamento.',
+        cancel: 'Cancelar', ok: 'Fechar versão', data: true,
+        run: () => { this.setState({ dialog: null }); this.toast('Versão ' + d.alvo + ' fechada'); }
+      },
+      reabrirVersao: {
+        t: 'Reabrir versão ' + d.alvo + '?', x: 'A versão volta a aceitar casos e liberações.',
+        cancel: 'Cancelar', ok: 'Reabrir',
+        run: () => { this.setState({ dialog: null }); this.toast('Versão ' + d.alvo + ' reaberta'); }
+      },
+      excluirVersao: {
+        t: 'Excluir versão ' + d.alvo + '?', x: 'Esta ação não pode ser desfeita.',
+        aviso: 'Casos e liberações podem estar vinculados a esta versão.',
+        cancel: 'Cancelar', ok: 'Excluir', destr: true,
+        run: () => { this.setState({ dialog: null }); this.toast('Versão ' + d.alvo + ' excluída'); }
+      },
+      conflitoVersao: {
+        t: 'Não é possível excluir ' + d.alvo, x: 'Esta versão está em uso e não pode ser excluída. Feche-a em vez disso.',
+        aviso: 'Há casos e liberações vinculados a esta versão.', avisoAmbar: true,
+        cancel: 'Entendi', bloqueado: true, destr: true
+      },
+      excluirModulo: {
+        t: 'Excluir módulo ' + d.alvo + '?', x: 'O módulo deixa de ser oferecido nas liberações deste produto.',
+        cancel: 'Cancelar', ok: 'Excluir', destr: true,
+        run: () => { this.setState({ dialog: null }); this.toast('Módulo excluído'); }
+      },
+      excluirCheck: {
+        t: 'Excluir item do checklist?', x: d.alvo,
+        cancel: 'Cancelar', ok: 'Excluir', destr: true,
+        run: () => {
+          const lista = this.checkList().filter((x) => x.id !== d.id);
+          this.setState({ dialog: null, checklist: lista });
+          this.toast('Item excluído');
+        }
+      },
+      excluirScript: {
+        t: 'Excluir script?', x: d.alvo, aviso: 'O procedimento será removido da documentação deste produto.',
+        cancel: 'Cancelar', ok: 'Excluir', destr: true,
+        run: () => { this.setState({ dialog: null }); this.toast('Script excluído'); }
+      }
+    }[d.kind] || {};
+
+    return {
+      dialogOn: true, dialogTitulo: D.t || '', dialogTexto: D.x || '',
+      dialogAviso: D.aviso || '', dialogAvisoOn: !!D.aviso,
+      dialogAvisoBg: D.avisoAmbar ? '#FEF6E0' : '#FEF2F2',
+      dialogAvisoColor: D.avisoAmbar ? '#8A6B18' : '#B91C1C',
+      dialogIconBg: D.destr ? '#FEE2E2' : '#F1F3F5',
+      dialogIconColor: D.destr ? '#DC2626' : '#475569',
+      dialogIconPath: D.destr ? 'm21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3' : 'M12 22a10 10 0 1 0-10-10',
+      dialogIconPath2: D.destr ? 'M12 9v4' : 'm2 12 3.5-3.5L9 12',
+      dialogCancelLabel: D.cancel || 'Cancelar',
+      dialogConfirmOn: !D.bloqueado,
+      dialogConfirmLabel: D.ok || 'Confirmar',
+      dialogConfirmBg: D.destr ? '#DC2626' : '#1E2430',
+      dialogDataOn: !!D.data, dialogData: d.data || '2026-09-16',
+      onDialogData: (e) => this.setState({ dialog: Object.assign({}, d, { data: e.target.value }) }),
+      fecharDialog: fechar,
+      confirmarDialog: D.run || fechar
+    };
+  }
+}
+</script>
+</body>
+</html>

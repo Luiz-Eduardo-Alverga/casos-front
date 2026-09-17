@@ -2,7 +2,7 @@
 
 Documento de briefing para Claude (Chat, Design ou Code) e para qualquer pessoa que precise do contexto inicial do que a aplicação é, para quem serve e como está organizada.
 
-Não substitui os padrões de implementação (`PADRAO_COMPONENTES.md`, `PADRAO_CASOS.md`, `PADRAO_PROJETOS.md`). Complementa o brief visual em `BRIEF_CLAUDE_DESIGN.md` e o design system em `DESIGN_SYSTEM.md`.
+Não substitui os padrões de implementação (`PADRAO_COMPONENTES.md`, `PADRAO_CASOS.md`, `PADRAO_PROJETOS.md`, `PADRAO_PRODUTOS.md`). Complementa o brief visual em `BRIEF_CLAUDE_DESIGN.md` e o design system em `DESIGN_SYSTEM.md`.
 
 ---
 
@@ -96,6 +96,7 @@ Navegação em três blocos: **painéis pessoais**, **gerenciar** e **recursos**
 ### Clientes e cadastros Smart
 
 - **Clientes** (`/clientes`) — busca por nome (obrigatória para listar). Detalhe (`/clientes/[id]`): dados gerais, contato, endereço, produtos/URLs, abas de **casos** e **tickets**.
+- **Produtos** (`/produtos`) — cadastro de linhas de software Softcom: listagem, novo (`/produtos/novo`) e detalhe (`/produtos/[id]`) com abas **Dados gerais, Versões, Módulos, Checklist, Scripts**. Padrão de pastas em `PADRAO_PRODUTOS.md`.
 - **Cadastros Smart** — Adquirentes, Versões, Dispositivos (CRUD em Postgres próprio).
 - **Kanban Adquirentes** (`/cadastros/adquirentes/status`) — board do status de homologação/integração de adquirentes.
 - **Documentação** (`/documentacao`) — base de conhecimento técnico e de processo, com categorias, tags, vínculos com entidades do Softflow, histórico e conteúdo Markdown sanitizado. Cadastro e edição exigem permissões próprias. Padrão de pastas em `PADRAO_DOCUMENTACAO.md`.
@@ -175,10 +176,10 @@ Ao trabalhar a partir daqui:
 
 ## Estado atual relevante para o roadmap
 
-- Casos, Reports, Projetos, Liberações, Painel Dev, Minha Visão, Clientes, Cadastros Smart, Documentação, Auditoria, Avisos, RBAC e Prompts IA **já estão implementados**.
+- Casos, Reports, Projetos, Liberações, Produtos, Painel Dev, Minha Visão, Clientes, Cadastros Smart, Documentação, Auditoria, Avisos, RBAC e Prompts IA **já estão implementados**.
 - **Melhorias** está implementada como tela e disponível no menu.
 - Qualquer proposta nova deve encaixar nesse sistema visual e nesse vocabulário — não em um produto paralelo.
 
 ---
 
-**Referências:** `BRIEF_CLAUDE_DESIGN.md`, `DESIGN_SYSTEM.md`, `PADRAO_COMPONENTES.md`, `PADRAO_ESPACAMENTOS.md`, `PADRAO_CASOS.md`, `PADRAO_PROJETOS.md`, `PADRAO_DOCUMENTACAO.md`, `RBAC_PERMISSOES.md`, `KANBAN_PAINEL_DESENVOLVEDOR.md`
+**Referências:** `BRIEF_CLAUDE_DESIGN.md`, `DESIGN_SYSTEM.md`, `PADRAO_COMPONENTES.md`, `PADRAO_ESPACAMENTOS.md`, `PADRAO_CASOS.md`, `PADRAO_PROJETOS.md`, `PADRAO_PRODUTOS.md`, `PADRAO_DOCUMENTACAO.md`, `RBAC_PERMISSOES.md`, `KANBAN_PAINEL_DESENVOLVEDOR.md`

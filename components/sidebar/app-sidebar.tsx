@@ -19,6 +19,7 @@ import {
   CodeXml,
   Settings,
   Smartphone,
+  Package,
   PackageCheck,
   Lightbulb,
   BookText,
@@ -69,7 +70,7 @@ interface SidebarSubitem {
 }
 
 const STANDALONE_NAV_ORDERS = new Set([20, 21, 22]);
-const GERENCIAR_NAV_ORDERS = new Set([10, 30, 32, 33, 34, 35, 36, 37, 40]);
+const GERENCIAR_NAV_ORDERS = new Set([10, 30, 31, 32, 33, 34, 35, 36, 37, 40]);
 const RECURSOS_NAV_ORDERS = new Set([50, 55, 60]);
 
 const CADASTROS_SUBITEMS: SidebarSubitem[] = [
@@ -193,6 +194,13 @@ const MAIN_NAV: MainNavEntry[] = [
   },
   {
     type: "link",
+    order: 31,
+    label: "Produtos",
+    href: "/produtos",
+    icon: Package,
+  },
+  {
+    type: "link",
     order: 40,
     label: "Kanban Adquirentes",
     href: "/cadastros/adquirentes/status",
@@ -267,6 +275,7 @@ export function AppSidebar({
     rbacReady && hasAnyPermission(["list-case", "list-report"]);
   const canListReport = rbacReady && hasPermission("list-report");
   const canListProject = rbacReady && hasPermission("list-project");
+  const canListProduct = rbacReady && hasPermission("list-product");
   const canListDoc = rbacReady && hasPermission("list-doc");
   const canAudit =
     rbacReady && hasAnyPermission(["audit-all-users", "audit-user"]);
@@ -340,6 +349,15 @@ export function AppSidebar({
       !canListProject &&
       entry.type === "link" &&
       entry.href === "/projetos"
+    ) {
+      return false;
+    }
+
+    if (
+      rbacReady &&
+      !canListProduct &&
+      entry.type === "link" &&
+      entry.href === "/produtos"
     ) {
       return false;
     }

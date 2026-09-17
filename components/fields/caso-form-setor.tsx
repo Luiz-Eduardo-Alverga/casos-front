@@ -8,21 +8,29 @@ import { useFormContext } from "react-hook-form";
 import { useSetores } from "@/hooks/catalogos/use-setores";
 
 interface CasoFormSetorProps {
+  name?: string;
+  label?: string;
+  placeholder?: string;
   required?: boolean;
   hideLabel?: boolean;
   valueLabelPrefix?: string;
   wrapperClassName?: string;
+  selectedLabelOverride?: string;
 }
 
 export function CasoFormSetor({
+  name = "setor",
+  label = "Setor",
+  placeholder = "Selecione o setor...",
   required = false,
   hideLabel = false,
   valueLabelPrefix,
   wrapperClassName,
+  selectedLabelOverride,
 }: CasoFormSetorProps) {
   const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
   const { watch } = useFormContext();
-  const setorValue = watch("setor");
+  const setorValue = watch(name);
   const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
 
   const { data: setores, isLoading: isSetoresLoading } = useSetores({
@@ -35,28 +43,40 @@ export function CasoFormSetor({
       label: setor.nome,
     }));
     if (
-      lazyLoadComboboxOptions &&
-      editCaseItem?.projeto?.setores &&
       setorValue &&
       !list.some((o) => o.value === setorValue)
     ) {
-      const s = editCaseItem.projeto.setores;
-      list.unshift({
-        value: setorValue,
-        label: s.setor_projeto ?? s.setor ?? setorValue,
-      });
+      const fallbackLabel =
+        selectedLabelOverride?.trim() ||
+        (name === "setor" && lazyLoadComboboxOptions
+          ? editCaseItem?.projeto?.setores?.setor_projeto ??
+            editCaseItem?.projeto?.setores?.setor
+          : undefined);
+      if (fallbackLabel) {
+        list.unshift({
+          value: setorValue,
+          label: fallbackLabel,
+        });
+      }
     }
     return list;
-  }, [setores, lazyLoadComboboxOptions, editCaseItem, setorValue]);
+  }, [
+    setores,
+    lazyLoadComboboxOptions,
+    editCaseItem,
+    setorValue,
+    name,
+    selectedLabelOverride,
+  ]);
 
   return (
     <div className={hideLabel ? undefined : "space-y-2"}>
       <ComboboxField
-        name="setor"
-        label="Setor"
+        name={name}
+        label={label}
         icon={Building2}
         options={setoresOptions}
-        placeholder="Selecione o setor..."
+        placeholder={placeholder}
         emptyText="Nenhum setor encontrado."
         isLoading={optionsRequested && isSetoresLoading}
         searchDebounceMs={450}

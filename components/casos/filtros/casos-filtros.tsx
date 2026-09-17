@@ -27,6 +27,7 @@ import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuid
 import { CasoFormQaAtribuido } from "@/components/fields/caso-form-qa-atribuido";
 import { CasoFormProjeto } from "@/components/fields/caso-form-projeto";
 import { CasoFormSetor } from "@/components/fields/caso-form-setor";
+import { EstimadoFiltroSelect } from "@/components/filtros/estimado-filtro-select";
 import { LiberacaoFiltroSelect } from "@/components/filtros/liberacao-filtro-select";
 import { NaoPlanejadoFiltroSelect } from "@/components/filtros/nao-planejado-filtro-select";
 import { StatusMultiSelect } from "@/components/fields/status-multi-select";
@@ -198,6 +199,22 @@ function LiberacaoField() {
   );
 }
 
+function EstimadoField() {
+  const { control } = useFormContext<CasosFiltersForm>();
+  return (
+    <Controller
+      name="estimado_filtro"
+      control={control}
+      render={({ field }) => (
+        <EstimadoFiltroSelect
+          value={field.value}
+          onValueChange={field.onChange}
+        />
+      )}
+    />
+  );
+}
+
 function DataProducaoInicioField() {
   const { control } = useFormContext<CasosFiltersForm>();
   return (
@@ -271,6 +288,7 @@ const FILTRO_CAMPO_RENDER: Record<CasoFiltroField, () => ReactNode> = {
   data_producao_fim: () => <DataProducaoFimField />,
   nao_planejado: () => <NaoPlanejadoField />,
   liberacao: () => <LiberacaoField />,
+  estimado: () => <EstimadoField />,
 };
 
 export function CasosFiltros({

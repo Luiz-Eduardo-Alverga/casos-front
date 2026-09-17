@@ -1,0 +1,59 @@
+---
+description: Regras do módulo Produtos (Softflow)
+globs: components/produtos/**,hooks/produtos/**,services/produtos/**,app/api/produtos/**,app/(dashboard)/produtos/**
+alwaysApply: false
+---
+
+# Produtos — regras de implementação
+
+Vocabulário da UI: **Produto**, **Versão**, **Módulo**, **Checklist**, **Script**. Nunca chamar produto de "projeto".
+
+## 1. Shell
+- NÃO criar, alterar ou duplicar sidebar, header ou layout autenticado.
+- Única mudança permitida no shell: item de primeiro nível **Produtos** (ícone Package, `list-product`) perto de Clientes/Projetos. Não entra em "Cadastros Smart".
+
+## 2. Cores
+- Só tokens semânticos (`bg-card`, `text-muted-foreground`, `border-border-divider`, `bg-primary`, `destructive`, badges existentes).
+- Proibido hex/rgb literal em `className` ou `style`.
+
+## 3. Protótipo
+- Não converter HTML/estilos inline de `Softflow - Produtos.dc.html`. Especificação textual + tokens Softflow.
+
+## 4. Pastas
+- Componentes: `components/produtos/**` (listagem, `cadastro/`, `edicao/`, `edicao/abas/`, `edicao/<feature>/`)
+- Hooks: `hooks/produtos/**` (nunca dentro de `components`)
+- Services: `services/produtos/**`
+- Fachada proxy: `app/api/produtos/**` → legado `projeto-versoes*`
+- Páginas: `app/(dashboard)/produtos/**`
+- **Não criar** `PUT /api/produtos/[id]/checklist/ordem` nem reordenação persistente (não há endpoint em lote).
+
+## 5. Reuso obrigatório
+Card do projeto, `EmptyState` (`@/components/painel/empty-state`), ComboboxField e `@/components/fields` (setor, colaborador), `ConfirmacaoModal`, Tabs shadcn, toast do projeto, util de data de Projetos. Sem DnD no checklist.
+
+## 6. Formulários
+- react-hook-form + Zod.
+- Modais: trio `*-form-schema.ts` / `*-form-utils.ts` / `*-form-modal.tsx`.
+
+## 7. PUT
+- Sempre enviar o objeto completo: mesclar o registro atual (API) com os campos editados, para não apagar o que a tela não edita.
+- Versão no legado: fachada PUT → `PATCH /projeto-versoes-sub/{seq}`.
+
+## 8. Colaboradores
+- Nunca número cru: chip com avatar de iniciais + nome; se o nome não resolver, chip neutro `"#<id>"`.
+
+## 9. Scripts
+- Texto puro: `whitespace-pre-wrap` em fonte mono. NÃO usar MarkdownView.
+
+## 10. Estados
+- Toda lista/aba: skeleton que espelha o layout, vazio (`EmptyState`), erro com "Tentar novamente", com dados.
+
+## 11. Paginação
+- Sem contadores de total (cursor não retorna total).
+
+## 12. Permissões
+- `list-product`, `create-product`, `edit-product`, `delete-product`.
+- Ações somem da UI sem a permissão (sem botões desabilitados, sem coluna/menu de ações vazio).
+
+## 13. Copy
+- UI em pt-BR como especificado nas etapas.
+- Labels centralizados em `components/produtos/constants.ts`.

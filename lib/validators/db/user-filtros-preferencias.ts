@@ -19,6 +19,7 @@ const VALID_FIELDS = [
   "data_producao_fim",
   "nao_planejado",
   "liberacao",
+  "estimado",
 ] as const;
 
 export const filtroResumoItemSchema = z.object({

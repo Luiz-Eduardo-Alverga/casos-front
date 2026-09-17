@@ -10,6 +10,7 @@ import {
   resolveVersaoProdutoForApi,
 } from "@/components/casos/shared/versao-combobox";
 import { formatDateYmdToBr } from "@/components/painel-kanban/horas-analiticas-modal/utils";
+import { ESTIMADO_FILTRO_OPTIONS } from "@/components/filtros/estimado-filtro";
 import { LIBERACAO_FILTRO_OPTIONS } from "@/components/filtros/liberacao-filtro";
 import { NAO_PLANEJADO_FILTRO_OPTIONS } from "@/components/filtros/nao-planejado-filtro";
 
@@ -33,7 +34,8 @@ export type CasosFiltroBadgeKey =
   | "data_producao_inicio"
   | "data_producao_fim"
   | "nao_planejado_filtro"
-  | "liberacao_filtro";
+  | "liberacao_filtro"
+  | "estimado_filtro";
 
 export interface CasosFiltroBadgeItem {
   key: CasosFiltroBadgeKey;
@@ -142,6 +144,8 @@ export function removeFilterFromAplicados(
       return { ...filtros, nao_planejado_filtro: "todos" };
     case "liberacao_filtro":
       return { ...filtros, liberacao_filtro: "todos" };
+    case "estimado_filtro":
+      return { ...filtros, estimado_filtro: "todos" };
     default:
       return filtros;
   }
@@ -284,6 +288,16 @@ export function buildCasosFiltrosBadgeItems(
     items.push({
       key: "liberacao_filtro",
       label: `Liberação: ${option?.label ?? filtros.liberacao_filtro}`,
+    });
+  }
+
+  if (filtros.estimado_filtro !== "todos") {
+    const option = ESTIMADO_FILTRO_OPTIONS.find(
+      (opt) => opt.value === filtros.estimado_filtro,
+    );
+    items.push({
+      key: "estimado_filtro",
+      label: `Estimado: ${option?.label ?? filtros.estimado_filtro}`,
     });
   }
 
