@@ -22,7 +22,7 @@ export function LoginBanner() {
           className="text-xl font-medium leading-snug text-login-banner-text md:text-2xl"
           style={{ opacity: 0.85 }}
         >
-          Portal do Squad XP
+          Portal dos Squads
         </p>
       </div>
     </div>
