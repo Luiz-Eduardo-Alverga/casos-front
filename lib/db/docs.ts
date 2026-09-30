@@ -519,6 +519,39 @@ export async function createDocCategory(input: CreateDocCategoryInput) {
   return row;
 }
 
+export type PublicAcquirerConfigDoc = {
+  title: string;
+  summary: string | null;
+  contentMd: string;
+};
+
+/** Documento publicado da categoria Configuração vinculado à adquirente. */
+export async function getPublishedConfigDocByAcquirer(
+  acquirerId: string,
+): Promise<PublicAcquirerConfigDoc | null> {
+  const rows = await db
+    .select({
+      title: docs.title,
+      summary: docs.summary,
+      contentMd: docs.contentMd,
+    })
+    .from(docs)
+    .innerJoin(docCategories, eq(docs.categoryId, docCategories.id))
+    .innerJoin(docLinks, eq(docLinks.docId, docs.id))
+    .where(
+      and(
+        eq(docLinks.entityType, "acquirer"),
+        eq(docLinks.entityId, acquirerId),
+        eq(docCategories.slug, "configuracao"),
+        eq(docs.status, "publicado"),
+      ),
+    )
+    .orderBy(desc(docs.updatedAt), desc(docs.id))
+    .limit(1);
+
+  return rows[0] ?? null;
+}
+
 export async function searchDocTags(term: string) {
   const normalized = term.trim();
   const base = db.select().from(docTags);

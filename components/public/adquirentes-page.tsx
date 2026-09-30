@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePublicAcquirersList } from "@/hooks/publico/use-public-acquirers-list";
 import { STATUS_TYPE_VALUES } from "@/lib/validators/db/shared";
 import {
@@ -9,7 +9,9 @@ import {
 } from "@/components/public/adquirentes/adquirentes-page-header";
 import { AdquirentesPageFilters } from "@/components/public/adquirentes/adquirentes-page-filters";
 import { AdquirentesStatusCard } from "@/components/public/adquirentes/adquirentes-status-card";
+import { AdquirentesDocumentacaoSheet } from "@/components/public/adquirentes/adquirentes-documentacao-sheet";
 import { AdquirentesSkeletonGrid } from "@/components/public/adquirentes/adquirentes-skeleton-grid";
+import type { PublicAcquirerListItem } from "@/services/public-api/list-acquirers";
 
 interface AdquirentesPageProps {
   initialSearch: string;
@@ -34,6 +36,9 @@ export function AdquirentesPage({
     isError,
     error,
   } = usePublicAcquirersList(initialSearch, initialStatus);
+  const [docAcquirer, setDocAcquirer] = useState<PublicAcquirerListItem | null>(
+    null,
+  );
 
   const statusOptions = useMemo(() => STATUS_TYPE_VALUES, []);
 
@@ -67,13 +72,23 @@ export function AdquirentesPage({
             <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6">
               {rows.map((row) => (
                 <div key={row.acquirer.id} className="flex min-w-0">
-                  <AdquirentesStatusCard row={row} />
+                  <AdquirentesStatusCard
+                    row={row}
+                    onOpenDocumentation={() => setDocAcquirer(row)}
+                  />
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      <AdquirentesDocumentacaoSheet
+        acquirer={docAcquirer}
+        onOpenChange={(open) => {
+          if (!open) setDocAcquirer(null);
+        }}
+      />
     </main>
   );
 }

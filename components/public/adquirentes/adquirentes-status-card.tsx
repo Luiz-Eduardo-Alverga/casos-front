@@ -1,13 +1,15 @@
 import { CellSignalSlashIcon, CellSignalFullIcon } from "@phosphor-icons/react";
-import { Wifi } from "lucide-react";
+import { FileText, Wifi } from "lucide-react";
 import { AcquirerLogo } from "@/components/cadastros/adquirentes/acquirer-logo";
 import { formatDeliveryDate } from "@/components/cadastros/adquirentes/adquirentes-shared";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PublicAcquirerListItem } from "@/services/public-api/list-acquirers";
 import { AdquirentesDeviceBadges } from "./adquirentes-device-badges";
 
 interface AdquirentesStatusCardProps {
   row: PublicAcquirerListItem;
+  onOpenDocumentation: () => void;
 }
 
 function getStatusTone(status: string | null): string {
@@ -25,12 +27,15 @@ function getStatusTone(status: string | null): string {
   }
 }
 
-export function AdquirentesStatusCard({ row }: AdquirentesStatusCardProps) {
+export function AdquirentesStatusCard({
+  row,
+  onOpenDocumentation,
+}: AdquirentesStatusCardProps) {
   const statusLabel = row.status ?? "Sem status";
   const observacao = row.obs?.trim();
 
   return (
-    <article className="flex min-h-full w-full min-w-0 flex-col rounded-2xl border border-public-border bg-background p-6 transition-all duration-200 md:hover:scale-[1.02] hover:shadow-lg">
+    <article className="group relative flex min-h-full w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-public-border bg-background p-6 transition-all duration-200 md:hover:scale-[1.02] hover:shadow-lg">
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           <AcquirerLogo
@@ -53,6 +58,17 @@ export function AdquirentesStatusCard({ row }: AdquirentesStatusCardProps) {
             </span>
           </div>
         </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="shrink-0 text-muted-foreground hover:bg-public-info-bg hover:text-public-info-text"
+          title="Ver documentação de suporte"
+          aria-label={`Ver documentação de suporte de ${row.acquirer.name}`}
+          onClick={onOpenDocumentation}
+        >
+          <FileText className="h-4 w-4" />
+        </Button>
       </div>
 
       <div className="mb-3 rounded-2xl border border-public-border bg-public-surface-muted px-2 py-2 text-center">
@@ -126,6 +142,17 @@ export function AdquirentesStatusCard({ row }: AdquirentesStatusCardProps) {
         <div className="flex flex-wrap gap-1.5">
           <AdquirentesDeviceBadges devices={row.compatibleDevices} />
         </div>
+      </div>
+
+      <div className="absolute inset-x-0 bottom-0 translate-y-full border-t border-public-border bg-background p-4 transition-transform duration-300 md:group-hover:translate-y-0">
+        <Button
+          type="button"
+          className="w-full"
+          onClick={onOpenDocumentation}
+        >
+          <FileText className="h-4 w-4" />
+          Ler Documentação Completa
+        </Button>
       </div>
     </article>
   );

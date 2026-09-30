@@ -11,6 +11,7 @@ export function AdquirentesStatusCardSkeleton() {
             <Skeleton className="h-4 w-20 rounded-full" />
           </div>
         </div>
+        <Skeleton className="h-8 w-8 shrink-0 rounded-lg" />
       </div>
 
       <div className="mb-3 rounded-2xl border bg-zinc-50 px-2 py-2 text-center">
