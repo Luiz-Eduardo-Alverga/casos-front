@@ -102,8 +102,10 @@ const acquirersData = [
   }
 ];
 
+type Acquirer = (typeof acquirersData)[number];
+
 // Mock documentation data for each acquirer
-const documentationData = {
+const documentationData: Record<string, string> = {
   cielo: `
 ## Dispositivos Compatíveis
 
@@ -164,7 +166,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('Todos os Status');
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
-  const [selectedAcquirerForDoc, setSelectedAcquirerForDoc] = useState(null);
+  const [selectedAcquirerForDoc, setSelectedAcquirerForDoc] = useState<Acquirer | null>(null);
 
   // Filter logic
   const filteredAcquirers = acquirersData.filter(acquirer => {
@@ -173,7 +175,7 @@ export default function App() {
     return matchesSearch && matchesStatus;
   });
 
-  const openDocumentation = (acquirer) => {
+  const openDocumentation = (acquirer: Acquirer) => {
     setSelectedAcquirerForDoc(acquirer);
     setIsDocModalOpen(true);
   };
@@ -183,7 +185,7 @@ export default function App() {
     setTimeout(() => setSelectedAcquirerForDoc(null), 300); // Wait for transition
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: Acquirer["status"]) => {
     switch (status) {
       case 'Concluído': return <CheckCircle2 size={14} className="mr-1" />;
       case 'Em teste': return <Clock size={14} className="mr-1" />;
