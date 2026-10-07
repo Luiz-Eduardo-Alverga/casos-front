@@ -1,7 +1,8 @@
 "use client";
 
 import type { RefObject } from "react";
-import { FileText, Film, ImageIcon, Upload } from "lucide-react";
+import { Archive, FileCode, FileText, Film, ImageIcon, Upload } from "lucide-react";
+import { ATTACHMENT_FILE_ACCEPT } from "@/lib/constants/case-attachments";
 import { cn } from "@/lib/utils";
 
 export interface CasoFormAnexosDropzoneProps {
@@ -44,7 +45,7 @@ export function CasoFormAnexosDropzone({
         type="file"
         multiple
         className="hidden"
-        accept=".png,.jpg,.jpeg,.webp,.gif,.pdf,.mp4,.webm,.mov,image/*,application/pdf,video/*"
+        accept={ATTACHMENT_FILE_ACCEPT}
         disabled={disabled}
         onChange={onInputChange}
       />
@@ -102,6 +103,14 @@ export function CasoFormAnexosDropzone({
           <span className="inline-flex items-center gap-1">
             <Film className="h-3 w-3" />
             Vídeos (100MB)
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <FileCode className="h-3 w-3" />
+            XML (25MB)
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Archive className="h-3 w-3" />
+            RAR (100MB)
           </span>
         </div>
       </div>

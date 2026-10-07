@@ -1,5 +1,13 @@
-/** Bucket privado no Supabase Storage (criar no dashboard se ainda não existir). */
-export const USER_AVATAR_BUCKET = "user-avatars";
+function readServerEnv(name: string, fallback: string): string {
+  const value = process.env[name]?.trim();
+  return value ? value : fallback;
+}
+
+/** Bucket privado no S3 da Softcom (`S3_BUCKET_AVATARS`). */
+export const USER_AVATAR_BUCKET = readServerEnv(
+  "S3_BUCKET_AVATARS",
+  "softflow-prod-avatars",
+);
 
 export const MAX_BYTES_AVATAR = 2 * 1024 * 1024;
 

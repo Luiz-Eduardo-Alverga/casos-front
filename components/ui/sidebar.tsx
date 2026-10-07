@@ -23,7 +23,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
     <aside
       ref={ref}
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen transition-all duration-300 bg-primary border-r border-sidebar-border",
+        "fixed left-0 top-0 z-40 flex h-screen flex-col overflow-hidden transition-all duration-300 bg-primary border-r border-sidebar-border",
         isMobile
           ? isMobileOpen
             ? "w-[256px] translate-x-0"
@@ -46,7 +46,7 @@ const SidebarHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex items-center border-b border-sidebar-border h-[64px] px-6",
+      "flex shrink-0 items-center border-b border-sidebar-border h-[64px] px-6",
       className,
     )}
     {...props}
@@ -60,7 +60,10 @@ const SidebarContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col flex-1 overflow-y-auto", className)}
+    className={cn(
+      "flex min-h-0 flex-1 flex-col overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+      className,
+    )}
     {...props}
   />
 ));

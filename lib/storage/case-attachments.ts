@@ -1,8 +1,19 @@
 import {
   CASE_ATTACHMENTS_BUCKET,
+  MULTIPART_PART_SIZE_BYTES,
+  MULTIPART_THRESHOLD_BYTES,
   SIGNED_DOWNLOAD_TTL_SEC,
+  SIGNED_UPLOAD_TTL_SEC,
 } from "@/lib/constants/case-attachments";
-import { getSupabaseServiceRoleClient } from "@/lib/storage/supabase";
+import {
+  abortMultipartUploadSession,
+  completeMultipartUploadSession,
+  createMultipartUploadSession,
+  createSignedGetUrl,
+  createSignedPutUrl,
+  deleteStoredObject,
+  headStoredObject,
+} from "@/lib/storage/s3";
 
 export type SignedUploadResult = {
   path: string;
@@ -10,116 +21,113 @@ export type SignedUploadResult = {
   token: string;
 };
 
+export type MultipartUploadPart = {
+  partNumber: number;
+  uploadUrl: string;
+};
+
+export type MultipartUploadSession = {
+  path: string;
+  uploadId: string;
+  partSize: number;
+  parts: MultipartUploadPart[];
+};
+
+export function attachmentUsesMultipart(sizeBytes: number): boolean {
+  return sizeBytes > MULTIPART_THRESHOLD_BYTES;
+}
+
+export function multipartPartCount(sizeBytes: number): number {
+  return Math.ceil(sizeBytes / MULTIPART_PART_SIZE_BYTES);
+}
+
 /**
- * Gera URL assinada para o cliente fazer `PUT` do arquivo direto no Storage.
+ * Gera URL assinada para o cliente fazer `PUT` do arquivo direto no S3.
+ * O `Content-Type` entra na assinatura e precisa ser repetido no PUT.
  */
 export async function createCaseAttachmentSignedUpload(
   objectPath: string,
+  contentType: string,
 ): Promise<SignedUploadResult> {
-  const supabase = getSupabaseServiceRoleClient();
-  const { data, error } = await supabase.storage
-    .from(CASE_ATTACHMENTS_BUCKET)
-    .createSignedUploadUrl(objectPath);
-
-  if (error || !data) {
-    throw new Error(
-      error?.message ?? "Falha ao gerar URL de upload do anexo",
-    );
-  }
-
-  const uploadUrl =
-    "signedUrl" in data && typeof data.signedUrl === "string"
-      ? data.signedUrl
-      : (data as { signed_url?: string }).signed_url ?? "";
-
-  if (!uploadUrl) {
-    throw new Error("Resposta de upload assinado inválida (sem URL)");
-  }
-
-  const token =
-    "token" in data && typeof data.token === "string" ? data.token : "";
+  const uploadUrl = await createSignedPutUrl({
+    bucket: CASE_ATTACHMENTS_BUCKET,
+    key: objectPath,
+    contentType,
+    expiresIn: SIGNED_UPLOAD_TTL_SEC,
+  });
 
   return {
-    path: data.path,
+    path: objectPath,
     uploadUrl,
-    token,
+    token: "",
   };
+}
+
+export async function createCaseAttachmentMultipartUpload(input: {
+  objectPath: string;
+  contentType: string;
+  sizeBytes: number;
+}): Promise<MultipartUploadSession> {
+  const session = await createMultipartUploadSession({
+    bucket: CASE_ATTACHMENTS_BUCKET,
+    key: input.objectPath,
+    contentType: input.contentType,
+    partCount: multipartPartCount(input.sizeBytes),
+    partSize: MULTIPART_PART_SIZE_BYTES,
+    expiresIn: SIGNED_UPLOAD_TTL_SEC,
+  });
+
+  return {
+    path: input.objectPath,
+    uploadId: session.uploadId,
+    partSize: session.partSize,
+    parts: session.parts,
+  };
+}
+
+export async function completeCaseAttachmentMultipartUpload(input: {
+  objectPath: string;
+  uploadId: string;
+  parts: { partNumber: number; etag: string }[];
+}): Promise<void> {
+  await completeMultipartUploadSession({
+    bucket: CASE_ATTACHMENTS_BUCKET,
+    key: input.objectPath,
+    uploadId: input.uploadId,
+    parts: input.parts,
+  });
+}
+
+export async function abortCaseAttachmentMultipartUpload(
+  objectPath: string,
+  uploadId: string,
+): Promise<void> {
+  await abortMultipartUploadSession({
+    bucket: CASE_ATTACHMENTS_BUCKET,
+    key: objectPath,
+    uploadId,
+  });
 }
 
 export async function createCaseAttachmentSignedDownloadUrl(
   objectPath: string,
   expiresInSec = SIGNED_DOWNLOAD_TTL_SEC,
 ): Promise<string> {
-  const supabase = getSupabaseServiceRoleClient();
-  const { data, error } = await supabase.storage
-    .from(CASE_ATTACHMENTS_BUCKET)
-    .createSignedUrl(objectPath, expiresInSec);
-
-  if (error || !data?.signedUrl) {
-    throw new Error(
-      error?.message ?? "Falha ao gerar URL de download do anexo",
-    );
-  }
-  return data.signedUrl;
+  return createSignedGetUrl({
+    bucket: CASE_ATTACHMENTS_BUCKET,
+    key: objectPath,
+    expiresIn: expiresInSec,
+  });
 }
 
-/**
- * Lê metadados do objeto após upload (tamanho / mimetype) via listagem na pasta pai.
- */
-export async function getCaseAttachmentObjectInfo(objectPath: string): Promise<{
-  size: number;
-  mimeType: string | null;
-} | null> {
-  const supabase = getSupabaseServiceRoleClient();
-  const segments = objectPath.split("/").filter(Boolean);
-  if (segments.length < 2) return null;
-
-  const fileName = segments.pop()!;
-  const folder = segments.join("/");
-
-  const { data, error } = await supabase.storage
-    .from(CASE_ATTACHMENTS_BUCKET)
-    .list(folder, {
-      search: fileName,
-      limit: 100,
-    });
-
-  if (error || !data?.length) return null;
-
-  const file = data.find((f) => f.name === fileName);
-  if (!file) return null;
-
-  const meta = file.metadata as
-    | { size?: number; mimetype?: string; contentType?: string }
-    | undefined;
-
-  const size =
-    typeof meta?.size === "number"
-      ? meta.size
-      : typeof file.metadata === "object" &&
-          file.metadata !== null &&
-          "size" in file.metadata &&
-          typeof (file.metadata as { size?: unknown }).size === "number"
-        ? (file.metadata as { size: number }).size
-        : 0;
-
-  const mimeType =
-    (meta?.mimetype as string | undefined) ??
-    (meta?.contentType as string | undefined) ??
-    null;
-
-  return { size, mimeType };
+export async function getCaseAttachmentObjectInfo(
+  objectPath: string,
+): Promise<{ size: number; mimeType: string | null } | null> {
+  return headStoredObject(CASE_ATTACHMENTS_BUCKET, objectPath);
 }
 
 export async function removeCaseAttachmentObject(
   objectPath: string,
 ): Promise<void> {
-  const supabase = getSupabaseServiceRoleClient();
-  const { error } = await supabase.storage
-    .from(CASE_ATTACHMENTS_BUCKET)
-    .remove([objectPath]);
-
-  if (error) {
-    throw new Error(error.message ?? "Falha ao remover arquivo do storage");
-  }
+  await deleteStoredObject(CASE_ATTACHMENTS_BUCKET, objectPath);
 }

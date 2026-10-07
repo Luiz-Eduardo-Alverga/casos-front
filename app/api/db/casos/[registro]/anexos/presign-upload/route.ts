@@ -11,8 +11,12 @@ import {
   MAX_ATTACHMENTS_PER_CASE,
 } from "@/lib/constants/case-attachments";
 import { countCaseAttachmentsByRegistro } from "@/lib/db/case-attachments";
-import { createCaseAttachmentSignedUpload } from "@/lib/storage/case-attachments";
-import { getSupabaseServiceRoleClient } from "@/lib/storage/supabase";
+import {
+  attachmentUsesMultipart,
+  createCaseAttachmentMultipartUpload,
+  createCaseAttachmentSignedUpload,
+} from "@/lib/storage/case-attachments";
+import { getS3Client } from "@/lib/storage/s3";
 import {
   casoRegistroParamSchema,
   presignUploadBodySchema,
@@ -38,7 +42,7 @@ export async function POST(request: Request, context: RouteCtx) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
 
     try {
-      getSupabaseServiceRoleClient();
+      getS3Client();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Storage indisponível";
       return jsonError(msg, 503);
@@ -60,9 +64,30 @@ export async function POST(request: Request, context: RouteCtx) {
       }
 
       const objectPath = `casos/${casoRegistro}/${randomUUID()}.${ext}`;
-      const signed = await createCaseAttachmentSignedUpload(objectPath);
+
+      if (attachmentUsesMultipart(parsed.data.sizeBytes)) {
+        const session = await createCaseAttachmentMultipartUpload({
+          objectPath,
+          contentType: parsed.data.mimeType,
+          sizeBytes: parsed.data.sizeBytes,
+        });
+        return jsonOk({
+          mode: "multipart" as const,
+          bucket: CASE_ATTACHMENTS_BUCKET,
+          path: session.path,
+          uploadId: session.uploadId,
+          partSize: session.partSize,
+          parts: session.parts,
+        });
+      }
+
+      const signed = await createCaseAttachmentSignedUpload(
+        objectPath,
+        parsed.data.mimeType,
+      );
 
       return jsonOk({
+        mode: "single" as const,
         bucket: CASE_ATTACHMENTS_BUCKET,
         path: signed.path,
         uploadUrl: signed.uploadUrl,

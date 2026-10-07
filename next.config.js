@@ -9,6 +9,8 @@ const nextConfig = {
     "zlib-sync",
     "bufferutil",
     "utf-8-validate",
+    "@aws-sdk/client-s3",
+    "@aws-sdk/s3-request-presigner",
   ],
 };
 

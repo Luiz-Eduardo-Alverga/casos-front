@@ -96,19 +96,13 @@ export async function presignUserAvatarUpload(
 
 export async function putFileToSignedUploadUrl(
   uploadUrl: string,
-  token: string,
-  file: File,
+  file: Blob,
+  contentType: string,
 ): Promise<void> {
-  const headers: Record<string, string> = {
-    "Content-Type": file.type || "application/octet-stream",
-  };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
   const putRes = await fetch(uploadUrl, {
     method: "PUT",
     body: file,
-    headers,
+    headers: { "Content-Type": contentType },
   });
   if (!putRes.ok) {
     const text = await putRes.text().catch(() => "");
@@ -152,7 +146,7 @@ export async function uploadUserAvatarFull(
 
   const mime = inferMimeFromFile(file)!;
   const presign = await presignUserAvatarUpload(file);
-  await putFileToSignedUploadUrl(presign.uploadUrl, presign.token, file);
+  await putFileToSignedUploadUrl(presign.uploadUrl, file, mime);
   return finalizeUserAvatar({
     path: presign.path,
     filenameOriginal: file.name,

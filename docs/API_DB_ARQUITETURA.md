@@ -81,12 +81,15 @@ A Soft Flow deve expor **`GET /auth/me`** com o mesmo formato de objeto `user` d
 
 Variável de ambiente necessária no servidor: **`DATABASE_URL`** (connection string do Postgres do Supabase).
 
-Para **anexos de caso e de documentação** (upload direto do navegador para o Supabase Storage + metadados em `case_attachments` / `doc_attachments`), configure também:
+Para **anexos de caso, documentação e foto de perfil** (upload direto do navegador para o S3 da Softcom + metadados no Postgres), configure no servidor — nunca no client:
 
-- **`NEXT_PUBLIC_SUPABASE_URL`** — URL do projeto Supabase.
-- **`SUPABASE_SERVICE_ROLE_KEY`** — chave **service_role** (apenas servidor; nunca no client). Usada nas rotas `/api/db/casos/.../anexos` e `/api/db/docs/.../anexos` para assinar URLs e validar objetos.
+- **`S3_ENDPOINT`** — `https://s3-yggdrasil-01.hostsoftcom.cloud` (API, não o console).
+- **`S3_REGION`** — `us-east-1`.
+- **`S3_ACCESS_KEY`** e **`S3_SECRET_KEY`** — credenciais do storage.
+- **`S3_BUCKET_ANEXOS`** — bucket privado dos anexos (`softflow-prod-anexos`). Casos usam o prefixo `casos/{registro}/`; documentos, `docs/{docId}/`.
+- **`S3_BUCKET_AVATARS`** — bucket privado da foto de perfil (`softflow-prod-avatars`), prefixo `users/{id}/`.
 
-No dashboard do Supabase: criar bucket **privado** chamado **`casos-anexos`**. Anexos de documento usam o mesmo bucket, com prefixo `docs/{docId}/`. Se o `PUT` a partir de `localhost` falhar por CORS, em **Storage → Configuration** inclua a origem do app (ex.: `http://localhost:3000`).
+Arquivo de até 64 MiB sobe com um único `PUT` assinado. Vídeo acima disso (teto 100 MB) usa upload multipart. O Postgres continua em `DATABASE_URL`.
 
 ## Documentação OpenAPI / Swagger
 
@@ -139,7 +142,9 @@ Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` 
 | POST | `/api/db/app-users/[id]/roles` | Atribui `{ roleId }` |
 | PUT | `/api/db/app-users/[id]/roles` | Substitui perfil: remove vínculos atuais e atribui `{ roleId }` |
 | DELETE | `/api/db/app-users/[id]/roles/[roleId]` | Remove atribuição |
-| POST | `/api/db/casos/[registro]/anexos/presign-upload` | Gera URL assinada de upload (`create-case-attachment`) |
+| POST | `/api/db/casos/[registro]/anexos/presign-upload` | Gera URL assinada de upload; acima de 64 MiB devolve partes multipart (`create-case-attachment`) |
+| POST | `/api/db/casos/[registro]/anexos/multipart/complete` | Conclui upload multipart (`create-case-attachment`) |
+| POST | `/api/db/casos/[registro]/anexos/multipart/abort` | Aborta upload multipart incompleto (`create-case-attachment`) |
 | GET | `/api/db/casos/[registro]/anexos` | Lista anexos com URL de download assinada (`list-case-attachment`) |
 | POST | `/api/db/casos/[registro]/anexos` | Finaliza anexo após `PUT` no Storage (`create-case-attachment`) |
 | DELETE | `/api/db/anexos/[id]` | Remove anexo do Storage e do Postgres (`delete-case-attachment`) |
@@ -175,7 +180,9 @@ Conferência: `SELECT * FROM drizzle.__drizzle_migrations ORDER BY created_at;` 
 | PATCH | `/api/db/docs/[id]` | Atualiza documento, sincroniza tags/vínculos e registra atividade |
 | DELETE | `/api/db/docs/[id]` | Exclui documento e remove anexos do Storage |
 | GET | `/api/db/docs/[id]/activity` | Lista o histórico do documento |
-| POST | `/api/db/docs/[id]/anexos/presign-upload` | Gera URL assinada de upload (`edit-doc`; bucket `casos-anexos`) |
+| POST | `/api/db/docs/[id]/anexos/presign-upload` | Gera URL assinada de upload no bucket de anexos; acima de 64 MiB devolve partes multipart (`edit-doc`) |
+| POST | `/api/db/docs/[id]/anexos/multipart/complete` | Conclui upload multipart (`edit-doc`) |
+| POST | `/api/db/docs/[id]/anexos/multipart/abort` | Aborta upload multipart incompleto (`edit-doc`) |
 | GET | `/api/db/docs/[id]/anexos` | Lista anexos do documento com URL de download assinada (`list-doc`) |
 | POST | `/api/db/docs/[id]/anexos` | Finaliza anexo após `PUT` no Storage (`edit-doc`) |
 | DELETE | `/api/db/docs/[id]/anexos/[anexoId]` | Remove anexo do Storage e do Postgres (`edit-doc`) |

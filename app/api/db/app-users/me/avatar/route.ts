@@ -15,7 +15,7 @@ import {
   getUserAvatarObjectInfo,
   removeUserAvatarObject,
 } from "@/lib/storage/user-avatar";
-import { getSupabaseServiceRoleClient } from "@/lib/storage/supabase";
+import { getS3Client } from "@/lib/storage/s3";
 import {
   finalizeAvatarBodySchema,
   validateAvatarStoragePathForUser,
@@ -33,7 +33,7 @@ export async function GET() {
       }
 
       try {
-        getSupabaseServiceRoleClient();
+        getS3Client();
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Storage indisponível";
         return jsonError(msg, 503);
@@ -67,7 +67,7 @@ export async function PUT(request: Request) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
 
     try {
-      getSupabaseServiceRoleClient();
+      getS3Client();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Storage indisponível";
       return jsonError(msg, 503);
@@ -134,7 +134,7 @@ export async function PUT(request: Request) {
 export async function DELETE() {
   return withSession(async (session) => {
     try {
-      getSupabaseServiceRoleClient();
+      getS3Client();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Storage indisponível";
       return jsonError(msg, 503);

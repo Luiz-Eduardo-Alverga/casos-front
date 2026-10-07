@@ -22,7 +22,7 @@ import {
   createCaseAttachmentSignedDownloadUrl,
   getCaseAttachmentObjectInfo,
 } from "@/lib/storage/case-attachments";
-import { getSupabaseServiceRoleClient } from "@/lib/storage/supabase";
+import { getS3Client } from "@/lib/storage/s3";
 import { legacyUserSchema } from "@/lib/validators/db/legacy-user";
 import {
   casoRegistroParamSchema,
@@ -41,7 +41,7 @@ export async function GET(_request: Request, context: RouteCtx) {
     const casoRegistro = registroParsed.data;
 
     try {
-      getSupabaseServiceRoleClient();
+      getS3Client();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Storage indisponível";
       return jsonError(msg, 503);
@@ -98,7 +98,7 @@ export async function POST(request: Request, context: RouteCtx) {
     }
 
     try {
-      getSupabaseServiceRoleClient();
+      getS3Client();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Storage indisponível";
       return jsonError(msg, 503);

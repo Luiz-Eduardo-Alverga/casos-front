@@ -1,4 +1,6 @@
 import {
+  Archive,
+  FileCode,
   FileText,
   Film,
   ImageIcon,
@@ -52,5 +54,9 @@ export function pickRowIcon(row: AttachmentDisplayItem): LucideIcon {
   if (isImageRow(row)) return ImageIcon;
   if (row.kind === "pdf" || row.mimeType === "application/pdf") return FileText;
   if (row.kind === "video" || row.mimeType.startsWith("video/")) return Film;
+  if (row.mimeType === "application/xml" || row.mimeType === "text/xml") {
+    return FileCode;
+  }
+  if (row.mimeType === "application/vnd.rar") return Archive;
   return Paperclip;
 }

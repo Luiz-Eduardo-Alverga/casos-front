@@ -22,7 +22,7 @@ Copie de [`.env.example`](./.env.example). Principais:
 
 - `DATABASE_URL` — Postgres (Drizzle / rotas `/api/db`).
 - `NEXT_PUBLIC_API_BASE_URL` — API Soft Flow.
-- `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` — necessários para **anexos de caso** (Storage bucket privado `casos-anexos`). Ver [docs/API_DB_ARQUITETURA.md](./docs/API_DB_ARQUITETURA.md).
+- `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_BUCKET_ANEXOS` e `S3_BUCKET_AVATARS` — storage S3 da Softcom para anexos e foto de perfil (somente servidor). Ver [docs/API_DB_ARQUITETURA.md](./docs/API_DB_ARQUITETURA.md).
 
 ## Produção (VPS)
 

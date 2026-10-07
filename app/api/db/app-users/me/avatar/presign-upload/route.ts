@@ -8,7 +8,7 @@ import { withSession } from "@/lib/api-db/with-session";
 import { syncAppUserAndPermissions } from "@/lib/auth/sync-app-user";
 import { USER_AVATAR_BUCKET } from "@/lib/constants/user-avatar";
 import { createUserAvatarSignedUpload } from "@/lib/storage/user-avatar";
-import { getSupabaseServiceRoleClient } from "@/lib/storage/supabase";
+import { getS3Client } from "@/lib/storage/s3";
 import {
   buildUserAvatarObjectPath,
   presignAvatarBodySchema,
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
 
     try {
-      getSupabaseServiceRoleClient();
+      getS3Client();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Storage indisponível";
       return jsonError(msg, 503);
@@ -41,7 +41,10 @@ export async function POST(request: Request) {
         appUser.id,
         parsed.data.filename,
       );
-      const signed = await createUserAvatarSignedUpload(objectPath);
+      const signed = await createUserAvatarSignedUpload(
+        objectPath,
+        parsed.data.mimeType,
+      );
 
       return jsonOk({
         bucket: USER_AVATAR_BUCKET,

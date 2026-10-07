@@ -9,7 +9,7 @@ import {
   getDocAttachmentById,
 } from "@/lib/db/doc-attachments";
 import { removeCaseAttachmentObject } from "@/lib/storage/case-attachments";
-import { getSupabaseServiceRoleClient } from "@/lib/storage/supabase";
+import { getS3Client } from "@/lib/storage/s3";
 import { uuidSchema } from "@/lib/validators/db/shared";
 
 type RouteCtx = { params: Promise<{ id: string; anexoId: string }> };
@@ -23,7 +23,7 @@ export async function DELETE(_request: Request, context: RouteCtx) {
     if (!anexoParsed.success) return badRequestFromZod(anexoParsed.error);
 
     try {
-      getSupabaseServiceRoleClient();
+      getS3Client();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Storage indisponível";
       return jsonError(msg, 503);

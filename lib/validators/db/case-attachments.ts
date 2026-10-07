@@ -2,14 +2,19 @@ import { z } from "zod";
 import {
   ALLOWED_ATTACHMENT_MIMES,
   ALLOWED_EXTENSIONS,
+  ARCHIVE_MIMES,
   IMAGE_MIMES,
   MAX_ATTACHMENTS_PER_CASE,
   MAX_ATTACHMENTS_PER_DOC,
+  MAX_BYTES_ARCHIVE,
   MAX_BYTES_IMAGE,
   MAX_BYTES_PDF,
   MAX_BYTES_VIDEO,
+  MAX_BYTES_XML,
+  MAX_MULTIPART_PARTS,
   PDF_MIMES,
   VIDEO_MIMES,
+  XML_MIMES,
 } from "@/lib/constants/case-attachments";
 
 const mimeEnum = z.enum(ALLOWED_ATTACHMENT_MIMES);
@@ -18,6 +23,8 @@ function maxBytesForMime(mime: string): number {
   if ((IMAGE_MIMES as readonly string[]).includes(mime)) return MAX_BYTES_IMAGE;
   if ((PDF_MIMES as readonly string[]).includes(mime)) return MAX_BYTES_PDF;
   if ((VIDEO_MIMES as readonly string[]).includes(mime)) return MAX_BYTES_VIDEO;
+  if ((XML_MIMES as readonly string[]).includes(mime)) return MAX_BYTES_XML;
+  if ((ARCHIVE_MIMES as readonly string[]).includes(mime)) return MAX_BYTES_ARCHIVE;
   return 0;
 }
 
@@ -43,6 +50,13 @@ export function assertExtensionMatchesMime(
   if (mimeType === "application/pdf" && ext === "pdf") return true;
   if (mimeType === "video/mp4" && ext === "mp4") return true;
   if (mimeType === "video/webm" && ext === "webm") return true;
+  if (
+    (mimeType === "application/xml" || mimeType === "text/xml") &&
+    ext === "xml"
+  ) {
+    return true;
+  }
+  if (mimeType === "application/vnd.rar" && ext === "rar") return true;
   return false;
 }
 
@@ -84,6 +98,40 @@ export const presignUploadBodySchema = z
   });
 
 export type PresignUploadBody = z.infer<typeof presignUploadBodySchema>;
+
+export const multipartPartSchema = z.object({
+  partNumber: z.number().int().positive().max(10_000),
+  etag: z.string().trim().min(1).max(256),
+});
+
+export const completeMultipartBodySchema = z
+  .object({
+    path: z.string().min(1).max(1024),
+    uploadId: z.string().trim().min(1).max(2048),
+    parts: z.array(multipartPartSchema).min(1).max(MAX_MULTIPART_PARTS),
+  })
+  .superRefine((val, ctx) => {
+    const numbers = val.parts.map((part) => part.partNumber).sort((a, b) => a - b);
+    for (let index = 0; index < numbers.length; index += 1) {
+      if (numbers[index] !== index + 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "As partes do upload devem ser sequenciais a partir de 1",
+          path: ["parts"],
+        });
+        return;
+      }
+    }
+  });
+
+export type CompleteMultipartBody = z.infer<typeof completeMultipartBodySchema>;
+
+export const abortMultipartBodySchema = z.object({
+  path: z.string().min(1).max(1024),
+  uploadId: z.string().trim().min(1).max(2048),
+});
+
+export type AbortMultipartBody = z.infer<typeof abortMultipartBodySchema>;
 
 export const finalizeAttachmentBodySchema = z
   .object({

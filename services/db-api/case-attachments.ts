@@ -4,12 +4,31 @@ import {
   presignUploadBodySchema,
 } from "@/lib/validators/db/case-attachments";
 
-export type PresignUploadResponse = {
+export type PresignUploadPart = {
+  partNumber: number;
+  uploadUrl: string;
+};
+
+export type PresignSingleResponse = {
+  mode: "single";
   bucket: string;
   path: string;
   uploadUrl: string;
   token: string;
 };
+
+export type PresignMultipartResponse = {
+  mode: "multipart";
+  bucket: string;
+  path: string;
+  uploadId: string;
+  partSize: number;
+  parts: PresignUploadPart[];
+};
+
+export type PresignUploadResponse =
+  | PresignSingleResponse
+  | PresignMultipartResponse;
 
 export type CaseAttachmentListItem = {
   id: string;
@@ -43,8 +62,16 @@ async function parseJsonOk<T>(res: Response): Promise<T> {
 }
 
 export function inferMimeFromFile(file: File): string | null {
-  if (file.type && file.type.trim()) return file.type.trim();
   const name = file.name.toLowerCase();
+  const reported = file.type.split(";")[0]?.trim().toLowerCase() ?? "";
+
+  if (name.endsWith(".rar")) return "application/vnd.rar";
+  if (name.endsWith(".xml")) {
+    if (reported === "text/xml" || reported === "application/xml") return reported;
+    return "application/xml";
+  }
+
+  if (reported) return reported;
   if (name.endsWith(".png")) return "image/png";
   if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
   if (name.endsWith(".webp")) return "image/webp";
@@ -60,7 +87,7 @@ export function inferMimeFromFile(file: File): string | null {
 export function validateCaseAttachmentFile(file: File): string | null {
   const mime = inferMimeFromFile(file);
   if (!mime) {
-    return "Não foi possível identificar o tipo do arquivo. Use PNG, JPG, WEBP, GIF, PDF, MP4, WEBM ou MOV.";
+    return "Não foi possível identificar o tipo do arquivo. Use PNG, JPG, WEBP, GIF, PDF, MP4, WEBM, MOV, XML ou RAR.";
   }
   const candidate = presignUploadBodySchema.safeParse({
     filename: file.name,
@@ -103,19 +130,13 @@ export async function presignCaseAttachmentUpload(
 
 export async function putFileToSignedUploadUrl(
   uploadUrl: string,
-  token: string,
-  file: File,
+  file: Blob,
+  contentType: string,
 ): Promise<void> {
-  const headers: Record<string, string> = {
-    "Content-Type": file.type || "application/octet-stream",
-  };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
   const putRes = await fetch(uploadUrl, {
     method: "PUT",
     body: file,
-    headers,
+    headers: { "Content-Type": contentType },
   });
   if (!putRes.ok) {
     const text = await putRes.text().catch(() => "");
@@ -124,6 +145,71 @@ export async function putFileToSignedUploadUrl(
         ? `Falha ao enviar arquivo (${putRes.status}): ${text.slice(0, 200)}`
         : `Falha ao enviar arquivo (${putRes.status})`,
     );
+  }
+}
+
+async function putMultipartPart(uploadUrl: string, body: Blob): Promise<string> {
+  const putRes = await fetch(uploadUrl, { method: "PUT", body });
+  if (!putRes.ok) {
+    const text = await putRes.text().catch(() => "");
+    throw new Error(
+      text?.trim()
+        ? `Falha ao enviar parte do arquivo (${putRes.status}): ${text.slice(0, 200)}`
+        : `Falha ao enviar parte do arquivo (${putRes.status})`,
+    );
+  }
+  const etag = putRes.headers.get("ETag")?.trim();
+  if (!etag) {
+    throw new Error(
+      "O storage não devolveu o ETag da parte. O CORS precisa expor o header ETag.",
+    );
+  }
+  return etag;
+}
+
+export async function uploadPresignedAttachment(
+  presign: PresignUploadResponse,
+  file: File,
+  contentType: string,
+  endpoints: { completeUrl: string; abortUrl: string },
+): Promise<void> {
+  if (presign.mode === "single") {
+    await putFileToSignedUploadUrl(presign.uploadUrl, file, contentType);
+    return;
+  }
+
+  const completed: { partNumber: number; etag: string }[] = [];
+  try {
+    for (const part of presign.parts) {
+      const start = (part.partNumber - 1) * presign.partSize;
+      const end = Math.min(start + presign.partSize, file.size);
+      const etag = await putMultipartPart(
+        part.uploadUrl,
+        file.slice(start, end),
+      );
+      completed.push({ partNumber: part.partNumber, etag });
+    }
+
+    const res = await fetchWithAuth(endpoints.completeUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        path: presign.path,
+        uploadId: presign.uploadId,
+        parts: completed,
+      }),
+    });
+    await parseJsonOk(res);
+  } catch (error) {
+    await fetchWithAuth(endpoints.abortUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        path: presign.path,
+        uploadId: presign.uploadId,
+      }),
+    }).catch(() => undefined);
+    throw error;
   }
 }
 
@@ -176,11 +262,10 @@ export async function uploadCaseAttachmentFull(
 
   const mime = inferMimeFromFile(file)!;
   const presign = await presignCaseAttachmentUpload(casoRegistro, file);
-  await putFileToSignedUploadUrl(
-    presign.uploadUrl,
-    presign.token,
-    file,
-  );
+  await uploadPresignedAttachment(presign, file, mime, {
+    completeUrl: `/api/db/casos/${casoRegistro}/anexos/multipart/complete`,
+    abortUrl: `/api/db/casos/${casoRegistro}/anexos/multipart/abort`,
+  });
   return finalizeCaseAttachment(casoRegistro, {
     path: presign.path,
     filenameOriginal: file.name,

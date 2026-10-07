@@ -1,7 +1,7 @@
 import { fetchWithAuth } from "@/lib/fetch";
 import {
   inferMimeFromFile,
-  putFileToSignedUploadUrl,
+  uploadPresignedAttachment,
   validateCaseAttachmentFile,
   type PresignUploadResponse,
 } from "@/services/db-api/case-attachments";
@@ -115,7 +115,10 @@ export async function uploadDocAttachmentFull(
 
   const mime = inferMimeFromFile(file)!;
   const presign = await presignDocAttachmentUpload(docId, file);
-  await putFileToSignedUploadUrl(presign.uploadUrl, presign.token, file);
+  await uploadPresignedAttachment(presign, file, mime, {
+    completeUrl: `/api/db/docs/${docId}/anexos/multipart/complete`,
+    abortUrl: `/api/db/docs/${docId}/anexos/multipart/abort`,
+  });
   return finalizeDocAttachment(docId, {
     path: presign.path,
     filenameOriginal: file.name,
