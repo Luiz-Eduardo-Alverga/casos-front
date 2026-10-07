@@ -52,7 +52,10 @@ export function CasoFormAnexosDropzone({
 
       <div
         role="button"
-        tabIndex={0}
+        tabIndex={canInteract ? 0 : -1}
+        onClick={() => {
+          if (canInteract) inputRef.current?.click();
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -66,11 +69,11 @@ export function CasoFormAnexosDropzone({
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
         className={cn(
-          "rounded-lg border-2 border-dashed h-full  flex flex-col items-center justify-center p-6 text-sm transition-colors",
+          "flex h-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-sm transition-colors",
           dragOver
             ? "border-primary bg-primary/5"
             : "border-sky-300 bg-sky-100/20",
-          !canInteract && "opacity-50 pointer-events-none",
+          !canInteract && "cursor-default pointer-events-none opacity-50",
         )}
       >
         <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-card">
@@ -78,14 +81,9 @@ export function CasoFormAnexosDropzone({
         </div>
         <p className="mb-1 text-sm font-bold text-foreground">
           Arraste arquivos aqui ou{" "}
-          <button
-            type="button"
-            className="text-blue-500 underline-offset-2 hover:underline"
-            disabled={!canInteract}
-            onClick={() => inputRef.current?.click()}
-          >
+          <span className="text-blue-500 underline-offset-2 hover:underline">
             escolha do computador
-          </button>
+          </span>
         </p>
         <p className="text-xs text-muted-foreground">
           Você também pode colar captura de tela com Ctrl+V
