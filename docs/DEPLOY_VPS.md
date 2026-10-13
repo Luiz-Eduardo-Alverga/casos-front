@@ -6,7 +6,7 @@ O Traefik da VM **só escuta HTTP na porta 80** (entrypoint `web`). Não use `do
 
 ## Deploy automático (GitHub Actions)
 
-Push em `master` (ou *Run workflow*):
+Push em `master` (ou _Run workflow_):
 
 1. **GitHub (nuvem):** build da imagem e push para `ghcr.io/luiz-eduardo-alverga/casos-front`.
 2. **Runner na VPS** (`vm-squad-xp-01`): `docker pull` + `docker stack deploy`. Sem SSH de fora.
@@ -15,13 +15,13 @@ O runner precisa estar **Idle** em Settings → Actions → Runners.
 
 Secrets do repositório (Settings → Secrets and variables → Actions) — **só o que entra no build**:
 
-| Secret | Valor |
-|---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | API Soft Flow |
-| `NEXT_PUBLIC_ASSISTANT_API_URL` | `https://assistant.hostsoftcom.cloud` |
-| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto Supabase |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | chave publishable |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | opcional |
+| Secret                                         | Valor                                 |
+| ---------------------------------------------- | ------------------------------------- |
+| `NEXT_PUBLIC_API_BASE_URL`                     | API Soft Flow                         |
+| `NEXT_PUBLIC_ASSISTANT_API_URL`                | `https://assistant.hostsoftcom.cloud` |
+| `NEXT_PUBLIC_SUPABASE_URL`                     | URL do projeto Supabase               |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | chave publishable                     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`                | opcional                              |
 
 Não cadastre senha de root nem `VPS_SSH_KEY`. Runtime (`DATABASE_URL`, Discord, `TRAEFIK_*`, etc.) fica em `/opt/casos-front/.env` na VPS.
 
@@ -74,3 +74,32 @@ Em `deploy.labels`, iguais ao Portainer:
 - Bot Discord
 
 A VPS só precisa **alcançar** esses serviços.
+
+## Rebuild na VPS (imagem local)
+
+Use quando mudar `NEXT_PUBLIC_*` ou quando o `.env` novo não aparecer na aplicação. Essas variáveis entram no bundle no `docker build`. O `docker stack deploy` ignora a seção `build` do compose.
+
+No `.env` da VPS, `CASOS_IMAGE` fica `casos-front:latest`. Na VPS, como usuário do grupo `docker`:
+
+```bash
+cd /opt/casos-front
+set -a && . .env && set +a
+
+docker build --no-cache \
+  --build-arg NEXT_PUBLIC_API_BASE_URL="$NEXT_PUBLIC_API_BASE_URL" \
+  --build-arg NEXT_PUBLIC_ASSISTANT_API_URL="$NEXT_PUBLIC_ASSISTANT_API_URL" \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+  --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY" \
+  --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" \
+  -t casos-front:latest .
+
+docker stack deploy -c docker-compose.yml casos-front
+
+docker service update --force casos-front_app
+```
+
+1. O build gera a imagem local sem cache, com as `NEXT_PUBLIC_*` do `.env`.
+2. O `stack deploy` reaplica o `.env` de runtime (`DATABASE_URL`, Discord, S3, `COOKIE_SECURE`, Traefik).
+3. O `--force` recria o container na mesma tag `casos-front:latest`.
+
+Confira com `docker service ps casos-front_app`: a task `Running` deve usar `casos-front:latest`.
