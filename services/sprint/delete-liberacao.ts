@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 import type { DeleteLiberacaoResponse } from "@/interfaces/liberacao";
 
 export type { DeleteLiberacaoResponse };
@@ -24,9 +25,7 @@ export async function deleteLiberacao(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error?.message || error?.error || "Erro ao excluir liberação",
-    );
+    throw new Error(readApiErrorMessage(error, "Erro ao excluir liberação"));
   }
 
   if (response.status === 204) {

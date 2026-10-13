@@ -8,9 +8,12 @@ function hasAny(perms: string[], codes: string[]): boolean {
 export function getDefaultLandingPath(permissions: string[]): string {
   if (permissions.includes("list-painel-dev")) return "/painel";
   if (permissions.includes("list-minha-visao")) return "/painel/minha-visao";
-  if (hasAny(permissions, ["list-case", "list-report"])) return "/casos";
+  if (permissions.includes("list-case")) return "/casos";
+  if (permissions.includes("list-report")) return "/reports";
   if (permissions.includes("list-project")) return "/projetos";
   if (permissions.includes("list-product")) return "/produtos";
+  if (permissions.includes("list-release")) return "/liberacoes";
+  if (permissions.includes("list-improvement")) return "/melhorias";
   if (hasAny(permissions, ["audit-all-users", "audit-user"])) {
     return "/auditoria/horas-colaboradores";
   }
@@ -31,8 +34,20 @@ export function canAccessPath(path: string, permissions: string[]): boolean {
   if (path === "/painel" || path.startsWith("/painel/")) {
     return permissions.includes("list-painel-dev");
   }
-  if (path === "/casos" || path.startsWith("/casos/")) {
+  if (path === "/casos/novo" || path.startsWith("/casos/novo/")) {
+    return permissions.includes("create-case");
+  }
+  if (path === "/casos") {
+    return permissions.includes("list-case");
+  }
+  if (path.startsWith("/casos/")) {
     return hasAny(permissions, ["list-case", "list-report"]);
+  }
+  if (path === "/reports/novo" || path.startsWith("/reports/novo/")) {
+    return permissions.includes("create-report");
+  }
+  if (path === "/reports" || path.startsWith("/reports/")) {
+    return permissions.includes("list-report");
   }
   if (path === "/projetos" || path.startsWith("/projetos/")) {
     return permissions.includes("list-project");
@@ -42,6 +57,12 @@ export function canAccessPath(path: string, permissions: string[]): boolean {
   }
   if (path === "/produtos" || path.startsWith("/produtos/")) {
     return permissions.includes("list-product");
+  }
+  if (path === "/liberacoes" || path.startsWith("/liberacoes/")) {
+    return permissions.includes("list-release");
+  }
+  if (path === "/melhorias" || path.startsWith("/melhorias/")) {
+    return permissions.includes("list-improvement");
   }
   if (path.startsWith("/auditoria/")) {
     return hasAny(permissions, ["audit-all-users", "audit-user"]);

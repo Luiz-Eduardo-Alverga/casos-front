@@ -10,6 +10,13 @@ import {
 } from "lucide-react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { useEffect, useMemo, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useProjetoMemoriaById } from "@/hooks/casos/use-projeto-memoria-by-id";
+import { useCasoEdit } from "../caso-edit-context";
+import {
+  CASE_ID_MAX_LENGTH,
+  formatCaseSearchValue,
+} from "@/components/caso-search-modal/utils";
 
 import { CasoFormDevAtribuido } from "@/components/fields/caso-form-dev-atribuido";
 import { CasoFormModulo } from "@/components/fields/caso-form-modulo";
@@ -30,7 +37,11 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useRelatores } from "@/hooks/catalogos/use-usuarios";
-import { formatReportDate } from "./utils";
+import {
+  formatReportDate,
+  normalizeAnaliseStatusForForm,
+  REPORT_STATUS_DUPLICADO_ID,
+} from "./utils";
 import type { ReportAnaliseModalProps } from "./types";
 import {
   applyDev631ToCasoEditForm,
@@ -121,7 +132,9 @@ export function ReportAnaliseModal({
   const dataLimite = report.data_limite;
   const responsavelFeedback = report.responsavel_feedback_nome?.trim() || "—";
   const dataConclusao = formatReportDate(report.analise_data_conclusao);
-  const analiseUsuarioId = String(report.report_analise_usuario_id ?? "").trim();
+  const analiseUsuarioId = String(
+    report.report_analise_usuario_id ?? "",
+  ).trim();
   const precisaResolverUsuario =
     analiseConcluida &&
     Boolean(analiseUsuarioId) &&
@@ -137,17 +150,70 @@ export function ReportAnaliseModal({
     const usuario = usuarios?.find((u) => u.id === analiseUsuarioId);
     return usuario?.nome_suporte?.trim() || "—";
   }, [report.analise_usuario_nome, analiseUsuarioId, usuarios]);
-  const { control, setValue } = useFormContext();
+  const { numeroCaso } = useCasoEdit();
+  const { control, register, setValue } = useFormContext();
   const analiseStatusValue = useWatch({ control, name: "analiseStatus" });
+  const casoDuplicadoValue = useWatch({
+    control,
+    name: "casoDuplicadoRelacionado",
+  });
 
   const analiseStatusId = useMemo(() => {
     return String(analiseStatusValue ?? "").trim();
   }, [analiseStatusValue]);
 
+  const isStatusDuplicado = analiseStatusId === REPORT_STATUS_DUPLICADO_ID;
+  const exibirNumeroCasoOriginal = isStatusDuplicado && !analiseConcluida;
+  const statusCarregado = normalizeAnaliseStatusForForm(
+    editCaseItem?.report?.analise_status,
+  );
+  const acabouDeVirarDuplicado =
+    isStatusDuplicado && statusCarregado !== REPORT_STATUS_DUPLICADO_ID;
+
+  const casoDuplicadoNumero = String(casoDuplicadoValue ?? "").trim();
+  const [debouncedCasoDuplicado, setDebouncedCasoDuplicado] = useState("");
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedCasoDuplicado(casoDuplicadoNumero);
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [casoDuplicadoNumero]);
+
+  const mesmoCasoAberto =
+    casoDuplicadoNumero !== "" && Number(casoDuplicadoNumero) === numeroCaso;
+
+  const shouldFetchCasoDuplicado = useMemo(() => {
+    if (disabled || !exibirNumeroCasoOriginal || mesmoCasoAberto) return false;
+    return /^\d+$/.test(debouncedCasoDuplicado);
+  }, [debouncedCasoDuplicado, disabled, exibirNumeroCasoOriginal, mesmoCasoAberto]);
+
+  const casoDuplicadoQuery = useProjetoMemoriaById(debouncedCasoDuplicado, {
+    enabled: shouldFetchCasoDuplicado,
+  });
+
+  const casoDuplicadoEncontrado =
+    isStatusDuplicado &&
+    casoDuplicadoNumero !== "" &&
+    !mesmoCasoAberto &&
+    debouncedCasoDuplicado === casoDuplicadoNumero &&
+    casoDuplicadoQuery.isSuccess &&
+    Boolean(casoDuplicadoQuery.data?.data?.caso) &&
+    !casoDuplicadoQuery.isFetching;
+
+  const salvarDuplicadoBloqueado =
+    exibirNumeroCasoOriginal &&
+    ((acabouDeVirarDuplicado && !casoDuplicadoEncontrado) ||
+      (casoDuplicadoNumero !== "" && !casoDuplicadoEncontrado));
+
   const isStatusStepByStep =
     analiseStatusId === "20" || analiseStatusId === "22";
   const isStepFlow = !analiseConcluida && isStatusStepByStep;
   const [step, setStep] = useState<1 | 2>(1);
+  const salvarDesabilitado = isLoading || disabled || salvarDuplicadoBloqueado;
+
+  const descricaoCasoDuplicado =
+    casoDuplicadoQuery.data?.data?.caso?.textos?.descricao_resumo?.trim() ?? "";
 
   useEffect(() => {
     if (!open) {
@@ -227,6 +293,48 @@ export function ReportAnaliseModal({
               }}
             />
 
+            {exibirNumeroCasoOriginal ? (
+              <div className="min-w-0 space-y-2">
+                <Label
+                  htmlFor="caso-duplicado-relacionado"
+                  className="text-sm font-medium text-text-label"
+                >
+                  Numero do caso original
+                </Label>
+                <Input
+                  id="caso-duplicado-relacionado"
+                  maxLength={CASE_ID_MAX_LENGTH}
+                  inputMode="numeric"
+                  {...register("casoDuplicadoRelacionado", {
+                    onChange: (e) => {
+                      e.target.value = formatCaseSearchValue(e.target.value);
+                    },
+                  })}
+                  placeholder="Caso numero..."
+                  className="h-9 rounded-lg border-border-input px-[17px] py-3"
+                  disabled={disabled}
+                />
+                {casoDuplicadoNumero !== "" ? (
+                  mesmoCasoAberto ? (
+                    <p className="text-sm text-destructive">
+                      Informe um caso diferente do atual.
+                    </p>
+                  ) : casoDuplicadoQuery.isFetching ||
+                    debouncedCasoDuplicado !== casoDuplicadoNumero ? (
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                  ) : casoDuplicadoQuery.isError ? (
+                    <p className="text-sm text-destructive">
+                      Caso não encontrado.
+                    </p>
+                  ) : casoDuplicadoEncontrado ? (
+                    <div className="w-full rounded-lg border-l-4 border-primary bg-muted/30 p-2.5 text-xs font-semibold leading-5 text-foreground whitespace-pre-wrap">
+                      {descricaoCasoDuplicado || "Sem descrição resumida."}
+                    </div>
+                  ) : null
+                ) : null}
+              </div>
+            ) : null}
+
             {analiseConcluida ? (
               <div className="min-w-0 space-y-4">
                 <Separator />
@@ -264,7 +372,7 @@ export function ReportAnaliseModal({
               <Button
                 type="button"
                 onClick={onSalvar}
-                disabled={isLoading || disabled}
+                disabled={salvarDesabilitado}
                 className="flex-1"
               >
                 {isLoading ? (
@@ -308,7 +416,7 @@ export function ReportAnaliseModal({
                 <Button
                   type="button"
                   onClick={onSalvar}
-                  disabled={isLoading || disabled}
+                  disabled={salvarDesabilitado}
                   className="flex-1"
                 >
                   {isLoading ? (
@@ -340,7 +448,7 @@ export function ReportAnaliseModal({
               <Button
                 type="button"
                 onClick={onSalvar}
-                disabled={isLoading || disabled}
+                disabled={salvarDesabilitado}
                 className="flex-1"
               >
                 {isLoading ? (

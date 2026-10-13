@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 import type {
   CreateLiberacaoRequest,
   CreateLiberacaoResponse,
@@ -21,9 +22,7 @@ export async function createLiberacao(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error?.message || error?.error || "Erro ao criar liberação",
-    );
+    throw new Error(readApiErrorMessage(error, "Erro ao criar liberação"));
   }
 
   return await response.json();

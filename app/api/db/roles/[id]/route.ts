@@ -5,9 +5,11 @@ import {
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
 import {
+  assertCanEditFranquiaRole,
   assertCanManageRoleLevel,
   assertHasAssignableHierarchy,
 } from "@/lib/api-db/assert-role-hierarchy";
+import { PROTECTED_ROLE_IDS } from "@/lib/rbac-default-roles";
 import { withPermission } from "@/lib/api-db/with-permission";
 import { withSession } from "@/lib/api-db/with-session";
 import { deleteRole, getRoleById, updateRole } from "@/lib/db/roles";
@@ -15,11 +17,6 @@ import { roleUpdateSchema } from "@/lib/validators/db/roles";
 import { uuidSchema } from "@/lib/validators/db/shared";
 
 type RouteCtx = { params: Promise<{ id: string }> };
-
-const PROTECTED_ROLE_IDS = new Set([
-  "a668ee62-30f8-482d-ac33-ca2d591a950b",
-  "22917bd2-02c4-467d-a152-b7edfa757166",
-]);
 
 export async function GET(_request: Request, context: RouteCtx) {
   return withSession(async () => {
@@ -57,6 +54,12 @@ export async function PATCH(request: Request, context: RouteCtx) {
     if (noHierarchy) return noHierarchy;
 
     const assignerLevel = session.assignerHierarchyLevel!;
+
+    const franquiaDenied = assertCanEditFranquiaRole(
+      idParsed.data,
+      assignerLevel,
+    );
+    if (franquiaDenied) return franquiaDenied;
 
     try {
       const existing = await getRoleById(idParsed.data);

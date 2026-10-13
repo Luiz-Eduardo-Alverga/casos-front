@@ -22,6 +22,7 @@ interface ChecklistRowProps {
   item: ChecklistRowState;
   isUpdating?: boolean;
   disabled?: boolean;
+  canEdit?: boolean;
   onToggleChecado: (checado: boolean) => void;
   onSaveObservacao: (observacao: string) => Promise<void> | void;
   onDelete: () => void;
@@ -31,6 +32,7 @@ export function ChecklistRow({
   item,
   isUpdating = false,
   disabled = false,
+  canEdit = true,
   onToggleChecado,
   onSaveObservacao,
   onDelete,
@@ -103,11 +105,8 @@ export function ChecklistRow({
               </span>
             </label>
 
+            {canEdit ? (
             <div className="flex shrink-0 items-center gap-1">
-              {/* <span className="px-1 font-mono text-[11.5px] text-text-secondary">
-                #{item.idResponsavel}
-              </span> */}
-
               {!editingObs ? (
                 <Button
                   type="button"
@@ -147,6 +146,7 @@ export function ChecklistRow({
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </div>
+            ) : null}
           </div>
 
           <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11.5px] text-text-secondary">

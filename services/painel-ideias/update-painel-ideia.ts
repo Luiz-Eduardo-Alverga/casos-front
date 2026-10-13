@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 
 export type PainelIdeiaStatus = "SIM" | "NÃO";
 export type PainelIdeiaConcluido = "Sim" | "Não";
@@ -38,9 +39,7 @@ export async function updatePainelIdeia(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error?.message || error?.error || "Erro ao avaliar melhoria",
-    );
+    throw new Error(readApiErrorMessage(error, "Erro ao avaliar melhoria"));
   }
 
   const text = await response.text();

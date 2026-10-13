@@ -271,11 +271,12 @@ export function AppSidebar({
   const canListAcquirer = rbacReady && hasPermission("list-acquirer");
   const canListPainelDev = rbacReady && hasPermission("list-painel-dev");
   const canListMinhaVisao = rbacReady && hasPermission("list-minha-visao");
-  const canListCase =
-    rbacReady && hasAnyPermission(["list-case", "list-report"]);
+  const canListCase = rbacReady && hasPermission("list-case");
   const canListReport = rbacReady && hasPermission("list-report");
   const canListProject = rbacReady && hasPermission("list-project");
   const canListProduct = rbacReady && hasPermission("list-product");
+  const canListRelease = rbacReady && hasPermission("list-release");
+  const canListImprovement = rbacReady && hasPermission("list-improvement");
   const canListDoc = rbacReady && hasPermission("list-doc");
   const canAudit =
     rbacReady && hasAnyPermission(["audit-all-users", "audit-user"]);
@@ -358,6 +359,24 @@ export function AppSidebar({
       !canListProduct &&
       entry.type === "link" &&
       entry.href === "/produtos"
+    ) {
+      return false;
+    }
+
+    if (
+      rbacReady &&
+      !canListRelease &&
+      entry.type === "link" &&
+      entry.href === "/liberacoes"
+    ) {
+      return false;
+    }
+
+    if (
+      rbacReady &&
+      !canListImprovement &&
+      entry.type === "link" &&
+      entry.href === "/melhorias"
     ) {
       return false;
     }

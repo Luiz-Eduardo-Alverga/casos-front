@@ -12,6 +12,7 @@ import { usePainelIdeiasInfinite } from "@/hooks/painel/use-painel-ideias";
 import { filtrosToPainelIdeiasParams } from "@/components/melhorias/filtros/melhorias-filtros-mappers";
 import type { MelhoriasFiltrosState } from "@/components/melhorias/filtros/melhorias-filtros.types";
 import type { PainelIdeiaItem } from "@/services/painel-ideias/get-painel-ideias";
+import { useMelhoriaPermissoes } from "@/hooks/melhorias/use-melhoria-permissoes";
 
 interface MelhoriasTabelaProps {
   filtros: MelhoriasFiltrosState;
@@ -36,6 +37,7 @@ export function MelhoriasTabela({ filtros }: MelhoriasTabelaProps) {
   const [itemAvaliando, setItemAvaliando] = useState<PainelIdeiaItem | null>(
     null,
   );
+  const { canEdit } = useMelhoriaPermissoes();
 
   useEffect(() => {
     const onScroll = () => {
@@ -76,7 +78,7 @@ export function MelhoriasTabela({ filtros }: MelhoriasTabelaProps) {
       </CardHeader>
       <CardContent className="p-6 pt-3">
         {isLoading ? (
-          <MelhoriasTabelaSkeleton />
+          <MelhoriasTabelaSkeleton showAcao={canEdit} />
         ) : itens.length === 0 ? (
           <EmptyState
             icon={Lightbulb}
@@ -87,7 +89,7 @@ export function MelhoriasTabela({ filtros }: MelhoriasTabelaProps) {
           <>
             <MelhoriasTabelaTable
               itens={itens}
-              onAvaliar={setItemAvaliando}
+              onAvaliar={canEdit ? setItemAvaliando : undefined}
             />
             {hasNextPage && itens.length > 0 && (
               <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />
@@ -95,13 +97,15 @@ export function MelhoriasTabela({ filtros }: MelhoriasTabelaProps) {
           </>
         )}
       </CardContent>
-      <AvaliarMelhoriaModal
-        open={itemAvaliando != null}
-        item={itemAvaliando}
-        onOpenChange={(open) => {
-          if (!open) setItemAvaliando(null);
-        }}
-      />
+      {canEdit ? (
+        <AvaliarMelhoriaModal
+          open={itemAvaliando != null}
+          item={itemAvaliando}
+          onOpenChange={(open) => {
+            if (!open) setItemAvaliando(null);
+          }}
+        />
+      ) : null}
       {showScrollTop && (
         <Button
           type="button"

@@ -15,6 +15,7 @@ import {
   type CasoVersaoRowState,
 } from "@/components/liberacoes/edicao/casos-versao/utils";
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
+import { useLiberacaoPermissoes } from "@/hooks/liberacoes/use-liberacao-permissoes";
 import { useGenerateReleaseNotesStream } from "@/hooks/assistant/use-generate-release-notes-stream";
 import type { LiberacaoVersao } from "@/interfaces/liberacao";
 
@@ -36,6 +37,7 @@ export function AbaCasosVersao({
 }: AbaCasosVersaoProps) {
   const queryClient = useQueryClient();
   const updateCaso = useUpdateCaso();
+  const { canEdit, canEditCaso } = useLiberacaoPermissoes();
   const {
     generate: generateReleaseNotes,
     isGenerating: generating,
@@ -145,6 +147,7 @@ export function AbaCasosVersao({
     );
 
   const handleGerar = async () => {
+    if (!canEdit) return;
     try {
       await generateReleaseNotes(registro);
     } catch (err) {
@@ -217,6 +220,7 @@ export function AbaCasosVersao({
   };
 
   const handleSave = async (row: CasoVersaoRowState) => {
+    if (!canEditCaso) return;
     setSavingId(row.id);
     try {
       await updateCaso.mutateAsync({
@@ -308,6 +312,7 @@ export function AbaCasosVersao({
               selected={selected.includes(row.id)}
               isSaving={savingId === row.id}
               canSave={isCasoVersaoRowDirty(row, savedById[row.id])}
+              canEdit={canEditCaso}
               onToggleSelected={() => toggleOne(row.id)}
               onDescricaoChange={(value) =>
                 setRows((prev) =>
@@ -340,6 +345,7 @@ export function AbaCasosVersao({
           resultado={resultado}
           onGerar={() => void handleGerar()}
           gerarDisabled={bulkMarking}
+          canGenerate={canEdit}
         />
       </div>
     </div>

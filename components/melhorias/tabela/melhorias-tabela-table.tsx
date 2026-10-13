@@ -12,7 +12,7 @@ import type { PainelIdeiaItem } from "@/services/painel-ideias/get-painel-ideias
 
 interface MelhoriasTabelaTableProps {
   itens: PainelIdeiaItem[];
-  onAvaliar: (item: PainelIdeiaItem) => void;
+  onAvaliar?: (item: PainelIdeiaItem) => void;
 }
 
 const HEADER_ROW_CLASS =
@@ -22,6 +22,8 @@ export function MelhoriasTabelaTable({
   itens,
   onAvaliar,
 }: MelhoriasTabelaTableProps) {
+  const showAcao = Boolean(onAvaliar);
+
   return (
     <Table>
       <TableHeader>
@@ -35,9 +37,11 @@ export function MelhoriasTabelaTable({
           <TableHead className="min-w-[150px] w-[170px] font-medium text-sm text-text-primary h-auto py-4 px-2">
             Situação
           </TableHead>
-          <TableHead className="w-[108px] min-w-[108px] font-medium text-sm text-text-primary h-auto py-4 px-2">
-            Ação
-          </TableHead>
+          {showAcao ? (
+            <TableHead className="w-[108px] min-w-[108px] font-medium text-sm text-text-primary h-auto py-4 px-2">
+              Ação
+            </TableHead>
+          ) : null}
         </TableRow>
       </TableHeader>
       <TableBody>

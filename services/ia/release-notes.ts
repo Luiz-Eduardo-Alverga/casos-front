@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 import type {
   ReleaseNotesData,
   ReleaseNotesDeltaEvent,
@@ -32,10 +33,10 @@ export async function getReleaseNotes(
   )) as ReleaseNotesResponse;
 
   if (!response.ok) {
-    const message =
-      json.error ||
-      json.message ||
-      "Erro ao gerar registro de liberação com IA";
+    const message = readApiErrorMessage(
+      json,
+      "Erro ao gerar registro de liberação com IA",
+    );
 
     throw new Error(liberacaoVaziaMessage(response.status, message));
   }
@@ -102,10 +103,10 @@ export async function streamReleaseNotes(
     const json = (await response.json().catch(
       () => ({}),
     )) as ReleaseNotesResponse;
-    const message =
-      json.error ||
-      json.message ||
-      "Erro ao gerar registro de liberação com IA";
+    const message = readApiErrorMessage(
+      json,
+      "Erro ao gerar registro de liberação com IA",
+    );
     throw new Error(liberacaoVaziaMessage(response.status, message));
   }
 

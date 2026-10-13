@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 import type {
   UpdateLiberacaoRequest,
   UpdateLiberacaoResponse,
@@ -27,9 +28,7 @@ export async function updateLiberacao(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error?.message || error?.error || "Erro ao atualizar liberação",
-    );
+    throw new Error(readApiErrorMessage(error, "Erro ao atualizar liberação"));
   }
 
   return await response.json();

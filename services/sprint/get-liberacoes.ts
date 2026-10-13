@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 import type {
   GetLiberacoesParams,
   LiberacoesApiResponse,
@@ -70,9 +71,7 @@ export async function getLiberacoes(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error?.message || error?.error || "Erro ao buscar liberações",
-    );
+    throw new Error(readApiErrorMessage(error, "Erro ao buscar liberações"));
   }
 
   const raw = (await response.json()) as LiberacoesApiResponse;

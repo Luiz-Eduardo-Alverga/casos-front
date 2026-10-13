@@ -17,6 +17,7 @@ interface CasosVersaoRowProps {
   selected: boolean;
   isSaving?: boolean;
   canSave?: boolean;
+  canEdit?: boolean;
   onToggleSelected: () => void;
   onDescricaoChange: (value: string) => void;
   onLiberacaoChange: (value: boolean) => void;
@@ -28,6 +29,7 @@ export function CasosVersaoRow({
   selected,
   isSaving = false,
   canSave = false,
+  canEdit = true,
   onToggleSelected,
   onDescricaoChange,
   onLiberacaoChange,
@@ -74,7 +76,7 @@ export function CasosVersaoRow({
                 placeholder="Escreva o que mudou neste ticket..."
                 rows={3}
                 className="min-h-[72px] resize-none rounded-lg border-border-input text-[13px]"
-                disabled={isSaving}
+                disabled={isSaving || !canEdit}
               />
             </div>
 
@@ -83,7 +85,7 @@ export function CasosVersaoRow({
                 className={cn(
                   buttonVariants({ variant: "outline", size: "sm" }),
                   "cursor-pointer justify-start gap-2",
-                  isSaving && "pointer-events-none opacity-50",
+                  (isSaving || !canEdit) && "pointer-events-none opacity-50",
                 )}
               >
                 <Checkbox
@@ -91,24 +93,26 @@ export function CasosVersaoRow({
                   onCheckedChange={(checked) =>
                     onLiberacaoChange(checked === true)
                   }
-                  disabled={isSaving}
+                  disabled={isSaving || !canEdit}
                   aria-label="Liberação"
                 />
                 Liberação
               </label>
-              <Button
-                type="button"
-                size="sm"
-                disabled={!canSave || isSaving}
-                onClick={onSave}
-              >
-                {isSaving ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Save className="h-3.5 w-3.5" />
-                )}
-                Salvar
-              </Button>
+              {canEdit ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!canSave || isSaving}
+                  onClick={onSave}
+                >
+                  {isSaving ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Save className="h-3.5 w-3.5" />
+                  )}
+                  Salvar
+                </Button>
+              ) : null}
             </div>
           </div>
         </div>

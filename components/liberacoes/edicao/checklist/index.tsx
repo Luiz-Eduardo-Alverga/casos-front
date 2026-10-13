@@ -21,6 +21,7 @@ import { useLiberacaoChecklist } from "@/hooks/liberacoes/use-liberacao-checklis
 import { useCarregarLiberacaoChecklist } from "@/hooks/liberacoes/use-carregar-liberacao-checklist";
 import { useUpdateLiberacaoChecklistItem } from "@/hooks/liberacoes/use-update-liberacao-checklist-item";
 import { useDeleteLiberacaoChecklistItem } from "@/hooks/liberacoes/use-delete-liberacao-checklist-item";
+import { useLiberacaoPermissoes } from "@/hooks/liberacoes/use-liberacao-permissoes";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export interface AbaChecklistProps {
@@ -44,6 +45,7 @@ export function AbaChecklist({
     enabled,
   });
 
+  const { canEdit } = useLiberacaoPermissoes();
   const carregarChecklist = useCarregarLiberacaoChecklist();
   const updateChecklistItem = useUpdateLiberacaoChecklistItem();
   const deleteChecklistItem = useDeleteLiberacaoChecklistItem();
@@ -75,6 +77,7 @@ export function AbaChecklist({
   };
 
   const handleCarregar = async () => {
+    if (!canEdit || disabled) return;
     try {
       const response = await carregarChecklist.mutateAsync({ registro });
       const { adicionados_count, ignorados_count } = response.data;
@@ -107,6 +110,7 @@ export function AbaChecklist({
     row: ChecklistRowState,
     checado: boolean,
   ) => {
+    if (!canEdit || disabled) return;
     setUpdatingId(row.id);
     try {
       await updateChecklistItem.mutateAsync({
@@ -132,6 +136,7 @@ export function AbaChecklist({
     row: ChecklistRowState,
     observacao: string,
   ) => {
+    if (!canEdit || disabled) return;
     setUpdatingId(row.id);
     try {
       await updateChecklistItem.mutateAsync({
@@ -156,7 +161,7 @@ export function AbaChecklist({
   };
 
   const handleExcluir = async () => {
-    if (!itemParaExcluir) return;
+    if (!canEdit || disabled || !itemParaExcluir) return;
     try {
       const response = await deleteChecklistItem.mutateAsync({
         registro,
@@ -198,19 +203,21 @@ export function AbaChecklist({
             title="Nenhum item no checklist"
             description="Carregue os itens padrão do checklist para esta liberação."
           />
-          <Button
-            type="button"
-            size="sm"
-            disabled={disabled || carregarChecklist.isPending}
-            onClick={() => void handleCarregar()}
-          >
-            {carregarChecklist.isPending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Download className="h-3.5 w-3.5" />
-            )}
-            Carregar checklist
-          </Button>
+          {canEdit ? (
+            <Button
+              type="button"
+              size="sm"
+              disabled={disabled || carregarChecklist.isPending}
+              onClick={() => void handleCarregar()}
+            >
+              {carregarChecklist.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Download className="h-3.5 w-3.5" />
+              )}
+              Carregar checklist
+            </Button>
+          ) : null}
         </CardContent>
       </Card>
     );
@@ -252,20 +259,22 @@ export function AbaChecklist({
           </TabsList>
         </Tabs>
 
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          disabled={disabled || carregarChecklist.isPending}
-          onClick={() => void handleCarregar()}
-        >
-          {carregarChecklist.isPending ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <RefreshCw className="h-3.5 w-3.5" />
-          )}
-          Recarregar checklist
-        </Button>
+        {canEdit ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={disabled || carregarChecklist.isPending}
+            onClick={() => void handleCarregar()}
+          >
+            {carregarChecklist.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
+            Recarregar checklist
+          </Button>
+        ) : null}
       </div>
 
       {filteredRows.length === 0 ? (
@@ -284,7 +293,8 @@ export function AbaChecklist({
             <ChecklistRow
               key={row.id}
               item={row}
-              disabled={disabled}
+              disabled={disabled || !canEdit}
+              canEdit={canEdit && !disabled}
               isUpdating={updatingId === row.id}
               onToggleChecado={(checado) =>
                 void handleToggleChecado(row, checado)

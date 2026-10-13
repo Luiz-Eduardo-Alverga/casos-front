@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const HEADER_ROW_CLASS =
   "bg-background border-b border-background dark:border-card hover:bg-background";
 
-function SkeletonRow() {
+function SkeletonRow({ showAcao }: { showAcao: boolean }) {
   return (
     <TableRow className="bg-background border-t border-border-strong hover:bg-transparent cursor-default">
       <TableCell className="min-w-[95px] max-w-[120px] py-3 px-2 align-top">
@@ -31,14 +31,22 @@ function SkeletonRow() {
       <TableCell className="min-w-[150px] w-[170px] py-3 px-2 align-top">
         <Skeleton className="h-5 w-32 rounded-full" />
       </TableCell>
-      <TableCell className="w-[108px] min-w-[108px] py-3 px-2 align-top">
-        <Skeleton className="h-8 w-20 rounded-md" />
-      </TableCell>
+      {showAcao ? (
+        <TableCell className="w-[108px] min-w-[108px] py-3 px-2 align-top">
+          <Skeleton className="h-8 w-20 rounded-md" />
+        </TableCell>
+      ) : null}
     </TableRow>
   );
 }
 
-export function MelhoriasTabelaSkeleton({ count = 6 }: { count?: number }) {
+export function MelhoriasTabelaSkeleton({
+  count = 6,
+  showAcao = true,
+}: {
+  count?: number;
+  showAcao?: boolean;
+}) {
   return (
     <Table>
       <TableHeader>
@@ -52,14 +60,16 @@ export function MelhoriasTabelaSkeleton({ count = 6 }: { count?: number }) {
           <TableHead className="min-w-[150px] w-[170px] font-medium text-sm text-text-primary h-auto py-4 px-2">
             Situação
           </TableHead>
-          <TableHead className="w-[108px] min-w-[108px] font-medium text-sm text-text-primary h-auto py-4 px-2">
-            Ação
-          </TableHead>
+          {showAcao ? (
+            <TableHead className="w-[108px] min-w-[108px] font-medium text-sm text-text-primary h-auto py-4 px-2">
+              Ação
+            </TableHead>
+          ) : null}
         </TableRow>
       </TableHeader>
       <TableBody>
         {Array.from({ length: count }).map((_, i) => (
-          <SkeletonRow key={i} />
+          <SkeletonRow key={i} showAcao={showAcao} />
         ))}
       </TableBody>
     </Table>

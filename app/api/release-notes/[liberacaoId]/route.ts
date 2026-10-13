@@ -1,14 +1,12 @@
 import { apiAssistant } from "@/lib/axios";
-import { requireSessionAuth } from "@/lib/auth-server";
+import { withPermission } from "@/lib/api-db/with-permission";
 import { assistantProxyErrorResponse } from "@/lib/api-assistant/proxy-error";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ liberacaoId: string }> },
 ) {
-  const auth = await requireSessionAuth();
-  if (!auth.authenticated) return auth.response;
-
+  return withPermission("edit-release", async () => {
   try {
     const { liberacaoId } = await params;
 
@@ -30,4 +28,5 @@ export async function GET(
       "Erro ao gerar registro de liberação com IA",
     );
   }
+  });
 }

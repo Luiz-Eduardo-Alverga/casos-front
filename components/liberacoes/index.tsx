@@ -9,10 +9,12 @@ import { LiberacoesFiltros } from "@/components/liberacoes/filtros/liberacoes-fi
 import { LiberacoesTabela } from "@/components/liberacoes/liberacoes-tabela";
 import { LiberacaoCreateModal } from "@/components/liberacoes/cadastro/liberacao-create-modal";
 import { useLiberacoesFiltros } from "@/hooks/liberacoes/use-liberacoes-filtros";
+import { useLiberacaoPermissoes } from "@/hooks/liberacoes/use-liberacao-permissoes";
 
 export function Liberacoes() {
   const router = useRouter();
   const { filtros, setFiltro, limparFiltros } = useLiberacoesFiltros();
+  const { canCreate } = useLiberacaoPermissoes();
   const [createOpen, setCreateOpen] = useState(false);
 
   return (
@@ -20,14 +22,16 @@ export function Liberacoes() {
       title="Registro de Liberação"
       subtitle="Acompanhe versões piloto, versão final e casos vinculados por produto."
       actions={
-        <Button
-          type="button"
-          className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
-          onClick={() => setCreateOpen(true)}
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Nova liberação
-        </Button>
+        canCreate ? (
+          <Button
+            type="button"
+            className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
+            onClick={() => setCreateOpen(true)}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Nova liberação
+          </Button>
+        ) : null
       }
     >
       <LiberacoesFiltros
@@ -37,11 +41,13 @@ export function Liberacoes() {
       />
       <LiberacoesTabela filtros={filtros} />
 
-      <LiberacaoCreateModal
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        onCreated={(registro) => router.push(`/liberacoes/${registro}`)}
-      />
+      {canCreate ? (
+        <LiberacaoCreateModal
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          onCreated={(registro) => router.push(`/liberacoes/${registro}`)}
+        />
+      ) : null}
     </ListagemPageLayout>
   );
 }

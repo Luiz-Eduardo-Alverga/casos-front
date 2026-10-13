@@ -1,7 +1,8 @@
 import { api } from "@/lib/axios";
-import { getAuthorizationHeader } from "@/lib/auth-server";
+import { withPermission } from "@/lib/api-db/with-permission";
 
 export async function GET(request: Request) {
+  return withPermission("list-improvement", async (session) => {
   try {
     const url = new URL(request.url);
     const per_page = url.searchParams.get("per_page");
@@ -14,11 +15,6 @@ export async function GET(request: Request) {
     const concluido = url.searchParams.get("concluido");
     const setor = url.searchParams.get("setor");
     const search = url.searchParams.get("search");
-
-    const authHeaders = await getAuthorizationHeader();
-    if (!authHeaders.Authorization) {
-      return Response.json({ error: "Não autorizado" }, { status: 401 });
-    }
 
     const response = await api.get("/painel-ideias", {
       params: {
@@ -33,7 +29,7 @@ export async function GET(request: Request) {
         ...(setor ? { setor } : {}),
         ...(search ? { search } : {}),
       },
-      headers: authHeaders,
+      headers: session.authorizationHeader,
     });
 
     return Response.json(response.data, {
@@ -49,4 +45,5 @@ export async function GET(request: Request) {
       "Erro ao buscar painel de ideias";
     return Response.json({ error: errorMessage }, { status });
   }
+  });
 }

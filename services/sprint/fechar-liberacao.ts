@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 import type {
   FecharLiberacaoRequest,
   FecharLiberacaoResponse,
@@ -27,9 +28,7 @@ export async function fecharLiberacao(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      error?.message || error?.error || "Erro ao fechar liberação",
-    );
+    throw new Error(readApiErrorMessage(error, "Erro ao fechar liberação"));
   }
 
   return await response.json();

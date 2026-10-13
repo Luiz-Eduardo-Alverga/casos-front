@@ -197,13 +197,19 @@ Exemplo já implementado:
 - `create-product`: acessar tela **Novo produto** (`/produtos/novo`) e cadastrar via `POST /api/produtos`
 - `edit-product`: alterar produto, versões, módulos, checklist e scripts via fachada `/api/produtos`
 - `delete-product`: excluir versões, módulos, itens de checklist e scripts
+- `list-release`: acessar a tela **Liberações** (`/liberacoes` e `/liberacoes/[registro]`) e consultar via `GET /api/sprint/liberacoes`
+- `create-release`: cadastrar liberação (`POST /api/sprint/liberacoes`)
+- `edit-release`: alterar liberação, versões, checklist, concluir e gerar descrição com IA
+- `delete-release`: excluir uma liberação (`DELETE /api/sprint/liberacoes/{registro}`)
+- `list-improvement`: acessar a tela **Melhorias** (`/melhorias`) e listar via `GET /api/painel-ideias`
+- `edit-improvement`: avaliar ou reavaliar uma melhoria (`PATCH /api/painel-ideias/{id}`)
 - `list-case-attachment`: listar e obter URL de download de anexos de caso
 - `create-case-attachment`: gerar URL de upload e registrar anexo após envio ao Storage
 - `delete-case-attachment`: remover anexo (Storage + metadados)
 - `list-doc`: listar documentos e anexos de documentação
 - `edit-doc`: editar documento e anexar/remover arquivos
 
-Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql), [`db/scripts/seed-list-project-rbac.sql`](../db/scripts/seed-list-project-rbac.sql), [`db/scripts/seed-create-project-rbac.sql`](../db/scripts/seed-create-project-rbac.sql), [`db/scripts/seed-edit-project-rbac.sql`](../db/scripts/seed-edit-project-rbac.sql), [`db/scripts/seed-produtos-rbac.sql`](../db/scripts/seed-produtos-rbac.sql).
+Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql), [`db/scripts/seed-list-project-rbac.sql`](../db/scripts/seed-list-project-rbac.sql), [`db/scripts/seed-create-project-rbac.sql`](../db/scripts/seed-create-project-rbac.sql), [`db/scripts/seed-edit-project-rbac.sql`](../db/scripts/seed-edit-project-rbac.sql), [`db/scripts/seed-produtos-rbac.sql`](../db/scripts/seed-produtos-rbac.sql), [`db/scripts/seed-liberacoes-rbac.sql`](../db/scripts/seed-liberacoes-rbac.sql), [`db/scripts/seed-melhorias-rbac.sql`](../db/scripts/seed-melhorias-rbac.sql).
 
 ---
 

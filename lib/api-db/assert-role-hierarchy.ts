@@ -5,6 +5,11 @@ import {
 } from "@/lib/db/app-users";
 import { getRoleById } from "@/lib/db/roles";
 import {
+  canEditFranquiaRole,
+  DEFAULT_ROLE_FRANQUIA,
+  isFranquiaSetor,
+} from "@/lib/rbac-default-roles";
+import {
   canGrantPermissions,
   canManageRoleLevel,
   canManageUserLevel,
@@ -62,6 +67,34 @@ export function assertCanGrantPermissionCodes(
     );
   }
   return null;
+}
+
+/** Cadastro do perfil de franquia: somente hierarquia nível 1. */
+export function assertCanEditFranquiaRole(
+  roleId: string,
+  assignerLevel: number | null,
+): Response | null {
+  if (canEditFranquiaRole(roleId, assignerLevel)) return null;
+  return jsonError(
+    "Somente usuários de nível 1 podem alterar este perfil.",
+    403,
+  );
+}
+
+/**
+ * Usuário de setor Franquia permanece no perfil padrão.
+ * `nextRoleId` igual ao perfil de franquia mantém o vínculo; null ou outro id recusa.
+ */
+export function assertFranquiaUserKeepsDefaultRole(
+  setor: string,
+  nextRoleId: string | null,
+): Response | null {
+  if (!isFranquiaSetor(setor)) return null;
+  if (nextRoleId === DEFAULT_ROLE_FRANQUIA) return null;
+  return jsonError(
+    "Usuários do setor Franquia devem permanecer no perfil padrão.",
+    403,
+  );
 }
 
 export function assertHasAssignableHierarchy(

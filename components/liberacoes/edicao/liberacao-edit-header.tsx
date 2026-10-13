@@ -18,6 +18,7 @@ import { ConfirmacaoModal } from "@/components/confirmacao-modal";
 import { FecharLiberacaoDialog } from "@/components/liberacoes/edicao/liberacao/fechar-liberacao-dialog";
 import { useDeleteLiberacao } from "@/hooks/liberacoes/use-delete-liberacao";
 import { isLiberacaoStandaloneMode } from "@/lib/liberacao-standalone-url";
+import { useLiberacaoPermissoes } from "@/hooks/liberacoes/use-liberacao-permissoes";
 
 const TAB_TRIGGER_CLASS = cn(
   "group shrink-0 rounded-full px-3 py-1.5 text-sm font-medium gap-1.5",
@@ -51,6 +52,7 @@ export function LiberacaoEditHeader({
   const searchParams = useSearchParams();
   const standalone = isLiberacaoStandaloneMode(searchParams);
   const deleteLiberacao = useDeleteLiberacao();
+  const { canEdit, canDelete } = useLiberacaoPermissoes();
   const [fecharModal, setFecharModal] = useState(false);
   const [excluirModal, setExcluirModal] = useState(false);
   const isFechada = status === "FECHADO";
@@ -66,6 +68,7 @@ export function LiberacaoEditHeader({
   };
 
   const handleExcluir = async () => {
+    if (!canDelete) return;
     try {
       const response = await deleteLiberacao.mutateAsync(registro);
       toast.success(response.message ?? "Liberação excluída com sucesso.");
@@ -126,18 +129,20 @@ export function LiberacaoEditHeader({
             )}
           </Button>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="h-9 w-auto flex-1 border-destructive/30 bg-destructive/10 px-2 text-destructive hover:bg-destructive/20"
-            onClick={() => setExcluirModal(true)}
-            disabled={isBusy}
-          >
-            <Trash2 className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">Excluir</span>
-          </Button>
+          {canDelete ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="h-9 w-auto flex-1 border-destructive/30 bg-destructive/10 px-2 text-destructive hover:bg-destructive/20"
+              onClick={() => setExcluirModal(true)}
+              disabled={isBusy}
+            >
+              <Trash2 className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Excluir</span>
+            </Button>
+          ) : null}
 
-          {!isFechada && (
+          {!isFechada && canEdit ? (
             <Button
               type="button"
               variant="outline"
@@ -148,7 +153,7 @@ export function LiberacaoEditHeader({
               <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">Concluir liberação</span>
             </Button>
-          )}
+          ) : null}
 
           {showSalvar ? (
             <Button

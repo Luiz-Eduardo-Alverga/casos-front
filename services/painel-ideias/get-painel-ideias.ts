@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 
 export interface PainelIdeiaItem {
   registro: number;
@@ -108,7 +109,7 @@ export async function getPainelIdeias(
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(
-      error?.message || error?.error || "Erro ao buscar painel de ideias",
+      readApiErrorMessage(error, "Erro ao buscar painel de ideias"),
     );
   }
 

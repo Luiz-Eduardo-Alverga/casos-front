@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 import type { LiberacaoChecklistResponse } from "@/interfaces/liberacao";
 
 export type {
@@ -23,9 +24,7 @@ export async function getLiberacaoChecklist(
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(
-      error?.message ||
-        error?.error ||
-        "Erro ao buscar checklist da liberação",
+      readApiErrorMessage(error, "Erro ao buscar checklist da liberação"),
     );
   }
 

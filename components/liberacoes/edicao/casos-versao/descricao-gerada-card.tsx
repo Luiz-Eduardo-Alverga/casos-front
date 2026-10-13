@@ -32,6 +32,7 @@ interface DescricaoGeradaCardProps {
   resultado: ReleaseNotesData | null;
   onGerar: () => void;
   gerarDisabled?: boolean;
+  canGenerate?: boolean;
 }
 
 const DEFAULT_STEP_TITLES = [
@@ -255,6 +256,7 @@ export function DescricaoGeradaCard({
   resultado,
   onGerar,
   gerarDisabled = false,
+  canGenerate = true,
 }: DescricaoGeradaCardProps) {
   const [copied, setCopied] = useState(false);
 
@@ -270,7 +272,7 @@ export function DescricaoGeradaCard({
     }
   };
 
-  const gerarButton = (
+  const gerarButton = canGenerate ? (
     <Button
       type="button"
       size="sm"
@@ -281,7 +283,7 @@ export function DescricaoGeradaCard({
       <Sparkles className="h-3.5 w-3.5" />
       {resultado != null ? "Gerar novamente" : "Gerar descrição com IA"}
     </Button>
-  );
+  ) : null;
 
   return (
     <div className="sticky top-0 self-start">
@@ -352,10 +354,14 @@ export function DescricaoGeradaCard({
               <EmptyState
                 icon={Sparkles}
                 title="Nenhuma descrição gerada"
-                description="Marque casos com a flag Liberação e clique em Gerar descrição com IA."
+                description={
+                  canGenerate
+                    ? "Marque casos com a flag Liberação e clique em Gerar descrição com IA."
+                    : "Nenhuma descrição gerada para esta liberação."
+                }
                 className="min-h-[200px] px-2"
               />
-              {gerarButton}
+              {canGenerate ? gerarButton : null}
             </div>
           )}
         </CardContent>

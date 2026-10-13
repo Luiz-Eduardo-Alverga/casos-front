@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { Melhorias } from "@/components/melhorias/index";
+import { RequirePermission } from "@/components/require-permission";
 import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 
 function MelhoriasLoading() {
@@ -17,8 +18,10 @@ function MelhoriasLoading() {
 
 export default function MelhoriasPage() {
   return (
-    <Suspense fallback={<MelhoriasLoading />}>
-      <Melhorias />
-    </Suspense>
+    <RequirePermission permission="list-improvement">
+      <Suspense fallback={<MelhoriasLoading />}>
+        <Melhorias />
+      </Suspense>
+    </RequirePermission>
   );
 }

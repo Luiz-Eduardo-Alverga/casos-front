@@ -1,5 +1,5 @@
 import { api } from "@/lib/axios";
-import { getAuthorizationHeader } from "@/lib/auth-server";
+import { withPermission } from "@/lib/api-db/with-permission";
 import type { UpdatePainelIdeiaRequest } from "@/services/painel-ideias/update-painel-ideia";
 
 const STATUS_VALUES = new Set(["SIM", "NÃO"]);
@@ -43,12 +43,8 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  return withPermission("edit-improvement", async (session) => {
   try {
-    const authHeaders = await getAuthorizationHeader();
-    if (!authHeaders.Authorization) {
-      return Response.json({ error: "Não autorizado" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     if (!id) {
@@ -65,7 +61,7 @@ export async function PATCH(
     const response = await api.patch(`/painel-ideias/${id}`, body, {
       headers: {
         "Content-Type": "application/json",
-        ...authHeaders,
+        ...session.authorizationHeader,
       },
     });
 
@@ -90,4 +86,5 @@ export async function PATCH(
       "Erro ao avaliar melhoria";
     return Response.json({ error: errorMessage }, { status });
   }
+  });
 }

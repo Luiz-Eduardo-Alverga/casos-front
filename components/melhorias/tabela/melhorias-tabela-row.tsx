@@ -12,7 +12,7 @@ import type { PainelIdeiaItem } from "@/services/painel-ideias/get-painel-ideias
 
 export interface MelhoriasTabelaRowProps {
   item: PainelIdeiaItem;
-  onAvaliar: (item: PainelIdeiaItem) => void;
+  onAvaliar?: (item: PainelIdeiaItem) => void;
 }
 
 function MetaChip({ children }: { children: ReactNode }) {
@@ -105,17 +105,19 @@ export function MelhoriasTabelaRow({
         />
       </TableCell>
 
-      <TableCell className="w-[108px] min-w-[108px] py-3 px-2 align-top">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-8 px-3 font-medium"
-          onClick={() => onAvaliar(item)}
-        >
-          {actionLabel}
-        </Button>
-      </TableCell>
+      {onAvaliar ? (
+        <TableCell className="w-[108px] min-w-[108px] py-3 px-2 align-top">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 px-3 font-medium"
+            onClick={() => onAvaliar(item)}
+          >
+            {actionLabel}
+          </Button>
+        </TableCell>
+      ) : null}
     </TableRow>
   );
 }

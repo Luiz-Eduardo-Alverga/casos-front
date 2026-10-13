@@ -5,7 +5,10 @@ import {
   jsonOk,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { validateUserRoleAssignment } from "@/lib/api-db/assert-role-hierarchy";
+import {
+  assertFranquiaUserKeepsDefaultRole,
+  validateUserRoleAssignment,
+} from "@/lib/api-db/assert-role-hierarchy";
 import { withPermission } from "@/lib/api-db/with-permission";
 import {
   getAppUserById,
@@ -53,9 +56,17 @@ export async function POST(request: Request, context: RouteCtx) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
 
     try {
-      if (!(await getAppUserById(userId))) {
+      const user = await getAppUserById(userId);
+      if (!user) {
         return jsonError("Usuário não encontrado", 404);
       }
+
+      // POST acrescenta vínculo e não substitui os atuais.
+      const franquiaDenied = assertFranquiaUserKeepsDefaultRole(
+        user.setor,
+        null,
+      );
+      if (franquiaDenied) return franquiaDenied;
 
       const denied = await validateUserRoleAssignment(
         session,
@@ -94,9 +105,16 @@ export async function PUT(request: Request, context: RouteCtx) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
 
     try {
-      if (!(await getAppUserById(userId))) {
+      const user = await getAppUserById(userId);
+      if (!user) {
         return jsonError("Usuário não encontrado", 404);
       }
+
+      const franquiaDenied = assertFranquiaUserKeepsDefaultRole(
+        user.setor,
+        parsed.data.roleId,
+      );
+      if (franquiaDenied) return franquiaDenied;
 
       const denied = await validateUserRoleAssignment(
         session,

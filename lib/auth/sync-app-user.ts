@@ -3,19 +3,23 @@ import {
   getPermissionCodesForUserId,
   linkUserRole,
   listRolesForAppUserId,
+  replaceUserRole,
   upsertAppUserFromLegacy,
   type AppUserRow,
 } from "@/lib/db/app-users";
 import { getLegacyUserFromToken } from "@/lib/legacy-auth/me";
+import {
+  DEFAULT_ROLE_FRANQUIA,
+  DEFAULT_ROLE_NON_SQUAD,
+  DEFAULT_ROLE_SQUAD,
+  isFranquiaSetor,
+} from "@/lib/rbac-default-roles";
 import { legacyUserSchema } from "@/lib/validators/db/legacy-user";
 
 export type SyncAppUserResult = {
   appUser: AppUserRow;
   permissions: string[];
 };
-
-const DEFAULT_ROLE_NON_SQUAD = "a668ee62-30f8-482d-ac33-ca2d591a950b";
-const DEFAULT_ROLE_SQUAD = "22917bd2-02c4-467d-a152-b7edfa757166";
 
 function includesSquad(setor: string): boolean {
   return setor.toUpperCase().includes("SQUAD");
@@ -66,9 +70,15 @@ export async function syncAppUserAndPermissions(
 
   const appUser = await upsertAppUserFromLegacy(parsed.data);
 
-  // Role padrão: se o usuário não tiver roles vinculadas, atribui baseado em `setor`.
   const existingRoles = await listRolesForAppUserId(appUser.id);
-  if (existingRoles.length === 0) {
+  if (isFranquiaSetor(parsed.data.setor)) {
+    const alreadyLocked =
+      existingRoles.length === 1 &&
+      existingRoles[0]?.id === DEFAULT_ROLE_FRANQUIA;
+    if (!alreadyLocked) {
+      await replaceUserRole(appUser.id, DEFAULT_ROLE_FRANQUIA);
+    }
+  } else if (existingRoles.length === 0) {
     const roleId = includesSquad(parsed.data.setor)
       ? DEFAULT_ROLE_SQUAD
       : DEFAULT_ROLE_NON_SQUAD;

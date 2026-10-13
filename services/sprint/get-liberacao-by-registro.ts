@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 import { HttpError } from "@/lib/http-error";
 import type { LiberacaoByRegistroResponse } from "@/interfaces/liberacao";
 
@@ -24,8 +25,7 @@ export async function getLiberacaoByRegistro(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    const message =
-      error?.message || error?.error || "Erro ao buscar liberação";
+    const message = readApiErrorMessage(error, "Erro ao buscar liberação");
     throw new HttpError(response.status, message);
   }
 

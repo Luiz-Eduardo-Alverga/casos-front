@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 import type { DeleteLiberacaoChecklistItemResponse } from "@/interfaces/liberacao";
 
 export type { DeleteLiberacaoChecklistItemResponse } from "@/interfaces/liberacao";
@@ -26,9 +27,7 @@ export async function deleteLiberacaoChecklistItem(
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(
-      error?.message ||
-        error?.error ||
-        "Erro ao excluir item do checklist",
+      readApiErrorMessage(error, "Erro ao excluir item do checklist"),
     );
   }
 

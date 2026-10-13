@@ -1,4 +1,5 @@
 import { fetchWithAuth } from "@/lib/fetch";
+import { readApiErrorMessage } from "@/lib/read-api-error-message";
 import type { DeleteLiberacaoVersaoResponse } from "@/interfaces/liberacao";
 
 export type { DeleteLiberacaoVersaoResponse };
@@ -26,7 +27,7 @@ export async function deleteLiberacaoVersao(
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(
-      error?.message || error?.error || "Erro ao excluir versão da liberação",
+      readApiErrorMessage(error, "Erro ao excluir versão da liberação"),
     );
   }
 

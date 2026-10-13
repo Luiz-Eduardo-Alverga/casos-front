@@ -153,6 +153,9 @@ export const REPORT_STATUS_INCOMPLETO_ID = "21";
 /** Status REPORT "Suspenso" — equivale ao caso 10. */
 export const REPORT_STATUS_SUSPENSO_ID = "23";
 
+/** Status REPORT "Duplicado". */
+export const REPORT_STATUS_DUPLICADO_ID = "26";
+
 /** Status REPORT não selecionado (caso aberto). */
 export const REPORT_STATUS_NAO_SELECIONADO_ID = "0";
 
@@ -240,7 +243,7 @@ export function resolveCasoStatusFromReport(
 
 /**
  * Regras de persistência da conclusão da análise conforme status selecionado.
- * - 20, 22, 23 => conclui agora
+ * - 20, 22, 23, 26 => conclui agora
  * - 21 => limpa data de conclusão
  * - demais => mantém sem alteração
  */
@@ -252,7 +255,8 @@ export function buildAnaliseConclusaoByStatus(
   if (
     analiseStatus === "20" ||
     analiseStatus === "22" ||
-    analiseStatus === "23"
+    analiseStatus === "23" ||
+    analiseStatus === REPORT_STATUS_DUPLICADO_ID
   ) {
     return nowSaoPauloToApiDateTime();
   }

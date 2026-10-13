@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { Liberacoes } from "@/components/liberacoes/index";
+import { RequirePermission } from "@/components/require-permission";
 import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 
 function LiberacoesLoading() {
@@ -17,8 +18,10 @@ function LiberacoesLoading() {
 
 export default function LiberacoesPage() {
   return (
-    <Suspense fallback={<LiberacoesLoading />}>
-      <Liberacoes />
-    </Suspense>
+    <RequirePermission permission="list-release">
+      <Suspense fallback={<LiberacoesLoading />}>
+        <Liberacoes />
+      </Suspense>
+    </RequirePermission>
   );
 }

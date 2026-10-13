@@ -12,6 +12,7 @@ import { isCasoBloqueado } from "@/lib/casos/is-caso-bloqueado";
 import { getCasoAberturaInfo } from "@/lib/casos/caso-abertura-info";
 
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
+import { useMarcarCasoDuplicado } from "@/hooks/casos/use-marcar-duplicado";
 
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { importanceOptions } from "@/mocks/teste";
@@ -43,6 +44,7 @@ import { useStatus } from "@/hooks/catalogos/use-status";
 import type { Versao } from "@/services/auxiliar/versoes";
 import {
   normalizeAnaliseStatusForForm,
+  REPORT_STATUS_DUPLICADO_ID,
   resolveReportStatusFromCaso,
 } from "./report-analise-modal/utils";
 import { buildCasoEditSnapshot } from "./save/edit-snapshot";
@@ -76,6 +78,7 @@ const editFormSchema = z.object({
   analiseStatus: z.string().optional(),
   reportPrioridade: z.string().optional(),
   devAtribuidoLabel: z.string().optional(),
+  casoDuplicadoRelacionado: z.string().optional(),
 });
 
 type EditFormData = z.infer<typeof editFormSchema>;
@@ -103,6 +106,7 @@ function getDefaultValues(item: ProjetoMemoriaItem): EditFormData {
     status: String(caso?.status?.status_id ?? "1"),
     analiseStatus: normalizeAnaliseStatusForForm(item.report?.analise_status),
     reportPrioridade: String(item.report?.prioridade ?? ""),
+    casoDuplicadoRelacionado: "",
   };
 }
 
@@ -124,6 +128,7 @@ const fallbackDefaults: EditFormData = {
   status: "1",
   analiseStatus: "",
   reportPrioridade: "",
+  casoDuplicadoRelacionado: "",
 };
 
 export interface CasoEditFormProps {
@@ -300,8 +305,13 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
   ]);
 
   const updateCaso = useUpdateCaso(casoId);
+  const marcarCasoDuplicado = useMarcarCasoDuplicado();
   const isUpdateCasoMutatingForPage =
     useIsMutating({ mutationKey: ["update-caso", casoId] }) > 0;
+  const isSavingCaso =
+    updateCaso.isPending ||
+    isUpdateCasoMutatingForPage ||
+    marcarCasoDuplicado.isPending;
 
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["projeto-memoria", casoId] });
@@ -383,6 +393,29 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         userId,
       });
 
+      const statusReportSelecionado = (formData.analiseStatus ?? "").trim();
+      const casoRelacionadoInformado = String(
+        formData.casoDuplicadoRelacionado ?? "",
+      ).trim();
+      const casoRelacionado = Number(casoRelacionadoInformado);
+      const casoRelacionadoValido =
+        /^\d+$/.test(casoRelacionadoInformado) &&
+        Number.isFinite(casoRelacionado) &&
+        casoRelacionado > 0 &&
+        casoRelacionado !== numeroCaso;
+      const acabouDeVirarDuplicado =
+        statusReportSelecionado === REPORT_STATUS_DUPLICADO_ID &&
+        snapshotRef.current.analiseStatusForm !== REPORT_STATUS_DUPLICADO_ID;
+
+      if (acabouDeVirarDuplicado && !casoRelacionadoValido) {
+        if (casoRelacionado === numeroCaso) {
+          toast.error("O caso relacionado deve ser diferente do caso atual.");
+        } else {
+          toast.error("Informe o número do caso.");
+        }
+        return;
+      }
+
       const payload = buildCasoUpdatePayload({
         data: {
           ...formData,
@@ -394,16 +427,47 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         versoes,
       });
 
-      await updateCaso.mutateAsync({ id: casoId, data: payload });
-      toast.success("Caso atualizado com sucesso.");
-      invalidate();
-      if (
-        devePerguntarAbrirOcorrencia(
-          statusIdApi,
-          saveResult.statusCasoFinal,
-        )
-      ) {
-        setAbrirOcorrenciaModalOpen(true);
+      const deveMarcarDuplicado =
+        statusReportSelecionado === REPORT_STATUS_DUPLICADO_ID &&
+        casoRelacionadoValido;
+
+      let casoSalvo = false;
+      try {
+        await updateCaso.mutateAsync({ id: casoId, data: payload });
+        casoSalvo = true;
+
+        if (deveMarcarDuplicado) {
+          const marcado = await marcarCasoDuplicado.mutateAsync({
+            id: casoId,
+            caso_relacionado: casoRelacionado,
+          });
+          toast.success("Caso atualizado com sucesso.");
+          toast.success(
+            marcado.message?.trim() ||
+              "Caso marcado como duplicado com sucesso.",
+          );
+        } else {
+          toast.success("Caso atualizado com sucesso.");
+        }
+
+        if (
+          devePerguntarAbrirOcorrencia(
+            statusIdApi,
+            saveResult.statusCasoFinal,
+          )
+        ) {
+          setAbrirOcorrenciaModalOpen(true);
+        }
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : casoSalvo
+              ? "Erro ao marcar caso como duplicado."
+              : "Erro ao atualizar caso.",
+        );
+      } finally {
+        if (casoSalvo) invalidate();
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao atualizar caso.");
@@ -428,16 +492,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       form: methods,
       importanceOptions,
       produto: produtoWatch,
-      isDisabled:
-        updateCaso.isPending || isUpdateCasoMutatingForPage || !canEditCase,
+      isDisabled: isSavingCaso || !canEditCase,
       lazyLoadComboboxOptions: true as const,
       editCaseItem: item,
     }),
     [
       methods,
       produtoWatch,
-      updateCaso.isPending,
-      isUpdateCasoMutatingForPage,
+      isSavingCaso,
       canEditCase,
       item,
     ],
@@ -450,7 +512,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       aberturaInfo,
       canEditCase,
       invalidate,
-      isSaving: updateCaso.isPending || isUpdateCasoMutatingForPage,
+      isSaving: isSavingCaso,
       statusIdApi,
       onSalvar: handleSalvar,
       getReportStatusFromCasoStatus: isReport
@@ -465,8 +527,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
       aberturaInfo,
       canEditCase,
       invalidate,
-      updateCaso.isPending,
-      isUpdateCasoMutatingForPage,
+      isSavingCaso,
       statusIdApi,
       handleSalvar,
       isReport,

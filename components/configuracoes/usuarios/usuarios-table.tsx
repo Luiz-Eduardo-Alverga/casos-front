@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { isFranquiaSetor } from "@/lib/rbac-default-roles";
 import type { UsuarioListItem } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -94,6 +95,7 @@ export function UsuariosTable({
                   type="button"
                   variant="outline"
                   size="sm"
+                  disabled={isFranquiaSetor(row.setor)}
                   onClick={() => onManageProfile(row)}
                 >
                   Gerenciar Perfil

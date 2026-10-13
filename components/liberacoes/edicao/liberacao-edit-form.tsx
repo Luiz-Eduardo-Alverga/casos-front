@@ -26,6 +26,7 @@ import {
   buildUpdateLiberacaoPayload,
   liberacaoToFormValues,
 } from "@/components/liberacoes/edicao/utils";
+import { useLiberacaoPermissoes } from "@/hooks/liberacoes/use-liberacao-permissoes";
 
 export interface LiberacaoEditFormProps {
   liberacao: LiberacaoItem;
@@ -52,6 +53,7 @@ export function LiberacaoEditForm({ liberacao }: LiberacaoEditFormProps) {
   );
 
   const updateLiberacao = useUpdateLiberacao();
+  const { canEdit } = useLiberacaoPermissoes();
 
   const methods = useForm<LiberacaoEditFormData>({
     resolver: zodResolver(liberacaoEditFormSchema),
@@ -64,10 +66,11 @@ export function LiberacaoEditForm({ liberacao }: LiberacaoEditFormProps) {
   }, [liberacao]);
 
   const isFechada = liberacao.status === "FECHADO";
+  const somenteLeitura = isFechada || !canEdit;
   const isSaving = methods.formState.isSubmitting || updateLiberacao.isPending;
 
   async function onSubmit(data: LiberacaoEditFormData) {
-    if (isFechada) return;
+    if (somenteLeitura) return;
     try {
       const payload = buildUpdateLiberacaoPayload(data);
       await updateLiberacao.mutateAsync({
@@ -82,7 +85,7 @@ export function LiberacaoEditForm({ liberacao }: LiberacaoEditFormProps) {
     }
   }
 
-  const showSalvar = activeTab === "liberacao";
+  const showSalvar = activeTab === "liberacao" && canEdit;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col lg:overflow-hidden">
@@ -108,7 +111,7 @@ export function LiberacaoEditForm({ liberacao }: LiberacaoEditFormProps) {
                   onSubmit={methods.handleSubmit(onSubmit)}
                   className="min-h-0"
                 >
-                  <AbaLiberacao liberacao={liberacao} disabled={isFechada} />
+                  <AbaLiberacao liberacao={liberacao} disabled={somenteLeitura} />
                 </form>
               </TabsContent>
 
@@ -127,7 +130,7 @@ export function LiberacaoEditForm({ liberacao }: LiberacaoEditFormProps) {
                   <AbaChecklist
                     registro={liberacao.registro}
                     enabled={activeTab === "checklist"}
-                    disabled={isFechada}
+                    disabled={somenteLeitura}
                   />
                 </div>
               </TabsContent>

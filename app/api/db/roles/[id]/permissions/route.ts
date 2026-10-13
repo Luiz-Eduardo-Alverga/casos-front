@@ -6,6 +6,7 @@ import {
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
 import {
+  assertCanEditFranquiaRole,
   assertCanGrantPermissionCodes,
   assertCanManageRoleById,
 } from "@/lib/api-db/assert-role-hierarchy";
@@ -64,6 +65,12 @@ export async function POST(request: Request, context: RouteCtx) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
 
     try {
+      const franquiaDenied = assertCanEditFranquiaRole(
+        roleId,
+        session.assignerHierarchyLevel,
+      );
+      if (franquiaDenied) return franquiaDenied;
+
       const hierarchyDenied = await assertCanManageRoleById(
         session.assignerHierarchyLevel,
         roleId,
@@ -130,6 +137,12 @@ export async function PUT(request: Request, context: RouteCtx) {
     if (!parsed.success) return badRequestFromZod(parsed.error);
 
     try {
+      const franquiaDenied = assertCanEditFranquiaRole(
+        roleId,
+        session.assignerHierarchyLevel,
+      );
+      if (franquiaDenied) return franquiaDenied;
+
       const hierarchyDenied = await assertCanManageRoleById(
         session.assignerHierarchyLevel,
         roleId,

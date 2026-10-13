@@ -34,6 +34,10 @@ import { useAssignerHierarchy } from "@/hooks/configuracoes/use-assigner-hierarc
 import { getPermissions } from "@/lib/auth";
 import { permissionsLoaded } from "@/lib/rbac-client";
 import {
+  canEditFranquiaRole,
+  PROTECTED_ROLE_IDS,
+} from "@/lib/rbac-default-roles";
+import {
   canManageRoleLevel,
   isHybridPermissionRuleExempt,
 } from "@/lib/rbac-hierarchy";
@@ -111,6 +115,7 @@ export function PapeisEAcessos({
     creatingNew ||
     (currentRole !== null &&
       assignerLevel !== null &&
+      canEditFranquiaRole(currentRole.id, assignerLevel) &&
       canManageRoleLevel(assignerLevel, currentRole.hierarchyLevel));
 
   const isFormEditable = creatingNew
@@ -476,7 +481,9 @@ export function PapeisEAcessos({
                     readOnly={!isFormEditable}
                   />
                 )}
-                {!creatingNew && selectedRoleId ? (
+                {!creatingNew &&
+                selectedRoleId &&
+                !PROTECTED_ROLE_IDS.has(selectedRoleId) ? (
                   <PapeisDangerZoneCard
                     onDelete={handleOpenDeleteModal}
                     disabled={isSaving || !isFormEditable}

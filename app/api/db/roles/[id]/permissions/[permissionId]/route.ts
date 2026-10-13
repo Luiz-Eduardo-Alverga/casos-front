@@ -3,7 +3,10 @@ import {
   jsonError,
 } from "@/lib/api-db/responses";
 import { badRequestFromZod } from "@/lib/api-db/parse";
-import { assertCanManageRoleById } from "@/lib/api-db/assert-role-hierarchy";
+import {
+  assertCanEditFranquiaRole,
+  assertCanManageRoleById,
+} from "@/lib/api-db/assert-role-hierarchy";
 import { withPermission } from "@/lib/api-db/with-permission";
 import { unlinkRolePermission } from "@/lib/db/role-permissions";
 import { uuidSchema } from "@/lib/validators/db/shared";
@@ -21,6 +24,12 @@ export async function DELETE(_request: Request, context: RouteCtx) {
     if (!permParsed.success) return badRequestFromZod(permParsed.error);
 
     try {
+      const franquiaDenied = assertCanEditFranquiaRole(
+        roleIdParsed.data,
+        session.assignerHierarchyLevel,
+      );
+      if (franquiaDenied) return franquiaDenied;
+
       const hierarchyDenied = await assertCanManageRoleById(
         session.assignerHierarchyLevel,
         roleIdParsed.data,
