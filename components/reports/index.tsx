@@ -1,36 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { FilterX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ListagemPageLayout } from "@/components/layout/listagem-page-layout";
 import { ReportsFiltros } from "./filtros/reports-filtros";
 import { ReportsLista } from "./lista/reports-lista";
-import { ReportsTabela } from "./tabela/reports-tabela";
-import { ReportDetalhe } from "./detalhe/report-detalhe";
-import { ReportDetalheSkeleton } from "./detalhe/report-detalhe-skeleton";
 import { ReportAprovarModal } from "./modais/report-aprovar-modal";
 import { ReportAcaoAnotacaoModal } from "./modais/report-acao-anotacao-modal";
 import { AbrirOcorrenciaModal } from "@/components/casos/edicao/abrir-ocorrencia-modal";
-import { ReportsViewToggle } from "./layout/reports-view-toggle";
+import { ReportsSortToggle } from "./layout/reports-sort-toggle";
 import { ReportsTotalizador } from "./layout/reports-totalizador";
 import { useReportsFiltros } from "./hooks/use-reports-filtros";
+import { useReportsFiltrosLocais } from "./hooks/use-reports-filtros-locais";
 import { useReportsData } from "./hooks/use-reports-data";
 import { useReportsAcoesModais } from "./hooks/use-reports-acoes-modais";
 import { mapProjetoMemoriaToReportCard } from "./utils";
-import { cn } from "@/lib/utils";
-import { buildCasoEditHref } from "@/lib/caso-edit-layout";
 
 export function Reports() {
-  const {
-    filtrosAplicados,
-    aplicarFiltros,
-    limparFiltros,
-    viewMode,
-    setViewMode,
-  } = useReportsFiltros();
-
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const { filtrosAplicados, aplicarFiltros, limparFiltros } = useReportsFiltros();
 
   const {
     itens,
@@ -40,8 +27,9 @@ export function Reports() {
     hasNextPage,
     isFetchingNextPage,
     loadMoreRef,
-    setScrollRoot,
   } = useReportsData(filtrosAplicados);
+
+  const locais = useReportsFiltrosLocais(itens);
 
   const {
     aprovar,
@@ -59,49 +47,19 @@ export function Reports() {
     fecharOcorrenciaAposIncompleto,
   } = useReportsAcoesModais();
 
-  const selectedItem = useMemo(() => {
-    if (selectedId == null) return null;
-    const item = itens.find((i) => i.caso.id === selectedId);
-    return item ? mapProjetoMemoriaToReportCard(item) : null;
-  }, [itens, selectedId]);
-
-  const selectedRawItem = useMemo(() => {
-    if (selectedId == null) return null;
-    return itens.find((i) => i.caso.id === selectedId) ?? null;
-  }, [itens, selectedId]);
-
-  useEffect(() => {
-    if (viewMode !== "split") return;
-    if (itens.length === 0) {
-      setSelectedId(null);
-      return;
-    }
-    const stillExists =
-      selectedId != null && itens.some((i) => i.caso.id === selectedId);
-    if (!stillExists) {
-      setSelectedId(itens[0].caso.id);
-    }
-  }, [itens, selectedId, viewMode]);
-
-  useEffect(() => {
-    if (viewMode === "cards") {
-      setScrollRoot(null);
-    }
-  }, [viewMode, setScrollRoot]);
-
-  const isSplit = viewMode === "split";
-
   return (
     <ListagemPageLayout
       title="Reports"
       subtitle="Visualize e analise os reports abertos"
-      className={cn(isSplit && "lg:min-h-0 lg:overflow-hidden lg:flex-1")}
       actions={
         <Button
           variant="outline"
           type="button"
           className="w-full sm:w-auto px-4 flex-1 sm:flex-initial"
-          onClick={limparFiltros}
+          onClick={() => {
+            locais.limpar();
+            limparFiltros();
+          }}
         >
           <FilterX className="h-3.5 w-3.5" />
           Limpar filtros
@@ -111,12 +69,14 @@ export function Reports() {
       <ReportsFiltros
         filtrosAplicados={filtrosAplicados}
         onAplicar={aplicarFiltros}
+        locais={locais}
+        carregado={hasSetor && !isLoading}
       />
 
-      <div className="mb-2 flex items-center justify-between gap-4 shrink-0">
-        <ReportsViewToggle viewMode={viewMode} onChange={setViewMode} />
+      <div className="mb-2 flex shrink-0 flex-wrap items-center gap-4">
+        <ReportsSortToggle sort={locais.sort} onChange={locais.setSort} />
         <ReportsTotalizador
-          className="min-w-0"
+          className="ml-auto min-w-0"
           exibindo={itens.length}
           total={totalCasos}
           hasSetor={hasSetor}
@@ -124,68 +84,20 @@ export function Reports() {
         />
       </div>
 
-      {isSplit ? (
-        <div className="flex flex-col lg:flex-row gap-6 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
-          <div className="flex flex-col lg:w-1/2 lg:min-h-0 lg:overflow-hidden">
-            <ReportsTabela
-              itens={itens}
-              isLoading={isLoading}
-              hasSetor={hasSetor}
-              hasNextPage={hasNextPage ?? false}
-              isFetchingNextPage={isFetchingNextPage}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              loadMoreRef={loadMoreRef}
-              setScrollRoot={setScrollRoot}
-            />
-          </div>
-          <div className="flex flex-col lg:w-1/2 lg:min-h-0 lg:overflow-hidden">
-            {isLoading && selectedId == null ? (
-              <ReportDetalheSkeleton />
-            ) : (
-              <ReportDetalhe
-                data={selectedItem}
-                disabled={isPending}
-                onAprovar={() => {
-                  if (selectedRawItem) handleAbrirAprovar(selectedRawItem);
-                }}
-                onMarcarIncompleto={() => {
-                  if (selectedRawItem) handleMarcarIncompleto(selectedRawItem);
-                }}
-                onSuspender={() => {
-                  if (selectedRawItem) handleSuspender(selectedRawItem);
-                }}
-                onVerCaso={() => {
-                  if (selectedItem) {
-                    window.open(
-                      buildCasoEditHref(selectedItem.id, "case", {
-                        standalone: true,
-                      }),
-                      "_blank",
-                      "noopener,noreferrer",
-                    );
-                  }
-                }}
-              />
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col">
-          <ReportsLista
-            itens={itens}
-            isLoading={isLoading}
-            hasSetor={hasSetor}
-            hasNextPage={hasNextPage ?? false}
-            isFetchingNextPage={isFetchingNextPage}
-            isPending={isPending}
-            loadMoreRef={loadMoreRef}
-            onAprovar={handleAbrirAprovar}
-            onMarcarIncompleto={handleMarcarIncompleto}
-            onSuspender={handleSuspender}
-          />
-        </div>
-      )}
+      <div className="flex flex-col">
+        <ReportsLista
+          grupos={locais.grupos}
+          isLoading={isLoading}
+          hasSetor={hasSetor}
+          hasNextPage={hasNextPage ?? false}
+          isFetchingNextPage={isFetchingNextPage}
+          isPending={isPending}
+          loadMoreRef={loadMoreRef}
+          onAprovar={handleAbrirAprovar}
+          onMarcarIncompleto={handleMarcarIncompleto}
+          onSuspender={handleSuspender}
+        />
+      </div>
 
       <ReportAprovarModal
         open={aprovarModalOpen}

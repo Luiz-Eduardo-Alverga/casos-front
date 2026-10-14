@@ -47,6 +47,7 @@ export function useReportsData(filtros: ReportsFiltrosAplicados) {
       ...(tipoCategoria ? { tipo_categoria: tipoCategoria } : {}),
       sort_by: "prioridade",
       sort_order: "DESC" as const,
+      per_page: 500,
     };
   }, [setorNome, filtros.produto, filtros.tipo_categoria, filtros.status_ids]);
 

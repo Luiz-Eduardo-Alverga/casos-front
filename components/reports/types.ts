@@ -40,9 +40,6 @@ export interface ReportPrioridadeStyle {
   badgeText: string;
 }
 
-/** Modo de visualização da listagem de reports. */
-export type ReportsViewMode = "cards" | "split";
-
 /** Dados normalizados de um report para o card da listagem. */
 export interface ReportCardData {
   id: number;

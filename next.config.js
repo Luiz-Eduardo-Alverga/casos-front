@@ -2,6 +2,9 @@
 const nextConfig = {
   // Imagem Docker usa `node server.js` (output tracing). Build local (`npm start`) permanece `next start`.
   ...(process.env.DOCKER === "1" ? { output: "standalone" } : {}),
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+  },
   serverExternalPackages: [
     "discord.js",
     "@discordjs/ws",

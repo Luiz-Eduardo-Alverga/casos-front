@@ -75,7 +75,7 @@ export function formatCapitalize(value: string | null | undefined): string {
   return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
 
-function parseApiDateTime(value: string | null | undefined): Date | null {
+export function parseApiDateTime(value: string | null | undefined): Date | null {
   if (!value?.trim()) return null;
   const match = value
     .trim()

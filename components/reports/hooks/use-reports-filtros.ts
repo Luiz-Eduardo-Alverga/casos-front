@@ -9,13 +9,9 @@ import {
   nuqsStateToFiltrosAplicados,
   resolveSetorIdByNome,
 } from "../filtros/reports-filtros-mappers";
-import type {
-  ReportsFiltrosAplicados,
-  ReportsViewMode,
-} from "../types";
+import type { ReportsFiltrosAplicados } from "../types";
 import { useSetores } from "@/hooks/catalogos/use-setores";
 import { getUser } from "@/lib/auth";
-import { readReportsViewMode, writeReportsViewMode } from "@/lib/reports-view-mode-storage";
 
 export function useReportsFiltros() {
   const { data: setores, isSuccess: setoresReady } = useSetores();
@@ -36,41 +32,15 @@ export function useReportsFiltros() {
     [filtrosQueryKeyStable],
   );
 
-  // Restaura setor padrão e view do localStorage num único setNuqsState
-  // para evitar race entre updates parciais do nuqs no mount.
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (nuqsState.setor?.trim() || !setoresReady || !setores?.length) return;
 
-    const updates: {
-      setor?: string;
-      view?: ReportsViewMode;
-    } = {};
+    const setorId = resolveSetorIdByNome(getUser()?.setor, setores);
+    if (!setorId) return;
 
-    if (!nuqsState.setor?.trim() && setoresReady && setores?.length) {
-      const setorId = resolveSetorIdByNome(getUser()?.setor, setores);
-      if (setorId) updates.setor = setorId;
-    }
-
-    const url = new URL(window.location.href);
-    if (!url.searchParams.has("view")) {
-      const stored = readReportsViewMode();
-      if (stored && stored !== "cards") {
-        updates.view = stored;
-      }
-    }
-
-    if (updates.setor === undefined && updates.view === undefined) return;
-
-    void setNuqsState(updates);
+    void setNuqsState({ setor: setorId });
   }, [nuqsState.setor, setores, setoresReady, setNuqsState]);
-
-  const setViewMode = useCallback(
-    (mode: ReportsViewMode) => {
-      writeReportsViewMode(mode);
-      void setNuqsState({ view: mode });
-    },
-    [setNuqsState],
-  );
 
   const aplicarFiltros = useCallback(
     (filtros: ReportsFiltrosAplicados) => {
@@ -94,7 +64,5 @@ export function useReportsFiltros() {
     filtrosAplicados,
     aplicarFiltros,
     limparFiltros,
-    viewMode: nuqsState.view,
-    setViewMode,
   };
 }

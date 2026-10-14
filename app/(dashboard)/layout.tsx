@@ -7,8 +7,7 @@ import { Header } from "@/components/header";
 import { CasoAbertoMiniPlayer } from "@/components/caso-aberto-player";
 import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { Suspense, useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { REPORTS_VIEW_QUERY_KEY } from "@/components/reports/filtros/reports-filtros-parsers";
+import { usePathname } from "next/navigation";
 
 // Rotas que devem ter scroll interno (overflow-hidden)
 // A maioria das telas terá scroll do navegador
@@ -23,12 +22,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  // Verificar se a rota atual deve ter scroll interno
-  const hasInternalScroll =
-    ROUTES_WITH_INTERNAL_SCROLL.includes(pathname) ||
-    (pathname === "/reports" && searchParams.get(REPORTS_VIEW_QUERY_KEY) === "split");
+  const hasInternalScroll = ROUTES_WITH_INTERNAL_SCROLL.includes(pathname);
 
   useEffect(() => {
     const checkMobile = () => {

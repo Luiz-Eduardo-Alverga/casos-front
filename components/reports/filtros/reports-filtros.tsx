@@ -11,27 +11,33 @@ import { LISTAGEM_CARD_STACK_GAP } from "@/components/layout/listagem-page-layou
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { CasoFormSetor } from "@/components/fields/caso-form-setor";
 import { CasoFormProduto } from "@/components/fields/caso-form-produto";
-import { CasoFormCategoria } from "@/components/fields/caso-form-categoria";
 import { useCategorias } from "@/hooks/catalogos/use-categorias";
 import type { Categoria } from "@/services/auxiliar/categorias";
 import { importanceOptions } from "@/mocks/teste";
+import type { ReportsFiltrosLocais } from "../hooks/use-reports-filtros-locais";
 import {
   filtrosQueryKey,
   filtrosToFormDefaults,
   formToFiltrosAplicados,
   hasFiltersApplied,
 } from "./reports-filtros-mappers";
+import { ReportsFiltroCategoria } from "./reports-filtro-categoria";
+import { ReportsFiltroLocais } from "./reports-filtro-locais";
 import type { ReportsFiltersForm, ReportsFiltrosAplicados } from "../types";
 import { DEFAULT_REPORTS_STATUS_IDS } from "../types";
 
 interface ReportsFiltrosProps {
   filtrosAplicados: ReportsFiltrosAplicados;
   onAplicar: (filtros: ReportsFiltrosAplicados) => void;
+  locais: ReportsFiltrosLocais;
+  carregado: boolean;
 }
 
 export function ReportsFiltros({
   filtrosAplicados,
   onAplicar,
+  locais,
+  carregado,
 }: ReportsFiltrosProps) {
   const queryClient = useQueryClient();
   const appliedQueryKey = filtrosQueryKey(filtrosAplicados);
@@ -46,13 +52,7 @@ export function ReportsFiltros({
   });
 
   const produto = methods.watch("produto");
-  const categoriaForm = methods.watch("categoria");
-  const needsCategoriasCatalog =
-    Boolean(filtrosAplicados.tipo_categoria?.trim()) ||
-    Boolean(String(categoriaForm ?? "").trim());
-  const { data: categorias } = useCategorias({
-    enabled: needsCategoriasCatalog,
-  });
+  const { data: categorias } = useCategorias();
 
   const categoriasSyncKey = useMemo(
     () => (categorias ?? []).map((c) => c.id).join(","),
@@ -115,7 +115,7 @@ export function ReportsFiltros({
         <Card
           className={`bg-card shadow-card rounded-lg shrink-0 ${LISTAGEM_CARD_STACK_GAP} overflow-hidden`}
         >
-          <CardHeader className="flex flex-row items-center justify-between px-5 py-2 border-b border-border-divider">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border-divider p-4 pb-2">
             <div className="flex items-center gap-2">
               <Filter className="h-3.5 w-3.5 text-text-primary" />
               <CardTitle className="text-sm font-semibold text-text-primary">
@@ -124,7 +124,7 @@ export function ReportsFiltros({
             </div>
           </CardHeader>
 
-          <CardContent className="p-6 pt-3">
+          <CardContent className="px-6 pb-6 pt-2">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6 lg:items-end">
               <div className="min-w-0">
                 <CasoFormSetor />
@@ -133,7 +133,7 @@ export function ReportsFiltros({
                 <CasoFormProduto required={false} />
               </div>
               <div className="min-w-0">
-                <CasoFormCategoria required={false} />
+                <ReportsFiltroCategoria />
               </div>
               <div className="min-w-0 sm:col-span-2 lg:col-span-2">
                 <Controller
@@ -158,6 +158,8 @@ export function ReportsFiltros({
                 Filtrar
               </Button>
             </div>
+
+            <ReportsFiltroLocais locais={locais} carregado={carregado} />
           </CardContent>
         </Card>
       </FormProvider>

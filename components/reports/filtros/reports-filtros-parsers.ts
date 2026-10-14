@@ -1,10 +1,5 @@
-import { parseAsArrayOf, parseAsString, parseAsStringLiteral } from "nuqs";
-import {
-  DEFAULT_REPORTS_STATUS_IDS,
-  type ReportsViewMode,
-} from "../types";
-
-export const REPORTS_VIEW_QUERY_KEY = "view";
+import { parseAsArrayOf, parseAsString } from "nuqs";
+import { DEFAULT_REPORTS_STATUS_IDS } from "../types";
 
 export const reportsFiltrosParsers = {
   setor: parseAsString.withDefault(""),
@@ -13,22 +8,15 @@ export const reportsFiltrosParsers = {
   status_id: parseAsArrayOf(parseAsString).withDefault([
     ...DEFAULT_REPORTS_STATUS_IDS,
   ]),
-  view: parseAsStringLiteral(["cards", "split"] as const).withDefault("cards"),
 };
 
-export type ReportsFiltrosOnlyNuqsState = {
+export type ReportsFiltrosNuqsState = {
   setor: string;
   produto: string;
   tipo_categoria: string;
   status_id: string[];
 };
 
-export type ReportsFiltrosNuqsState = ReportsFiltrosOnlyNuqsState & {
-  view: ReportsViewMode;
-};
-
 export type ReportsFiltrosNuqsUpdate = {
-  [K in keyof ReportsFiltrosOnlyNuqsState]: ReportsFiltrosOnlyNuqsState[K] | null;
-} & {
-  view?: ReportsViewMode | null;
+  [K in keyof ReportsFiltrosNuqsState]: ReportsFiltrosNuqsState[K] | null;
 };

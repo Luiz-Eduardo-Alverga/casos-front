@@ -1,0 +1,1055 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Softflow - Reports</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap">
+<style>
+:root{
+  --top:#ffffff; --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f9fafb; --border:#e5e7eb; --border-2:#d1d5db;
+  --ink:#111827; --ink-2:#374151; --ink-3:#6b7280; --ink-4:#9ca3af;
+  --side:#1f2632; --side-2:#2a3240; --side-line:#323a49; --side-ink:#cdd2dc; --side-mute:#6b7383;
+  --yellow:#fcd535; --yellow-h:#f6c915; --yellow-ink:#1f1a00; --yellow-soft:#fff8db; --yellow-line:#f0c20f;
+  --dark-btn:#1f2632; --dark-btn-ink:#ffffff;
+  --crit:#e5383b; --crit-soft:#fdeeee; --crit-line:#f7c4c5;
+  --alto:#f2780c; --alto-soft:#fff3e6; --alto-line:#fbd2a8;
+  --medio:#d39c00; --medio-soft:#fff8dc; --medio-line:#f6e08a;
+  --baixo:#3b82f6; --baixo-soft:#eaf2ff; --baixo-line:#bfd5fb;
+  --bug:#d6336c; --bug-soft:#fdeef4;
+  --ok:#1aa664; --ok-h:#159257;
+  --idpill:#1f2632;
+  --shadow:0 1px 2px rgba(17,24,39,.04);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1b2230; --top:#1b2230; --surface:#212a38; --surface-2:#273041; --border:#2e3848; --border-2:#3a4558;
+    --ink:#eef1f6; --ink-2:#c8cfdb; --ink-3:#97a1b2; --ink-4:#6b7588;
+    --side:#1b2230; --side-2:#283142; --side-line:#2a3342; --side-ink:#c8cfdb; --side-mute:#6b7588;
+    --yellow-soft:#3a3218; --yellow-line:#c99d12;
+    --dark-btn:#344157; --dark-btn-ink:#ffffff;
+    --crit:#ff5a5f; --crit-soft:#33212a; --crit-line:#b3343c;
+    --alto:#ff9a45; --alto-soft:#352a20; --alto-line:#c0631c;
+    --medio:#ffb425; --medio-soft:#33301f; --medio-line:#c08a10;
+    --baixo:#6ea8ff; --baixo-soft:#1f2c44; --baixo-line:#3a5a8c;
+    --bug:#d6336c; --bug-soft:#fde4ee;
+    --idpill:#2f3949;
+    --shadow:none;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1b2230; --top:#1b2230; --surface:#212a38; --surface-2:#273041; --border:#2e3848; --border-2:#3a4558;
+  --ink:#eef1f6; --ink-2:#c8cfdb; --ink-3:#97a1b2; --ink-4:#6b7588;
+  --side:#1b2230; --side-2:#283142; --side-line:#2a3342; --side-ink:#c8cfdb; --side-mute:#6b7588;
+  --yellow-soft:#3a3218; --yellow-line:#c99d12;
+  --dark-btn:#344157; --dark-btn-ink:#ffffff;
+  --crit:#ff5a5f; --crit-soft:#33212a; --crit-line:#b3343c;
+  --alto:#ff9a45; --alto-soft:#352a20; --alto-line:#c0631c;
+  --medio:#ffb425; --medio-soft:#33301f; --medio-line:#c08a10;
+  --baixo:#6ea8ff; --baixo-soft:#1f2c44; --baixo-line:#3a5a8c;
+  --bug:#d6336c; --bug-soft:#fde4ee;
+  --idpill:#2f3949;
+  --shadow:none;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.45}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--yellow-line);outline-offset:2px}
+svg.i{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.num{font-variant-numeric:tabular-nums}
+
+/* ===== Sidebar ===== */
+.app{display:flex;min-height:100%}
+.side{width:250px;flex:none;background:var(--side);border-right:1px solid var(--side-line);color:var(--side-ink);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;z-index:30}
+.logo{height:74px;display:flex;align-items:center;justify-content:center;gap:6px;border-bottom:1px solid var(--side-line)}
+.logo span{font-size:27px;font-weight:800;letter-spacing:-.02em;background:linear-gradient(180deg,#ffd84a,#f5a300);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav{padding:16px 10px;display:flex;flex-direction:column;gap:2px}
+.nav .sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--side-mute);padding:18px 13px 8px}
+.nav a{display:flex;align-items:center;gap:12px;padding:10px 13px;border-radius:8px;color:var(--side-ink);text-decoration:none;font-size:14px;border-left:3px solid transparent}
+.nav a svg.i{width:15px;height:15px;opacity:.75}
+.nav a:hover{background:var(--side-2)}
+.nav a.on{background:var(--side-2);border-left-color:var(--yellow);color:#fff;font-weight:700}
+.nav a.on svg.i{opacity:1}
+.nav a .chev{margin-left:auto;width:13px;height:13px;opacity:.5}
+
+/* ===== Header ===== */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{height:54px;background:var(--top);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding-inline:20px 16px;position:sticky;top:0;z-index:20}
+.iconbtn{width:36px;height:36px;border:0;background:none;border-radius:8px;display:grid;place-items:center;color:var(--ink-2);position:relative}
+.iconbtn:hover{background:var(--surface-2)}
+.iconbtn svg.i{width:18px;height:18px}
+.badge{position:absolute;top:2px;right:2px;min-width:16px;height:16px;border-radius:8px;background:#ef3b3b;color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;padding:0 4px;border:2px solid var(--surface)}
+.btn-y{display:inline-flex;align-items:center;gap:8px;background:var(--yellow);color:var(--yellow-ink);border:1px solid var(--yellow-line);border-radius:6px;padding:8px 16px;font-weight:700;font-size:14px;white-space:nowrap;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.btn-y:hover{background:var(--yellow-h)}
+.vdiv{width:1px;height:30px;background:var(--border)}
+.search{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:6px;height:38px;padding-inline:16px 10px;width:320px;max-width:100%;color:var(--ink-2)}
+.search input{border:0;outline:0;background:none;flex:1;min-width:0;font-size:14px}
+.search input::placeholder{color:var(--ink-2)}
+.kbd{font-size:12px;font-weight:700;color:var(--ink-2)}
+.top .right{margin-left:auto;display:flex;align-items:center;gap:6px}
+.user{display:flex;align-items:center;gap:10px;padding-left:14px;border-left:1px solid var(--border);margin-left:6px;height:38px;color:var(--ink-2);font-weight:600}
+.avatar{width:34px;height:34px;border-radius:50%;border:1px solid var(--border-2);display:grid;place-items:center;color:var(--ink-3)}
+.avatar svg.i{width:15px;height:15px}
+
+/* ===== Página ===== */
+.page{padding-inline:24px;padding-block:22px 60px;display:flex;flex-direction:column;gap:16px}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.ph h1{margin:0;font-size:21px;font-weight:800}
+.ph p{margin:4px 0 0;color:var(--ink-3)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--surface);border-radius:6px;padding:8px 14px;font-weight:700;font-size:14px;white-space:nowrap;color:var(--ink)}
+.btn:hover{border-color:var(--border-2);background:var(--surface-2)}
+.btn-dark{background:var(--dark-btn);color:var(--dark-btn-ink);border-color:var(--dark-btn)}
+.btn-dark:hover{background:var(--dark-btn);filter:brightness(1.15)}
+.btn-ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn-ok:hover{background:var(--ok-h);border-color:var(--ok-h)}
+.btn-warn svg.i{color:#e0a100}
+.btn-sus{color:var(--crit);border-color:var(--crit-line)}
+.btn-sus:hover{background:var(--crit-soft);border-color:var(--crit-line)}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow)}
+.panel-h{display:flex;align-items:center;gap:8px;padding:12px 20px;border-bottom:1px solid var(--border);font-weight:700;flex-wrap:wrap}
+.panel-h .sub{font-weight:400;color:var(--ink-3);font-size:13px}
+.panel-h .end{margin-left:auto}
+
+.filters{padding:18px 24px 18px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:end}
+.filters .span2{grid-column:span 2}
+/* Categoria, Criticidade e Prazo usam o mesmo chip dos produtos (amarelo + check quando marcado) */
+.tg{display:flex;flex-wrap:wrap;gap:8px;min-height:36px;align-items:center}
+.pchip .dot{width:8px;height:8px;border-radius:50%;flex:none}
+.pchip .ci{width:13px;height:13px}
+.f label .hint{font-weight:400;color:var(--ink-3);font-size:11px}
+.prodwrap{border-top:1px solid var(--border)}
+.prodhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.prodhead .plbl{font-size:14px;font-weight:600;color:var(--ink-2)}
+.prodhead .sub{font-size:12px;color:var(--ink-3)}
+.prodhead .psearch{margin-left:auto}
+.p-mel{background:var(--baixo-soft);color:var(--baixo)}
+.f label{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--ink-2);margin-bottom:8px}
+.f label small{font-weight:400;color:var(--ink-3);font-size:11px}
+.field{min-height:36px;border:1px solid var(--border);border-radius:6px;background:var(--surface);display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:4px 10px 4px 16px;font-size:14px}
+.field .v{font-weight:700;flex:1}
+.field .ph2{color:var(--ink-2);flex:1}
+.field .ico{color:var(--ink-4);display:flex;gap:8px}
+.field.tags{padding-left:10px}
+.tag{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:1px 6px 1px 7px;font-size:12px;font-weight:700}
+.tag button{border:0;background:none;padding:0;line-height:1;color:var(--ink-3);font-size:14px}
+.tag.y{background:var(--yellow-soft);border-color:var(--yellow-line)}
+
+/* ===== Resumo por produto ===== */
+.prodwrap{padding:16px 24px 18px;display:flex;flex-direction:column;gap:10px}
+.prods{display:flex;flex-wrap:wrap;gap:8px}
+.pchip{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:7px 8px 7px 12px;font-size:13px;font-weight:700;color:var(--ink);max-width:100%}
+.pchip:hover{border-color:var(--border-2);background:var(--surface-2)}
+.pchip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pchip .ct{background:var(--idpill);color:#fff;border-radius:5px;min-width:24px;padding:1px 7px;font-size:12px;text-align:center}
+.pchip .vc{display:inline-flex;align-items:center;gap:4px;color:var(--crit);font-size:11px;font-weight:800;white-space:nowrap}
+.pchip .vc::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--crit)}
+.pchip .ck{display:none;width:14px;height:14px}
+.pchip[aria-pressed="true"]{background:var(--yellow-soft);border-color:var(--yellow-line)}
+.pchip[aria-pressed="true"] .ck{display:block}
+.pchip[aria-pressed="true"] .ct{background:var(--yellow);color:var(--yellow-ink)}
+.pchip.zero .ct{background:var(--border-2);color:var(--ink-2)}
+.more{border:1px dashed var(--border-2);background:none;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.more:hover{border-color:var(--ink-3)}
+.psearch{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:6px;height:32px;padding-inline:10px;width:220px;max-width:100%;color:var(--ink-3)}
+.psearch input{border:0;outline:0;background:none;flex:1;min-width:0;font-size:13px}
+.quick{display:flex;flex-wrap:wrap;gap:10px 24px;padding-top:12px;border-top:1px solid var(--border)}
+.cg{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.cg .lbl{font-size:12px;font-weight:700;color:var(--ink-3);margin-right:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--ink-2)}
+.chip:hover{border-color:var(--border-2)}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+.chip .n{color:var(--ink-4)}
+.chip[aria-pressed="true"]{background:var(--sb,var(--surface-2));border-color:var(--sl,var(--border-2));color:var(--sc,var(--ink))}
+.chip[aria-pressed="true"] .n{color:inherit;opacity:.7}
+.empty-p{color:var(--ink-3);font-size:13px}
+
+/* ===== Barra da lista ===== */
+.bar{display:flex;align-items:center;gap:12px 20px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px;gap:2px}
+.seg button{border:0;background:none;border-radius:4px;padding:4px 9px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;color:var(--ink-2)}
+.seg button svg.i{width:14px;height:14px}
+.seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--ink);box-shadow:0 0 0 1px var(--border)}
+.sortlbl{font-size:12px;font-weight:700;color:var(--ink-3)}
+.seg.sort button[aria-pressed="true"]{background:var(--yellow);color:var(--yellow-ink);box-shadow:none}
+.prog{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:12px;color:var(--ink-2)}
+.prog .track{width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog .track i{display:block;height:100%;background:var(--ink)}
+
+/* ===== Grupos / Cards ===== */
+.groups{display:flex;flex-direction:column;gap:22px}
+.gh{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-2);margin:0 0 10px}
+.gh .gd{width:8px;height:8px;border-radius:50%}
+.gh .gn{color:var(--ink-4)}
+.cards{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--sev);border-radius:8px;padding:20px 20px 18px 22px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+.ch{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.idp{background:var(--idpill);color:#fff;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:800}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;border:1px solid transparent}
+.pill svg.i{width:12px;height:12px}
+.p-sev{background:var(--sevsoft);color:var(--sev);border-color:var(--sevline)}
+.p-sev::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.p-bug{background:var(--bug-soft);color:var(--bug)}
+.p-st{border-color:var(--border);color:var(--ink-2)}
+.p-st::before{content:"";width:4px;height:4px;border-radius:50%;background:currentColor}
+.p-ex{border:1px dashed var(--border-2);color:var(--ink-3);font-size:11px}
+.due{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.dueb{display:inline-flex;align-items:center;gap:6px;border-radius:4px;padding:3px 9px;font-size:12px;font-weight:600;border:1px solid}
+.dueb svg.i{width:13px;height:13px}
+.d-venc{color:var(--crit);background:var(--crit-soft);border-color:var(--crit-line)}
+.d-urg{color:var(--alto);background:var(--medio-soft);border-color:var(--medio-line)}
+.d-ok{color:var(--ink-2);background:var(--surface-2);border-color:var(--border)}
+.due small{font-size:12px;color:var(--ink-3)}
+.ctitle{margin:0;font-size:16px;font-weight:700;line-height:1.35;text-wrap:pretty}
+.cd{color:var(--ink-3);font-size:14px;line-height:1.55;white-space:pre-line;overflow-wrap:anywhere}
+.cd.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+.cd strong{color:var(--ink-2)}
+.cd a{color:var(--baixo)}
+.vm{border:0;background:none;padding:0;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:4px;color:var(--ink);align-self:flex-start;margin-top:-6px}
+.vm svg.i{width:13px;height:13px}
+.facts{border:1px solid var(--border);border-radius:6px;padding:12px 14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.fact{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--ink-3);min-width:0}
+.fact b{font-size:14px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fact b svg.i{width:13px;height:13px;color:var(--ink-3)}
+.acts{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding-top:14px;border-top:1px solid var(--border)}
+.acts .sp{flex:1}
+.confirm{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding-top:14px;border-top:1px solid var(--border)}
+.confirm .cf{flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.confirm select,.confirm textarea{border:1px solid var(--border);border-radius:6px;background:var(--surface);padding:7px 10px;font-weight:400;width:100%}
+.confirm textarea{min-height:56px;resize:vertical}
+
+/* ===== Lista compacta ===== */
+.rows{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+.row{border-top:1px solid var(--border);position:relative}
+.row:first-child{border-top:0}
+.row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--sev)}
+.row.open{background:var(--surface)}
+.rowmain{display:grid;grid-template-columns:150px minmax(0,1fr) 190px 120px 20px;gap:16px;align-items:center;padding:12px 16px 12px 20px;width:100%;border:0;background:none;text-align:left;color:var(--ink)}
+.rowmain:hover{background:var(--surface-2)}
+.row.open .rowmain{background:var(--surface-2);border-bottom:1px solid var(--border)}
+.rprazo{display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+.rprazo small{font-size:11px;color:var(--ink-3)}
+.rtitle{min-width:0;display:flex;flex-direction:column;gap:5px}
+.rtitle .t{font-weight:700;font-size:14px;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.rtitle .pills{gap:6px}
+.rtitle .idp{font-size:11px;padding:1px 8px}
+.rtitle .pill{font-size:11px;padding:1px 8px}
+.rcell{font-size:12px;color:var(--ink-3);display:flex;flex-direction:column;gap:1px;min-width:0}
+.rcell b{font-size:13px;color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rchev{width:18px;height:18px;color:var(--ink-3);transition:transform .15s}
+.row.open .rchev{transform:rotate(180deg)}
+.rdetail{padding:16px 20px 18px 24px;display:flex;flex-direction:column;gap:14px}
+.rdetail .cd{background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-size:13px;max-height:300px;overflow:auto}
+@media (max-width:1180px){
+  .rowmain{grid-template-columns:140px minmax(0,1fr) 20px}
+  .rowmain .rcell{display:none}
+}
+@media (max-width:640px){
+  .rowmain{grid-template-columns:minmax(0,1fr) 20px;gap:8px;padding-left:16px}
+  .rprazo{grid-column:1;flex-direction:row;align-items:center;gap:8px}
+  .rtitle{grid-column:1}
+  .rowmain .rchev{grid-row:1;grid-column:2}
+  .rdetail{padding:14px 16px}
+}
+
+/* ===== Lista + detalhe ===== */
+.split{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:16px;align-items:start}
+.lrows{display:flex;flex-direction:column;gap:18px}
+.lgroup .rows{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.lrow{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left;border:0;border-top:1px solid var(--border);border-left:4px solid var(--sev);background:var(--surface);padding:11px 14px}
+.lrow:first-child{border-top:0}
+.lrow:hover{background:var(--surface-2)}
+.lrow[aria-current="true"]{background:var(--yellow-soft)}
+.lrow .l1{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.lrow .t{font-weight:700;font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lrow .l3{font-size:12px;color:var(--ink-3)}
+.detailpane{position:sticky;top:70px}
+.detailpane .card{max-height:calc(100vh - 90px);overflow:auto}
+
+.empty{padding:40px 20px;text-align:center;color:var(--ink-3);background:var(--surface);border:1px dashed var(--border-2);border-radius:8px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#1f2632;color:#fff;border-radius:8px;padding:10px 16px;display:flex;gap:16px;align-items:center;font-weight:700;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:50;max-width:calc(100vw - 32px)}
+.toast button{border:0;background:none;color:var(--yellow);font-weight:800;padding:0}
+
+/* ===== Modais ===== */
+:root{--modal:#ffffff;--modal-box:#f9fafb;--input:#ffffff;--focus:#3b82f6;--btn-off:#9ca3af;--btn-off-ink:#ffffff;--req:#e5383b;
+  --ok-tile:#e6f7ef;--ok-tile-ink:#16a35f;--warn-tile:#fff4d9;--warn-tile-ink:#e08a00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--modal:#263040;--modal-box:#222b39;--input:#1e2633;--focus:#3b6fd1;--btn-off:#2f3a4b;--btn-off-ink:#7d8798;--req:#ff5a5f;
+  --ok-tile:#e6f7ef;--ok-tile-ink:#16a35f;--warn-tile:#3b2b1c;--warn-tile-ink:#f2a024}}
+:root[data-theme="dark"]{--modal:#263040;--modal-box:#222b39;--input:#1e2633;--focus:#3b6fd1;--btn-off:#2f3a4b;--btn-off-ink:#7d8798;--req:#ff5a5f;
+  --ok-tile:#e6f7ef;--ok-tile-ink:#16a35f;--warn-tile:#3b2b1c;--warn-tile-ink:#f2a024}
+.mback{position:fixed;inset:0;background:rgba(5,8,14,.6);z-index:60;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:16px}
+.modal{background:var(--modal);color:var(--ink);border:1px solid var(--border);border-radius:16px;width:min(560px,100%);max-width:100%;max-height:calc(100vh - 32px);overflow:auto;padding:24px;display:flex;flex-direction:column;gap:20px;box-shadow:0 20px 60px rgba(0,0,0,.35);position:relative}
+.mhead{display:flex;gap:14px;align-items:flex-start;padding-right:28px}
+.mtile{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;flex:none}
+.mtile svg.i{width:22px;height:22px}
+.mtile.ok{background:var(--ok-tile);color:var(--ok-tile-ink)}
+.mtile.warn{background:var(--warn-tile);color:var(--warn-tile-ink)}
+.mhead h2{margin:0;font-size:18px;font-weight:700}
+.mhead p{margin:3px 0 0;color:var(--ink-3);font-size:14px}
+.mclose{position:absolute;top:14px;right:14px;width:30px;height:30px;border:0;background:none;border-radius:6px;display:grid;place-items:center;color:var(--ink-3)}
+.mclose:hover{background:var(--surface-2);color:var(--ink)}
+.mbox{background:var(--modal-box);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.mbox .t{font-weight:700;font-size:14px;line-height:1.45}
+.mfields{display:flex;flex-direction:column;gap:18px}
+.mf label,.mf .ml{display:block;font-size:14px;font-weight:600;color:var(--ink-2);margin-bottom:8px}
+.mf .ml.caps{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3)}
+.req{color:var(--req)}
+.sel{position:relative}
+.sel select{appearance:none;-webkit-appearance:none;width:100%;height:38px;border:1px solid var(--border-2);border-radius:6px;background:var(--input);padding:0 64px 0 16px;font-size:14px;font-weight:600;color:var(--ink)}
+.sel:not(.has) select{color:var(--ink-3)}
+.sel select option{color:var(--ink)}
+.sel select:focus,.mf textarea:focus{outline:none;border-color:var(--focus);box-shadow:0 0 0 1px var(--focus)}
+.sel .ud{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--ink-3);pointer-events:none}
+.sel.has .ud{right:40px}
+.sel .clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:22px;height:22px;border:0;background:none;border-radius:4px;display:none;place-items:center;color:var(--ink-3);padding:0}
+.sel.has .clr{display:grid}
+.sel .clr svg.i{width:14px;height:14px}
+.mf textarea{width:100%;min-height:120px;border:1px solid var(--border-2);border-radius:8px;background:var(--input);padding:12px 16px;font-size:14px;resize:vertical;color:var(--ink)}
+.mf textarea::placeholder{color:var(--ink-3)}
+.mf .cnt{margin-top:6px;font-size:12px;color:var(--ink-3)}
+.mfoot{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mfoot .btn{justify-content:center;height:40px}
+.btn-primary{background:var(--dark-btn);border-color:var(--dark-btn);color:var(--dark-btn-ink)}
+.btn-primary:hover{background:var(--dark-btn);border-color:var(--dark-btn);filter:brightness(1.12)}
+.btn-primary:disabled{background:var(--btn-off);border-color:var(--btn-off);color:var(--btn-off-ink);cursor:not-allowed;filter:none}
+.btn-cancel{background:var(--input)}
+@media (max-width:480px){.modal{padding:18px}.mfoot{grid-template-columns:1fr}}
+
+
+.scrim{display:none}
+
+/* ===== Botão flutuante (só no responsivo) ===== */
+.fab{display:none;position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:45}
+.fab-btn{width:56px;height:56px;border-radius:50%;border:1px solid var(--yellow-line);background:var(--yellow);color:var(--yellow-ink);display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.fab-btn svg.i{width:24px;height:24px;stroke-width:2.4;transition:transform .18s}
+.fab-btn[aria-expanded="true"] svg.i{transform:rotate(45deg)}
+.fab-menu{position:absolute;right:0;bottom:68px;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.fab-menu p{margin:0 4px 2px 0;font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.fab-opt{display:flex;align-items:center;gap:12px;border:1px solid var(--border);background:var(--modal,var(--surface));color:var(--ink);border-radius:999px;padding:8px 18px 8px 8px;font-size:15px;font-weight:700;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.22)}
+.fab-opt .fi{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--yellow-soft);color:var(--ink);border:1px solid var(--yellow-line)}
+.fab-opt .fi svg.i{width:18px;height:18px}
+.fab-opt:active{transform:scale(.98)}
+.fab-scrim{position:fixed;inset:0;background:rgba(5,8,14,.45);z-index:44}
+@media (min-width:981px){.fab-scrim{display:none}}
+
+@media (max-width:1180px){
+  .filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .search{width:220px}
+  .prodhead .psearch{margin-left:0;width:100%}
+}
+@media (max-width:980px){
+  .side{position:fixed;left:0;top:0;transform:translateX(-100%);transition:transform .2s}
+  .app.nav-open .side{transform:none}
+  .app.nav-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:25}
+  /* No responsivo: busca continua no header; "Adicionar" vira botão flutuante */
+  .top .btn-y,.top .vdiv,.top .opt{display:none}
+  .top .search{flex:1;width:auto;min-width:0}
+  .top .right{margin-left:0}
+  .fab{display:block}
+  .toast{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+  .split{grid-template-columns:1fr}
+  .detailpane{position:static}
+  .detailpane .card{max-height:none}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (min-width:981px){ .app.nav-hidden .side{display:none} }
+@media (max-width:640px){
+  .page{padding-inline:16px}
+  .top{padding-inline:12px;gap:8px}
+  .user span,.user .chev{display:none}
+  .user{padding-left:8px;margin-left:2px}
+  .top .right{gap:2px}
+  .search{padding-inline:12px 10px}
+  .search .kbd{display:none}
+  .filters{grid-template-columns:1fr;padding:16px}
+  .filters .span2{grid-column:auto}
+  .prodwrap,.panel-h{padding-inline:16px}
+  .ch{flex-direction:column}
+  .due{align-items:flex-start;flex-direction:row;align-items:center}
+  .card{padding:16px}
+  .prog{margin-left:0}
+}
+/* Estado inicial (sem dados) e carregamento */
+.start{background:var(--surface);border:1px dashed var(--border-2);border-radius:8px;padding:40px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.start-ico{width:48px;height:48px;border-radius:12px;background:var(--yellow-soft);border:1px solid var(--yellow-line);display:grid;place-items:center;color:var(--ink)}
+.start-ico svg.i{width:22px;height:22px}
+.start h2{margin:6px 0 0;font-size:17px;font-weight:800;text-wrap:balance}
+.start p{margin:0;max-width:46ch;color:var(--ink-3);font-size:14px}
+.start .btn{margin-top:8px;min-height:40px;padding-inline:22px}
+.btn-dark:disabled{opacity:.6;cursor:progress}
+.sk .skrow{display:grid;grid-template-columns:120px 1fr;gap:8px 16px;padding:16px 20px;border-top:1px solid var(--border)}
+.sk .skrow:first-child{border-top:0}
+.sk i{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--surface-2),var(--border),var(--surface-2));background-size:200% 100%;animation:sk 1.1s linear infinite}
+.sk .b1{width:100px;height:20px}.sk .b2{width:70%}.sk .b3{grid-column:2;width:45%}
+@keyframes sk{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.sk i{animation:none}}
+
+/* Cabeçalho do painel de filtros: no desktop é só um título; no celular vira acordeão */
+.ftoggle{display:inline-flex;align-items:center;gap:8px;border:0;background:none;padding:0;font-weight:700;font-size:14px;color:var(--ink);pointer-events:none}
+.ftoggle .fchev{display:none;width:16px;height:16px;color:var(--ink-3);transition:transform .15s}
+.fcount{background:var(--yellow);color:var(--yellow-ink);border-radius:999px;min-width:20px;height:20px;padding:0 6px;font-size:11px;font-weight:800;display:inline-grid;place-items:center}
+.clearmini{margin-left:auto;border:0;background:none;padding:6px 2px;font-size:13px;font-weight:700;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+
+@media (max-width:640px){
+  /* Página: espaço para o botão flutuante não cobrir o último report */
+  .page{gap:14px;padding-block:16px 104px}
+  .ph h1{font-size:20px}
+  .ph #clearAll{display:none}
+  .iconbtn{width:40px;height:40px}
+
+  /* Filtros recolhidos por padrão; produtos sempre visíveis numa faixa com rolagem lateral */
+  .fpanel .panel-h{padding:0;border-bottom:0}
+  .ftoggle{pointer-events:auto;flex:1;min-height:52px;padding-inline:16px}
+  .ftoggle .fchev{display:block;margin-left:auto}
+  .clearmini{margin-left:0;padding-inline:4px 16px;min-height:52px}
+  .fpanel:not(.collapsed) .panel-h{border-bottom:1px solid var(--border)}
+  .fpanel:not(.collapsed) .fchev{transform:rotate(180deg)}
+  .fpanel.collapsed #filtersBody{display:none}
+  .fpanel .filters{gap:18px}
+  .prodwrap{padding-block:12px 14px;gap:8px}
+  .fpanel.collapsed .prodwrap{border-top:1px solid var(--border)}
+  .prods{flex-wrap:nowrap;overflow-x:auto;margin-inline:-16px;padding-inline:16px;padding-bottom:2px;scroll-snap-type:x proximity;scrollbar-width:none}
+  .prods::-webkit-scrollbar{display:none}
+  .prods>*{flex:none;scroll-snap-align:start}
+
+  /* Chips maiores para toque */
+  .pchip{min-height:40px;padding:8px 10px 8px 12px}
+  .tg{gap:8px}
+
+  /* Barra de ordenação: sem "Lista + detalhe" no celular, ordenação ocupa a largura toda */
+  .bar{display:grid;grid-template-columns:1fr;gap:8px}
+  .sortlbl{margin-bottom:-2px}
+  .hm{display:none}
+  #viewSeg{display:none}
+  .seg.sort{display:flex}
+  .seg.sort button{flex:1;justify-content:center;min-height:38px;font-size:13px;white-space:nowrap}
+  .prog{margin-left:0;justify-content:space-between;margin-top:4px}
+  .prog .track{flex:1}
+
+  /* Report aberto: dados sem corte e ações em grade */
+  .rdetail{gap:12px}
+  .fact b{white-space:normal;align-items:flex-start;overflow-wrap:anywhere}
+  .fact b svg.i{margin-top:3px}
+  .acts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .acts .btn{justify-content:center;min-height:44px;white-space:normal;text-align:center;padding-inline:10px}
+  .acts .btn-ok{grid-column:1/-1}
+  .acts .sp{display:none}
+  .acts .btn:last-child{grid-column:1/-1;border-style:dashed}
+
+  /* Modais viram painel inferior */
+  .mback{place-items:end center;padding:0}
+  .modal{border-radius:16px 16px 0 0;max-height:92vh;padding:20px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+  .mfoot{grid-template-columns:1fr 1fr}
+  .mfoot .btn{min-height:46px;white-space:normal}
+  .sel select{height:44px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M8 17V10M13 17V6M18 17v-4"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/></symbol>
+  <symbol id="i-release" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18M5.6 5.6c3.5 2.5 9.3 2.5 12.8 0M5.6 18.4c3.5-2.5 9.3-2.5 12.8 0"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-kanban" viewBox="0 0 24 24"><path d="M6 5v11M12 5v6M18 5v14"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></symbol>
+  <symbol id="i-tablet" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11 4l1.7 4.8L17.5 10.5 12.7 12.2 11 17l-1.7-4.8L4.5 10.5 9.3 8.8Z"/><path d="M19 3v4M17 5h4M18 16v4M16 18h4"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-max" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></symbol>
+  <symbol id="i-filterx" viewBox="0 0 24 24"><path d="M13 13v8l-4-2v-6L3 4h12M17 4l5 5M22 4l-5 5"/></symbol>
+  <symbol id="i-status" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/></symbol>
+  <symbol id="i-updown" viewBox="0 0 24 24"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-bug" viewBox="0 0 24 24"><path d="M8 2l1.9 1.9M14.1 3.9 16 2M9 7.1v-1a3 3 0 1 1 6 0v1M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6zM12 20v-9M6.5 9C4.6 8.8 3 7.1 3 5M6 13H2M3 21c0-2.1 1.7-3.9 3.8-4M21 5c0 2.1-1.6 3.8-3.5 4M22 13h-4M17.2 17c2.1.1 3.8 1.9 3.8 4"/></symbol>
+  <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="4" width="6" height="6" rx="1"/><rect x="3" y="14" width="6" height="6" rx="1"/><path d="M13 6h8M13 9h5M13 16h8M13 19h5"/></symbol>
+  <symbol id="i-split" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></symbol>
+</svg>
+
+<div class="app" id="app">
+  <aside class="side" id="side">
+    <div class="logo">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd84a"/><stop offset="1" stop-color="#f59f00"/></linearGradient></defs>
+        <circle cx="20" cy="20" r="17" fill="none" stroke="#fff" stroke-width="3"/>
+        <circle cx="20" cy="20" r="13" fill="url(#lg)"/>
+        <rect x="12" y="20" width="3.4" height="8" rx="1" fill="#1f2632"/>
+        <rect x="17.3" y="15" width="3.4" height="13" rx="1" fill="#1f2632"/>
+        <rect x="22.6" y="11" width="3.4" height="17" rx="1" fill="#1f2632"/>
+        <path d="M27 8l4 -3" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span>Softflow</span>
+    </div>
+    <nav class="nav">
+      <a href="#"><svg class="i"><use href="#i-code"/></svg>Painel do desenvolvedor</a>
+      <a href="#"><svg class="i"><use href="#i-eye"/></svg>Painel Minha Visão</a>
+      <a href="#"><svg class="i"><use href="#i-chart"/></svg>Indicadores</a>
+      <div class="sec">Gerenciar</div>
+      <a href="#"><svg class="i"><use href="#i-bell"/></svg>Avisos</a>
+      <a href="#"><svg class="i"><use href="#i-file"/></svg>Casos</a>
+      <a href="#"><svg class="i"><use href="#i-folder"/></svg>Projetos</a>
+      <a href="#"><svg class="i"><use href="#i-box"/></svg>Produtos</a>
+      <a href="#" class="on" aria-current="page"><svg class="i"><use href="#i-flag"/></svg>Reports</a>
+      <a href="#"><svg class="i"><use href="#i-building"/></svg>Clientes</a>
+      <a href="#"><svg class="i"><use href="#i-release"/></svg>Liberações</a>
+      <a href="#"><svg class="i"><use href="#i-bulb"/></svg>Melhorias</a>
+      <a href="#"><svg class="i"><use href="#i-clock"/></svg>Auditoria de horas</a>
+      <a href="#"><svg class="i"><use href="#i-kanban"/></svg>Kanban Adquirentes</a>
+      <a href="#"><svg class="i"><use href="#i-doc"/></svg>Documentação</a>
+      <div class="sec">Recursos estratégicos</div>
+      <a href="#"><svg class="i"><use href="#i-tablet"/></svg>Cadastros Smart<svg class="i chev"><use href="#i-chev"/></svg></a>
+      <a href="#" style="margin-top:6px"><svg class="i"><use href="#i-gear"/></svg>Configurações<svg class="i chev"><use href="#i-chev"/></svg></a>
+    </nav>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="main">
+    <header class="top">
+      <button class="iconbtn" id="menuBtn" aria-label="Menu"><svg class="i"><use href="#i-menu"/></svg></button>
+      <button class="btn-y"><svg class="i"><use href="#i-plus"/></svg><span>Adicionar Caso</span></button>
+      <button class="btn-y"><svg class="i"><use href="#i-plus"/></svg><span>Adicionar Report</span></button>
+      <div class="vdiv"></div>
+      <label class="search"><input id="q" placeholder="Pesquisar caso"><span class="kbd">Ctrl+K</span><svg class="i"><use href="#i-search"/></svg></label>
+      <div class="right">
+        <button class="iconbtn" aria-label="Notificações"><svg class="i"><use href="#i-bell"/></svg><span class="badge">5</span></button>
+        <button class="iconbtn opt" aria-label="Abrir em nova janela"><svg class="i"><use href="#i-ext"/></svg></button>
+        <button class="iconbtn" id="themeBtn" aria-label="Alternar tema"><svg class="i"><use id="themeIcon" href="#i-moon"/></svg></button>
+        <button class="iconbtn opt" aria-label="Tela cheia"><svg class="i"><use href="#i-max"/></svg></button>
+        <div class="user"><div class="avatar"><svg class="i"><use href="#i-user"/></svg></div><span>Mendonça</span><svg class="i chev" style="width:14px;height:14px"><use href="#i-chev"/></svg></div>
+      </div>
+    </header>
+
+    <main class="page">
+
+      <div class="ph">
+        <div><h1>Reports</h1><p>Visualize e analise os reports abertos</p></div>
+        <button class="btn" id="clearAll"><svg class="i"><use href="#i-filterx"/></svg>Limpar filtros</button>
+      </div>
+
+      <section class="panel fpanel" id="fpanel">
+        <div class="panel-h">
+          <button class="ftoggle" id="fToggle" aria-expanded="true" aria-controls="filtersBody"><svg class="i"><use href="#i-filter"/></svg>Filtros<span class="fcount num" id="fCount" hidden></span><svg class="i fchev"><use href="#i-chev"/></svg></button>
+          <button class="clearmini" id="clearMini" hidden>Limpar</button>
+        </div>
+        <div id="filtersBody">
+        <div class="filters">
+          <div class="f"><label>Setor</label><div class="field"><span class="v">SQUAD XP</span><span class="ico"><svg class="i" style="width:14px;height:14px"><use href="#i-updown"/></svg><svg class="i" style="width:14px;height:14px"><use href="#i-x"/></svg></span></div></div>
+          <div class="f"><label><svg class="i" style="width:14px;height:14px"><use href="#i-status"/></svg>Status <small>(máx. 5)</small></label><div class="field tags"><span class="tag">Aberto<button aria-label="Remover Aberto">×</button></span><span class="ph2" style="font-size:13px">Buscar status...</span></div></div>
+          <div class="f"><label id="lCat">Categoria</label><div class="tg" id="catChips" role="group" aria-labelledby="lCat"></div></div>
+          <div class="f"><button class="btn btn-dark" id="filterBtn" style="width:100%;justify-content:center;height:36px"><svg class="i"><use href="#i-search"/></svg>Filtrar</button></div>
+          <div class="f span2"><label id="lSev">Criticidade <span class="hint">· pode marcar mais de uma</span></label><div class="tg" id="sevChips" role="group" aria-labelledby="lSev"></div></div>
+          <div class="f span2"><label id="lPrazo">Prazo</label><div class="tg" id="prazoChips" role="group" aria-labelledby="lPrazo"></div></div>
+        </div>
+        </div>
+        <div class="prodwrap">
+          <div class="prodhead">
+            <span class="plbl">Produto</span><span class="sub" id="prodSub"></span>
+            <label class="psearch" id="psearchWrap" hidden><svg class="i" style="width:14px;height:14px"><use href="#i-search"/></svg><input id="psearch" placeholder="Buscar produto"></label>
+          </div>
+          <div class="prods" id="prods"></div>
+        </div>
+      </section>
+
+      <div class="bar">
+        <div class="seg" id="viewSeg">
+          <button data-view="compacta" aria-pressed="true"><svg class="i"><use href="#i-cards"/></svg>Lista</button>
+          <button data-view="lista" aria-pressed="false"><svg class="i"><use href="#i-split"/></svg>Lista + detalhe</button>
+        </div>
+        <span class="sortlbl">Ordenar por</span>
+        <div class="seg sort" id="sortSeg">
+          <button data-sort="prazo" aria-pressed="true">Prazo</button>
+          <button data-sort="sev" aria-pressed="false">Criticidade</button>
+          <button data-sort="abertura" aria-pressed="false">Mais antigos</button>
+        </div>
+        <div class="prog"><span id="countLabel"></span><span class="track"><i id="progBar"></i></span><span id="pct" class="num"></span></div>
+      </div>
+
+      <div id="list"></div>
+    </main>
+  </div>
+</div>
+<div class="mback" id="mback" hidden><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"></div></div>
+<div class="fab-scrim" id="fabScrim" hidden></div>
+<div class="fab" id="fab">
+  <div class="fab-menu" id="fabMenu" role="menu" aria-label="O que deseja adicionar?" hidden>
+    <p>O que deseja adicionar?</p>
+    <button class="fab-opt" role="menuitem" data-new="report"><span class="fi"><svg class="i"><use href="#i-flag"/></svg></span>Novo report</button>
+    <button class="fab-opt" role="menuitem" data-new="caso"><span class="fi"><svg class="i"><use href="#i-file"/></svg></span>Novo caso</button>
+  </div>
+  <button class="fab-btn" id="fabBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="fabMenu" aria-label="Adicionar caso ou report"><svg class="i"><use href="#i-plus"/></svg></button>
+</div>
+<div class="toast" id="toast" hidden><span id="toastMsg"></span><button id="toastUndo">Desfazer</button></div>
+
+<script>
+const NOW = new Date(2026, 9, 12, 9, 0);
+const MOBILE = matchMedia("(max-width:640px)");
+const DAY = 864e5;
+const SEV = {
+  critico:{label:"Crítico", rank:0, c:"var(--crit)", s:"var(--crit-soft)", l:"var(--crit-line)"},
+  alto:{label:"Alto", rank:1, c:"var(--alto)", s:"var(--alto-soft)", l:"var(--alto-line)"},
+  medio:{label:"Médio", rank:2, c:"var(--medio)", s:"var(--medio-soft)", l:"var(--medio-line)"},
+  baixo:{label:"Baixo", rank:3, c:"var(--baixo)", s:"var(--baixo-soft)", l:"var(--baixo-line)"}
+};
+const PRAZO = {
+  vencido:{label:"Vencidos", c:"var(--crit)", s:"var(--crit-soft)", l:"var(--crit-line)"},
+  urgente:{label:"Vence em até 2 dias", short:"Até 2 dias", c:"var(--alto)", s:"var(--medio-soft)", l:"var(--medio-line)"},
+  noprazo:{label:"No prazo", c:"var(--ink-3)", s:"var(--surface-2)", l:"var(--border-2)"}
+};
+// Filtro de prazo tem só dois estados; os 3 grupos acima servem para a ordenação
+const PRAZO_F = {
+  vencido:{label:"Vencidos", c:"var(--crit)", s:"var(--crit-soft)", l:"var(--crit-line)"},
+  noprazo:{label:"Não vencidos", c:"var(--ink-3)", s:"var(--surface-2)", l:"var(--border-2)"}
+};
+const CAT = {
+  Bug:{c:"var(--bug)", s:"var(--bug-soft)", l:"var(--border-2)", icon:"bug"},
+  Melhoria:{c:"var(--baixo)", s:"var(--baixo-soft)", l:"var(--baixo-line)", icon:"bulb"}
+};
+const prazoF = r => prazoOf(r).b==="vencido" ? "vencido" : "noprazo";
+const d = (dd,mm,h=0,mi=0) => new Date(2026, mm-1, dd, h, mi);
+
+const REAIS = [
+ {id:101395, sev:"critico", tipo:"Bug", prod:"Smart (Softcom Smart)", relator:"Yuri", resp:"Celso", aber:d(7,10,14,40), prazo:d(8,10,0,0),
+  t:"Smart > Configurações > Emissão Fiscal: Ao atualizar informações na retaguarda e sincronizar com a Smart 8.0 - Stone, as configurações de emissão fiscal são perdidas.",
+  desc:"1 - Na retaguarda, atualizar as informações da Smart 8.0 - Stone.\n2 - Sincronizar as informações atualizadas com a Smart.\n3 - Após a sincronização:\n3.1 - O aplicativo perde as configurações de emissão fiscal.\n3.2 - A rotina e o comportamento foram demonstrados pelo técnico Joadson no vídeo anexado na pasta do cliente.\n\n**Passos a reproduzir:**\n1- Atualizar as informações da Smart na retaguarda.\n2- Sincronizar a Smart 8.0 - Stone.\n3- Acessar as configurações de emissão fiscal no aplicativo.\n4- Verificar que as configurações foram perdidas.\n\n**Evidências:**\nCaminho: \\\\goku\\clientes$\\SOFTCOM\\2026\\10\\10\\CUIABA\n[Vídeo] Anexado na pasta do cliente."},
+ {id:101528, sev:"alto", tipo:"Bug", prod:"Smart (Softcom Smart)", relator:"Wendell", resp:"Celso", aber:d(9,10,11,27), prazo:d(13,10,23,59),
+  t:"GPOS 8.0 – Erro “null tband” ao finalizar venda com forma de pagamento POS integrada ao SoftShop",
+  desc:"**Descrição do problema**\nNa versão 8.0 do GPOS, integrado ao SoftShop, ao finalizar uma venda utilizando a forma de pagamento **POS**, o sistema apresenta a mensagem de erro “null tband”, impedindo ou comprometendo a conclusão do processo de venda.\n\n**Testes realizados**\n- Realizada simulação utilizando o GPOS da Softcom, reproduzindo o mesmo erro.\n- Coletados os dados do sistema para análise técnica.\n\n**Evidências e arquivos para análise**\n- Print do erro: https://rubot-files.softcom.services/ShareX/2026/10/5ktI6oFjP0.png\n- Backup do sistema: https://rubot-files.softcom.services/ShareX/2026/10/BackUtilsoftcom_1539.rar\n- Vídeo com o procedimento de reprodução: https://rubot-files.softcom.services/ShareX/2026/10/smart.mp4\n\n**Solicitação**\nSolicitamos a análise técnica do comportamento apresentado, com o objetivo de identificar a causa da mensagem “null tband” durante a finalização da venda com a forma de pagamento POS e verificar a necessidade de correção no GPOS 8.0 ou na integração com o SoftShop."},
+ {id:101469, sev:"alto", tipo:"Bug", prod:"Vendas 360", relator:"Oliveira", resp:"Celso", aber:d(8,10,11,54), prazo:d(9,10,23,59),
+  t:"Vendas 360 > Clientes > Endereço: Endereço dos clientes migrados para o sistema web não é exibido no Portal Vendas 360.",
+  desc:"1 - Após a migração do cliente para o sistema web, o endereço não é apresentado no Portal Vendas 360.\n1.1 - O endereço passa a ser exibido somente após salvar o cadastro do cliente no sistema do cliente, sincronizar com o Portal Vendas 360 e recarregar a página.\n1.2 - Sistema do cliente: https://lagolublagoagrande.meusoftcom.com.br/acesso-rapido\n2 - Exemplo de cliente:\n2.1 - AGRICIO & MONTRELLATO FILTROS E LUBRIFICANTES LTDA.\n2.2 - Código: 4348.\n\n**Passos a reproduzir:**\n1- Acessar o sistema do cliente.\n2- Acessar Vendas e NFe > Clientes.\n3- Localizar o cliente 4348.\n4- Salvar o cadastro do cliente.\n5- Acessar Compras e Estoque > Produtos > Produto > Exportar Produtos > Exportar Dados.\n6- Executar Sincronizar Portal 360.\n7- Acessar o Portal Vendas 360.\n8- Acessar Vendas 360 > Clientes > Endereço.\n9- Recarregar a página.\n10- Verificar que o endereço passa a ser exibido.\n\n**Evidências:**\n[Portal Vendas 360] https://vendas360.cloud/c\n[Vídeo] https://rubot-files.softcom.services/ShareX/2026/10/chrome_iyzA2NuXDj.mp4\n[Print] https://rubot-files.softcom.services/ShareX/2026/10/kcfUtZnlMT.png"},
+ {id:101386, sev:"alto", tipo:"Bug", prod:"Vendas 360", relator:"Pedro Miguel", resp:"Celso", aber:d(7,10,13,12), prazo:d(9,10,23,59),
+  t:"Vendas360 > Sincronização > Clientes e Estoque: Sincronização automática apresenta erros e impede a atualização de alguns clientes e estoques de produtos.",
+  desc:"1 - Testado na versão mais recente do SelfHost.\n2 - A sincronização automática do SelfHost está ativa, porém apresenta erros durante a atualização de algumas informações.\n3 - Ao executar a etapa “Atualizando clientes”, é apresentado erro HTTP 400.\n4 - Ao executar a etapa “Atualizando estoque”, é apresentado erro HTTP 0.\n5 - Na etapa “Criando clientes”, são apresentados erros informando que alguns clientes já existem.\n6 - Como consequência, alguns clientes e o estoque de produtos não são atualizados corretamente.\n\n**Evidências:**\n[Print] Erro HTTP 400: https://rubot-files.softcom.services/ShareX/2026/10/y1vkWK4jEB.png\n[Print] Erro HTTP 0: https://rubot-files.softcom.services/ShareX/2026/10/YJ2QX83jZe.png\n[Print] Clientes já existentes: https://rubot-files.softcom.services/ShareX/2026/10/VbkdIAevdK.png\n[Arquivo] Sistema coletado: https://rubot-files.softcom.services/ShareX/2026/10/GLOBALMIX_07102026_1257.zip"},
+ {id:101471, sev:"medio", tipo:"Bug", prod:"Smart (Softcom Smart)", relator:"Gustavo", resp:"Celso", aber:d(8,10,12,33), prazo:d(15,10,23,59),
+  t:"Smart > Pendentes de envio ao retaguarda: Sincronização de pedidos pendentes apresenta o erro \"Unprocessable Entity\".",
+  desc:"1 - Pedidos pendentes de envio ao retaguarda apresentam erro ao realizar a sincronização.\n1.1 - Mensagem apresentada: \"Unprocessable Entity\".\n\n**Passos a reproduzir:**\n1- Realizar login.\n2- Acessar Smart > Pedidos > Pendentes de envio ao retaguarda.\n3- Sincronizar os pedidos pendentes.\n4- Verificar o erro apresentado.\n\n**Evidências:**\nhttps://rubot-files.softcom.services/ShareX/2026/10/Discord_Zi38Ib93QP.png"},
+ {id:101283, sev:"medio", tipo:"Bug", prod:"Smart (Softcom Smart)", relator:"Matheus", resp:"Celso", aber:d(5,10,16,52), prazo:d(13,10,23,59),
+  t:"Smart > PDV > Novo Pedido > Finalizar Venda: NFC-e apresenta a rejeição 972 ao finalizar venda, e pedidos do Softshop não são carregados na Smart.",
+  desc:"1 - Cliente Malharia Santa Maria - Pocinhos, código 50599, utiliza a maquineta Smart no módulo PDV.\n1.1 - Ao finalizar a venda e emitir a NFC-e, o sistema apresenta a rejeição:\n1.2 - \"Rejeição 972: Obrigatório informações do responsável técnico.\"\n1.3 - Realizada reconfiguração da Smart, restaurando a configuração do zero, sem sucesso.\n1.4 - Dispositivo recriado e Selfhost atualizado, porém a rejeição permanece.\n2 - Cliente também informa que os pedidos realizados pelo Softshop não são carregados na Smart.\n2.1 - Sistema coletado e disponibilizado para análise no link informado.\n\n**Evidências:**\nPrint: https://prnt.sc/U8j1aeIHVa1K\nArquivo: https://www.transfernow.net/dl/20261005fAD8ceyG/edyWolCA"}
+];
+
+const MC = [
+ {ex:1,id:101540, sev:"critico", prod:"Meu Carrinho Delivery", relator:"Ana", aber:d(10,10,9,10), prazo:d(11,10,23,59), t:"Meu Carrinho > Pedidos: Pedidos pagos via Pix ficam como “Aguardando pagamento” no painel da loja."},
+ {ex:1,id:101541, sev:"alto", prod:"Meu Carrinho Delivery", relator:"Bruno", aber:d(10,10,15,2), prazo:d(12,10,23,59), t:"Meu Carrinho > Cardápio: Adicionais obrigatórios não são validados no app do cliente."},
+ {ex:1,id:101552, sev:"medio", tipo:"Melhoria", prod:"Meu Carrinho Delivery", relator:"Ana", aber:d(11,10,8,40), prazo:d(16,10,23,59), t:"Meu Carrinho > Entrega: Taxa por bairro não é recalculada ao trocar o endereço no checkout."}
+];
+
+// Gera reports fictícios para o cenário com muitos produtos
+function muitos(){
+  const prods = [["Meu Carrinho Delivery",7],["BackupCloud",3],["E-Docs API",4],["SoftShop",2],["GPOS",5],["Softcom PDV",1],["Retaguarda Web",6],["App Força de Vendas",2],["Hub de Pagamentos",1],["Softcom Fiscal",3],["Portal do Contador",1],["TEF Integrado",2],["Cardápio Digital",1]];
+  const areas = ["Pedidos","Sincronização","Emissão NF-e","Cadastro de clientes","Relatórios","Integração","Login","Estoque"];
+  const probs = ["Tela trava ao salvar registro com campos opcionais vazios.","Erro 500 intermitente na consulta.","Valores divergentes após a sincronização.","Filtro por data ignora o fuso do cliente.","Mensagem genérica sem indicar o campo inválido.","Lentidão acima de 30s com mais de 5 mil registros."];
+  const sevs = ["critico","alto","alto","medio","medio","medio","baixo"];
+  const rel = ["Ana","Bruno","Caio","Diego","Fernanda","Lara","Rafael"];
+  let id = 101600, k = 0, out = [];
+  prods.forEach(([p,n])=>{ for(let i=0;i<n;i++){ k++;
+    const prazoDia = 7 + (k*3)%12;
+    out.push({ex:1, id:id++, sev:sevs[k%sevs.length], tipo:k%4===0?"Melhoria":"Bug", prod:p, relator:rel[k%rel.length], aber:d(Math.max(1,prazoDia-5),10,9+(k%8),(k*7)%60), prazo:d(prazoDia,10,23,59),
+      t:`${p} > ${areas[k%areas.length]}: ${probs[k%probs.length]}`});
+  }});
+  return REAIS.concat(out);
+}
+const fill = r => Object.assign({tipo:"Bug", resp:"Celso", desc:"Report fictício, gerado apenas para simular o retorno da API no protótipo."}, r);
+const SCEN = { reais:()=>REAIS, um:()=>MC, muitos };
+
+const state = {prod:new Set(), sev:new Set(), prazo:"", cat:"", sort:"prazo", view:"compacta", expanded:new Set(), sel:null, action:{}, showAll:false, pq:"", loaded:false, loading:false};
+let items = [], lastRemoved = null;
+
+const pad = n => String(n).padStart(2,"0");
+const fmt = dt => `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+function prazoOf(r){
+  const diff = r.prazo - NOW;
+  if (diff < 0) { const n = Math.floor(-diff/DAY); return {b:"vencido", txt: n ? `Vencido há ${n}d` : "Venceu hoje"}; }
+  const n = Math.floor(diff/DAY);
+  return {b: n <= 2 ? "urgente" : "noprazo", txt: n ? `Vence em ${n}d` : "Vence hoje"};
+}
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const rich = s => esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
+const ic = (n,st="") => `<svg class="i" ${st?`style="${st}"`:""}><use href="#i-${n}"/></svg>`;
+const match = (r, skip) =>
+  (skip==="prod" || !state.prod.size || state.prod.has(r.prod)) &&
+  (skip==="sev" || !state.sev.size || state.sev.has(r.sev)) &&
+  (skip==="prazo" || !state.prazo || state.prazo===prazoF(r)) &&
+  (skip==="cat" || !state.cat || state.cat===r.tipo);
+
+function loadScenario(k){
+  items = SCEN[k]().map(fill);
+  state.prod.clear(); state.sev.clear(); state.prazo = ""; state.cat = ""; state.action = {}; state.expanded.clear(); state.showAll = false; state.pq = "";
+  document.getElementById("psearch").value = "";
+  state.sel = null;
+  if (items[0]) state.expanded.add(items[0].id);
+  render();
+}
+
+const COLLAPSED = 8;
+function renderProducts(){
+  if (!state.loaded) {
+    document.getElementById("prodSub").textContent = "";
+    document.getElementById("psearchWrap").hidden = true;
+    document.getElementById("prods").innerHTML = `<span class="empty-p">${state.loading ? "Carregando produtos..." : "Os produtos com reports aparecem aqui depois de filtrar."}</span>`;
+    return;
+  }
+  const base = items.filter(r=>match(r,"prod"));
+  const m = new Map();
+  base.forEach(r=>{ const o = m.get(r.prod) || {n:0,v:0}; o.n++; if(prazoOf(r).b==="vencido") o.v++; m.set(r.prod,o); });
+  state.prod.forEach(p=>{ if(!m.has(p)) m.set(p,{n:0,v:0}); });   // selecionado continua visível para poder desmarcar
+  let list = [...m].map(([p,o])=>({p,...o})).sort((a,b)=> b.n-a.n || a.p.localeCompare(b.p));
+  const total = list.length;
+  document.getElementById("prodSub").textContent = total ? `· ${total} ${total>1?"produtos":"produto"} com reports` : "";
+  const many = total > 10;
+  document.getElementById("psearchWrap").hidden = !many;
+  if (many && state.pq) list = list.filter(x=>x.p.toLowerCase().includes(state.pq.toLowerCase()) || state.prod.has(x.p));
+  let shown = list, hiddenCount = 0;
+  if (many && !state.showAll && !state.pq) {
+    shown = list.slice(0, COLLAPSED);
+    list.slice(COLLAPSED).forEach(x=>{ if(state.prod.has(x.p)) shown.push(x); });
+    hiddenCount = list.length - shown.length;
+  }
+  const el = document.getElementById("prods");
+  if (!total) { el.innerHTML = '<span class="empty-p">Nenhum report aberto com os filtros atuais.</span>'; return; }
+  el.innerHTML = shown.map(x=>`<button class="pchip ${x.n?"":"zero"}" data-prod="${esc(x.p)}" aria-pressed="${state.prod.has(x.p)}" title="${esc(x.p)}">
+      ${ic("check","width:14px;height:14px").replace('class="i"','class="i ck"')}<span class="nm">${esc(x.p)}</span>${x.v?`<span class="vc">${x.v} venc.</span>`:""}<span class="ct num">${x.n}</span></button>`).join("")
+    + (hiddenCount ? `<button class="more" data-more="1">+${hiddenCount} produtos</button>` : "")
+    + (many && state.showAll && !state.pq ? `<button class="more" data-more="0">Mostrar menos</button>` : "")
+    + (many && state.pq && !list.length ? '<span class="empty-p">Nenhum produto encontrado.</span>' : "");
+}
+
+function renderChips(){
+  // Mesmo chip dos produtos: amarelo + check quando marcado; desmarcar = sem filtro
+  const CK = ic("check","width:14px;height:14px").replace('class="i"','class="i ck"');
+  const chip = (attr, on, mark, label, count) =>
+    `<button class="pchip ${count || !state.loaded?"":"zero"}" ${attr} aria-pressed="${on}">${CK}${mark}<span class="nm">${label}</span>${state.loaded?`<span class="ct num">${count}</span>`:""}</button>`;
+  const dot = c => `<span class="dot" style="background:${c}"></span>`;
+  const sb = items.filter(r=>match(r,"sev"));
+  document.getElementById("sevChips").innerHTML = Object.entries(SEV).map(([k,v])=>
+    chip(`data-sev="${k}"`, state.sev.has(k), dot(v.c), v.label, sb.filter(r=>r.sev===k).length)).join("");
+  const pb = items.filter(r=>match(r,"prazo"));
+  document.getElementById("prazoChips").innerHTML = Object.entries(PRAZO_F).map(([k,v])=>
+    chip(`data-prazo="${k}"`, state.prazo===k, dot(v.c), v.label, pb.filter(r=>prazoF(r)===k).length)).join("");
+  const cb = items.filter(r=>match(r,"cat"));
+  document.getElementById("catChips").innerHTML = Object.entries(CAT).map(([k,v])=>
+    chip(`data-cat="${k}"`, state.cat===k, ic(v.icon,"color:"+v.c).replace('class="i"','class="i ci"'), k, cb.filter(r=>r.tipo===k).length)).join("");
+  document.querySelectorAll("#sortSeg button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.sort===state.sort));
+  document.querySelectorAll("#viewSeg button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.view===state.view));
+}
+
+function dueHTML(r){
+  const pz = prazoOf(r), cls = {vencido:"d-venc",urgente:"d-urg",noprazo:"d-ok"}[pz.b];
+  return `<span class="dueb ${cls}">${ic("clock")}${pz.txt}</span>`;
+}
+function pillsHTML(r){
+  const s = SEV[r.sev];
+  return `<span class="idp num">#${r.id}</span><span class="pill p-sev">${s.label}</span><span class="pill ${r.tipo==="Melhoria"?"p-mel":"p-bug"}">${ic(CAT[r.tipo].icon)}${r.tipo}</span><span class="pill p-st">Aberto</span>${r.ex?'<span class="pill p-ex">fictício</span>':""}`;
+}
+function actionsHTML(r){
+  const act = state.action[r.id];
+  if (act==="suspender") return `<div class="confirm"><label class="cf">Motivo da suspensão<textarea id="sus-${r.id}" placeholder="Ex.: comportamento esperado do sistema"></textarea></label>
+      <button class="btn btn-sus" data-do="suspender" data-id="${r.id}">${ic("x")}Suspender report</button><button class="btn" data-cancel="${r.id}">Cancelar</button></div>`;
+  return `<div class="acts">
+      <button class="btn btn-ok" data-act="aprovar" data-id="${r.id}">${ic("check")}Aprovar</button>
+      <button class="btn btn-warn" data-act="incompleto" data-id="${r.id}">${ic("warn")}<span class="hm">Marcar </span>Incompleto</button>
+      <button class="btn btn-sus" data-act="suspender" data-id="${r.id}">${ic("x")}Suspender</button>
+      <span class="sp"></span>
+      <button class="btn">${ic("ext")}Ver caso completo</button></div>`;
+}
+function cardHTML(r, full){
+  const s = SEV[r.sev], exp = full || state.expanded.has(r.id);
+  const long = r.desc.length > 220;
+  return `<article class="card" style="--sev:${s.c};--sevsoft:${s.s};--sevline:${s.l}">
+    <div class="ch"><div class="pills">${pillsHTML(r)}</div><div class="due">${dueHTML(r)}<small class="num">${fmt(r.prazo)}</small></div></div>
+    <h2 class="ctitle">${esc(r.t)}</h2>
+    <div class="cd ${exp?"":"clamp"}">${rich(r.desc)}</div>
+    ${long && !full ? `<button class="vm" data-exp="${r.id}">${exp?"Ver menos":"Ver mais"}${ic("chev", exp?"transform:rotate(180deg)":"")}</button>` : ""}
+    <div class="facts">
+      <div class="fact">Produto<b>${ic("box")}${esc(r.prod)}</b></div>
+      <div class="fact">Relator<b>${esc(r.relator)}</b></div>
+      <div class="fact">Responsável<b>${esc(r.resp)}</b></div>
+      <div class="fact">Data de Abertura<b class="num">${fmt(r.aber)}</b></div>
+    </div>
+    ${actionsHTML(r)}
+  </article>`;
+}
+function rowHTML(r){
+  const s = SEV[r.sev], open = state.expanded.has(r.id);
+  return `<div class="row ${open?"open":""}" style="--sev:${s.c};--sevsoft:${s.s};--sevline:${s.l}">
+    <button class="rowmain" data-exp="${r.id}" aria-expanded="${open}">
+      <div class="rprazo">${dueHTML(r)}<small class="num">${fmt(r.prazo)}</small></div>
+      <div class="rtitle"><div class="pills">${pillsHTML(r)}</div><span class="t">${esc(r.t)}</span></div>
+      <div class="rcell">Produto<b>${esc(r.prod)}</b></div>
+      <div class="rcell">Relator<b>${esc(r.relator)}</b></div>
+      <svg class="i rchev"><use href="#i-chev"/></svg>
+    </button>
+    ${open ? `<div class="rdetail">
+      <div class="facts">
+        <div class="fact">Produto<b>${ic("box")}${esc(r.prod)}</b></div>
+        <div class="fact">Relator<b>${esc(r.relator)}</b></div>
+        <div class="fact">Responsável<b>${esc(r.resp)}</b></div>
+        <div class="fact">Data de Abertura<b class="num">${fmt(r.aber)}</b></div>
+      </div>
+      <div class="cd">${rich(r.desc)}</div>
+      ${actionsHTML(r)}
+    </div>` : ""}
+  </div>`;
+}
+function lrowHTML(r){
+  const s = SEV[r.sev];
+  return `<button class="lrow" data-sel="${r.id}" aria-current="${state.sel===r.id}" style="--sev:${s.c};--sevsoft:${s.s};--sevline:${s.l}">
+    <div class="l1"><div class="pills"><span class="idp num">#${r.id}</span><span class="pill p-sev">${s.label}</span></div>${dueHTML(r)}</div>
+    <span class="t">${esc(r.t)}</span>
+    <span class="l3">${esc(r.prod)} · ${esc(r.relator)}</span>
+  </button>`;
+}
+
+function groupsOf(rs){
+  const byPrazo = (a,b)=> a.prazo-b.prazo || SEV[a.sev].rank-SEV[b.sev].rank;
+  const bySev = (a,b)=> SEV[a.sev].rank-SEV[b.sev].rank || a.prazo-b.prazo;
+  let g;
+  if (state.sort==="prazo") g = Object.entries(PRAZO).map(([k,v])=>({label:v.label, c:v.c, rs:rs.filter(r=>prazoOf(r).b===k).sort(bySev)}));
+  else if (state.sort==="sev") g = Object.entries(SEV).map(([k,v])=>({label:v.label, c:v.c, rs:rs.filter(r=>r.sev===k).sort(byPrazo)}));
+  else g = [{label:"Mais antigos primeiro", c:"var(--ink-3)", rs:rs.slice().sort((a,b)=>a.aber-b.aber)}];
+  return g.filter(x=>x.rs.length);
+}
+const gh = g => `<h3 class="gh"><span class="gd" style="background:${g.c}"></span>${g.label}<span class="gn num">${g.rs.length}</span></h3>`;
+
+function renderList(){
+  const el = document.getElementById("list");
+  document.querySelector(".prog .track").hidden = document.getElementById("pct").hidden = !state.loaded;
+  if (state.loading) {
+    document.getElementById("countLabel").textContent = "Buscando reports...";
+    el.innerHTML = `<div class="rows sk" aria-busy="true">${'<div class="skrow"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>'.repeat(4)}</div>`;
+    return;
+  }
+  if (!state.loaded) {
+    document.getElementById("countLabel").textContent = "Nenhum report carregado";
+    el.innerHTML = `<div class="start">
+      <div class="start-ico">${ic("search")}</div>
+      <h2>Nenhum report encontrado</h2>
+      <p>Ajuste os filtros ou não há reports abertos no momento.</p>
+      <button class="btn btn-dark" data-load="1">${ic("search")}Filtrar</button>
+    </div>`;
+    return;
+  }
+  const rs = items.filter(r=>match(r));
+  const pct = items.length ? Math.round(rs.length/items.length*100) : 0;
+  document.getElementById("countLabel").textContent = `Exibindo ${rs.length} de ${items.length} reports`;
+  document.getElementById("progBar").style.width = pct + "%";
+  document.getElementById("pct").textContent = pct + "%";
+  if (!rs.length) { el.innerHTML = `<div class="start"><div class="start-ico">${ic("search")}</div><h2>Nenhum report encontrado</h2><p>Ajuste os filtros ou não há reports abertos no momento.</p></div>`; return; }
+  const groups = groupsOf(rs);
+  if (state.view==="compacta" || MOBILE.matches) {
+    el.innerHTML = `<div class="groups">${groups.map(g=>`<section>${gh(g)}<div class="rows">${g.rs.map(rowHTML).join("")}</div></section>`).join("")}</div>`;
+  } else {
+    const ordered = groups.flatMap(g=>g.rs);
+    if (!ordered.some(r=>r.id===state.sel)) state.sel = ordered[0].id;
+    const sel = ordered.find(r=>r.id===state.sel);
+    el.innerHTML = `<div class="split"><div class="lrows">${groups.map(g=>`<section class="lgroup">${gh(g)}<div class="rows">${g.rs.map(lrowHTML).join("")}</div></section>`).join("")}</div>
+      <div class="detailpane">${cardHTML(sel, true)}</div></div>`;
+  }
+}
+
+// Contador de filtros ativos no cabeçalho do painel (produtos ficam visíveis fora do acordeão)
+function renderFilterCount(){
+  const n = state.sev.size + (state.prazo?1:0) + (state.cat?1:0);
+  const c = document.getElementById("fCount");
+  c.hidden = !n; c.textContent = n;
+  document.getElementById("clearMini").hidden = !(n || state.prod.size);
+}
+// Simula a chamada à API ao clicar em Filtrar
+function loadReports(){
+  if (state.loading) return;
+  state.loading = true; render();
+  const btn = document.getElementById("filterBtn"); btn.disabled = true;
+  setTimeout(()=>{
+    state.loading = false; state.loaded = true; btn.disabled = false;
+    if (MOBILE.matches) {   // no celular, fecha os filtros para mostrar a lista
+      const p = document.getElementById("fpanel"); p.classList.add("collapsed");
+      document.getElementById("fToggle").setAttribute("aria-expanded", "false");
+    }
+    render();
+  }, 700);
+}
+function render(){ renderProducts(); renderChips(); renderList(); renderFilterCount(); }
+
+function removeReport(id, msg){
+  const r = items.find(x=>x.id===id); if (!r) return;
+  lastRemoved = {r, idx: items.indexOf(r)};
+  items = items.filter(x=>x.id!==id); delete state.action[id];
+  render(); toast(msg);
+}
+
+// ===== Modais de Aprovar / Marcar como incompleto =====
+const OPT = {
+  mVersao:{label:"Versão do Produto", ph:"Selecione a versão...", req:1, opts:["8.0.14.0","8.1.0.0","8.1.1.0","8.2.0.0"]},
+  mProjeto:{label:"Projeto", ph:"Selecione o projeto...", req:1, opts:["3244 | Squad XP 2026 - 10.01","3251 | Squad XP 2026 - 10.02","3198 | Sustentação Smart"]},
+  mDev:{label:"Dev Atribuído", ph:"Selecione o dev atribuído...", req:1, opts:["Samuel","Celso","Helder","Anderson"]},
+  mModulo:{label:"Módulo", ph:"Selecione o módulo...", req:0, opts:["SMART PDV","SMART Configurações","Emissão Fiscal","Sincronização","Portal Vendas 360"]}
+};
+let modalCtx = null, lastFocus = null;
+function summaryHTML(r){
+  const s = SEV[r.sev];
+  return `<div class="mbox" style="--sev:${s.c};--sevsoft:${s.s};--sevline:${s.l}">
+    <div class="pills"><span class="idp num">#${r.id}</span><span class="pill ${r.tipo==="Melhoria"?"p-mel":"p-bug"}">${ic(CAT[r.tipo].icon)}${r.tipo}</span><span class="pill p-sev">${s.label}</span></div>
+    <div class="t">${esc(r.t)}</div></div>`;
+}
+function selHTML(id){
+  const o = OPT[id];
+  return `<div class="mf"><label for="${id}">${o.label}${o.req?' <span class="req">*</span>':""}</label>
+    <div class="sel"><select id="${id}" ${o.req?"required":""}><option value="" disabled selected hidden>${o.ph}</option>${o.opts.map(x=>`<option>${esc(x)}</option>`).join("")}</select>
+    ${ic("updown").replace('class="i"','class="i ud"')}<button type="button" class="clr" data-clr="${id}" aria-label="Limpar ${o.label}">${ic("x")}</button></div></div>`;
+}
+function openModal(kind, id){
+  const r = items.find(x=>x.id===id); if (!r) return;
+  modalCtx = {kind, id}; lastFocus = document.activeElement;
+  const m = document.getElementById("modal");
+  const head = kind==="aprovar"
+    ? `<div class="mhead"><div class="mtile ok">${ic("sparkles")}</div><div><h2 id="mTitle">Aprovar report</h2><p>Informe a versão, projeto e desenvolvedor para aprovar este report.</p></div></div>`
+    : `<div class="mhead"><div class="mtile warn">${ic("help")}</div><div><h2 id="mTitle">Marcar como incompleto</h2><p>Descreva o que falta para o Suporte complementar o report.</p></div></div>`;
+  const body = kind==="aprovar"
+    ? `<div class="mfields">${Object.keys(OPT).map(selHTML).join("")}</div>`
+    : `<div class="mf"><label class="ml caps" for="mMotivo">Motivo <span class="req">*</span></label>
+        <textarea id="mMotivo" placeholder="Descreva o motivo com detalhes suficientes para o Suporte entender o que precisa ser feito..."></textarea>
+        <div class="cnt" id="mCnt">0 caracteres</div></div>`;
+  m.innerHTML = `<button class="mclose" data-mclose="1" aria-label="Fechar">${ic("x")}</button>${head}${summaryHTML(r)}${body}
+    <div class="mfoot"><button class="btn btn-cancel" data-mclose="1">Cancelar</button>
+    <button class="btn btn-primary" id="mSubmit" disabled>${ic("check")}${kind==="aprovar"?"Aprovar report":"Marcar como incompleto"}</button></div>`;
+  document.getElementById("mback").hidden = false;
+  syncModal();
+  (m.querySelector("select,textarea")).focus();
+}
+function syncModal(){
+  if (!modalCtx) return;
+  let ok;
+  if (modalCtx.kind==="aprovar") {
+    Object.keys(OPT).forEach(id=>{ const s = document.getElementById(id); s.closest(".sel").classList.toggle("has", !!s.value); });
+    ok = Object.keys(OPT).every(id=>!OPT[id].req || document.getElementById(id).value);
+  } else {
+    const v = document.getElementById("mMotivo").value;
+    document.getElementById("mCnt").textContent = `${v.length} caractere${v.length===1?"":"s"}`;
+    ok = v.trim().length > 0;
+  }
+  document.getElementById("mSubmit").disabled = !ok;
+}
+function closeModal(){
+  document.getElementById("mback").hidden = true; modalCtx = null;
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+}
+document.getElementById("modal").addEventListener("input", syncModal);
+document.getElementById("modal").addEventListener("change", syncModal);
+document.getElementById("mback").addEventListener("mousedown", e=>{ if (e.target.id==="mback") closeModal(); });
+document.addEventListener("keydown", e=>{
+  if (!modalCtx) return;
+  if (e.key==="Escape") closeModal();
+  if (e.key==="Tab") {   // mantém o foco dentro do modal
+    const f = [...document.querySelectorAll("#modal button:not([disabled]),#modal select,#modal textarea")].filter(x=>x.offsetParent);
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement===f[0]) { e.preventDefault(); f[f.length-1].focus(); }
+    else if (!e.shiftKey && document.activeElement===f[f.length-1]) { e.preventDefault(); f[0].focus(); }
+  }
+});
+
+// Botão flutuante: pergunta se é novo report ou novo caso
+function setFab(open){
+  document.getElementById("fabBtn").setAttribute("aria-expanded", open);
+  document.getElementById("fabMenu").hidden = !open;
+  document.getElementById("fabScrim").hidden = !open;
+  if (open) document.querySelector("#fabMenu .fab-opt").focus();
+}
+document.getElementById("fabScrim").addEventListener("click", ()=>setFab(false));
+document.addEventListener("keydown", e=>{ if (e.key==="Escape" && !document.getElementById("fabMenu").hidden) { setFab(false); document.getElementById("fabBtn").focus(); }});
+
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById("toast");
+  document.getElementById("toastUndo").hidden = false;
+  document.getElementById("toastMsg").textContent = msg;
+  t.hidden = false; clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{t.hidden = true}, 5000);
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const ds = b.dataset, tog = (set,v) => set.has(v) ? set.delete(v) : set.add(v);
+  if (ds.prod) { tog(state.prod, ds.prod); render(); }
+  else if (ds.rmProd) { state.prod.delete(ds.rmProd); render(); }
+  else if (ds.more) { state.showAll = ds.more==="1"; renderProducts(); }
+  else if (ds.sev) { tog(state.sev, ds.sev); render(); }
+  else if (ds.prazo) { state.prazo = state.prazo===ds.prazo ? "" : ds.prazo; render(); }
+  else if (ds.cat) { state.cat = state.cat===ds.cat ? "" : ds.cat; render(); }
+  else if (ds.sort) { state.sort = ds.sort; render(); }
+  else if (ds.view) { state.view = ds.view; render(); }
+  else if (b.id==="filterBtn" || ds.load) { loadReports(); }
+  else if (b.id==="fToggle") { const p = document.getElementById("fpanel"); p.classList.toggle("collapsed"); b.setAttribute("aria-expanded", !p.classList.contains("collapsed")); }
+  else if (b.id==="clearAll" || b.id==="clearMini") { state.prod.clear(); state.sev.clear(); state.prazo = ""; state.cat = ""; render(); }
+  else if (ds.exp) { tog(state.expanded, +ds.exp); renderList(); }
+  else if (ds.sel) { state.sel = +ds.sel; renderList(); }
+  else if (ds.act==="aprovar" || ds.act==="incompleto") { openModal(ds.act, +ds.id); }
+  else if (ds.act) { state.action[+ds.id] = ds.act; renderList(); }
+  else if (ds.cancel) { delete state.action[+ds.cancel]; renderList(); }
+  else if (ds.do) { removeReport(+ds.id, `#${ds.id} suspenso`); }
+  else if (ds.mclose) { closeModal(); }
+  else if (ds.clr) { const s = document.getElementById(ds.clr); s.value = ""; syncModal(); s.focus(); }
+  else if (b.id==="mSubmit") {
+    const id = modalCtx.id;
+    if (modalCtx.kind==="aprovar") {
+      const v = document.getElementById("mVersao").value, dev = document.getElementById("mDev").value;
+      closeModal(); removeReport(id, `#${id} aprovado na versão ${v} para ${dev}`);
+    } else { closeModal(); removeReport(id, `#${id} devolvido para o Suporte`); }
+  }
+  else if (b.id==="fabBtn") { setFab(b.getAttribute("aria-expanded")!=="true"); }
+  else if (ds.new) { setFab(false); toast(ds.new==="report" ? "Abrindo novo report..." : "Abrindo novo caso..."); document.getElementById("toastUndo").hidden = true; }
+  else if (b.id==="toastUndo" && lastRemoved) {
+    items.splice(lastRemoved.idx, 0, lastRemoved.r); lastRemoved = null;
+    document.getElementById("toast").hidden = true; render();
+  }
+  else if (b.id==="menuBtn") {
+    const app = document.getElementById("app");
+    app.classList.toggle(window.matchMedia("(max-width:980px)").matches ? "nav-open" : "nav-hidden");
+  }
+  else if (b.id==="themeBtn") {
+    const root = document.documentElement;
+    const dark = root.dataset.theme ? root.dataset.theme==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    syncThemeIcon();
+  }
+});
+document.getElementById("scrim").addEventListener("click", ()=>document.getElementById("app").classList.remove("nav-open"));
+document.getElementById("psearch").addEventListener("input", e=>{ state.pq = e.target.value.trim(); renderProducts(); });
+document.addEventListener("keydown", e=>{ if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); document.getElementById("q").focus(); }});
+
+// No modo escuro o botão mostra o sol, como no Softflow
+function syncThemeIcon(){
+  const t = document.documentElement.dataset.theme;
+  const dark = t ? t==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.getElementById("themeIcon").setAttribute("href", dark ? "#i-sun" : "#i-moon");
+}
+new MutationObserver(syncThemeIcon).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncThemeIcon);
+syncThemeIcon();
+MOBILE.addEventListener("change", renderList);
+loadScenario("reais");
+</script>
+
+</body></html>

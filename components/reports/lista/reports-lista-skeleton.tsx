@@ -2,60 +2,44 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 
-const CARDS = 4;
+const ROWS = 4;
 
-export function ReportCardSkeleton() {
+function ReportListaRowSkeleton() {
   return (
-    <div className="relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-border-divider bg-card shadow-card">
-      <span className="absolute inset-y-0 left-0 w-1 bg-muted" aria-hidden />
-      <div className="flex flex-col gap-3 p-5 pl-6">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-5 w-16 rounded" />
-            <Skeleton className="h-6 w-20 rounded-full" />
-            <Skeleton className="h-6 w-16 rounded-full" />
-            <Skeleton className="h-6 w-28 rounded-full" />
-          </div>
-          <Skeleton className="h-6 w-24 rounded-md" />
+    <div className="flex items-center gap-4 border-t border-border-divider px-4 py-4 pl-6 first:border-t-0">
+      <Skeleton className="h-8 w-24 shrink-0" />
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex gap-2">
+          <Skeleton className="h-5 w-16 rounded-full" />
+          <Skeleton className="h-5 w-16 rounded-full" />
+          <Skeleton className="h-5 w-20 rounded-full" />
         </div>
-
-        <Skeleton className="h-5 w-3/4" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-2/3" />
-
-        <div className="grid grid-cols-2 gap-4 rounded-lg border border-border-divider bg-muted/30 p-3 sm:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex flex-col gap-1.5">
-              <Skeleton className="h-3 w-16" />
-              <Skeleton className="h-4 w-24" />
-            </div>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-3 border-t border-border-divider pt-4">
-          <Skeleton className="h-[42px] w-28 rounded-lg" />
-          <Skeleton className="h-[42px] w-40 rounded-lg" />
-          <Skeleton className="ml-auto h-[42px] w-28 rounded-lg" />
-        </div>
+        <Skeleton className="h-4 w-3/4" />
       </div>
+      <Skeleton className="hidden h-8 w-32 shrink-0 xl:block" />
+      <Skeleton className="hidden h-8 w-24 shrink-0 xl:block" />
+      <Skeleton className="size-4 shrink-0 rounded-full" />
     </div>
   );
 }
 
 export function ReportsListaNextPageSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <>
-      {Array.from({ length: count }).map((_, i) => (
-        <ReportCardSkeleton key={i} />
+    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
+      {Array.from({ length: count }).map((_, index) => (
+        <ReportListaRowSkeleton key={index} />
       ))}
-    </>
+    </div>
   );
 }
 
 export function ReportsListaSkeleton() {
   return (
-    <div className="flex flex-col gap-4">
-      <ReportsListaNextPageSkeleton count={CARDS} />
+    <div className="flex flex-col gap-6">
+      <div>
+        <Skeleton className="mb-2 h-4 w-32" />
+        <ReportsListaNextPageSkeleton count={ROWS} />
+      </div>
     </div>
   );
 }
