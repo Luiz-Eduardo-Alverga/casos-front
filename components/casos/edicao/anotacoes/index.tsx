@@ -123,7 +123,7 @@ export function AbaAnotacoes({ report, anotacoes }: AbaAnotacoesProps) {
             value={novaAnotacaoDraft}
             onChange={setNovaAnotacaoDraft}
             onSave={handleAdicionar}
-            disabled={createAnotacao.isPending || !canEditCase}
+            disabled={createAnotacao.isPending}
             onImproveWithIA={handleMelhorarComIA}
             isImproving={improveReport.isPending}
           />

@@ -20,6 +20,10 @@ interface SuccessModalProps {
   entitySingular?: string;
   /** Texto do botão para abrir outro registro. Padrão: Novo caso */
   novoRegistroButtonLabel?: string;
+  /** Destino de "Ver Detalhes". Padrão: `/casos/{numero}`. */
+  detalhesHref?: string;
+  /** Chamado ao clicar em "Ver Detalhes", antes da navegação. */
+  onVerDetalhes?: () => void;
 }
 
 export function SuccessModal({
@@ -29,6 +33,8 @@ export function SuccessModal({
   onNovoCasoClick,
   entitySingular = "Caso",
   novoRegistroButtonLabel = "Novo caso",
+  detalhesHref,
+  onVerDetalhes,
 }: SuccessModalProps) {
   const { reset } = useFormContext();
   const [copied, setCopied] = useState(false);
@@ -146,7 +152,10 @@ export function SuccessModal({
 
                 <Button
                   variant="outline"
-                  onClick={() => router.push(`/casos/${numeroCaso}`)}
+                  onClick={() => {
+                    onVerDetalhes?.();
+                    router.push(detalhesHref ?? `/casos/${numeroCaso}`);
+                  }}
                 >
                   <List className="h-4 w-4" />
                   Ver Detalhes

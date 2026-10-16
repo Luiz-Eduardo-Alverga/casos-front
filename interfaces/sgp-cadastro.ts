@@ -109,6 +109,8 @@ export interface CreateSgpCadastroRequest {
   PDV: string;
   ClasseProjeto?: string;
   ObjetivoID?: number;
+  /** Nome do setor (não o id do combobox). */
+  Setor?: string;
 }
 
 /** Resposta POST /sgp-cadastros */
@@ -154,6 +156,8 @@ export interface UpdateSgpCadastroRequest {
   Status: string;
   ClasseProjeto?: string;
   ObjetivoID?: number;
+  /** Nome do setor. String vazia limpa o valor salvo. */
+  Setor?: string;
 }
 
 /** Resposta PUT /sgp-cadastros/{id} */

@@ -116,7 +116,7 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
     }
 
     try {
-      const payload = buildUpdateSgpAberturaPayload(data, cadastro);
+      const payload = buildUpdateSgpAberturaPayload(data, cadastro, setores);
       const response = await updateProjeto.mutateAsync({
         id: cadastro.registro,
         data: payload,

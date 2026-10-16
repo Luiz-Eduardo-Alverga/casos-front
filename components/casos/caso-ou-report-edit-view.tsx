@@ -21,12 +21,10 @@ export function CasoOuReportEditView({ casoId }: CasoOuReportEditViewProps) {
   const searchParams = useSearchParams();
   const layoutParam = parseCasoEditLayout(searchParams);
   const rbacReady = permissionsLoaded();
+  const canEditCase = hasPermission("edit-case");
+  const canEditReport = hasPermission("edit-report");
 
-  const needsLayoutChoice =
-    rbacReady &&
-    hasPermission("edit-case") &&
-    hasPermission("edit-report") &&
-    !layoutParam;
+  const needsLayoutChoice = canEditCase && canEditReport && !layoutParam;
 
   const applyLayoutChoice = (layout: CasoEditLayout) => {
     router.replace(
@@ -58,8 +56,7 @@ export function CasoOuReportEditView({ casoId }: CasoOuReportEditViewProps) {
   }
 
   const useReportLayout =
-    layoutParam === "report" ||
-    (layoutParam !== "case" && !hasPermission("list-case"));
+    canEditReport && (!canEditCase || layoutParam === "report");
 
   if (useReportLayout) {
     return <ReportEditView casoId={casoId} />;

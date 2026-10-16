@@ -109,9 +109,37 @@ export function resolveSetorIdByNome(
   return found ? String(found.id) : "";
 }
 
+/** Nome do setor a partir do id gravado no combobox. */
+export function resolveSetorNomeById(
+  setorId: string | undefined,
+  setores: Setor[] | undefined,
+): string | undefined {
+  if (!setorId?.trim() || !setores?.length) return undefined;
+  const found = setores.find((s) => String(s.id) === setorId.trim());
+  const nome = found?.nome?.trim();
+  return nome || undefined;
+}
+
+const SETOR_INVALIDO_MESSAGE =
+  "Setor inválido. Recarregue a página e tente novamente.";
+
+function resolveSetorPayload(
+  setorId: string | undefined,
+  setores: Setor[] | undefined,
+): string | undefined {
+  const raw = setorId?.trim() ?? "";
+  if (!raw) return undefined;
+  const nome = resolveSetorNomeById(raw, setores);
+  if (!nome) {
+    throw new Error(SETOR_INVALIDO_MESSAGE);
+  }
+  return nome;
+}
+
 export function buildUpdateSgpAberturaPayload(
   data: ProjetoFormData,
   existing: SgpCadastroData,
+  setores?: Setor[],
 ): UpdateSgpCadastroRequest {
   const objetivoRaw = data.objetivo?.trim();
   let objetivoId = 0;
@@ -121,6 +149,14 @@ export function buildUpdateSgpAberturaPayload(
       objetivoId = parsed;
     }
   }
+
+  const setorInformado = data.setor?.trim() ?? "";
+  if (!setorInformado && existing.setor?.trim() && !setores?.length) {
+    throw new Error(SETOR_INVALIDO_MESSAGE);
+  }
+  const setor = setorInformado
+    ? resolveSetorPayload(data.setor, setores) ?? ""
+    : "";
 
   return {
     Datas: formatDateSgp(data.dataInicio),
@@ -136,15 +172,18 @@ export function buildUpdateSgpAberturaPayload(
       existing.classe_projeto?.trim() ||
       SGP_PROJETO_HIDDEN_DEFAULTS.ClasseProjeto,
     ObjetivoID: objetivoId,
+    Setor: setor,
   };
 }
 
 export function buildCreateSgpProjetoPayload(
   data: ProjetoFormData,
+  setores?: Setor[],
 ): CreateSgpCadastroRequest {
   const objetivoId = data.objetivo?.trim()
     ? Number(data.objetivo)
     : 0;
+  const setor = resolveSetorPayload(data.setor, setores);
 
   return {
     NomeProjeto: data.nomeProjeto.trim(),
@@ -161,5 +200,6 @@ export function buildCreateSgpProjetoPayload(
     Cliente: SGP_PROJETO_HIDDEN_DEFAULTS.Cliente,
     PDV: SGP_PROJETO_HIDDEN_DEFAULTS.PDV,
     ClasseProjeto: SGP_PROJETO_HIDDEN_DEFAULTS.ClasseProjeto,
+    ...(setor ? { Setor: setor } : {}),
   };
 }

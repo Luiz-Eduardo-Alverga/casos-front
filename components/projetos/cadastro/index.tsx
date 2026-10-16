@@ -53,7 +53,7 @@ export function ProjetoCreateForm() {
 
   async function onSubmit(data: ProjetoFormData) {
     try {
-      const payload = buildCreateSgpProjetoPayload(data);
+      const payload = buildCreateSgpProjetoPayload(data, setores);
       const response = await createProjetoAsync(payload);
       const registro = response?.cadastro?.data?.registro;
 
@@ -129,6 +129,12 @@ export function ProjetoCreateForm() {
             numeroCaso={numeroProjeto}
             entitySingular="Projeto"
             novoRegistroButtonLabel="Novo projeto"
+            detalhesHref={
+              numeroProjeto != null ? `/projetos/${numeroProjeto}` : undefined
+            }
+            onVerDetalhes={() => {
+              stayOnFormAfterModalCloseRef.current = true;
+            }}
             onNovoCasoClick={() => {
               stayOnFormAfterModalCloseRef.current = true;
               handleResetForm();
