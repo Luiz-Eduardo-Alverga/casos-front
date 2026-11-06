@@ -20,6 +20,8 @@ interface ReportsListaProps {
   isFetchingNextPage: boolean;
   isPending: boolean;
   loadMoreRef: React.Ref<HTMLDivElement>;
+  selectedIds: string[];
+  onToggleItem: (id: string, checked: boolean) => void;
   onAprovar: (item: ReportListaGrupo["itens"][number]) => void;
   onMarcarIncompleto: (item: ReportListaGrupo["itens"][number]) => void;
   onSuspender: (item: ReportListaGrupo["itens"][number]) => void;
@@ -41,6 +43,8 @@ export function ReportsLista({
   isFetchingNextPage,
   isPending,
   loadMoreRef,
+  selectedIds,
+  onToggleItem,
   onAprovar,
   onMarcarIncompleto,
   onSuspender,
@@ -97,8 +101,10 @@ export function ReportsLista({
                     key={id}
                     item={item}
                     open={expanded.has(id)}
+                    checked={selectedIds.includes(String(id))}
                     disabled={isPending}
                     onToggle={() => toggle(id)}
+                    onCheckedChange={(checked) => onToggleItem(String(id), checked)}
                     onAprovar={() => onAprovar(item)}
                     onMarcarIncompleto={() => onMarcarIncompleto(item)}
                     onSuspender={() => onSuspender(item)}

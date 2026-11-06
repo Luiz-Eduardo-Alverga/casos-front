@@ -151,7 +151,7 @@ export function usePainelKanbanQueries({
   const cronogramaIdAgenda = apiFiltros?.cronogramaId;
 
   const baseParams = {
-    per_page: 15,
+    per_page: 50,
     usuario_dev_id: apiFiltros?.devAtribuidoId ?? "",
     produto_id: produto?.trim() ?? "",
     versao_produto: versao?.trim() ?? "",
@@ -166,8 +166,9 @@ export function usePainelKanbanQueries({
     { ...baseParams, status_id: "3" },
     { enabled: memoriaEnabled, ...autoRefetchOptions },
   );
+  const { projeto_id: _cronograma, ...paramsSemCronograma } = baseParams;
   const retornosQ = useProjetoMemoria(
-    { ...baseParams, status_id: "4" },
+    { ...paramsSemCronograma, status_id: "4" },
     { enabled: memoriaEnabled, ...autoRefetchOptions },
   );
   const concluidosQ = useProjetoMemoria(

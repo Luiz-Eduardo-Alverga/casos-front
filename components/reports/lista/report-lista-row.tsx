@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { StatusBadge } from "@/components/badges/status-badge";
 import { Button } from "@/components/ui/button";
+// import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import type { ProjetoMemoriaItem } from "@/interfaces/projeto-memoria";
 import {
@@ -30,8 +31,10 @@ import {
 interface ReportListaRowProps {
   item: ProjetoMemoriaItem;
   open: boolean;
+  checked: boolean;
   disabled?: boolean;
   onToggle: () => void;
+  onCheckedChange: (checked: boolean) => void;
   onAprovar: () => void;
   onMarcarIncompleto: () => void;
   onSuspender: () => void;
@@ -41,8 +44,10 @@ interface ReportListaRowProps {
 export function ReportListaRow({
   item,
   open,
+  checked,
   disabled = false,
   onToggle,
+  onCheckedChange,
   onAprovar,
   onMarcarIncompleto,
   onSuspender,
@@ -59,14 +64,24 @@ export function ReportListaRow({
         className={cn("absolute inset-y-0 left-0 w-1", prioridadeStyle.border)}
         aria-hidden
       />
+      <div
+        className={cn(
+          "flex min-w-0 hover:bg-muted/40",
+          open && "border-b border-border-divider bg-muted/40",
+        )}
+      >
+        {/* <div className="flex shrink-0 items-center pl-6 pr-2">
+          <Checkbox
+            checked={checked}
+            onCheckedChange={(value) => onCheckedChange(value === true)}
+            aria-label={`Selecionar report ${data.id}`}
+          />
+        </div> */}
       <button
         type="button"
         aria-expanded={open}
         onClick={onToggle}
-        className={cn(
-          "grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 py-4 pl-6 pr-4 text-left hover:bg-muted/40 sm:grid-cols-[140px_minmax(0,1fr)_auto] sm:gap-4 xl:grid-cols-[150px_minmax(0,1fr)_190px_120px_auto]",
-          open && "border-b border-border-divider bg-muted/40",
-        )}
+        className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 py-4 pl-6 pr-4 text-left sm:grid-cols-[140px_minmax(0,1fr)_auto] sm:gap-4 xl:grid-cols-[150px_minmax(0,1fr)_190px_120px_auto]"
       >
         <div className="col-start-1 flex min-w-0 flex-col gap-2 sm:contents">
           <div className="flex flex-row items-center gap-2 sm:flex-col sm:items-start sm:gap-1">
@@ -123,6 +138,7 @@ export function ReportListaRow({
           aria-hidden
         />
       </button>
+      </div>
 
       {open ? (
         <div className="flex flex-col gap-4 px-6 py-4">

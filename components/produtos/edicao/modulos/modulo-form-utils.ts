@@ -29,7 +29,7 @@ export function buildCreateModuloPayload(
     Parent_ID: null,
     Descricao: null,
     LocalArquivo: null,
-    Versionado: true,
+    Versionado: false,
     Atualizador: false,
   };
 }
