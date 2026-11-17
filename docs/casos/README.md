@@ -181,6 +181,11 @@ Para não quebrar imports existentes, as pastas antigas permanecem como **re-exp
 - `caso-edit-form.tsx` — tabs, `FormProvider`, submit, contexto `CasoEditProvider`.
 - Feature folders (`anotacoes/`, `producao/`, etc.) — implementação de cada aba.
 - `abas/` — adaptadores finos que re-exportam as features (padrão Projetos).
+- `caso-edit-flags.tsx` — flags **Liberação**, **Entregue** e **Atualização Automática** como
+  pílulas com checkbox no header do card "Classificação e Origem" (`showFlags`, só na edição de
+  caso; a edição de report não mostra). Leitura: `caso.flags.liberacao`, `caso.flags.entregue`,
+  `caso.flags_adicionais.atualizacao_automatica`. Gravação: no "Salvar", no mesmo PATCH, como
+  `Liberacao`, `entregue` e `atualizacao_automatica`, só quando o campo foi alterado (decisão #6).
 
 ### 4.4. Compartilhado (`shared/`)
 

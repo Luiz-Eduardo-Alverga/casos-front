@@ -17,3 +17,10 @@ consolidados em 2026-11-17.
    quebrar imports (seção "Caminhos legados" do README).
 
 5. **Número de caso aceita até 6 dígitos nas relações** (commit `46e65cb`).
+
+6. **Flags Liberação, Entregue e Atualização Automática são editadas na edição de caso e salvas
+   junto com o "Salvar", não a cada clique; só entram no PATCH quando foram alteradas.**
+   Origem: pedido do usuário, 2026-11-17. **Por quê:** seguir o mesmo fluxo dos outros campos do
+   formulário (o usuário pode desistir antes de salvar) e não sobrescrever o valor da API com o
+   default do formulário quando o campo não foi tocado. Ficam só na edição de caso; na de report,
+   a confirmar se devem aparecer.

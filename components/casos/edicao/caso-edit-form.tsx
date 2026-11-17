@@ -79,6 +79,9 @@ const editFormSchema = z.object({
   reportPrioridade: z.string().optional(),
   devAtribuidoLabel: z.string().optional(),
   casoDuplicadoRelacionado: z.string().optional(),
+  liberacao: z.boolean(),
+  entregue: z.boolean(),
+  atualizacaoAutomatica: z.boolean(),
 });
 
 type EditFormData = z.infer<typeof editFormSchema>;
@@ -107,6 +110,9 @@ function getDefaultValues(item: ProjetoMemoriaItem): EditFormData {
     analiseStatus: normalizeAnaliseStatusForForm(item.report?.analise_status),
     reportPrioridade: String(item.report?.prioridade ?? ""),
     casoDuplicadoRelacionado: "",
+    liberacao: Boolean(caso?.flags?.liberacao),
+    entregue: Boolean(caso?.flags?.entregue),
+    atualizacaoAutomatica: Boolean(caso?.flags_adicionais?.atualizacao_automatica),
   };
 }
 
@@ -129,6 +135,9 @@ const fallbackDefaults: EditFormData = {
   analiseStatus: "",
   reportPrioridade: "",
   casoDuplicadoRelacionado: "",
+  liberacao: false,
+  entregue: false,
+  atualizacaoAutomatica: false,
 };
 
 export interface CasoEditFormProps {
@@ -427,6 +436,14 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
         versoes,
       });
 
+      // Flags só vão no PATCH quando o usuário mexeu nelas, para não
+      // sobrescrever o valor da API com o default do formulário.
+      if (dirtyFields.liberacao) payload.Liberacao = formData.liberacao;
+      if (dirtyFields.entregue) payload.entregue = formData.entregue;
+      if (dirtyFields.atualizacaoAutomatica) {
+        payload.atualizacao_automatica = formData.atualizacaoAutomatica;
+      }
+
       const deveMarcarDuplicado =
         statusReportSelecionado === REPORT_STATUS_DUPLICADO_ID &&
         casoRelacionadoValido;
@@ -627,7 +644,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                           clientes={clientes ?? []}
                           isTabActive={tabValue === "clientes"}
                         />
-                        <CasoEditCardClassificacao />
+                        <CasoEditCardClassificacao showFlags />
                       </div>
                       {/* </fieldset> */}
                     </TabsContent>
@@ -638,7 +655,7 @@ export function CasoEditForm({ item, casoId }: CasoEditFormProps) {
                     >
                       <div className="flex-1 flex flex-col gap-2 min-w-0">
                         <AbaRelacoes relacoes={relacoes ?? []} />
-                        <CasoEditCardClassificacao />
+                        <CasoEditCardClassificacao showFlags />
                       </div>
                     </TabsContent>
 

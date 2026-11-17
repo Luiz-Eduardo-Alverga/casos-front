@@ -42,7 +42,12 @@ coberto.
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
-Nada registrado ainda.
+- **Flags Liberação / Entregue / Atualização Automática na edição de caso** (2026-11-17, na
+  `dev`). Pílulas com checkbox no header de "Classificação e Origem", salvas no PATCH do caso.
+  Testado no navegador com o caso 104020 (dev local + API real): leitura da API, marcar e
+  desmarcar com salvar e recarregar, flag não alterada continua fora do PATCH, aba Clientes;
+  caso devolvido ao estado original (tudo desmarcado). Falta ir para produção (`master`). Ver
+  [`casos/`](casos/README.md).
 
 ## ❌ Pendências conhecidas, ainda não endereçadas
 
