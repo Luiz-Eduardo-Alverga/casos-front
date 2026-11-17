@@ -3,7 +3,10 @@ import {
   fromDateInput,
   toDateInput,
 } from "@/components/produtos/edicao/versoes/utils";
-import type { VersaoFormData } from "@/components/produtos/edicao/versoes/versao-form-schema";
+import {
+  normalizeVersaoInput,
+  type VersaoFormData,
+} from "@/components/produtos/edicao/versoes/versao-form-schema";
 import type {
   ProdutoVersaoData,
   ProdutoVersaoPayload,
@@ -29,7 +32,7 @@ export function buildCreateVersaoPayload(
   data: VersaoFormData,
 ): ProdutoVersaoPayload {
   return {
-    Versao: data.versao.trim(),
+    Versao: normalizeVersaoInput(data.versao),
     DataAberturaProjeto: fromDateInput(data.abertura) ?? `${data.abertura.trim()} 00:00:00`,
     DataFechamentoProjeto: fromDateInput(data.fechamento),
     Status: data.status,
@@ -53,7 +56,7 @@ export function buildUpdateVersaoPayload(
   return {
     Registro: existing.Registro,
     DataVersao: existing.DataVersao,
-    Versao: data.versao.trim(),
+    Versao: normalizeVersaoInput(data.versao),
     DataAberturaProjeto: fromDateInput(data.abertura) ?? existing.DataAberturaProjeto,
     DataFechamentoProjeto: fromDateInput(data.fechamento),
     MostrarPlanejamento: existing.MostrarPlanejamento,

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PRODUTO_LABELS } from "@/components/produtos/constants";
@@ -37,6 +37,8 @@ const TAB_TRIGGER_CLASS = cn(
 
 export interface ProdutoEditHeaderProps {
   onBack: () => void;
+  /** Aberto em nova aba: o botão Voltar vira Fechar. */
+  standalone?: boolean;
   canEdit: boolean;
   isSaving: boolean;
   formId: string;
@@ -44,6 +46,7 @@ export interface ProdutoEditHeaderProps {
 
 export function ProdutoEditHeader({
   onBack,
+  standalone = false,
   canEdit,
   isSaving,
   formId,
@@ -76,8 +79,17 @@ export function ProdutoEditHeader({
           className="h-9 min-w-0 flex-1 px-2"
           onClick={onBack}
         >
-          <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate">{PRODUTO_LABELS.voltar}</span>
+          {standalone ? (
+            <>
+              <X className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{PRODUTO_LABELS.fechar}</span>
+            </>
+          ) : (
+            <>
+              <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{PRODUTO_LABELS.voltar}</span>
+            </>
+          )}
         </Button>
         {canEdit ? (
           <Button

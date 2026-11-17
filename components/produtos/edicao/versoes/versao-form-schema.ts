@@ -1,7 +1,32 @@
 import { z } from "zod";
 import { todayIsoDate } from "@/components/produtos/edicao/versoes/utils";
 
-const versaoRegex = /^\d+(\.\d+)*$/;
+import { PRODUTO_LABELS } from "@/components/produtos/constants";
+
+const versaoNumericaRegex = /^\d+(\.\d+)*$/;
+
+/**
+ * Versões que não são número: agrupam casos fora de uma release.
+ * Gravadas em maiúsculas, como já existem no legado (MELHORIA, BUG, BACKLOG).
+ */
+export const VERSOES_ESPECIAIS = ["MELHORIA", "BUG", "BACKLOG"] as const;
+
+/** Versão especial (qualquer caixa) vira maiúscula; número fica como está. */
+export function normalizeVersaoInput(value: string): string {
+  const trimmed = value.trim();
+  const upper = trimmed.toUpperCase();
+  return (VERSOES_ESPECIAIS as readonly string[]).includes(upper)
+    ? upper
+    : trimmed;
+}
+
+export function isVersaoValida(value: string): boolean {
+  const normalized = normalizeVersaoInput(value);
+  return (
+    versaoNumericaRegex.test(normalized) ||
+    (VERSOES_ESPECIAIS as readonly string[]).includes(normalized)
+  );
+}
 
 export const versaoFormSchema = z
   .object({
@@ -9,7 +34,7 @@ export const versaoFormSchema = z
       .string()
       .trim()
       .min(1, "Informe a versão")
-      .regex(versaoRegex, "Use apenas números e pontos, como 8.1.1.0"),
+      .refine(isVersaoValida, PRODUTO_LABELS.versaoFormato),
     status: z.enum(["ABERTO", "FECHADO"]),
     abertura: z.string().trim().min(1, "Informe a data de abertura"),
     fechamento: z.string().optional(),

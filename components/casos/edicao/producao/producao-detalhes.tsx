@@ -2,13 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -17,13 +10,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { DatePickerInput } from "@/components/ui/date-picker-input";
 import type { ProducaoDetalheItem } from "@/interfaces/projeto-memoria";
 import { Pencil, Trash2 } from "lucide-react";
 import {
   formatDataHoraProducao,
   formatDuracaoMinutos,
-  minutosDuracaoEdicao,
   minutosDuracaoProducaoApi,
   parseDataHoraProducaoApi,
 } from "./utils";
@@ -43,19 +34,8 @@ const getTipoProducaoBadgeClassName = (tipo: string) => {
 export interface ProducaoDetalhesProps {
   producaoList: ProducaoDetalheItem[];
   agoraAtual: Date;
-
-  editandoSequencia: number | null;
-  editandoTipo: string;
-  editandoAbertura: Date | undefined;
-  editandoFechamento: Date | undefined;
-  onEditandoTipoChange: (v: string) => void;
-  onEditandoAberturaChange: (v: Date | undefined) => void;
-  onEditandoFechamentoChange: (v: Date | undefined) => void;
-
-  isSalvandoEdicao: boolean;
-  onIniciarEdicao: (row: ProducaoDetalheItem) => void;
-  onCancelarEdicao: () => void;
-  onSalvarEdicao: () => void | Promise<void>;
+  /** Abre o modal "Editar produção" para o lançamento. */
+  onEditar: (row: ProducaoDetalheItem) => void;
   onAskDelete: (sequencia: number) => void;
   readOnly?: boolean;
 }
@@ -63,17 +43,7 @@ export interface ProducaoDetalhesProps {
 export function ProducaoDetalhes({
   producaoList,
   agoraAtual,
-  editandoSequencia,
-  editandoTipo,
-  editandoAbertura,
-  editandoFechamento,
-  onEditandoTipoChange,
-  onEditandoAberturaChange,
-  onEditandoFechamentoChange,
-  isSalvandoEdicao,
-  onIniciarEdicao,
-  onCancelarEdicao,
-  onSalvarEdicao,
+  onEditar,
   onAskDelete,
   readOnly = false,
 }: ProducaoDetalhesProps) {
@@ -130,125 +100,60 @@ export function ProducaoDetalhes({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {producaoListOrdenada.map((row) => (
-          <TableRow
-            key={row.sequencia}
-            className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover"
-          >
-            <TableCell className="py-3 px-2.5 text-sm text-text-primary">
-              {editandoSequencia === row.sequencia ? (
-                <DatePickerInput
-                  value={editandoAbertura}
-                  onChange={onEditandoAberturaChange}
-                  placeholder="dd/mm/aaaa"
-                  disabled={isSalvandoEdicao}
-                  className="min-w-[260px]"
-                  hideLabel
-                  showTime
-                />
-              ) : (
-                formatDataHoraProducao(row.datas?.abertura)
-              )}
-            </TableCell>
-            <TableCell className="py-3 px-2.5 text-sm text-text-primary">
-              {editandoSequencia === row.sequencia ? (
-                <DatePickerInput
-                  value={editandoFechamento}
-                  onChange={onEditandoFechamentoChange}
-                  placeholder="dd/mm/aaaa"
-                  disabled={isSalvandoEdicao}
-                  className="min-w-[260px]"
-                  hideLabel
-                  showTime
-                />
-              ) : (
-                formatDataHoraProducao(row.datas?.fechamento)
-              )}
-            </TableCell>
-            <TableCell className="py-3 px-2.5 text-sm text-text-primary whitespace-nowrap">
-              {editandoSequencia === row.sequencia
-                ? formatDuracaoMinutos(
-                    minutosDuracaoEdicao(
-                      editandoAbertura,
-                      editandoFechamento,
-                      agoraAtual,
-                    ),
-                  )
-                : formatDuracaoMinutos(
-                    minutosDuracaoProducaoApi(
-                      row.datas?.abertura,
-                      row.datas?.fechamento,
-                      agoraAtual,
-                    ),
-                  )}
-            </TableCell>
-            <TableCell className="py-3 px-2.5">
-              {editandoSequencia === row.sequencia ? (
-                <Select
-                  value={editandoTipo}
-                  onValueChange={onEditandoTipoChange}
-                  disabled={isSalvandoEdicao}
-                >
-                  <SelectTrigger className="h-9 text-sm min-w-[160px]">
-                    <SelectValue placeholder="Tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DESENVOLVENDO">DESENVOLVENDO</SelectItem>
-                    <SelectItem value="ANALISANDO">ANALISANDO</SelectItem>
-                    <SelectItem value="RETORNO">RETORNO</SelectItem>
-                    <SelectItem value="TESTANDO">TESTANDO</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : row.tipo ? (
-                <Badge
-                  variant="secondary"
-                  className={`rounded-full ${getTipoProducaoBadgeClassName(row.tipo)} border-transparent hover:${getTipoProducaoBadgeClassName(row.tipo)}`}
-                >
-                  {row.tipo}
-                </Badge>
-              ) : (
-                "—"
-              )}
-            </TableCell>
-            <TableCell className="py-3 px-2.5 text-sm text-text-primary">
-              {row.projeto_id != null ? String(row.projeto_id) : "—"}
-            </TableCell>
-            <TableCell className="py-3 px-2.5 text-sm text-text-primary">
-              {row.usuario_nome ?? "—"}
-            </TableCell>
-            {!readOnly ? (
+        {producaoListOrdenada.map((row) => {
+          const emAndamento = row.datas?.fechamento === null;
+          const aberturaFmt = formatDataHoraProducao(row.datas?.abertura);
+          return (
+            <TableRow
+              key={row.sequencia}
+              className="bg-table-row-bg border-t border-border-divider hover:bg-table-row-hover"
+            >
+              <TableCell className="py-3 px-2.5 text-sm text-text-primary">
+                {aberturaFmt}
+              </TableCell>
+              <TableCell className="py-3 px-2.5 text-sm text-text-primary">
+                {formatDataHoraProducao(row.datas?.fechamento)}
+              </TableCell>
+              <TableCell className="py-3 px-2.5 text-sm text-text-primary whitespace-nowrap">
+                {formatDuracaoMinutos(
+                  minutosDuracaoProducaoApi(
+                    row.datas?.abertura,
+                    row.datas?.fechamento,
+                    agoraAtual,
+                  ),
+                )}
+              </TableCell>
               <TableCell className="py-3 px-2.5">
-                {editandoSequencia === row.sequencia ? (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={onCancelarEdicao}
-                      className="rounded-lg"
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={onSalvarEdicao}
-                      disabled={isSalvandoEdicao}
-                      className="rounded-lg"
-                    >
-                      {isSalvandoEdicao ? "Salvando..." : "Salvar"}
-                    </Button>
-                  </div>
+                {row.tipo ? (
+                  <Badge
+                    variant="secondary"
+                    className={`rounded-full ${getTipoProducaoBadgeClassName(row.tipo)} border-transparent hover:${getTipoProducaoBadgeClassName(row.tipo)}`}
+                  >
+                    {row.tipo}
+                  </Badge>
                 ) : (
+                  "—"
+                )}
+              </TableCell>
+              <TableCell className="py-3 px-2.5 text-sm text-text-primary">
+                {row.projeto_id != null ? String(row.projeto_id) : "—"}
+              </TableCell>
+              <TableCell className="py-3 px-2.5 text-sm text-text-primary">
+                {row.usuario_nome ?? "—"}
+              </TableCell>
+              {!readOnly ? (
+                <TableCell className="py-3 px-2.5">
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
                       className="size-9 rounded-lg"
-                      onClick={() => onIniciarEdicao(row)}
-                      aria-label="Editar produção"
-                      disabled={row.datas?.fechamento === null}
+                      onClick={() => onEditar(row)}
+                      aria-label={`Editar produção de ${row.tipo || "lançamento"} aberta em ${aberturaFmt}`}
+                      title="Editar produção"
+                      // Lançamento em andamento não é editado (como antes).
+                      disabled={emAndamento}
                     >
                       <Pencil className="size-4 text-foreground" />
                     </Button>
@@ -259,16 +164,16 @@ export function ProducaoDetalhes({
                       className="size-9 rounded-lg text-destructive hover:text-destructive"
                       onClick={() => onAskDelete(row.sequencia)}
                       aria-label="Excluir produção"
-                      disabled={row.datas?.fechamento === null}
+                      disabled={emAndamento}
                     >
                       <Trash2 className="size-4" />
                     </Button>
                   </div>
-                )}
-              </TableCell>
-            ) : null}
-          </TableRow>
-        ))}
+                </TableCell>
+              ) : null}
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

@@ -6,6 +6,8 @@ alwaysApply: false
 
 # Produtos — regras de implementação
 
+Fonte de verdade: `docs/produtos/README.md` e `docs/produtos/decisoes.md`. Este arquivo é um resumo para o Cursor.
+
 Vocabulário da UI: **Produto**, **Versão**, **Módulo**, **Checklist**, **Script**. Nunca chamar produto de "projeto".
 
 ## 1. Shell

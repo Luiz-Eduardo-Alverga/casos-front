@@ -1,0 +1,113 @@
+# Status do Softflow (casos-front)
+
+*Criado em 2026-11-17, junto com a reorganização de `docs/` no formato `docs/<slug>/`. Este
+arquivo diz **em que estado** cada coisa está; o **como** fica em cada `docs/<slug>/README.md` e o
+**porquê** em `docs/<slug>/decisoes.md`. Ao fim de qualquer sessão que implemente, altere,
+corrija, decida ou descarte algo, mover os itens entre as seções conforme o estado real.*
+
+Branches: `master` = produção (push dispara o deploy, ver [`deploy/`](deploy/README.md)); `dev` =
+trabalho do dia a dia, criada em 2026-11-17.
+
+---
+
+## ✅ Em produção
+
+Tudo abaixo está na `master` e, portanto, publicado. Não havia registro de roteiro de teste ponta a
+ponta antes desta data; ao testar um módulo de ponta a ponta, anotar aqui a data e o que foi
+coberto.
+
+| Funcionalidade | Pasta | Últimas entregas conhecidas |
+|----------------|-------|------------------------------|
+| Painel do desenvolvedor (Kanban) | [`painel-desenvolvedor/`](painel-desenvolvedor/README.md) | Layout novo; rota antiga em `/painel/old` |
+| Indicadores | [`indicadores/`](indicadores/README.md) | Tela (2026-09-14); recalcular todos (2026-09-15) |
+| Minha Visão | [`minha-visao/`](minha-visao/README.md) | Formato de data das próximas liberações (2026-08-12); pasta renomeada sem acento (2026-11-17, na `dev`, conferido com typecheck e lint, sem teste no navegador) |
+| Avisos | [`avisos/`](avisos/README.md) | |
+| Casos | [`casos/`](casos/README.md) | Duplicar caso, inclusive em lote e no modal de transferência (2026-09); anexos de documentos (2026-09-16); caso duplicado (2026-10-13); nº de caso com 6 dígitos nas relações (2026-09-16) |
+| Reports | [`reports/`](reports/README.md) | Refatoração da listagem (2026-10-14) e ajustes (2026-11-06); horário base de abertura (2026-08-21); ocorrência para clientes vinculados ao marcar "requisito incompleto" (2026-08-14) |
+| Projetos | [`projetos/`](projetos/README.md) | |
+| Liberações | [`liberacoes/`](liberacoes/README.md) | Descrição gerada em tempo real (2026-08-10) |
+| Melhorias | [`melhorias/`](melhorias/README.md) | Modal de avaliação (2026-08-26) |
+| Auditoria de horas | [`auditoria-horas/`](auditoria-horas/README.md) | |
+| Clientes | [`clientes/`](clientes/README.md) | |
+| Produtos | [`produtos/`](produtos/README.md) | Módulo novo (2026-09-17) |
+| Cadastros Smart | [`cadastros-smart/`](cadastros-smart/README.md) | |
+| Adquirentes (Kanban + página pública) | [`adquirentes/`](adquirentes/README.md) | Documentação pública das adquirentes (2026-09-30) |
+| Documentação (módulo) | [`documentacao/`](documentacao/README.md) | Módulo completo (2026-08-26); nova tela (2026-09-14) |
+| Configurações (usuários, perfis, prompts IA) | [`configuracoes/`](configuracoes/README.md) | Ajuste de permissões (2026-10-16) |
+| RBAC e hierarquia de perfis | [`rbac/`](rbac/README.md) | |
+| Autenticação | [`autenticacao/`](autenticacao/README.md) | Banner do login (2026-09-24) |
+| Notificações no Discord | [`casos/`](casos/README.md), [`reports/`](reports/README.md) | Caso concluído (2026-08-24); opção de desativar por usuário (2026-08-24) |
+| Anexos no S3 da Softcom | [`camada-de-dados/`](camada-de-dados/README.md) | Troca de bucket (2026-10-07); aba de anexos (2026-10-07) |
+| Deploy na VPS (Swarm + GitHub Actions) | [`deploy/`](deploy/README.md) | Ambiente Docker (2026-08-14); doc ajustada (2026-10-13) |
+
+## 🟡 Implementado, ainda não testado de ponta a ponta
+
+- **Flags Liberação / Entregue / Atualização Automática na edição de caso** (2026-11-17, na
+  `dev`). Pílulas com checkbox no header de "Classificação e Origem", salvas no PATCH do caso.
+  Testado no navegador com o caso 104020 (dev local + API real): leitura da API, marcar e
+  desmarcar com salvar e recarregar, flag não alterada continua fora do PATCH, aba Clientes;
+  caso devolvido ao estado original (tudo desmarcado). Falta ir para produção (`master`). Ver
+  [`casos/`](casos/README.md).
+- **Minha Visão: próximas liberações abrem o registro em nova aba** (2026-11-17, na `dev`).
+  Testado no navegador: 7 itens viraram links `/liberacoes/{registro}?standalone=1` com
+  `target="_blank"`, e o clique abriu a liberação certa (#1109). O painel do app abre na mesma
+  aba; a nova aba de fato não foi vista. Ver [`minha-visao/`](minha-visao/README.md).
+- **Versão de produto aceita MELHORIA, BUG e BACKLOG** (2026-11-17, na `dev`). Testado no modal
+  do produto 375 sem salvar: "abc" bloqueia com a mensagem nova, "melhoria" e "8.1.1.0" passam;
+  conversão para maiúsculas conferida isolada. Não foi salva nenhuma versão real. Ver
+  [`produtos/decisoes.md`](produtos/decisoes.md) #11.
+- **Produto: limpar Responsável bugs/melhorias e salvar agora limpa** (2026-11-17, na `dev`).
+  Testado no produto 375: preencher, salvar, limpar e salvar deixa `0` na API e "Nenhum" na tela
+  depois de recarregar. Ver [`produtos/decisoes.md`](produtos/decisoes.md) #12.
+- **Casos: modal "Editar produção" na aba Produção** (2026-11-17, na `dev`). Testado no caso
+  104020: lançamento criado (iniciar/parar), editado no modal para TESTANDO 11:46–12:16 (PUT
+  enviou tipo e horas; API devolveu os novos valores; tabela mostrou 30 minutos), validação de
+  fechamento ≤ abertura, salvar sem alteração não chama a API. Depois o lançamento foi excluído e
+  o caso voltou a status Aberto e sem "Não planejado"; o histórico do caso guarda esses passos.
+  Usuário e Projeto comentados até a API aceitar ([`casos/decisoes.md`](casos/decisoes.md) #7).
+- **Produtos: filtro "Incluir desativados" e setor do usuário por padrão** (2026-11-17, na `dev`).
+  Listagem passa `incluir_desativados` ao legado. Testado no navegador: entrada pelo menu e
+  carga direta abrem com SQUAD XP e desativados (15 itens, 4 desativados na 1ª página); desligar
+  manda `incluir_desativados=false` e some com os desativados; "Limpar filtros" zera tudo;
+  `?nome=Smart` é respeitado sem setor. Ver [`produtos/decisoes.md`](produtos/decisoes.md) #13.
+- **Produtos: abrir nesta aba / em nova aba e sem badges de filtros** (2026-11-17, na `dev`).
+  Coluna Ações com lápis e link externo (`?standalone=1`, "Voltar" vira "Fechar"); card do
+  celular com os mesmos ícones. Testado no navegador: lápis abre na mesma aba, standalone mostra
+  "Fechar" e o clique fecha a aba, toque no card no celular abre o produto. Em telas por volta
+  de 950 px a coluna Ações fica fora da área visível e exige rolar a tabela para o lado; em
+  1440 px cabe inteira.
+- **Minha Visão: Painel de ideias abre Melhorias em nova aba, com hover e ícone** (2026-11-17,
+  na `dev`). Testado: 6 linhas com link `target="_blank"`, ícone e fundo no hover, clique na
+  linha chama `window.open(..., "_blank")` sem sair da Minha Visão. Corrigido no mesmo dia: o
+  filtro de período ia só com o dia de `dt_inicial`/`dt_final` (ex.: 07/09 a 07/09) e a tela de
+  Melhorias vinha vazia; agora vai o mês da competência (01/09 a 30/09). Testado com Smart
+  2026/09: a lista passou a trazer os registros do mês.
+
+## ❌ Pendências conhecidas, ainda não endereçadas
+
+Encontradas no levantamento de 2026-11-17 (nenhuma foi corrigida; dependem de decisão do
+usuário):
+
+- **Auditoria chama o Assistant direto do browser** (`services/ia/get-production-analysis.ts` via
+  `apiAssistant`), sem Route Handler nem `withPermission`. A pasta `app/api/ia/production-analysis/`
+  existe vazia. Ver [`auditoria-horas/`](auditoria-horas/README.md).
+- **`/clientes` e `/painel/indicadores` sem `RequirePermission`**: clientes fica aberto a qualquer
+  usuário logado; indicadores depende do bloqueio por prefixo `/painel`.
+- **Cores cruas do Tailwind no Kanban de adquirentes** (`status-adquirentes-columns.ts`), contra a
+  regra de tokens.
+- **Informações técnicas do produto não pode ser apagada**: o legado ignora `null` e `""` nesse
+  campo no `PUT /projeto-versoes/{id}`. Precisa de ajuste no legado. Efeito do teste de
+  2026-11-17: o produto 375 (Meu Fiscal Web) ficou com "teste" nesse campo (antes vazio).
+- **Contagem do Painel de ideias × tela de Melhorias pode diferir em 1.** Smart 2026/09: o painel
+  conta 6 (5 pendentes, 1 recusada), a tela de Melhorias com o mês inteiro lista 7 (6 aguardando,
+  1 recusada). A sobra é a #25837 (30/09, sem produto exibido na lista). Causa não investigada
+  (regra de contagem do painel no legado).
+- **Rota antiga `/painel/old`** (`components/painel/painel`) continua publicada.
+- **Link quebrado** para `db/scripts/reset-supabase-dev.sql` em
+  [`camada-de-dados/`](camada-de-dados/README.md) (o arquivo não existe).
+- **Sem testes automatizados**: validação depende de `lint`, `build` e conferência manual.
+
+## 📋 Backlog consciente (decisão sua, não esquecimento)
+
+Nada registrado ainda. Especificação aprovada e ainda não implementada fica em
+`docs/<slug>/README.md` com **"Estado: planejado"** e aparece aqui.

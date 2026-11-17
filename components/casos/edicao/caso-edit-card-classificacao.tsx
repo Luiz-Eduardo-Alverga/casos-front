@@ -7,11 +7,23 @@ import { CasoFormOrigem } from "@/components/fields/caso-form-origem";
 import { CasoFormCategoria } from "@/components/fields/caso-form-categoria";
 import { CasoFormRelator } from "@/components/fields/caso-form-relator";
 import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
+import { CasoEditFlags } from "./caso-edit-flags";
+
+export interface CasoEditCardClassificacaoProps {
+  /**
+   * Exibe as flags Liberação / Entregue / Atualização Automática no header.
+   * Exige os campos `liberacao`, `entregue` e `atualizacaoAutomatica` no form
+   * (hoje só a edição de caso os tem).
+   */
+  showFlags?: boolean;
+}
 
 /**
  * Card Classificação e Origem – visível em todas as abas exceto Anotações.
  */
-export function CasoEditCardClassificacao() {
+export function CasoEditCardClassificacao({
+  showFlags = false,
+}: CasoEditCardClassificacaoProps = {}) {
   const classificacaoPreset = CARD_HEADER_PRESETS.classificacaoOrigem;
 
   return (
@@ -21,6 +33,7 @@ export function CasoEditCardClassificacao() {
         icon={classificacaoPreset.icon}
         iconClassName={classificacaoPreset.iconClassName}
         shrink={false}
+        trailing={showFlags ? <CasoEditFlags /> : undefined}
       />
       <CardContent className="p-6 pt-2">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

@@ -38,6 +38,12 @@ function SkeletonRow() {
       <TableCell className="px-4 py-4 text-right">
         <Skeleton className="ml-auto h-6 w-24 rounded-full" />
       </TableCell>
+      <TableCell className="px-4 py-4">
+        <div className="flex justify-end gap-1">
+          <Skeleton className="h-8 w-8 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-md" />
+        </div>
+      </TableCell>
     </TableRow>
   );
 }
@@ -65,6 +71,9 @@ export function ProdutosTabelaSkeleton() {
           <TableHead className={HEADER_CLASS}>{PRODUTO_LABELS.data}</TableHead>
           <TableHead className={`${HEADER_CLASS} text-right`}>
             {PRODUTO_LABELS.status}
+          </TableHead>
+          <TableHead className={`${HEADER_CLASS} w-[90px] text-right`}>
+            {PRODUTO_LABELS.acoes}
           </TableHead>
         </TableRow>
       </TableHeader>

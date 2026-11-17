@@ -1,6 +1,6 @@
 "use client";
 
-import { MinhaVisao } from "@/components/minha-visão/minha-visao";
+import { MinhaVisao } from "@/components/minha-visao/minha-visao";
 import { RequirePermission } from "@/components/require-permission";
 
 export default function MinhaVisaoPage() {

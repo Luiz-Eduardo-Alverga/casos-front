@@ -35,7 +35,7 @@ export function AbaInicial() {
         </CardContent>
       </Card>
 
-      <CasoEditCardClassificacao />
+      <CasoEditCardClassificacao showFlags />
     </div>
   );
 }

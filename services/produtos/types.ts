@@ -195,6 +195,8 @@ export interface GetProdutosParams {
   nomeProjeto?: string;
   Setor?: string;
   setor?: string;
+  /** Inclui produtos com Desativado = true. Omitido: o legado traz só os ativos. */
+  incluir_desativados?: boolean;
   per_page?: number;
   cursor?: string | null;
 }

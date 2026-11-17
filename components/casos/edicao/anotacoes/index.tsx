@@ -18,7 +18,7 @@ import { useCasoEdit } from "../caso-edit-context";
 /**
  * Aba Anotações do caso.
  * Estrutura: Card com header (título + badge #caso), seção Descrição Completa (nova anotação) e lista de anotações com scroll interno.
- * Segue PADRAO_COMPONENTES e PADRAO_ESPACAMENTOS.
+ * Segue docs/padrao-front e docs/design-system.md.
  */
 export function AbaAnotacoes({ report, anotacoes }: AbaAnotacoesProps) {
   const {

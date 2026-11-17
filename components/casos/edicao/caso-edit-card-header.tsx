@@ -84,7 +84,7 @@ function CasoAberturaMetaRow({ info }: { info: CasoAberturaInfo }) {
 
 /**
  * Header padronizado para cards da edição de caso.
- * Segue PADRAO_COMPONENTES e PADRAO_ESPACAMENTOS (p-4 pb-2, border-b, gap-2).
+ * Segue docs/padrao-front e docs/design-system.md (p-4 pb-2, border-b, gap-2).
  */
 export function CasoEditCardHeader({
   title,
@@ -102,7 +102,7 @@ export function CasoEditCardHeader({
         shrink && "shrink-0",
       )}
     >
-      <div className="flex w-full justify-between items-center ">
+      <div className="flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-2">
         <div className="flex min-w-0 shrink-0 items-center gap-2">
           <Icon className={cn("h-3.5 w-3.5 shrink-0", iconClassName)} />
           <CardTitle className="min-w-0 text-sm font-semibold text-text-primary">

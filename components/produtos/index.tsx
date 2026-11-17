@@ -12,7 +12,13 @@ import { useProdutosFiltros } from "@/hooks/produtos/use-produtos-filtros";
 
 export function Produtos() {
   const { canCreate } = useProdutoPermissoes();
-  const { filtros, setFiltro, limparFiltros, hasFilters } = useProdutosFiltros();
+  const {
+    filtros,
+    setFiltro,
+    setIncluirDesativados,
+    limparFiltros,
+    hasFilters,
+  } = useProdutosFiltros();
 
   return (
     <ListagemPageLayout
@@ -46,7 +52,7 @@ export function Produtos() {
       <ProdutosFiltros
         filtros={filtros}
         onChange={setFiltro}
-        onClear={limparFiltros}
+        onIncluirDesativadosChange={setIncluirDesativados}
       />
       <ProdutosTabela
         filtros={filtros}

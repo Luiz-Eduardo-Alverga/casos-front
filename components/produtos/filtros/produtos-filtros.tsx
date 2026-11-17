@@ -11,24 +11,27 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { CasoFormSetor } from "@/components/fields";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
 import { useSetores } from "@/hooks/catalogos/use-setores";
 import { PRODUTO_LABELS } from "@/components/produtos/constants";
-import { ProdutosFiltrosAplicadosBadges } from "@/components/produtos/filtros/produtos-filtros-aplicados-badges";
-import type { ProdutosFiltrosAplicados } from "@/components/produtos/filtros/produtos-filtros.types";
+import type {
+  ProdutosFiltroTexto,
+  ProdutosFiltrosAplicados,
+} from "@/components/produtos/filtros/produtos-filtros.types";
 
 interface ProdutosFiltrosProps {
   filtros: ProdutosFiltrosAplicados;
-  onChange: (key: keyof ProdutosFiltrosAplicados, value: string | undefined) => void;
-  onClear: () => void;
+  onChange: (key: ProdutosFiltroTexto, value: string | undefined) => void;
+  onIncluirDesativadosChange: (value: boolean) => void;
 }
 
 export function ProdutosFiltros({
   filtros,
   onChange,
-  onClear,
+  onIncluirDesativadosChange,
 }: ProdutosFiltrosProps) {
   const [nome, setNome] = useState(filtros.nome);
   const debouncedNome = useDebouncedValue(nome, 400);
@@ -140,12 +143,29 @@ export function ProdutosFiltros({
               </CasoFormProvider>
             </FormProvider>
           </div>
+          <div className="space-y-2">
+            <Label
+              htmlFor="produtos-incluir-desativados"
+              className="text-sm font-medium text-text-label"
+            >
+              {PRODUTO_LABELS.incluirDesativados}
+            </Label>
+            <div className="flex h-9 items-center gap-2">
+              <Switch
+                id="produtos-incluir-desativados"
+                checked={filtros.incluirDesativados}
+                onCheckedChange={onIncluirDesativadosChange}
+                aria-describedby="produtos-incluir-desativados-descricao"
+              />
+              <span
+                id="produtos-incluir-desativados-descricao"
+                className="text-xs text-text-secondary"
+              >
+                {PRODUTO_LABELS.incluirDesativadosDescricao}
+              </span>
+            </div>
+          </div>
         </div>
-        <ProdutosFiltrosAplicadosBadges
-          filtros={filtros}
-          onRemove={(key) => onChange(key, undefined)}
-          onClear={onClear}
-        />
       </CardContent>
     </Card>
   );

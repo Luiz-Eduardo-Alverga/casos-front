@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryState } from "nuqs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { isProdutoStandaloneMode } from "@/lib/produto-standalone-url";
 import toast from "react-hot-toast";
 import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
@@ -59,6 +60,21 @@ export interface ProdutoEditFormProps {
 
 export function ProdutoEditForm({ produto }: ProdutoEditFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const standalone = isProdutoStandaloneMode(searchParams);
+
+  // Aberto em nova aba (?standalone=1): sair = fechar a aba; se o navegador não
+  // deixar fechar, volta para a listagem.
+  const sairDoProduto = useCallback(() => {
+    if (!standalone) {
+      router.push("/produtos");
+      return;
+    }
+    window.close();
+    window.setTimeout(() => {
+      if (document.visibilityState === "visible") router.push("/produtos");
+    }, 200);
+  }, [standalone, router]);
   const user = useMemo(() => getUser(), []);
   const { canEdit } = useProdutoPermissoes();
   const { data: setores } = useSetores({ enabled: true });
@@ -131,8 +147,8 @@ export function ProdutoEditForm({ produto }: ProdutoEditFormProps) {
       setPendingNav("leave");
       return;
     }
-    router.push("/produtos");
-  }, [isDirty, canEdit, router]);
+    sairDoProduto();
+  }, [isDirty, canEdit, sairDoProduto]);
 
   function handleDiscard() {
     methods.reset(produtoToFormValues(produto, mappingContext));
@@ -267,6 +283,7 @@ export function ProdutoEditForm({ produto }: ProdutoEditFormProps) {
 
             <ProdutoEditHeader
               onBack={handleBack}
+              standalone={standalone}
               canEdit={canEdit}
               isSaving={isSaving}
               formId={FORM_ID}
@@ -379,7 +396,7 @@ export function ProdutoEditForm({ produto }: ProdutoEditFormProps) {
             onConfirm={() => {
               handleDiscard();
               if (pendingNav === "leave") {
-                router.push("/produtos");
+                sairDoProduto();
               } else if (pendingNav) {
                 goToTab(pendingNav);
               }
