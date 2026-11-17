@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Lightbulb } from "lucide-react";
+import Link from "next/link";
+import { ExternalLink, Lightbulb } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -49,8 +49,6 @@ export function PainelIdeias({
   isLoading = false,
   setor,
 }: PainelIdeiasProps) {
-  const router = useRouter();
-
   if (isLoading) {
     return <PainelIdeiasSkeleton />;
   }
@@ -89,17 +87,24 @@ export function PainelIdeias({
                   <TableHead className="sticky top-0 z-10 bg-card py-2 px-2.5 text-[11px] font-medium uppercase tracking-wide text-text-secondary text-right">
                     Pend.
                   </TableHead>
-                  <TableHead className="sticky top-0 z-10 bg-card py-2 px-4 text-[11px] font-medium uppercase tracking-wide text-text-secondary text-right">
+                  <TableHead className="sticky top-0 z-10 bg-card py-2 px-2.5 text-[11px] font-medium uppercase tracking-wide text-text-secondary text-right">
                     Aprov.
+                  </TableHead>
+                  <TableHead className="sticky top-0 z-10 w-8 bg-card py-2 pl-0 pr-4">
+                    <span className="sr-only">Abrir</span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((item, idx) => (
+                {data.map((item, idx) => {
+                  const href = buildMelhoriasHref(item, setor);
+                  return (
                   <TableRow
                     key={`${item.produto_id}-${item.competencia}-${idx}`}
-                    className="bg-card border-b border-border-divider hover:bg-muted/40 cursor-pointer"
-                    onClick={() => router.push(buildMelhoriasHref(item, setor))}
+                    className="group bg-card border-b border-border-divider transition-colors hover:bg-muted cursor-pointer"
+                    onClick={() =>
+                      window.open(href, "_blank", "noopener,noreferrer")
+                    }
                   >
                     <TableCell className="py-2 px-4 text-[11px] text-text-secondary">
                       {item.competencia}
@@ -119,7 +124,7 @@ export function PainelIdeias({
                     </TableCell>
                     <TableCell
                       className={cn(
-                        "py-2 px-4 text-right text-xs font-semibold",
+                        "py-2 px-2.5 text-right text-xs font-semibold",
                         item.aprovado > 0
                           ? "text-green-600"
                           : "text-text-secondary",
@@ -127,8 +132,25 @@ export function PainelIdeias({
                     >
                       {item.aprovado}
                     </TableCell>
+                    <TableCell className="w-8 py-2 pl-0 pr-4 text-right">
+                      <Link
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        // A linha já abre a aba; o link existe para teclado e leitor de tela.
+                        onClick={(event) => event.stopPropagation()}
+                        aria-label={`Abrir melhorias de ${item.produto} (${item.competencia}) em nova aba`}
+                        className="inline-flex rounded-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      >
+                        <ExternalLink
+                          className="h-3.5 w-3.5 text-text-secondary opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+                          aria-hidden
+                        />
+                      </Link>
+                    </TableCell>
                   </TableRow>
-                ))}
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

@@ -56,6 +56,12 @@ coberto.
   do produto 375 sem salvar: "abc" bloqueia com a mensagem nova, "melhoria" e "8.1.1.0" passam;
   conversão para maiúsculas conferida isolada. Não foi salva nenhuma versão real. Ver
   [`produtos/decisoes.md`](produtos/decisoes.md) #11.
+- **Produto: limpar Responsável bugs/melhorias e salvar agora limpa** (2026-11-17, na `dev`).
+  Testado no produto 375: preencher, salvar, limpar e salvar deixa `0` na API e "Nenhum" na tela
+  depois de recarregar. Ver [`produtos/decisoes.md`](produtos/decisoes.md) #12.
+- **Minha Visão: Painel de ideias abre Melhorias em nova aba, com hover e ícone** (2026-11-17,
+  na `dev`). Testado: 6 linhas com link `target="_blank"`, ícone e fundo no hover, clique na
+  linha chama `window.open(..., "_blank")` sem sair da Minha Visão.
 
 ## ❌ Pendências conhecidas, ainda não endereçadas
 
@@ -69,6 +75,13 @@ usuário):
   usuário logado; indicadores depende do bloqueio por prefixo `/painel`.
 - **Cores cruas do Tailwind no Kanban de adquirentes** (`status-adquirentes-columns.ts`), contra a
   regra de tokens.
+- **Informações técnicas do produto não pode ser apagada**: o legado ignora `null` e `""` nesse
+  campo no `PUT /projeto-versoes/{id}`. Precisa de ajuste no legado. Efeito do teste de
+  2026-11-17: o produto 375 (Meu Fiscal Web) ficou com "teste" nesse campo (antes vazio).
+- **Drill-down do Painel de ideias para Melhorias vem vazio** em pelo menos um caso visto em
+  2026-11-17 (Smart, 2026/09, 5 pendentes no painel; a tela de Melhorias com os mesmos filtros não
+  lista nada, nem clicando em Filtrar). A montagem do filtro é anterior a esta data; causa não
+  investigada (datas que a API devolve por item ou filtro da tela de Melhorias).
 - **Rota antiga `/painel/old`** (`components/painel/painel`) continua publicada.
 - **Link quebrado** para `db/scripts/reset-supabase-dev.sql` em
   [`camada-de-dados/`](camada-de-dados/README.md) (o arquivo não existe).

@@ -18,7 +18,10 @@ filtro". Cards:
   liberação. Cada item de "Próximas liberações" é um link que abre o registro da liberação em
   **nova aba**, no modo standalone (`buildLiberacaoHrefForNewTab` → `/liberacoes/{registro}?standalone=1`,
   o mesmo do ícone de nova aba da listagem de Liberações). Item sem `registro` não vira link.
-- **Painel de ideias** (mesma fonte de [`melhorias/`](../melhorias/README.md)).
+- **Painel de ideias & feedback** (mesma fonte de [`melhorias/`](../melhorias/README.md)): tabela
+  por mês e produto. A linha inteira abre a tela de Melhorias filtrada (produto, período e setor)
+  em **nova aba**; no hover a linha escurece e aparece o ícone de link externo, que também é um
+  link de verdade para teclado e leitor de tela (mesmo efeito das próximas liberações).
 
 Filtros: setor, produto, projeto e versão.
 
