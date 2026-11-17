@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
-import { CalendarClock, Check, ChevronDown } from "lucide-react";
+import { CalendarClock, Check, ChevronDown, ExternalLink } from "lucide-react";
+import { buildLiberacaoHrefForNewTab } from "@/lib/liberacao-standalone-url";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -118,11 +120,8 @@ export function Liberacoes({
                 item.data || item.versao_final_data_prevista || null;
               const atrasada = isDataLiberacaoAtrasada(dataPrevisao);
 
-              return (
-                <div
-                  key={`${item.registro}-${idx}`}
-                  className="px-3.5 py-2.5 rounded-lg border border-border-divider bg-muted/30 flex items-center justify-between gap-3"
-                >
+              const conteudo = (
+                <>
                   <div className="min-w-0">
                     <div className="text-xs font-semibold text-text-primary truncate">
                       v{item.versao} · Previsão:{" "}
@@ -134,8 +133,43 @@ export function Liberacoes({
                       {item.produto}
                     </div>
                   </div>
-                  <TipoLiberacaoBadge tipo={item.tipo_liberacao} />
-                </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <TipoLiberacaoBadge tipo={item.tipo_liberacao} />
+                    {item.registro ? (
+                      <ExternalLink
+                        className="h-3.5 w-3.5 text-text-secondary opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                        aria-hidden
+                      />
+                    ) : null}
+                  </div>
+                </>
+              );
+              const itemClassName =
+                "px-3.5 py-2.5 rounded-lg border border-border-divider bg-muted/30 flex items-center justify-between gap-3";
+
+              // Sem registro não há tela de liberação para abrir.
+              if (!item.registro) {
+                return (
+                  <div key={`sem-registro-${idx}`} className={itemClassName}>
+                    {conteudo}
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={`${item.registro}-${idx}`}
+                  href={buildLiberacaoHrefForNewTab(item.registro)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Abrir registro de liberação v${item.versao} de ${item.produto} em nova aba`}
+                  className={cn(
+                    itemClassName,
+                    "group transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                  )}
+                >
+                  {conteudo}
+                </Link>
               );
             })}
           </div>

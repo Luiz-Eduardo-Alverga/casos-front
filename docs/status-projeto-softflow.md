@@ -48,6 +48,14 @@ coberto.
   desmarcar com salvar e recarregar, flag não alterada continua fora do PATCH, aba Clientes;
   caso devolvido ao estado original (tudo desmarcado). Falta ir para produção (`master`). Ver
   [`casos/`](casos/README.md).
+- **Minha Visão: próximas liberações abrem o registro em nova aba** (2026-11-17, na `dev`).
+  Testado no navegador: 7 itens viraram links `/liberacoes/{registro}?standalone=1` com
+  `target="_blank"`, e o clique abriu a liberação certa (#1109). O painel do app abre na mesma
+  aba; a nova aba de fato não foi vista. Ver [`minha-visao/`](minha-visao/README.md).
+- **Versão de produto aceita MELHORIA, BUG e BACKLOG** (2026-11-17, na `dev`). Testado no modal
+  do produto 375 sem salvar: "abc" bloqueia com a mensagem nova, "melhoria" e "8.1.1.0" passam;
+  conversão para maiúsculas conferida isolada. Não foi salva nenhuma versão real. Ver
+  [`produtos/decisoes.md`](produtos/decisoes.md) #11.
 
 ## ❌ Pendências conhecidas, ainda não endereçadas
 

@@ -14,7 +14,10 @@ filtro". Cards:
   ordenar campos.
 - **Casos em produção.**
 - **Prazos de clientes** pendentes.
-- **Liberações:** próximas e últimas, com badge de tipo de liberação.
+- **Liberações** (card "Pipeline de liberações"): próximas e últimas, com badge de tipo de
+  liberação. Cada item de "Próximas liberações" é um link que abre o registro da liberação em
+  **nova aba**, no modo standalone (`buildLiberacaoHrefForNewTab` → `/liberacoes/{registro}?standalone=1`,
+  o mesmo do ícone de nova aba da listagem de Liberações). Item sem `registro` não vira link.
 - **Painel de ideias** (mesma fonte de [`melhorias/`](../melhorias/README.md)).
 
 Filtros: setor, produto, projeto e versão.
