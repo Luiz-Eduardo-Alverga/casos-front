@@ -59,6 +59,11 @@ coberto.
 - **Produto: limpar Responsável bugs/melhorias e salvar agora limpa** (2026-11-17, na `dev`).
   Testado no produto 375: preencher, salvar, limpar e salvar deixa `0` na API e "Nenhum" na tela
   depois de recarregar. Ver [`produtos/decisoes.md`](produtos/decisoes.md) #12.
+- **Produtos: filtro "Incluir desativados" e setor do usuário por padrão** (2026-11-17, na `dev`).
+  Listagem passa `incluir_desativados` ao legado. Testado no navegador: entrada pelo menu e
+  carga direta abrem com SQUAD XP e desativados (15 itens, 4 desativados na 1ª página); desligar
+  manda `incluir_desativados=false` e some com os desativados; "Limpar filtros" zera tudo;
+  `?nome=Smart` é respeitado sem setor. Ver [`produtos/decisoes.md`](produtos/decisoes.md) #13.
 - **Minha Visão: Painel de ideias abre Melhorias em nova aba, com hover e ícone** (2026-11-17,
   na `dev`). Testado: 6 linhas com link `target="_blank"`, ícone e fundo no hover, clique na
   linha chama `window.open(..., "_blank")` sem sair da Minha Visão. Corrigido no mesmo dia: o

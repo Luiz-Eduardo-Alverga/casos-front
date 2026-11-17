@@ -42,6 +42,7 @@ export function ProdutosTabela({
     {
       NomeProjeto: filtros.nome || undefined,
       Setor: filtros.setor || undefined,
+      incluir_desativados: filtros.incluirDesativados,
       per_page: PRODUTOS_PAGE_SIZE,
     },
     { enabled: hasFilters },

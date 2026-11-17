@@ -50,3 +50,11 @@ estava registrado, está marcado "a confirmar".
     produto 375. **Limitação conhecida, sem solução no front:** o mesmo PUT ignora `null` e `""`
     em `InformacoesTecnicas`, então apagar todo o texto não limpa o campo. Resolver exige
     mudança no legado.
+
+13. **A listagem abre com "Incluir desativados" ligado e com o setor do usuário logado.**
+    Origem: pedido do usuário, 2026-11-17. Detalhes de implementação: o setor padrão vale só ao
+    entrar sem filtro na URL (link com `?nome=` ou `?setor=` é respeitado) e fica em memória, não
+    na URL. **Por quê da memória:** gravar o setor na URL logo na entrada disputava com o Next,
+    que grava `/produtos` sem query ao terminar a navegação pelo menu, e o setor sumia. Limpar os
+    filtros mostra todos os setores (diferente de Melhorias, onde o setor do usuário sempre
+    volta).

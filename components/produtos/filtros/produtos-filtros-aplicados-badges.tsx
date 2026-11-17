@@ -4,11 +4,14 @@ import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PRODUTO_LABELS } from "@/components/produtos/constants";
-import type { ProdutosFiltrosAplicados } from "@/components/produtos/filtros/produtos-filtros.types";
+import type {
+  ProdutosFiltroTexto,
+  ProdutosFiltrosAplicados,
+} from "@/components/produtos/filtros/produtos-filtros.types";
 
 interface ProdutosFiltrosAplicadosBadgesProps {
   filtros: ProdutosFiltrosAplicados;
-  onRemove: (key: keyof ProdutosFiltrosAplicados) => void;
+  onRemove: (key: ProdutosFiltroTexto) => void;
   onClear: () => void;
 }
 

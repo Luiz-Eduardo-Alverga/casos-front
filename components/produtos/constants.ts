@@ -8,6 +8,8 @@ export const PRODUTO_LABELS = {
   nome: "Nome do produto",
   nomePlaceholder: "Buscar por nome…",
   setor: "Setor",
+  incluirDesativados: "Incluir desativados",
+  incluirDesativadosDescricao: "Mostra também os produtos desativados",
   listagem: "Listagem de produtos",
   registro: "Registro",
   nomeColuna: "Nome",

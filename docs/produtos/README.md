@@ -133,6 +133,21 @@ Toda atualização envia o objeto completo: mesclar o registro atual da API com 
 
 `vacaLeiteira`: UI boolean; API `0` = não, ≠ `0` (ex.: `-1`) = sim.
 
+### Listagem e filtros
+
+`GET /api/produtos` → legado `GET /projeto-versoes` com `NomeProjeto`, `Setor`,
+`incluir_desativados` (`true`/`false`; sem o parâmetro o legado traz só os ativos) e paginação
+por cursor. Os filtros vivem na URL (`useProdutosFiltros`, nuqs): `?nome=`, `?setor=` e
+`?desativados=false`.
+
+- **Incluir desativados** (switch no card de filtros): ligado por padrão; desligado fica explícito
+  na URL. Os desativados aparecem com o selo "Desativado" na tabela.
+- **Setor padrão:** ao entrar na tela sem filtro na URL, vale o setor do usuário logado
+  (`getUser().setor`). Fica só em memória, não vai para a URL (ver decisão #13). Mexer no setor ou
+  "Limpar filtros" desliga o padrão até a próxima entrada na tela.
+- A tabela só consulta a API com nome ou setor preenchido; o switch sozinho não dispara busca,
+  só faz aparecer o "Limpar filtros".
+
 `VinculadoA`: `0` = nenhum. No combobox de edição, excluir o próprio produto.
 
 ### Paginação

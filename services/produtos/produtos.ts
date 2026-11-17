@@ -28,6 +28,10 @@ export async function getProdutos(
     withQuery("/api/produtos", {
       NomeProjeto: nomeProjeto,
       Setor: setor,
+      incluir_desativados:
+        params.incluir_desativados === undefined
+          ? undefined
+          : String(params.incluir_desativados),
       per_page: params.per_page,
       cursor: params.cursor,
     }),

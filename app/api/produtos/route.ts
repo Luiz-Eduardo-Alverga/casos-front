@@ -23,12 +23,24 @@ export async function GET(request: Request) {
       url.searchParams.get("Setor") ??
       url.searchParams.get("setor") ??
       undefined;
+    // "true" | "false"; ausente = comportamento padrão do legado (só ativos).
+    const incluirDesativadosRaw = url.searchParams
+      .get("incluir_desativados")
+      ?.trim()
+      .toLowerCase();
+    const incluirDesativados =
+      incluirDesativadosRaw === "true" || incluirDesativadosRaw === "false"
+        ? incluirDesativadosRaw
+        : undefined;
 
     return proxyLegacy("Erro ao buscar produtos", () =>
       api.get("/projeto-versoes", {
         params: {
           ...(nomeProjeto ? { NomeProjeto: nomeProjeto } : {}),
           ...(setor ? { Setor: setor } : {}),
+          ...(incluirDesativados
+            ? { incluir_desativados: incluirDesativados }
+            : {}),
           ...paginationParams(url),
         },
         ...authConfig(session),
