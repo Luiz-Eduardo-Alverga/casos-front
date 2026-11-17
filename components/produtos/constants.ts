@@ -116,7 +116,8 @@ export const PRODUTO_LABELS = {
   editarVersaoTitulo: "Editar versão",
   versaoColuna: "Versão",
   versaoPlaceholder: "0.0.0.0",
-  versaoFormato: "Use apenas números e pontos, como 8.1.1.0",
+  versaoFormato:
+    "Use números e pontos (ex.: 8.1.1.0) ou Melhoria, Bug ou Backlog",
   statusAberto: "ABERTO",
   statusFechado: "FECHADO",
   dataAbertura: "Data de abertura",

@@ -34,3 +34,11 @@ estava registrado, está marcado "a confirmar".
    especificação textual + tokens Softflow. **Por quê:** o HTML usa estilos inline e hex soltos.
 
 10. **Labels da UI centralizados em `components/produtos/constants.ts`.**
+
+11. **Versão de produto aceita número com pontos (ex.: 8.1.1.0) ou uma das versões especiais
+    MELHORIA, BUG e BACKLOG.** As especiais podem ser digitadas em qualquer caixa e são gravadas
+    em maiúsculas (`normalizeVersaoInput` em `edicao/versoes/versao-form-schema.ts`). Qualquer
+    outro texto continua bloqueado. Origem: pedido do usuário, 2026-11-17. **Por quê:** o legado
+    já usa essas versões para agrupar casos fora de uma release (encontradas em maiúsculas em
+    Heimdall Gateway, PBX Softcom, Servidor Asgard, Meu Fiscal Web e Hub Softcom), e a validação
+    antiga impedia criar ou editar uma delas pela tela.
