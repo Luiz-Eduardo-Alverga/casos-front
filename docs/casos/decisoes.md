@@ -54,3 +54,9 @@ consolidados em 2026-11-17.
     diz o que ela significa, sem depender só da cor. Verde de status, não a cor primária do
     Kanban, para não confundir com linha selecionada. Como a linha é compartilhada, aparece também
     no Escopo de Projetos. Um filtro "Só iniciados" ficou para depois, se fizer falta.
+    **Revogada em parte pela #11** (o selo saiu).
+
+11. **Caso em produção na listagem: só a faixa lateral e o fundo leve (opção C), sem selo.**
+    Decisão do usuário, 2026-11-17, depois de ver a #10 na tela. **Por quê:** o selo abaixo do
+    status aumentava a altura da linha. Para não depender só da cor, a linha tem `title`
+    "Caso em produção" e o número do caso leva o texto "(em produção)" para leitor de tela.

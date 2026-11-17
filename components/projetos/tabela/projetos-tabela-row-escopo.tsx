@@ -59,14 +59,15 @@ export function ProjetosTabelaRowEscopo({
       .toUpperCase() === "REPORT";
   const relacoes = Array.isArray(row.relacoes) ? row.relacoes : [];
   // Caso com produção em andamento: faixa verde à esquerda (como no Kanban do painel)
-  // + fundo leve + selo "Em produção" no status. A faixa vai na 1ª célula porque
-  // borda lateral em <tr> não aparece de forma confiável em tabela.
+  // + fundo leve, sem selo para não aumentar a altura da linha. A faixa vai na 1ª
+  // célula porque borda lateral em <tr> não aparece de forma confiável em tabela.
   const faixaProducaoClass = row.emProducao
     ? "border-l-4 border-l-panel-badge-fixed"
     : "border-l-4 border-l-transparent";
 
   return (
     <TableRow
+      title={row.emProducao ? "Caso em produção" : undefined}
       className={cn(
         "border-t border-border-strong",
         row.emProducao
@@ -104,6 +105,10 @@ export function ProjetosTabelaRowEscopo({
           >
             <span className="text-sm font-semibold text-text-primary whitespace-nowrap">
               #{row.numero}
+              {/* A faixa é só cor; leitor de tela recebe o texto. */}
+              {row.emProducao ? (
+                <span className="sr-only"> (em produção)</span>
+              ) : null}
             </span>
           </SortableFieldContextMenu>
           <CategoriaBadge categoria={row.categoria} />
@@ -231,15 +236,6 @@ export function ProjetosTabelaRowEscopo({
         >
           <div className="flex flex-col items-start gap-1">
             <StatusBadge status={row.status} />
-            {row.emProducao ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-panel-badge-fixed-bg px-2 py-0.5 text-xs font-semibold text-panel-badge-fixed">
-                <span
-                  className="size-1.5 rounded-full bg-panel-badge-fixed motion-safe:animate-pulse"
-                  aria-hidden
-                />
-                Em produção
-              </span>
-            ) : null}
             {row.dataConclusao ? (
               <span className="text-xs font-semibold text-text-secondary whitespace-nowrap">
                 Finalizado em {formatDatePt(row.dataConclusao)}

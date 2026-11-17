@@ -70,10 +70,11 @@ coberto.
   novos valores com o lançamento ainda no caso; depois projeto e "quem ajudou" voltaram ao
   original. O projeto vai em `cronograma_id` (`registro` é o caso).
 - **Casos: indicador de caso em produção na listagem** (2026-11-17, na `dev`). Faixa verde à
-  esquerda, fundo leve e selo "Em produção" no status para casos com o tempo rodando; aparece
-  também no Escopo de Projetos (linha compartilhada). Testado no navegador em
-  `/casos?projeto_id=3278`: 104020 e 104000 (iniciados) com faixa e selo; 104043, que tinha
-  sido parado, sem. Ver [`casos/decisoes.md`](casos/decisoes.md) #10.
+  esquerda e fundo leve para casos com o tempo rodando (o selo "Em produção" foi tirado por
+  aumentar a linha); aparece também no Escopo de Projetos (linha compartilhada). Testado no
+  navegador em `/casos?projeto_id=3278`: 104020 e 104000 (iniciados) com faixa, sem selo, e a
+  coluna de status com a mesma altura das outras linhas. Ver
+  [`casos/decisoes.md`](casos/decisoes.md) #10 e #11.
 - **Produtos: filtro "Incluir desativados" e setor do usuário por padrão** (2026-11-17, na `dev`).
   Listagem passa `incluir_desativados` ao legado. Testado no navegador: entrada pelo menu e
   carga direta abrem com SQUAD XP e desativados (15 itens, 4 desativados na 1ª página); desligar

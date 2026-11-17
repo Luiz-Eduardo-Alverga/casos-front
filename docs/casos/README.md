@@ -169,10 +169,11 @@ Para não quebrar imports existentes, as pastas antigas permanecem como **re-exp
 - A linha da tabela é a de Projetos (`ProjetosTabelaTable` variante `escopo`,
   `components/projetos/tabela/projetos-tabela-row-escopo.tsx`), a mesma da aba Escopo de
   Projetos. **Caso em produção** (tempo rodando: `tempo_status = PARAR` e
-  `status_tempo = INICIADO`, via `getCasoProducaoEstado`): faixa verde à esquerda, fundo verde
-  leve e selo "Em produção" abaixo do status, com os tokens `panel-badge-fixed` /
-  `panel-badge-fixed-bg`. O campo `emProducao` vem de `isEmProducao` em
-  `map-projeto-memoria-to-escopo-row.ts`. Aparece nas duas telas (decisão #10).
+  `status_tempo = INICIADO`, via `getCasoProducaoEstado`): faixa verde à esquerda e fundo verde
+  leve (tokens `panel-badge-fixed` / `panel-badge-fixed-bg`), sem selo para não aumentar a
+  linha; `title` "Caso em produção" e texto só para leitor de tela no número. O campo
+  `emProducao` vem de `isEmProducao` em `map-projeto-memoria-to-escopo-row.ts`. Aparece nas duas
+  telas (decisões #10 e #11).
 
 ### 4.2. Cadastro (`cadastro/`)
 
