@@ -17,7 +17,7 @@ import {
 import type { CasoRelacoes } from "@/interfaces/projeto-memoria";
 import { buildCasoHrefForNewTab } from "@/lib/caso-standalone-url";
 import { formatDatePt } from "@/components/cadastros/format-display";
-import { formatMinutesToHHMM } from "@/lib/utils";
+import { cn, formatMinutesToHHMM } from "@/lib/utils";
 import {
   Box,
   ClipboardCheck,
@@ -58,13 +58,29 @@ export function ProjetosTabelaRowEscopo({
       .trim()
       .toUpperCase() === "REPORT";
   const relacoes = Array.isArray(row.relacoes) ? row.relacoes : [];
+  // Caso com produção em andamento: faixa verde à esquerda (como no Kanban do painel)
+  // + fundo leve + selo "Em produção" no status. A faixa vai na 1ª célula porque
+  // borda lateral em <tr> não aparece de forma confiável em tabela.
+  const faixaProducaoClass = row.emProducao
+    ? "border-l-4 border-l-panel-badge-fixed"
+    : "border-l-4 border-l-transparent";
 
   return (
-    <TableRow className="bg-background border-t border-border-strong hover:bg-muted/30">
+    <TableRow
+      className={cn(
+        "border-t border-border-strong",
+        row.emProducao
+          ? "bg-panel-badge-fixed-bg/40 hover:bg-panel-badge-fixed-bg/60"
+          : "bg-background hover:bg-muted/30",
+      )}
+    >
       {showCheckbox ? (
         <TableCell
           key="checkbox"
-          className="w-[48px] py-3 px-2 text-center align-top"
+          className={cn(
+            "w-[48px] py-3 px-2 text-center align-top",
+            faixaProducaoClass,
+          )}
         >
           <Checkbox
             checked={checked}
@@ -75,7 +91,10 @@ export function ProjetosTabelaRowEscopo({
       ) : null}
       <TableCell
         key="id"
-        className="min-w-[95px] max-w-[120px] py-3 px-2 align-top"
+        className={cn(
+          "min-w-[95px] max-w-[120px] py-3 px-2 align-top",
+          !showCheckbox && faixaProducaoClass,
+        )}
       >
         <div className="flex flex-col gap-0.5">
           <SortableFieldContextMenu
@@ -212,6 +231,15 @@ export function ProjetosTabelaRowEscopo({
         >
           <div className="flex flex-col items-start gap-1">
             <StatusBadge status={row.status} />
+            {row.emProducao ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-panel-badge-fixed-bg px-2 py-0.5 text-xs font-semibold text-panel-badge-fixed">
+                <span
+                  className="size-1.5 rounded-full bg-panel-badge-fixed motion-safe:animate-pulse"
+                  aria-hidden
+                />
+                Em produção
+              </span>
+            ) : null}
             {row.dataConclusao ? (
               <span className="text-xs font-semibold text-text-secondary whitespace-nowrap">
                 Finalizado em {formatDatePt(row.dataConclusao)}

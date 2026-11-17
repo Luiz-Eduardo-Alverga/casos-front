@@ -166,6 +166,13 @@ Para não quebrar imports existentes, as pastas antigas permanecem como **re-exp
 - `index.tsx` — layout, filtros, ações de navegação.
 - `casos-tabela.tsx` — fetch infinito, empty states, modal de transferência.
 - Estado de filtros via `useCasosFiltros` (`hooks/casos/`).
+- A linha da tabela é a de Projetos (`ProjetosTabelaTable` variante `escopo`,
+  `components/projetos/tabela/projetos-tabela-row-escopo.tsx`), a mesma da aba Escopo de
+  Projetos. **Caso em produção** (tempo rodando: `tempo_status = PARAR` e
+  `status_tempo = INICIADO`, via `getCasoProducaoEstado`): faixa verde à esquerda, fundo verde
+  leve e selo "Em produção" abaixo do status, com os tokens `panel-badge-fixed` /
+  `panel-badge-fixed-bg`. O campo `emProducao` vem de `isEmProducao` em
+  `map-projeto-memoria-to-escopo-row.ts`. Aparece nas duas telas (decisão #10).
 
 ### 4.2. Cadastro (`cadastro/`)
 

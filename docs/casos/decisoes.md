@@ -47,3 +47,10 @@ consolidados em 2026-11-17.
    Testado no caso 104020: trocar o projeto muda `projeto_id` e o lançamento continua no caso.
    **Limitação do legado:** o PUT ignora `anotacao` vazia (`""` e `null`), então não dá para
    apagar uma anotação já salva, só trocar o texto; o modal avisa quando a pessoa apaga tudo.
+
+10. **Caso em produção na listagem: faixa lateral + selo "Em produção" (opções B + C).**
+    Escolha do usuário, 2026-11-17, entre ícone ao lado do número, selo no status, faixa lateral
+    e filtro. **Por quê:** a faixa destaca na rolagem (mesmo padrão do Kanban do painel) e o selo
+    diz o que ela significa, sem depender só da cor. Verde de status, não a cor primária do
+    Kanban, para não confundir com linha selecionada. Como a linha é compartilhada, aparece também
+    no Escopo de Projetos. Um filtro "Só iniciados" ficou para depois, se fizer falta.
