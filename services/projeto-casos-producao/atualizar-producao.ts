@@ -5,6 +5,17 @@ export interface AtualizarProducaoPayload {
   tipo_producao?: string;
   hora_abertura?: string;
   hora_fechamento?: string;
+  /**
+   * Projeto do lançamento (id do projeto/cronograma). Não usar `registro`: no legado
+   * `registro` é o número do caso (GET devolve registro = caso, projeto em projeto_id).
+   */
+  cronograma_id?: number;
+  /** Id do usuário que fez a produção. */
+  usuario?: number;
+  /** Id do usuário que ajudou ("valeu"); 0 = ninguém. */
+  valeu_usuario_id?: number;
+  /** Texto livre sobre a produção. */
+  anotacao?: string;
 }
 
 /** Dados retornados pela API ao atualizar produção */

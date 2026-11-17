@@ -183,13 +183,17 @@ Para não quebrar imports existentes, as pastas antigas permanecem como **re-exp
 - `abas/` — adaptadores finos que re-exportam as features (padrão Projetos).
 - `producao/producao-editar-modal.tsx` — modal **"Editar produção"**, aberto pelo lápis de cada
   lançamento em "Detalhes da produção" (aba Produção; lançamento em andamento não edita).
-  Substituiu a edição inline na tabela. Campos ativos: Tipo, Abertura e Fechamento (data e hora),
-  com "Duração calculada" e validação (obrigatórios; fechamento posterior à abertura). Grava no
-  `PUT /api/projeto-casos-producao/{sequencia}` com `tipo_producao`, `hora_abertura` e
-  `hora_fechamento`; sem alteração, fecha com "Nenhuma alteração na produção." e não chama a API.
-  **Usuário e Projeto** estão no código, comentados ("Aguardando API"), porque o PUT ainda não
-  aceita esses campos (decisão #7). Protótipo: projeto Softflow no Claude Design, página
-  "Softflow Prototipo".
+  Substituiu a edição inline na tabela. Campos: Tipo, Usuário, Projeto, Abertura e Fechamento
+  (obrigatórios), "Duração calculada", Quem ajudou (valeu, opcional) e Anotação (opcional).
+  Validação: obrigatórios; fechamento posterior à abertura. Grava no
+  `PUT /api/projeto-casos-producao/{sequencia}` com `tipo_producao`, `hora_abertura`,
+  `hora_fechamento`, `cronograma_id` (id do projeto; `registro` é o caso, não usar), `usuario`,
+  `valeu_usuario_id` (0 = ninguém) e `anotacao` (decisões #8 e #9). A anotação salva não pode
+  ser apagada (o legado ignora vazio); o modal avisa. As horas são editadas em minutos, então
+  salvar zera os segundos de abertura e fechamento. Sem alteração, fecha com "Nenhuma alteração na produção." e não chama
+  a API. Usuários vêm de `useRelatores` (todos) e projetos de `useProjetos` filtrado pelo setor do
+  projeto do caso, com busca; o valor salvo aparece mesmo fora da lista carregada. Protótipo:
+  projeto Softflow no Claude Design, página "Softflow Prototipo".
 - `caso-edit-flags.tsx` — flags **Liberação**, **Entregue** e **Atualização Automática** como
   pílulas com checkbox no header do card "Classificação e Origem" (`showFlags`, só na edição de
   caso; a edição de report não mostra). Leitura: `caso.flags.liberacao`, `caso.flags.entregue`,

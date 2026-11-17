@@ -158,6 +158,8 @@ export interface ProducaoDetalheItem {
   projeto_id: number;
   valeu_usuario_id: number;
   valeu_usuario_nome: string | null;
+  /** Anotação livre do lançamento (pode não vir em respostas antigas). */
+  anotacao?: string | null;
 }
 
 export interface CasoItem {
