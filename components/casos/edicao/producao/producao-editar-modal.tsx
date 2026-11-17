@@ -404,9 +404,9 @@ export function ProducaoEditarModal({
             )}
           />
 
-          {/* Uma coluna: o campo de data com hora não cabe em meia largura do modal. */}
-          <div className="grid grid-cols-1 gap-4">
-            <div className="space-y-2">
+          {/* Lado a lado a partir de sm; no celular, uma coluna. */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="min-w-0 space-y-2">
               <Label className="text-sm font-medium text-text-label">
                 Abertura <span className="text-text-error">*</span>
               </Label>
@@ -428,7 +428,7 @@ export function ProducaoEditarModal({
                 )}
               />
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label className="text-sm font-medium text-text-label">
                 Fechamento <span className="text-text-error">*</span>
               </Label>
