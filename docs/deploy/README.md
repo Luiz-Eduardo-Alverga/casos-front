@@ -1,5 +1,9 @@
 # Deploy na VPS (Docker Swarm + Traefik)
 
+> **Estado: implementado.** `master` = produção: push na `master` dispara o deploy. O trabalho do
+> dia a dia vai na `dev` e só vai para a `master` com confirmação explícita do usuário (ver
+> "Fluxo de branches" no `CLAUDE.md`). Workflow em `.github/workflows/deploy-vps.yml`.
+
 A aplicação continua usando **Supabase**, **API Soft Flow**, **Assistant** e **Discord** fora do processo Next (Assistant já pode estar na mesma VPS). O front roda como **serviço Swarm** na overlay `network_public`, atrás do Traefik. O Cloudflare Tunnel publica HTTPS em `softflow.hostsoftcom.cloud` para `http://localhost:80`.
 
 O Traefik da VM **só escuta HTTP na porta 80** (entrypoint `web`). Não use `docker compose up`.

@@ -1,6 +1,14 @@
-# Padrão de Pastas — Módulo Documentação
+# Documentação (módulo `/documentacao`)
 
-Este documento descreve a organização do módulo **Documentação**. Ele segue os padrões de Casos e Projetos, com separação obrigatória entre banco, API, cliente de dados e componentes.
+> **Estado: implementado.** Decisões em [`decisoes.md`](decisoes.md). Não confundir com esta
+> pasta `docs/` do repositório: aqui é o módulo do Softflow onde o time cadastra documentos.
+
+## O que é
+
+Base de conhecimento técnico e de processo dentro do Softflow: documentos em Markdown
+(sanitizado), com categorias, tags, vínculos com entidades do Softflow, histórico e anexos (S3,
+bucket de anexos). Dados no Postgres via `/api/db/docs`. Segue os padrões de Casos e Projetos,
+com separação obrigatória entre banco, API, cliente de dados e componentes.
 
 ## 1. Visão geral
 

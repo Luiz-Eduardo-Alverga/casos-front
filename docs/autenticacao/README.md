@@ -1,8 +1,16 @@
-# Fluxo de Autenticação e Redirecionamento da rota `/login`
+# Autenticação e login
 
-> Documento técnico investigativo. **Nenhum código foi alterado** — este texto apenas descreve o que já existe no repositório `casos-front`.
->
-> Objetivo central: explicar **por que o formulário de login não "pisca"** (flash) quando um usuário já autenticado acessa `/login` — a tela mal aparece e a navegação vai direto para a home.
+> **Estado: implementado.** Levantamento técnico do que existe no código (nenhuma mudança de
+> código veio dele). Permissões carregadas no login em [`rbac/`](../rbac/README.md).
+
+## O que é
+
+Login na API Soft Flow (e-mail/senha e OAuth Google/Facebook) → token em cookie `HttpOnly`
+`casos_token` (fonte de verdade no servidor, repassado como `Authorization: Bearer`) + espelho do
+usuário e das permissões em `localStorage` (gating de UI no cliente). `PublicRoute` e
+`ProtectedRoute` decidem o redirecionamento.
+
+> Objetivo central do levantamento: explicar **por que o formulário de login não "pisca"** (flash) quando um usuário já autenticado acessa `/login` — a tela mal aparece e a navegação vai direto para a home.
 
 ---
 

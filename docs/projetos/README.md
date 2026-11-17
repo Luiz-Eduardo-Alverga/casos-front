@@ -1,8 +1,16 @@
-# Padrão de Pastas — Módulo Projetos
+# Projetos
 
-Este documento descreve a organização de pastas e arquivos do módulo **Projetos** (`components/projetos/`). Ele complementa o [PADRAO_COMPONENTES.md](./PADRAO_COMPONENTES.md) (padrões visuais e de UI) e o [PADRAO_COMPONENTES_GRANDES.md](./PADRAO_COMPONENTES_GRANDES.md) (decomposição de componentes grandes).
+> **Estado: implementado.** É o modelo de organização de pastas seguido por Casos e Produtos.
+> Padrões gerais em [`padrao-front/`](../padrao-front/README.md).
 
-Use este guia ao criar novas telas, abas ou subfeatures dentro do módulo.
+## O que é
+
+Cadastro SGP de projeto: listagem em `/projetos`, cadastro em `/projetos/novo` e edição em
+`/projetos/[id]` com as abas Abertura, Escopo, Risco, Stakeholders e Cronograma. O Escopo lista
+casos e reports da memória do projeto. Dados da API Soft Flow (`sgp-*`, `projeto-memoria`).
+
+Abaixo, a organização de `components/projetos/`. Para aba nova, seção 11; campo novo na Abertura,
+seção 12; feature nova, checklist da seção 14.
 
 ---
 
@@ -126,7 +134,7 @@ export function AbaEscopoTab({ projetoId, enabled }: AbaEscopoTabProps) {
 
 ### 3.4. Feature folders (abas complexas)
 
-Abas com CRUD, modais, grids e múltiplos estados seguem o padrão de **feature folder** descrito em [PADRAO_COMPONENTES_GRANDES.md](./PADRAO_COMPONENTES_GRANDES.md).
+Abas com CRUD, modais, grids e múltiplos estados seguem o padrão de **feature folder** descrito em [docs/padrao-front/README.md](../padrao-front/README.md).
 
 Estrutura típica (ex.: `edicao/risco/`):
 
@@ -430,7 +438,7 @@ Códigos usados no módulo: `create-project`, `edit-project`.
   import { AbaEscopo } from "@/components/projetos/edicao/escopo";
   ```
 
-- Quando um arquivo cresce e vira pasta, manter **arquivo ponte** no path antigo (re-export) para não quebrar imports existentes — ver [PADRAO_COMPONENTES_GRANDES.md](./PADRAO_COMPONENTES_GRANDES.md).
+- Quando um arquivo cresce e vira pasta, manter **arquivo ponte** no path antigo (re-export) para não quebrar imports existentes — ver [docs/padrao-front/README.md](../padrao-front/README.md).
 
 ---
 
@@ -465,10 +473,10 @@ Códigos usados no módulo: `create-project`, `edit-project`.
 
 | Documento | Conteúdo |
 | --------- | -------- |
-| [PADRAO_COMPONENTES.md](./PADRAO_COMPONENTES.md) | Cards, cores, skeletons, empty states, layout responsivo |
-| [PADRAO_COMPONENTES_GRANDES.md](./PADRAO_COMPONENTES_GRANDES.md) | Quando e como decompor em feature folders |
-| [PADRAO_REQUISICOES.md](./PADRAO_REQUISICOES.md) | Padrões de chamadas à API |
-| [RBAC_PERMISSOES.md](./RBAC_PERMISSOES.md) | Permissões do sistema |
+| [docs/padrao-front/README.md](../padrao-front/README.md) | Cards, cores, skeletons, empty states, layout responsivo |
+| [docs/padrao-front/README.md](../padrao-front/README.md) | Quando e como decompor em feature folders |
+| [docs/camada-de-dados/README.md](../camada-de-dados/README.md) | Padrões de chamadas à API |
+| [docs/rbac/README.md](../rbac/README.md) | Permissões do sistema |
 
 ---
 

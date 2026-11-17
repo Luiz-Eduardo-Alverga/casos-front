@@ -2,7 +2,7 @@
 
 Brief para **Claude Design**. Fonte de verdade dos campos disponíveis no módulo de cadastro de Produto (Softflow).
 
-Usar junto com `DESIGN_SYSTEM.md` e `BRIEF_CLAUDE_DESIGN.md`. Idioma da UI: **pt-BR**. Visual: ferramenta interna (sidebar + header + cards), densidade compacta, sem hero.
+Usar junto com `docs/design-system.md` e `docs/design-system.md`. Idioma da UI: **pt-BR**. Visual: ferramenta interna (sidebar + header + cards), densidade compacta, sem hero.
 
 Este arquivo descreve **o que a API entrega hoje**. Ainda não há POST/PUT/DELETE neste briefing — o protótipo pode prever ações de criar/editar, mas os campos abaixo são os que existem para listar e detalhar.
 
@@ -306,4 +306,4 @@ Botão primário da aplicação é **escuro**, não amarelo. Amarelo só como ac
 
 ---
 
-**Referências visuais:** `docs/DESIGN_SYSTEM.md`, `docs/BRIEF_CLAUDE_DESIGN.md`, `docs/CONTEXTO_SOFTFLOW.md`.
+**Referências visuais:** `docs/design-system.md`, `docs/design-system.md`, `docs/contexto-projeto-softflow.md`.

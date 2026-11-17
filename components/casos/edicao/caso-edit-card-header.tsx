@@ -84,7 +84,7 @@ function CasoAberturaMetaRow({ info }: { info: CasoAberturaInfo }) {
 
 /**
  * Header padronizado para cards da edição de caso.
- * Segue PADRAO_COMPONENTES e PADRAO_ESPACAMENTOS (p-4 pb-2, border-b, gap-2).
+ * Segue docs/padrao-front e docs/design-system.md (p-4 pb-2, border-b, gap-2).
  */
 export function CasoEditCardHeader({
   title,

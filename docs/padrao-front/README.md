@@ -1,6 +1,25 @@
-# Padrão de Componentes - Painel do Desenvolvedor
+# Padrão de front (componentes, estado, formulários)
 
-Este documento descreve os padrões e boas práticas utilizados na implementação do Painel do Desenvolvedor e que devem ser seguidos nas próximas telas.
+> **Estado: implementado** (padrão em uso). Consolidado em 2026-11-17 a partir de
+> `PADRAO_COMPONENTES`, `PADRAO_COMPONENTES_GRANDES` e `COMO_CRIAR_COMBOBOX`. Visual (tokens,
+> espaçamentos, card) fica em [`design-system.md`](../design-system.md); dados em
+> [`camada-de-dados/`](../camada-de-dados/README.md).
+
+## O que é
+
+Os padrões de código que toda tela segue: responsabilidade única por componente, skeleton e empty
+state, hooks com TanStack Query fora de `components/`, react-hook-form + Zod, paginação infinita,
+decomposição de componentes grandes em feature folder e criação de combobox de domínio. Nasceram
+no Painel do Desenvolvedor e viraram o padrão do repositório.
+
+## Como estender
+
+- Tela nova: seção "8. Checklist para Novas Telas".
+- Componente ficou grande: seção "Padrão — Componentes grandes (feature folder)".
+- Campo de seleção de domínio (produto, setor, versão…): reaproveitar `@/components/fields`; só
+  criar um novo seguindo "Como criar um componente Combobox".
+
+---
 
 ## 1. Separação de Responsabilidades
 
@@ -241,7 +260,7 @@ Para telas e abas de edição (ex.: `caso-edit/aba-clientes`, campos de `caso-fo
 
 - Envolver com `FormProvider` + `CasoFormProvider` (`produto: watch("produto")`, `isDisabled`, etc.) — padrão já usado em Casos, Reports, Liberações e Melhorias.
 - **Não** recriar combobox de produto/setor/versão com `useProdutos`/`useSetores` + `ComboboxField` ad-hoc quando o `CasoForm*` correspondente existir.
-- Só criar campo novo quando não houver equivalente; nesse caso, seguir `docs/COMO_CRIAR_COMBOBOX.md` e colocar em `@/components/fields`.
+- Só criar campo novo quando não houver equivalente; nesse caso, seguir `docs/padrao-front/README.md` e colocar em `@/components/fields`.
 
 Exemplo simplificado:
 
@@ -1055,5 +1074,245 @@ const handleAtualizar = () => {
 
 ---
 
-**Última atualização**: Janeiro 2025
-**Versão**: 2.0
+## Padrão — Componentes grandes (feature folder)
+
+Quando um componente começa a ficar grande (muitas responsabilidades, muitos handlers, muito JSX), o padrão do projeto é **separar em subcomponentes** dentro de uma pasta de feature, parecido com o que já acontece em partes do `painel-kanban`.
+
+### Quando aplicar
+
+- Arquivo com **muito JSX** (difícil de escanear).
+- Mistura de **UI + regras de negócio + hooks + utilitários** no mesmo arquivo.
+- Muitos estados (`useState`) e callbacks (`useCallback`) no mesmo lugar.
+- Reuso parcial desejável (ex.: `Row`, `List`, `Skeleton`, `Form`).
+
+### Estrutura recomendada
+
+Crie uma pasta em torno da feature e mantenha um **entrypoint** (geralmente `index.tsx`) que coordena hooks, estado e handlers.
+
+Exemplo:
+
+```
+components/<area>/<feature>/
+  index.tsx                 # entrypoint: hooks + estado + handlers + composição
+  types.ts                  # tipos do feature (props, estados)
+  utils.ts                  # helpers puros (sem React)
+  <feature>-skeleton.tsx    # skeleton do layout
+  <feature>-list.tsx        # lista/área rolável
+  <feature>-row.tsx         # item/linha
+  <feature>-form.tsx        # formulário/entrada de dados
+  README.md                 # (opcional) nota rápida do feature
+```
+
+### Regras práticas
+
+- **EntryPoint (`index.tsx`)**:
+  - centraliza `useQuery`/`useMutation`, `useForm`, estado e side-effects
+  - passa callbacks e dados para os subcomponentes
+  - evita JSX profundo demais: priorize composição por subcomponentes
+
+- **Subcomponentes**:
+  - recebem props simples
+  - não conhecem detalhes de cache/queryKey (deixe isso no entrypoint)
+  - devem ser fáceis de testar/ler isoladamente
+
+- **`utils.ts`**:
+  - apenas funções puras (sem hooks/sem `window`)
+  - bom lugar para parse/normalização (ex.: `parseVersaoFieldValue`)
+
+- **Compatibilidade de imports**:
+  - quando já existe um import espalhado no app, crie um “arquivo ponte” que re-exporta o componente (para evitar quebrar import paths).  
+    Ex.: `components/.../painel-kanban-produtos-modal.tsx` pode virar somente:
+    - `export { PainelKanbanProdutosModal } from "./produtos-modal";`
+
+### Skeleton
+
+Sempre que o componente fizer fetch inicial, prefira um skeleton que **imita a estrutura** (título, área de filtros, lista, rodapé), para reduzir layout shift e manter a UI consistente.
+
+### DnD / Listas grandes
+
+Em listas, garanta:
+
+- container com altura fixa (ex.: `h-[360px]`) para permitir rolagem
+- `ScrollArea` com `overflow-hidden` e conteúdo interno com padding para não “cortar” itens
+
+
+---
+
+## Como criar um componente Combobox (caso-form)
+
+Este documento descreve o padrão para criar novos componentes de Combobox nos formulários de caso, seguindo os exemplos existentes (produto, setor, categoria, origem, etc.).
+
+> **Antes de criar:** confira se já existe um `CasoForm*` em `@/components/fields` (produto, setor, versão, status, categoria, etc.). Em filtros e formulários, **reutilize o componente existente** — não monte um `ComboboxField` ad-hoc para o mesmo domínio. Ver também `docs/padrao-front/README.md` (seção 3.4).
+
+### Visão geral
+
+Cada Combobox de formulário é um componente que:
+
+1. Usa **ComboboxField** (wrapper que integra Combobox + react-hook-form + botão de limpar).
+2. Consome dados de um **hook** (ex.: `useSetores`, `useProdutos`) que já segue o padrão de requisições (service + API route).
+3. Respeita o contexto **CasoFormProvider** (`useCasoForm`) para estado desabilitado, lazy load e dados de edição.
+4. Normaliza os dados da API para o formato **options** (`{ value: string; label: string }[]`).
+
+### Estrutura de arquivos
+
+- **Componente:** `components/caso-form/fields/caso-form-[recurso].tsx`
+- **Export:** adicionar em `components/caso-form/fields/index.ts`
+- **Hook de dados:** `hooks/use-[recurso].tsx` (já deve existir se a API foi implementada pelo padrão de requisições)
+- **Service/tipo:** `services/auxiliar/[recurso].ts` (interface do item retornado pela API)
+
+### Dependências comuns
+
+| Dependência | Uso |
+|-------------|-----|
+| `ComboboxField` | `@/components/reports-form/combobox-field` |
+| `useCasoForm` | `../provider` — `isDisabled`, `lazyLoadComboboxOptions`, `editCaseItem` |
+| `useFormContext` | `react-hook-form` — `watch("nomeDoCampo")` |
+| Hook de dados | `@/hooks/use-[recurso]` — lista da API |
+| Ícone | `lucide-react` — ex.: `Building2`, `Tag`, `Activity` |
+
+### Passo a passo para criar um novo Combobox
+
+#### 1. Garantir que a API e o hook existam
+
+Conforme `docs/camada-de-dados/README.md`:
+
+- Service em `services/auxiliar/[recurso].ts` com interface do item (ex.: `Setor { id, nome }`).
+- API route em `app/api/auxiliar/[recurso]/route.ts`.
+- Hook em `hooks/use-[recurso].tsx` (ex.: `useSetores`).
+
+#### 2. Criar o arquivo do componente
+
+Arquivo: `components/caso-form/fields/caso-form-[recurso].tsx`.
+
+**Estrutura mínima:**
+
+```tsx
+"use client";
+
+import { useState, useMemo } from "react";
+import { IconName } from "lucide-react";
+import { ComboboxField } from "@/components/reports-form/combobox-field";
+import { useCasoForm } from "../provider";
+import { useFormContext } from "react-hook-form";
+import { useRecursos } from "@/hooks/use-recursos";
+
+interface CasoFormRecursoProps {
+  required?: boolean;
+}
+
+export function CasoFormRecurso({ required = false }: CasoFormRecursoProps) {
+  const { isDisabled, lazyLoadComboboxOptions, editCaseItem } = useCasoForm();
+  const { watch } = useFormContext();
+  const valorCampo = watch("nomeDoCampoNoForm");
+  const [optionsRequested, setOptionsRequested] = useState(!lazyLoadComboboxOptions);
+
+  const { data: recursos, isLoading } = useRecursos({
+    enabled: optionsRequested,
+  });
+
+  const options = useMemo(() => {
+    const list = (recursos ?? []).map((item) => ({
+      value: String(item.id),
+      label: item.nome,
+    }));
+    // Opcional: fallback para edição (valor vindo da API de edição que pode não estar na lista)
+    if (
+      lazyLoadComboboxOptions &&
+      editCaseItem?.caminho?.para?.recurso &&
+      valorCampo &&
+      !list.some((o) => o.value === valorCampo)
+    ) {
+      const r = editCaseItem.caminho.para.recurso;
+      list.unshift({ value: valorCampo, label: r.label_ou_nome ?? valorCampo });
+    }
+    return list;
+  }, [recursos, lazyLoadComboboxOptions, editCaseItem, valorCampo]);
+
+  return (
+    <div className="space-y-2">
+      <ComboboxField
+        name="nomeDoCampoNoForm"
+        label="Label do campo"
+        icon={IconName}
+        options={options}
+        placeholder="Selecione..."
+        emptyText="Nenhum item encontrado."
+        isLoading={optionsRequested && isLoading}
+        searchDebounceMs={450}
+        disabled={isDisabled}
+        required={required}
+        onOpenChange={
+          lazyLoadComboboxOptions ? (open) => open && setOptionsRequested(true) : undefined
+        }
+      />
+    </div>
+  );
+}
+```
+
+#### 3. Ajustes por tipo de recurso
+
+- **Campo no formulário:** o `name` do ComboboxField deve bater com o nome do campo no schema do formulário (ex.: `setor`, `categoria`, `origem`). Se o schema ainda não tiver o campo, será preciso adicioná-lo no zod e nos `defaultValues`.
+- **value/label:** na lista da API, use sempre o identificador estável como `value` (geralmente `String(item.id)`) e o texto exibido como `label` (ex.: `item.nome`, `item.tipo_categoria`).
+- **Fallback em edição:** se na tela de edição o `editCaseItem` trouxer o valor atual do recurso por outro caminho (ex.: `editCaseItem.projeto.setores`), inclua uma opção “fantasma” na lista quando `lazyLoadComboboxOptions` estiver ativo e o valor do formulário ainda não estiver nas opções carregadas, para evitar label vazio no Combobox.
+
+#### 4. Exportar o componente
+
+Em `components/caso-form/fields/index.ts`:
+
+```ts
+export { CasoFormRecurso } from "./caso-form-recurso";
+```
+
+#### 5. Usar no formulário
+
+No JSX do formulário (ex.: `reports.tsx`), importar e renderizar:
+
+```tsx
+import { CasoFormSetor } from "./fields";
+
+// Dentro do form:
+<CasoFormSetor required={false} />
+```
+
+Se o campo for obrigatório, inclua no schema zod (ex.: `setor: z.string().min(1, "Setor é obrigatório")`) e em `defaultValues` (ex.: `setor: ""`).
+
+### Exemplos de referência no projeto
+
+| Componente | Hook | Observação |
+|------------|------|------------|
+| `caso-form-setor.tsx` | `useSetores` | Lista simples (id + nome), fallback com `editCaseItem.projeto.setores`. |
+| `caso-form-origem.tsx` | `useOrigens` | Padrão simples, fallback em `editCaseItem.caso.caracteristicas`. |
+| `caso-form-categoria.tsx` | `useCategorias` | Label vem de `tipo_categoria`. |
+| `caso-form-produto.tsx` | `useProdutos` | Label composto (`nome_projeto - setor`), estado local do item selecionado e limpeza de campos dependentes no `useEffect`. |
+
+### ComboboxField – props principais
+
+| Prop | Tipo | Descrição |
+|------|------|-----------|
+| `name` | string | Nome do campo no react-hook-form. |
+| `label` | string | Rótulo exibido acima do Combobox. |
+| `icon` | LucideIcon | Ícone ao lado do conteúdo. |
+| `options` | `{ value: string; label: string }[]` | Lista de opções. |
+| `placeholder` | string | Texto quando vazio. |
+| `emptyText` | string | Texto quando não há opções. |
+| `isLoading` | boolean | Exibe skeleton no popover durante o carregamento inicial (lazy load). |
+| `loadingSkeletonRows` | number | Quantidade de linhas do skeleton (padrão: 5). |
+| `searchDebounceMs` | number | Atraso do debounce da busca (ex.: 450). |
+| `searchDebounceText` | string | Mensagem exibida enquanto o debounce da busca está pendente (padrão automático quando há `onSearchChange`). |
+| `minSearchLengthForDebounceFeedback` | number | Comprimento mínimo do termo digitado para exibir a mensagem de debounce (padrão: 1). |
+| `disabled` | boolean | Desabilita o campo. |
+| `required` | boolean | Exibe asterisco e valida se o schema exigir. |
+| `onOpenChange` | `(open: boolean) => void` | Usado para lazy load: ao abrir (`open === true`), definir `setOptionsRequested(true)`. |
+
+### Checklist rápido
+
+- [ ] Service + API route + hook do recurso existem.
+- [ ] Componente em `caso-form/fields/caso-form-[recurso].tsx` criado.
+- [ ] Uso de `useCasoForm`, `watch`, `useRecursos` com `enabled: optionsRequested`.
+- [ ] Options em `useMemo` com `value`/`label` e fallback para edição quando fizer sentido.
+- [ ] `ComboboxField` com `onOpenChange` para lazy load quando `lazyLoadComboboxOptions` for true.
+- [ ] Export no `index.ts` dos fields.
+- [ ] Campo no schema e no formulário, se o campo for usado no report.
+
+Com isso, novos Combobox podem ser criados de forma consistente e reutilizando o mesmo padrão de dados e UX.

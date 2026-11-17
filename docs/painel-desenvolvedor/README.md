@@ -1,6 +1,14 @@
-# Kanban do Painel do Desenvolvedor
+# Painel do desenvolvedor (Kanban)
 
-Documentação da implementação do quadro Kanban na rota `/painel`, com foco em permitir replicar os mesmos comportamentos em outra aplicação.
+> **Estado: implementado.** Decisões em [`decisoes.md`](decisoes.md). Inclui o modal "Produtos do
+> Desenvolvedor" (fim deste arquivo, antes em `components/painel-kanban/filtros/produtos-modal/README.md`).
+
+## O que é
+
+A "home" de quem desenvolve, em `/painel`: Kanban com as colunas Abertos, Corrigidos, Retornos e
+Concluídos, filtros (produto, projeto, setor, agenda), drag-and-drop que persiste o status,
+infinite scroll por coluna e modal de resumo do caso. O texto abaixo foi escrito com foco em
+permitir replicar os mesmos comportamentos em outra aplicação.
 
 ## 1. Visão geral e stack
 
@@ -475,3 +483,26 @@ return (
 | Drag end (outra coluna) | Domínio | Mutation de status / finalizar; toast; invalidate queries |
 | Overlay | tunnel-rat + portal | Card flutuante fora da árvore de scroll |
 | Clique vs drag | `dragHandle` + distance 8 | Clique abre modal; grip inicia arraste |
+
+---
+
+## Modal Produtos do Desenvolvedor
+
+Esta pasta contém o modal **Produtos do Desenvolvedor** (Figma: estados `375:517` e `376:312`) e seus subcomponentes.
+
+### Entrypoint
+
+- `index.tsx`: exporta `PainelKanbanProdutosModal` (com hooks, estado e handlers).
+
+### Subcomponentes
+
+- `produtos-modal-add-form.tsx`: formulário de adicionar (reusa `CasoFormProduto` e `CasoFormVersao`).
+- `produtos-modal-list.tsx`: lista com `dnd-kit` + container de scroll.
+- `sortable-row.tsx`: linha ordenável + modo edição inline.
+- `produtos-modal-skeleton.tsx`: skeleton exibido durante o loading.
+
+### Utilitários/Tipos
+
+- `utils.ts`: helpers (`parseVersaoFieldValue`, `toSortableId`).
+- `types.ts`: tipos do feature.
+

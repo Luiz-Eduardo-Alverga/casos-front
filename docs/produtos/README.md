@@ -1,6 +1,14 @@
-# Padrão de Pastas — Módulo Produtos
+# Produtos
 
-Este documento descreve a organização do módulo **Produtos** (`components/produtos/`). Ele complementa o [PADRAO_COMPONENTES.md](./PADRAO_COMPONENTES.md) e segue o modelo do [PADRAO_PROJETOS.md](./PADRAO_PROJETOS.md).
+> **Estado: implementado.** Decisões em [`decisoes.md`](decisoes.md). Contrato de dados do
+> legado usado no planejamento em [`prototipo/dados-para-prototipo.md`](prototipo/dados-para-prototipo.md).
+> Segue o modelo de [`projetos/`](../projetos/README.md).
+
+## O que é
+
+Cadastro das linhas de software Softcom: listagem em `/produtos`, novo em `/produtos/novo` e
+detalhe em `/produtos/[id]` com as abas Dados gerais, Versões, Módulos, Checklist e Scripts.
+`app/api/produtos/**` é uma fachada sobre o legado `projeto-versoes*`.
 
 Vocabulário da UI: **Produto**, **Versão**, **Módulo**, **Checklist**, **Script**. Nunca chamar produto de "projeto".
 
@@ -191,11 +199,11 @@ Exclusão com HTTP 409 abre diálogo bloqueado (`ProdutoConflitoDialog` / equiva
 
 | Documento | Conteúdo |
 | --------- | -------- |
-| [PADRAO_COMPONENTES.md](./PADRAO_COMPONENTES.md) | Cards, skeletons, empty states |
-| [PADRAO_PROJETOS.md](./PADRAO_PROJETOS.md) | Modelo de feature folders |
-| [PADRAO_REQUISICOES.md](./PADRAO_REQUISICOES.md) | Chamadas HTTP |
-| [RBAC_PERMISSOES.md](./RBAC_PERMISSOES.md) | Permissões |
-| [PRODUTO_DADOS_PROTOTIPO.md](./PRODUTO_DADOS_PROTOTIPO.md) | Contrato das APIs do legado |
+| [docs/padrao-front/README.md](../padrao-front/README.md) | Cards, skeletons, empty states |
+| [docs/projetos/README.md](../projetos/README.md) | Modelo de feature folders |
+| [docs/camada-de-dados/README.md](../camada-de-dados/README.md) | Chamadas HTTP |
+| [docs/rbac/README.md](../rbac/README.md) | Permissões |
+| [docs/produtos/prototipo/dados-para-prototipo.md](prototipo/dados-para-prototipo.md) | Contrato das APIs do legado |
 | `.cursor/rules/produtos.mdc` | Regras do agente no módulo |
 
 **Última atualização**: Setembro 2026

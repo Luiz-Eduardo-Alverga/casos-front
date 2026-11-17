@@ -11,7 +11,7 @@ const STALE_MS = 60_000;
 const GC_MS = 5 * 60_000;
 
 /**
- * Detalhe de adquirente para edição — cache por id (PADRAO_REQUISICOES: useQuery + service).
+ * Detalhe de adquirente para edição — cache por id (docs/camada-de-dados: useQuery + service).
  * Reabra o mesmo registro: dados vêm do cache se ainda frescos (`staleTime`).
  */
 export function useAcquirerDetailQuery(id: string | null, enabled: boolean) {

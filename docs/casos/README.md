@@ -1,6 +1,19 @@
-# Padrão de Pastas — Módulo Casos
+# Casos
 
-Este documento descreve a organização de pastas do módulo **Casos** (`components/casos/`). Segue o mesmo modelo do [PADRAO_PROJETOS.md](./PADRAO_PROJETOS.md) e complementa o [PADRAO_COMPONENTES.md](./PADRAO_COMPONENTES.md).
+> **Estado: implementado.** Decisões em [`decisoes.md`](decisoes.md). Segue o modelo de
+> [`projetos/`](../projetos/README.md) e os padrões de [`padrao-front/`](../padrao-front/README.md).
+
+## O que é
+
+Caso é a unidade de trabalho de desenvolvimento (bug, ajuste, tarefa), com fluxo típico Aberto →
+Corrigido → (Retorno do QA) → Concluído. Listagem em `/casos`, cadastro em `/casos/novo` (2
+colunas, modo rápido, anexos, Assistant) e edição em `/casos/[id]` com as abas Inicial,
+Anotações, Relações, Clientes, Produção, Anexos e Histórico, mais a coluna lateral de status,
+classificação e ações. Dados vêm da API Soft Flow (`projeto-casos*`); anexos vão para o S3. Report
+compartilha o mesmo backend (ver [`reports/`](../reports/README.md)).
+
+Abaixo, a organização de pastas de `components/casos/`. Para criar uma aba nova, seção 7; para
+uma feature nova, o checklist da seção 8.
 
 ---
 
@@ -264,9 +277,9 @@ interface AbaFeatureProps {
 
 | Documento | Conteúdo |
 | --------- | -------- |
-| [PADRAO_PROJETOS.md](./PADRAO_PROJETOS.md) | Modelo base de organização |
-| [PADRAO_COMPONENTES.md](./PADRAO_COMPONENTES.md) | Padrões visuais e de UI |
-| [PADRAO_COMPONENTES_GRANDES.md](./PADRAO_COMPONENTES_GRANDES.md) | Decomposição de componentes grandes |
+| [docs/projetos/README.md](../projetos/README.md) | Modelo base de organização |
+| [docs/padrao-front/README.md](../padrao-front/README.md) | Padrões visuais e de UI |
+| [docs/padrao-front/README.md](../padrao-front/README.md) | Decomposição de componentes grandes |
 
 ---
 

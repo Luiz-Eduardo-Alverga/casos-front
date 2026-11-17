@@ -2,7 +2,9 @@
 
 Documento de briefing para Claude (Chat, Design ou Code) e para qualquer pessoa que precise do contexto inicial do que a aplicação é, para quem serve e como está organizada.
 
-Não substitui os padrões de implementação (`PADRAO_COMPONENTES.md`, `PADRAO_CASOS.md`, `PADRAO_PROJETOS.md`, `PADRAO_PRODUTOS.md`). Complementa o brief visual em `BRIEF_CLAUDE_DESIGN.md` e o design system em `DESIGN_SYSTEM.md`.
+Não substitui a documentação de cada funcionalidade em `docs/<slug>/` (índice no fim deste
+arquivo) nem o visual em [`design-system.md`](design-system.md). O estado de cada entrega (✅ /
+🟡 / ❌ / 📋) fica em [`status-projeto-softflow.md`](status-projeto-softflow.md).
 
 ---
 
@@ -60,7 +62,7 @@ Não chamar caso de “ticket” na UI (ticket existe só no contexto de cliente
 
 ## Personas e permissões
 
-Acesso é **RBAC** (`modulo.acao`, ex.: `list-case`, `list-report`, `list-painel-dev`). A sidebar e as ações somem conforme o papel. Após o login, cada usuário cai na primeira tela que tem permissão (painel do dev, minha visão, casos, projetos, auditoria, cadastros ou avisos). Detalhe em `RBAC_PERMISSOES.md`.
+Acesso é **RBAC** (`modulo.acao`, ex.: `list-case`, `list-report`, `list-painel-dev`). A sidebar e as ações somem conforme o papel. Após o login, cada usuário cai na primeira tela que tem permissão (painel do dev, minha visão, casos, projetos, auditoria, cadastros ou avisos). Detalhe em `docs/rbac/README.md`.
 
 Personas principais:
 
@@ -79,27 +81,28 @@ Navegação em três blocos: **painéis pessoais**, **gerenciar** e **recursos**
 ### Painéis
 
 - **Avisos** (`/avisos`) — notificações internas, lista + detalhe, filtro por período.
-- **Painel do desenvolvedor** (`/painel`) — Kanban operacional do dev. Colunas: **Abertos / Corrigidos / Retornos / Concluídos**. Filtros (produto, projeto, setor, agenda), drag-and-drop persiste status, infinite scroll, modal de resumo do caso. É a “home” de quem desenvolve. Detalhe em `KANBAN_PAINEL_DESENVOLVEDOR.md`.
+- **Painel do desenvolvedor** (`/painel`) — Kanban operacional do dev. Colunas: **Abertos / Corrigidos / Retornos / Concluídos**. Filtros (produto, projeto, setor, agenda), drag-and-drop persiste status, infinite scroll, modal de resumo do caso. É a “home” de quem desenvolve. Detalhe em `docs/painel-desenvolvedor/README.md`.
+- **Indicadores** (`/painel/indicadores`) — premiação e metas do período por colaborador (baseline, recálculo); ver outros colaboradores exige `list-indicadores-all`.
 - **Painel Minha Visão** (`/painel/minha-visao`) — visão gerencial: KPIs, casos para testar, casos em produção, prazos de clientes, próximas/últimas liberações, painel de ideias. Filtros de setor/produto/projeto/versão.
 
 ### Operação (Casos e Reports)
 
-- **Casos** (`/casos`) — listagem filtrável com tabela e infinite scroll. Criação em `/casos/novo` (form em 2 colunas + modo rápido + anexos + Assistant). Edição em `/casos/[id]` com abas: **Inicial, Anotações, Relações, Clientes, Produção, Anexos, Histórico**. Coluna lateral com status, classificação e ações (transferência, abrir ocorrência quando faz sentido). Há indicador de caso em produção. Padrão de pastas em `PADRAO_CASOS.md`.
+- **Casos** (`/casos`) — listagem filtrável com tabela e infinite scroll. Criação em `/casos/novo` (form em 2 colunas + modo rápido + anexos + Assistant). Edição em `/casos/[id]` com abas: **Inicial, Anotações, Relações, Clientes, Produção, Anexos, Histórico**. Coluna lateral com status, classificação e ações (transferência, abrir ocorrência quando faz sentido). Há indicador de caso em produção. Padrão de pastas em `docs/casos/README.md`.
 - **Reports** (`/reports`) — fila de análise (lista ou tabela + detalhe). Ações: **aprovar**, **marcar incompleto**, **suspender** (com anotação). Criação em `/reports/novo` (produto, categoria, prioridade/SLA, ocorrência inicial, PO/QA, responsável suporte, vínculo com cliente). Um report concluído pode notificar no Discord. Edição reutiliza a tela de caso quando já existe registro, com layout específico de report.
 
 ### Projetos e entrega
 
-- **Projetos** (`/projetos`) — listagem, cadastro (`/projetos/novo`) e edição (`/projetos/[id]`) com abas: **Abertura, Escopo, Risco, Stakeholders, Cronograma**. Escopo lista casos/reports da memória do projeto (badges de status, origem caso vs report). Padrão de pastas em `PADRAO_PROJETOS.md`.
+- **Projetos** (`/projetos`) — listagem, cadastro (`/projetos/novo`) e edição (`/projetos/[id]`) com abas: **Abertura, Escopo, Risco, Stakeholders, Cronograma**. Escopo lista casos/reports da memória do projeto (badges de status, origem caso vs report). Padrão de pastas em `docs/projetos/README.md`.
 - **Liberações** (`/liberacoes`) — registro de release: versões piloto vs final e casos vinculados por produto. Detalhe em `/liberacoes/[registro]` com abas **Liberação** (identidade, piloto, versão final, flags, encerrar), **Casos da versão** e **Checklist**.
 - **Melhorias** (`/melhorias`) — tela de ideias/melhorias por produto, setor e período, disponível na navegação principal.
 
 ### Clientes e cadastros Smart
 
 - **Clientes** (`/clientes`) — busca por nome (obrigatória para listar). Detalhe (`/clientes/[id]`): dados gerais, contato, endereço, produtos/URLs, abas de **casos** e **tickets**.
-- **Produtos** (`/produtos`) — cadastro de linhas de software Softcom: listagem, novo (`/produtos/novo`) e detalhe (`/produtos/[id]`) com abas **Dados gerais, Versões, Módulos, Checklist, Scripts**. Padrão de pastas em `PADRAO_PRODUTOS.md`.
+- **Produtos** (`/produtos`) — cadastro de linhas de software Softcom: listagem, novo (`/produtos/novo`) e detalhe (`/produtos/[id]`) com abas **Dados gerais, Versões, Módulos, Checklist, Scripts**. Padrão de pastas em `docs/produtos/README.md`.
 - **Cadastros Smart** — Adquirentes, Versões, Dispositivos (CRUD em Postgres próprio).
 - **Kanban Adquirentes** (`/cadastros/adquirentes/status`) — board do status de homologação/integração de adquirentes.
-- **Documentação** (`/documentacao`) — base de conhecimento técnico e de processo, com categorias, tags, vínculos com entidades do Softflow, histórico e conteúdo Markdown sanitizado. Cadastro e edição exigem permissões próprias. Padrão de pastas em `PADRAO_DOCUMENTACAO.md`.
+- **Documentação** (`/documentacao`) — base de conhecimento técnico e de processo, com categorias, tags, vínculos com entidades do Softflow, histórico e conteúdo Markdown sanitizado. Cadastro e edição exigem permissões próprias. Padrão de pastas em `docs/documentacao/README.md`.
 
 ### Gestão
 
@@ -110,13 +113,13 @@ Integrações laterais (não são telas, mas fazem parte da experiência):
 
 - **Discord** — DM ao dev quando um caso é aberto/clonado; aviso quando report é concluído.
 - **Assistant** — preenchimento assistido de descrição de caso/report.
-- **Anexos** — upload no Supabase Storage.
+- **Anexos** — upload no S3 da Softcom (presign/multipart pelo servidor), para casos e documentação.
 
 ---
 
 ## Padrões de tela (para prototipar)
 
-Shell estável em todas as telas autenticadas. Fonte de verdade visual: `BRIEF_CLAUDE_DESIGN.md`, `DESIGN_SYSTEM.md`, `PADRAO_ESPACAMENTOS.md`, `PADRAO_COMPONENTES.md`.
+Shell estável em todas as telas autenticadas. Fonte de verdade visual: [`design-system.md`](design-system.md); padrões de código em [`padrao-front/`](padrao-front/README.md).
 
 - **Sidebar** esquerda (expandida ~256px / colapsada ~64px), escura, com logo Softflow.
 - **Header** fixo 64px, branco.
@@ -151,9 +154,12 @@ Protótipos devem parecer **tela nativa do Softflow**, não um redesign da marca
 
 - Front: **Next.js (App Router) + React + TypeScript + Tailwind + shadcn/ui + TanStack Query + react-hook-form + Zod**.
 - Duas origens de dados:
-  1. **API Soft Flow** (legado): casos, reports, projetos, usuários, catálogos (produtos, versões, status, clientes Softcom, visão gerencial, etc.). O Next faz proxy (`/api/...`). Ver `PADRAO_REQUISICOES.md`.
-  2. **Postgres (Supabase) via `/api/db`**: cadastros Smart, RBAC, documentação, anexos, prompts e dados nativos do Softflow. Ver `API_DB_ARQUITETURA.md`.
-- Auth: login na API Soft Flow → cookie HttpOnly `casos_token` + permissões no cliente. Ver `FLUXO_AUTENTICACAO_LOGIN.md`.
+  1. **API Soft Flow** (legado): casos, reports, projetos, usuários, catálogos (produtos, versões, status, clientes Softcom, visão gerencial, etc.). O Next faz proxy (`/api/...`). Ver [`camada-de-dados/`](camada-de-dados/README.md).
+  2. **Postgres (Supabase) via `/api/db`**: cadastros Smart, RBAC, documentação, metadados de anexos e dados nativos do Softflow. Ver [`camada-de-dados/`](camada-de-dados/README.md).
+- Arquivos de anexo: S3 da Softcom, só pelo servidor.
+- IA: serviço externo **Assistant** (preenchimento de caso/report, release notes, análise de produção, prompts). Ver [`assistente-ia/`](assistente-ia/README.md).
+- Auth: login na API Soft Flow → cookie HttpOnly `casos_token` + permissões no cliente. Ver [`autenticacao/`](autenticacao/README.md) e [`rbac/`](rbac/README.md).
+- Deploy: Docker Swarm na VPS, disparado por push na `master`. Ver [`deploy/`](deploy/README.md).
 
 Ao prototipar, respeitar o que o sistema já sabe persistir. Fluxos novos podem exigir API nova — deixar isso explícito no protótipo (campo/ação vs. “ainda não existe no backend”).
 
@@ -174,12 +180,64 @@ Ao trabalhar a partir daqui:
 
 ---
 
-## Estado atual relevante para o roadmap
+## Convenções de engenharia (frontend)
 
-- Casos, Reports, Projetos, Liberações, Produtos, Painel Dev, Minha Visão, Clientes, Cadastros Smart, Documentação, Auditoria, Avisos, RBAC e Prompts IA **já estão implementados**.
-- **Melhorias** está implementada como tela e disponível no menu.
-- Qualquer proposta nova deve encaixar nesse sistema visual e nesse vocabulário — não em um produto paralelo.
+Stack: Next.js (App Router), React, TypeScript, Tailwind, shadcn/ui, TanStack Query,
+react-hook-form + Zod. Detalhes em [`padrao-front/`](padrao-front/README.md),
+[`camada-de-dados/`](camada-de-dados/README.md) e [`design-system.md`](design-system.md).
+
+- Shell (sidebar, header, layout de `app/(dashboard)`) já existe; tela nova é só conteúdo.
+- Componentes com responsabilidade única; componente grande vira feature folder com `index.tsx`
+  como entrypoint (hooks + estado + handlers). `*.types.ts` para tipos, `utils.ts` só funções
+  puras, `schema.ts` para Zod.
+- Cores só por token semântico; espaçamento na escala 8/16/24; card no padrão do design system.
+- Toda listagem/aba com fetch tem skeleton que espelha a estrutura real, empty state e erro.
+- Dados por hook customizado em `hooks/<modulo>/` (nunca em `components/`), com `enabled` quando
+  depende de parâmetro e paginação infinita com `flatMap`.
+- Formulários com react-hook-form (`FormProvider`, `Controller`/`useFormContext`), sem estado
+  local por campo.
+- Permissão no entrypoint da tela (`RequirePermission`) e nas ações (`hasPermission`); no
+  backend, `withPermission`.
+- UI toda em pt-BR. Desktop: scroll dentro dos cards; mobile: coluna única.
+- Não há suíte de testes automatizados; validação é `npm run lint`, `npm run build` e conferência
+  no navegador.
 
 ---
 
-**Referências:** `BRIEF_CLAUDE_DESIGN.md`, `DESIGN_SYSTEM.md`, `PADRAO_COMPONENTES.md`, `PADRAO_ESPACAMENTOS.md`, `PADRAO_CASOS.md`, `PADRAO_PROJETOS.md`, `PADRAO_PRODUTOS.md`, `PADRAO_DOCUMENTACAO.md`, `RBAC_PERMISSOES.md`, `KANBAN_PAINEL_DESENVOLVEDOR.md`
+## Estado atual
+
+O estado de cada funcionalidade (confirmado, não testado, pendências, backlog) fica em
+[`status-projeto-softflow.md`](status-projeto-softflow.md). Qualquer proposta nova deve encaixar
+neste sistema visual e neste vocabulário, não em um produto paralelo.
+
+---
+
+## Índice de `docs/<slug>/`
+
+Cada pasta tem um `README.md` (o que é / arquitetura / reaproveitável / como estender) e, quando
+há decisão não óbvia pelo código, um `decisoes.md`.
+
+| Pasta | Assunto |
+|-------|---------|
+| [`painel-desenvolvedor/`](painel-desenvolvedor/README.md) | Kanban do dev (`/painel`) |
+| [`indicadores/`](indicadores/README.md) | Premiação e metas (`/painel/indicadores`) |
+| [`minha-visao/`](minha-visao/README.md) | Painel gerencial (`/painel/minha-visao`) |
+| [`avisos/`](avisos/README.md) | Notificações internas (`/avisos`) |
+| [`casos/`](casos/README.md) | Casos (`/casos`) |
+| [`reports/`](reports/README.md) | Fila de análise e abertura de reports (`/reports`) |
+| [`projetos/`](projetos/README.md) | Projetos SGP (`/projetos`) |
+| [`liberacoes/`](liberacoes/README.md) | Registro de liberação (`/liberacoes`) |
+| [`melhorias/`](melhorias/README.md) | Ideias e melhorias (`/melhorias`) |
+| [`auditoria-horas/`](auditoria-horas/README.md) | Auditoria de horas (`/auditoria/horas-colaboradores`) |
+| [`clientes/`](clientes/README.md) | Clientes Softcom e tickets (`/clientes`) |
+| [`produtos/`](produtos/README.md) | Produtos, versões, módulos, checklist, scripts (`/produtos`) |
+| [`cadastros-smart/`](cadastros-smart/README.md) | Adquirentes, versões e dispositivos (`/cadastros/*`) |
+| [`adquirentes/`](adquirentes/README.md) | Kanban de status e página pública de adquirentes |
+| [`documentacao/`](documentacao/README.md) | Módulo de documentação (`/documentacao`) |
+| [`configuracoes/`](configuracoes/README.md) | Usuários, perfis de acesso, prompts IA |
+| [`assistente-ia/`](assistente-ia/README.md) | Integração com o Assistant |
+| [`rbac/`](rbac/README.md) | Permissões e hierarquia de perfis |
+| [`autenticacao/`](autenticacao/README.md) | Login, sessão e redirecionamento |
+| [`camada-de-dados/`](camada-de-dados/README.md) | API Soft Flow (proxy) e `/api/db` (Drizzle) |
+| [`padrao-front/`](padrao-front/README.md) | Padrões de componente, estado e formulário |
+| [`deploy/`](deploy/README.md) | Deploy na VPS |

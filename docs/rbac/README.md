@@ -1,6 +1,9 @@
-# RBAC / Permissões — Padrão do Projeto
+# RBAC / Permissões
 
-Este documento descreve o padrão adotado no **Casos Front** para implementar **controle de acesso por permissão (RBAC)** no **frontend** e no **backend** (rotas `/api/db/*`).
+> **Estado: implementado** (padrão em uso). Decisões em [`decisoes.md`](decisoes.md). Tela de
+> gestão de perfis em [`configuracoes/`](../configuracoes/README.md).
+
+Este documento descreve o padrão adotado no **Softflow** para implementar **controle de acesso por permissão (RBAC)** no **frontend** e no **backend** (rotas `/api/db/*`).
 
 > Regra de ouro: **sempre implemente em duas camadas**:
 > - **Frontend**: esconder navegação/ações e bloquear acesso por URL.
@@ -16,7 +19,7 @@ Este documento descreve o padrão adotado no **Casos Front** para implementar **
 
 Fontes úteis:
 - Contrato: `public/openapi.yaml`
-- Arquitetura `/api/db`: `docs/API_DB_ARQUITETURA.md`
+- Arquitetura `/api/db`: `docs/camada-de-dados/README.md`
 
 ---
 
@@ -180,7 +183,7 @@ Exemplo já implementado:
 - [ ] Usar `withPermission("codigo")` no método
 - [ ] Validar payload com Zod (em `lib/validators/db/*`)
 - [ ] Usar `jsonOk`/`jsonError` + `handleDbRouteError`
-- [ ] Atualizar `public/openapi.yaml` e `docs/API_DB_ARQUITETURA.md`
+- [ ] Atualizar `public/openapi.yaml` e `docs/camada-de-dados/README.md`
 
 ---
 
@@ -209,7 +212,7 @@ Exemplo já implementado:
 - `list-doc`: listar documentos e anexos de documentação
 - `edit-doc`: editar documento e anexar/remover arquivos
 
-Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../db/scripts/seed-case-attachments-rbac.sql), [`db/scripts/seed-list-project-rbac.sql`](../db/scripts/seed-list-project-rbac.sql), [`db/scripts/seed-create-project-rbac.sql`](../db/scripts/seed-create-project-rbac.sql), [`db/scripts/seed-edit-project-rbac.sql`](../db/scripts/seed-edit-project-rbac.sql), [`db/scripts/seed-produtos-rbac.sql`](../db/scripts/seed-produtos-rbac.sql), [`db/scripts/seed-liberacoes-rbac.sql`](../db/scripts/seed-liberacoes-rbac.sql), [`db/scripts/seed-melhorias-rbac.sql`](../db/scripts/seed-melhorias-rbac.sql).
+Seed SQL opcional: [`db/scripts/seed-case-attachments-rbac.sql`](../../db/scripts/seed-case-attachments-rbac.sql), [`db/scripts/seed-list-project-rbac.sql`](../../db/scripts/seed-list-project-rbac.sql), [`db/scripts/seed-create-project-rbac.sql`](../../db/scripts/seed-create-project-rbac.sql), [`db/scripts/seed-edit-project-rbac.sql`](../../db/scripts/seed-edit-project-rbac.sql), [`db/scripts/seed-produtos-rbac.sql`](../../db/scripts/seed-produtos-rbac.sql), [`db/scripts/seed-liberacoes-rbac.sql`](../../db/scripts/seed-liberacoes-rbac.sql), [`db/scripts/seed-melhorias-rbac.sql`](../../db/scripts/seed-melhorias-rbac.sql).
 
 ---
 
@@ -258,9 +261,9 @@ Na tela **Usuários**:
 
 ### Seed dos níveis iniciais
 
-Migration: [`db/migrations/0006_role_hierarchy_level.sql`](../db/migrations/0006_role_hierarchy_level.sql)
+Migration: [`db/migrations/0006_role_hierarchy_level.sql`](../../db/migrations/0006_role_hierarchy_level.sql)
 
-Script de seed: [`db/scripts/seed-role-hierarchy.sql`](../db/scripts/seed-role-hierarchy.sql)
+Script de seed: [`db/scripts/seed-role-hierarchy.sql`](../../db/scripts/seed-role-hierarchy.sql)
 
 | Nível | Significado |
 | ----- | ----------- |
