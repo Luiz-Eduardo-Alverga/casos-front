@@ -130,7 +130,8 @@ export const PRODUTO_LABELS = {
   previsaoFechamento: "Previsão de fechamento",
   notasVersao: "Notas da versão",
   notasPlaceholder: "O que entra nesta versão…",
-  helptools: "Hotfix",
+  // Rótulo do campo Helptools da versão (legado). Antes "Hotfix"; trocado para Release em 2026-11-17.
+  helptools: "Release",
   estacionamentoIdeias: "Estacionamento de ideias",
   testador: "Testador",
   dataVersao: "Data da versão",

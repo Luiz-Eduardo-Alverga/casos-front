@@ -51,6 +51,10 @@ estava registrado, está marcado "a confirmar".
     em `InformacoesTecnicas`, então apagar todo o texto não limpa o campo. Resolver exige
     mudança no legado.
 
+14. **O campo `Helptools` da versão aparece como "Release" na tela** (coluna da tabela de versões e
+    switch do formulário; antes "Hotfix"). Só o rótulo mudou: o campo da API continua `Helptools`.
+    Origem: pedido do usuário, 2026-11-17.
+
 13. **A listagem abre com "Incluir desativados" ligado e com o setor do usuário logado.**
     Origem: pedido do usuário, 2026-11-17. Detalhes de implementação: o setor padrão vale só ao
     entrar sem filtro na URL (link com `?nome=` ou `?setor=` é respeitado) e fica em memória, não
