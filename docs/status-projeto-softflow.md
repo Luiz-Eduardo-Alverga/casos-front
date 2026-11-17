@@ -61,7 +61,10 @@ coberto.
   depois de recarregar. Ver [`produtos/decisoes.md`](produtos/decisoes.md) #12.
 - **Minha Visão: Painel de ideias abre Melhorias em nova aba, com hover e ícone** (2026-11-17,
   na `dev`). Testado: 6 linhas com link `target="_blank"`, ícone e fundo no hover, clique na
-  linha chama `window.open(..., "_blank")` sem sair da Minha Visão.
+  linha chama `window.open(..., "_blank")` sem sair da Minha Visão. Corrigido no mesmo dia: o
+  filtro de período ia só com o dia de `dt_inicial`/`dt_final` (ex.: 07/09 a 07/09) e a tela de
+  Melhorias vinha vazia; agora vai o mês da competência (01/09 a 30/09). Testado com Smart
+  2026/09: a lista passou a trazer os registros do mês.
 
 ## ❌ Pendências conhecidas, ainda não endereçadas
 
@@ -78,10 +81,10 @@ usuário):
 - **Informações técnicas do produto não pode ser apagada**: o legado ignora `null` e `""` nesse
   campo no `PUT /projeto-versoes/{id}`. Precisa de ajuste no legado. Efeito do teste de
   2026-11-17: o produto 375 (Meu Fiscal Web) ficou com "teste" nesse campo (antes vazio).
-- **Drill-down do Painel de ideias para Melhorias vem vazio** em pelo menos um caso visto em
-  2026-11-17 (Smart, 2026/09, 5 pendentes no painel; a tela de Melhorias com os mesmos filtros não
-  lista nada, nem clicando em Filtrar). A montagem do filtro é anterior a esta data; causa não
-  investigada (datas que a API devolve por item ou filtro da tela de Melhorias).
+- **Contagem do Painel de ideias × tela de Melhorias pode diferir em 1.** Smart 2026/09: o painel
+  conta 6 (5 pendentes, 1 recusada), a tela de Melhorias com o mês inteiro lista 7 (6 aguardando,
+  1 recusada). A sobra é a #25837 (30/09, sem produto exibido na lista). Causa não investigada
+  (regra de contagem do painel no legado).
 - **Rota antiga `/painel/old`** (`components/painel/painel`) continua publicada.
 - **Link quebrado** para `db/scripts/reset-supabase-dev.sql` em
   [`camada-de-dados/`](camada-de-dados/README.md) (o arquivo não existe).

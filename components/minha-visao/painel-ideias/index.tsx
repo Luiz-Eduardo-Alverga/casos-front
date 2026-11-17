@@ -25,6 +25,27 @@ interface PainelIdeiasProps {
   setor?: string;
 }
 
+/**
+ * Período do mês da competência ("2026/09" → 2026-09-01 a 2026-09-30).
+ * A API agrupa por competência; dt_inicial/dt_final vêm como uma data solta
+ * (ou null) e não representam o mês, por isso não servem de período.
+ */
+function competenciaToPeriodo(
+  competencia: string | null | undefined,
+): { dataInicial: string; dataFinal: string } | null {
+  const match = /^(\d{4})\D(\d{1,2})$/.exec(String(competencia ?? "").trim());
+  if (!match) return null;
+  const ano = Number(match[1]);
+  const mes = Number(match[2]);
+  if (mes < 1 || mes > 12) return null;
+  const ultimoDia = new Date(ano, mes, 0).getDate();
+  const mm = String(mes).padStart(2, "0");
+  return {
+    dataInicial: `${ano}-${mm}-01`,
+    dataFinal: `${ano}-${mm}-${String(ultimoDia).padStart(2, "0")}`,
+  };
+}
+
 function buildMelhoriasHref(
   item: VisaoPainelIdeiasItem,
   setor?: string,
@@ -33,9 +54,10 @@ function buildMelhoriasHref(
   if (item.produto_id != null) {
     params.set("produtoId", String(item.produto_id));
   }
-  const dataInicial = toDateInputValue(item.dt_inicial);
+  const periodo = competenciaToPeriodo(item.competencia);
+  const dataInicial = periodo?.dataInicial ?? toDateInputValue(item.dt_inicial);
   if (dataInicial) params.set("dataInicial", dataInicial);
-  const dataFinal = toDateInputValue(item.dt_final);
+  const dataFinal = periodo?.dataFinal ?? toDateInputValue(item.dt_final);
   if (dataFinal) params.set("dataFinal", dataFinal);
   if (setor?.trim()) params.set("setor", setor.trim());
 

@@ -22,6 +22,9 @@ filtro". Cards:
   por mês e produto. A linha inteira abre a tela de Melhorias filtrada (produto, período e setor)
   em **nova aba**; no hover a linha escurece e aparece o ícone de link externo, que também é um
   link de verdade para teclado e leitor de tela (mesmo efeito das próximas liberações).
+  O período do filtro é o **mês da competência** (`"2026/09"` → 01/09 a 30/09). A API agrupa por
+  `competencia`; `dt_inicial`/`dt_final` de cada item são uma data solta (ou `null`) e só são
+  usados se a competência não vier no formato `AAAA/MM`.
 
 Filtros: setor, produto, projeto e versão.
 
