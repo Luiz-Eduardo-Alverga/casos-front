@@ -4,7 +4,7 @@ import { Flag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/painel/empty-state";
 import { cn } from "@/lib/utils";
-import { isEntregue } from "@/components/minha-visão/utils";
+import { isEntregue } from "@/components/minha-visao/utils";
 import { PrazosClientesSkeleton } from "./prazos-clientes-skeleton";
 import type { VisaoPrazosClientesItem } from "@/services/sprint/get-visao-prazos-clientes";
 

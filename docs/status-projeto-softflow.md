@@ -20,7 +20,7 @@ coberto.
 |----------------|-------|------------------------------|
 | Painel do desenvolvedor (Kanban) | [`painel-desenvolvedor/`](painel-desenvolvedor/README.md) | Layout novo; rota antiga em `/painel/old` |
 | Indicadores | [`indicadores/`](indicadores/README.md) | Tela (2026-09-14); recalcular todos (2026-09-15) |
-| Minha Visão | [`minha-visao/`](minha-visao/README.md) | Formato de data das próximas liberações (2026-08-12) |
+| Minha Visão | [`minha-visao/`](minha-visao/README.md) | Formato de data das próximas liberações (2026-08-12); pasta renomeada sem acento (2026-11-17, na `dev`, conferido com typecheck e lint, sem teste no navegador) |
 | Avisos | [`avisos/`](avisos/README.md) | |
 | Casos | [`casos/`](casos/README.md) | Duplicar caso, inclusive em lote e no modal de transferência (2026-09); anexos de documentos (2026-09-16); caso duplicado (2026-10-13); nº de caso com 6 dígitos nas relações (2026-09-16) |
 | Reports | [`reports/`](reports/README.md) | Refatoração da listagem (2026-10-14) e ajustes (2026-11-06); horário base de abertura (2026-08-21); ocorrência para clientes vinculados ao marcar "requisito incompleto" (2026-08-14) |
@@ -57,7 +57,6 @@ usuário):
 - **Cores cruas do Tailwind no Kanban de adquirentes** (`status-adquirentes-columns.ts`), contra a
   regra de tokens.
 - **Rota antiga `/painel/old`** (`components/painel/painel`) continua publicada.
-- **Pasta `components/minha-visão/` com acento** no nome.
 - **Link quebrado** para `db/scripts/reset-supabase-dev.sql` em
   [`camada-de-dados/`](camada-de-dados/README.md) (o arquivo não existe).
 - **Sem testes automatizados**: validação depende de `lint`, `build` e conferência manual.

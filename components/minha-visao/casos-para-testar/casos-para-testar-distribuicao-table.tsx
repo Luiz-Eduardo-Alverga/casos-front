@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { getAvatarBgClass, getInitials } from "@/components/minha-visão/utils";
+import { getAvatarBgClass, getInitials } from "@/components/minha-visao/utils";
 import type {
   VisaoDistribuicaoItem,
   VisaoDistribuicaoTotais,

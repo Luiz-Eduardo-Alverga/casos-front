@@ -22,7 +22,7 @@ Filtros: setor, produto, projeto e versão.
 ## Arquitetura
 
 ```text
-components/minha-visão/          (pasta com acento no nome)
+components/minha-visao/
 ├── minha-visao.tsx              entrypoint (filtros + grid de cards)
 ├── minha-visao-filtros.tsx · minha-visao-kpis.tsx · -skeleton · utils.ts
 ├── casos-para-testar/ · casos-em-producao/ · prazos-clientes/
@@ -36,10 +36,10 @@ components/minha-visão/          (pasta com acento no nome)
 
 ## Como estender
 
-- Card novo: feature folder em `components/minha-visão/<card>/` com `index.tsx` + skeleton, hook
+- Card novo: feature folder em `components/minha-visao/<card>/` com `index.tsx` + skeleton, hook
   `use-visao-*` e service em `services/sprint/`.
 
-## Lacunas do levantamento
+## Histórico
 
-- A pasta `components/minha-visão/` tem acento no nome, diferente do resto do repositório.
-  Renomear exige atualizar imports; não foi feito.
+- 2026-11-17: a pasta era `components/minha-visão/` (com acento); renomeada para
+  `components/minha-visao/` e imports atualizados.

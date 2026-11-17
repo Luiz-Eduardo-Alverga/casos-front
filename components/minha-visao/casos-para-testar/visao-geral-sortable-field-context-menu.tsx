@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
 import { ArrowDown, ArrowUp, Check } from "lucide-react";
-import type { VisaoGeralStatusColumn } from "@/components/minha-visão/utils";
+import type { VisaoGeralStatusColumn } from "@/components/minha-visao/utils";
 import type { VisaoGeralAgruparPor } from "@/services/sprint/get-visao-geral";
 
 export type VisaoGeralSortOrder = "ASC" | "DESC";

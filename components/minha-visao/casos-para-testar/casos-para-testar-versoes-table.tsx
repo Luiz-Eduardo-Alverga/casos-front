@@ -8,7 +8,7 @@ import {
   buildCasosListagemHref,
   resolveVisaoStatusIds,
   type VisaoGeralStatusColumn,
-} from "@/components/minha-visão/utils";
+} from "@/components/minha-visao/utils";
 import type {
   VisaoGeralAgruparPor,
   VisaoGeralItem,

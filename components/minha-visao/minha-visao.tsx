@@ -8,21 +8,21 @@ import { EmptyState } from "@/components/painel/empty-state";
 import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { getUser } from "@/lib/auth";
 
-import { MinhaVisaoFiltros } from "@/components/minha-visão/minha-visao-filtros";
-import { MinhaVisaoKpis } from "@/components/minha-visão/minha-visao-kpis";
-import { MinhaVisaoKpisSkeleton } from "@/components/minha-visão/minha-visao-kpis-skeleton";
+import { MinhaVisaoFiltros } from "@/components/minha-visao/minha-visao-filtros";
+import { MinhaVisaoKpis } from "@/components/minha-visao/minha-visao-kpis";
+import { MinhaVisaoKpisSkeleton } from "@/components/minha-visao/minha-visao-kpis-skeleton";
 import {
   CasosParaTestar,
   type CasosParaTestarView,
-} from "@/components/minha-visão/casos-para-testar";
-import { CasosEmProducao } from "@/components/minha-visão/casos-em-producao";
-import { PrazosClientes } from "@/components/minha-visão/prazos-clientes";
+} from "@/components/minha-visao/casos-para-testar";
+import { CasosEmProducao } from "@/components/minha-visao/casos-em-producao";
+import { PrazosClientes } from "@/components/minha-visao/prazos-clientes";
 import {
   Liberacoes,
   type TipoLiberacaoFiltro,
-} from "@/components/minha-visão/liberacoes";
-import { PainelIdeias } from "@/components/minha-visão/painel-ideias";
-import { sumVisaoGeralPendente } from "@/components/minha-visão/utils";
+} from "@/components/minha-visao/liberacoes";
+import { PainelIdeias } from "@/components/minha-visao/painel-ideias";
+import { sumVisaoGeralPendente } from "@/components/minha-visao/utils";
 
 import { useVisaoGeral } from "@/hooks/painel/use-visao-geral";
 import { useVisaoCasosEmProducao } from "@/hooks/painel/use-visao-casos-em-producao";
