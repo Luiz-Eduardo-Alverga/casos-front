@@ -5,6 +5,13 @@ alwaysApply: true
 
 # Softflow — regras de implementação
 
+Fonte de verdade: `CLAUDE.md` (raiz) e `docs/`. Este arquivo é um resumo para o Cursor.
+- Antes de mexer numa funcionalidade, ler `docs/<slug>/README.md` e `docs/<slug>/decisoes.md`
+  (índice no fim de `docs/contexto-projeto-softflow.md`). Visual em `docs/design-system.md`.
+- Ao entregar, atualizar a pasta `docs/<slug>/`, `docs/contexto-projeto-softflow.md` e
+  `docs/status-projeto-softflow.md`. Nada de `notes.md`/`todo.md` soltos.
+- Commits na `dev`; a `master` é produção e só recebe merge com confirmação do usuário.
+
 ## Não recriar
 - A casca da aplicação JÁ EXISTE: `components/sidebar/app-sidebar.tsx` e o layout de `app/(dashboard)`.
   Nunca criar novo AppShell, Sidebar ou Header. Telas novas são apenas o conteúdo dentro do layout existente.
@@ -44,4 +51,4 @@ alwaysApply: true
 ## Organização
 - Feature folder com `index.tsx` como entrypoint (hooks + estado + handlers).
 - `*.types.ts` para tipos, `utils.ts` só funções puras, `schema.ts` para Zod.
-- Seguir `docs/PADRAO_CASOS.md` e `docs/PADRAO_PROJETOS.md` como modelo de estrutura.
+- Seguir `docs/casos/README.md` e `docs/projetos/README.md` como modelo de estrutura.
