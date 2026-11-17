@@ -181,6 +181,15 @@ Para não quebrar imports existentes, as pastas antigas permanecem como **re-exp
 - `caso-edit-form.tsx` — tabs, `FormProvider`, submit, contexto `CasoEditProvider`.
 - Feature folders (`anotacoes/`, `producao/`, etc.) — implementação de cada aba.
 - `abas/` — adaptadores finos que re-exportam as features (padrão Projetos).
+- `producao/producao-editar-modal.tsx` — modal **"Editar produção"**, aberto pelo lápis de cada
+  lançamento em "Detalhes da produção" (aba Produção; lançamento em andamento não edita).
+  Substituiu a edição inline na tabela. Campos ativos: Tipo, Abertura e Fechamento (data e hora),
+  com "Duração calculada" e validação (obrigatórios; fechamento posterior à abertura). Grava no
+  `PUT /api/projeto-casos-producao/{sequencia}` com `tipo_producao`, `hora_abertura` e
+  `hora_fechamento`; sem alteração, fecha com "Nenhuma alteração na produção." e não chama a API.
+  **Usuário e Projeto** estão no código, comentados ("Aguardando API"), porque o PUT ainda não
+  aceita esses campos (decisão #7). Protótipo: projeto Softflow no Claude Design, página
+  "Softflow Prototipo".
 - `caso-edit-flags.tsx` — flags **Liberação**, **Entregue** e **Atualização Automática** como
   pílulas com checkbox no header do card "Classificação e Origem" (`showFlags`, só na edição de
   caso; a edição de report não mostra). Leitura: `caso.flags.liberacao`, `caso.flags.entregue`,

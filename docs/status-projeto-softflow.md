@@ -59,6 +59,12 @@ coberto.
 - **Produto: limpar Responsável bugs/melhorias e salvar agora limpa** (2026-11-17, na `dev`).
   Testado no produto 375: preencher, salvar, limpar e salvar deixa `0` na API e "Nenhum" na tela
   depois de recarregar. Ver [`produtos/decisoes.md`](produtos/decisoes.md) #12.
+- **Casos: modal "Editar produção" na aba Produção** (2026-11-17, na `dev`). Testado no caso
+  104020: lançamento criado (iniciar/parar), editado no modal para TESTANDO 11:46–12:16 (PUT
+  enviou tipo e horas; API devolveu os novos valores; tabela mostrou 30 minutos), validação de
+  fechamento ≤ abertura, salvar sem alteração não chama a API. Depois o lançamento foi excluído e
+  o caso voltou a status Aberto e sem "Não planejado"; o histórico do caso guarda esses passos.
+  Usuário e Projeto comentados até a API aceitar ([`casos/decisoes.md`](casos/decisoes.md) #7).
 - **Produtos: filtro "Incluir desativados" e setor do usuário por padrão** (2026-11-17, na `dev`).
   Listagem passa `incluir_desativados` ao legado. Testado no navegador: entrada pelo menu e
   carga direta abrem com SQUAD XP e desativados (15 itens, 4 desativados na 1ª página); desligar

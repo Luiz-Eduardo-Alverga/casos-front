@@ -24,3 +24,10 @@ consolidados em 2026-11-17.
    formulário (o usuário pode desistir antes de salvar) e não sobrescrever o valor da API com o
    default do formulário quando o campo não foi tocado. Ficam só na edição de caso; na de report,
    a confirmar se devem aparecer.
+
+7. **Edição de um lançamento de produção é feita no modal "Editar produção" (não mais inline), e
+   Usuário e Projeto ficam comentados no código até a API aceitar.** Origem: protótipo e pedido
+   do usuário, 2026-11-17. **Por quê:** o `PUT /projeto-casos-producao/{sequencia}` do legado só
+   recebe `tipo_producao`, `hora_abertura` e `hora_fechamento`; mostrar campos que não salvam
+   enganaria quem edita. Para ativar, procurar "Aguardando API" em `producao-editar-modal.tsx`
+   (schema, valores iniciais, JSX e payload) e confirmar no legado os nomes dos campos.

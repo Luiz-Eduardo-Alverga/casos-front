@@ -5,12 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CasoEditTabCardHeader } from "../caso-edit-card-header";
 import { EmptyState } from "@/components/painel/empty-state";
 import { ConfirmacaoModal } from "@/components/confirmacao-modal";
-import {
-  DateTimePicker,
-  apiStringToDate,
-  dateTimeToApiString,
-} from "@/components/ui/date-picker";
-import { useAtualizarProducao } from "@/hooks/producao/use-atualizar-producao";
 import { useExcluirProducao } from "@/hooks/producao/use-excluir-producao";
 import { useUpdateCaso } from "@/hooks/casos/use-update-caso";
 import { CARD_HEADER_PRESETS } from "@/lib/casos/card-header-theme";
@@ -21,11 +15,11 @@ import {
   hasProducaoAberta,
   isProducaoTipoTeste,
   minutosDuracaoProducaoApi,
-  parseDataHoraProducaoApi,
 } from "./utils";
 import { ProducaoEstimativa } from "./producao-estimativa";
 import { ProducaoControle } from "./producao-controle";
 import { ProducaoDetalhes } from "./producao-detalhes";
+import { ProducaoEditarModal } from "./producao-editar-modal";
 
 /** Intervalo para atualizar duração e métricas de produções em aberto (ms). */
 const PRODUCAO_TEMPO_ATUALIZACAO_MS = 1000;
@@ -118,31 +112,19 @@ export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
   const [tamanhoId, setTamanhoId] = useState<string>("");
   const [tempoEstimado, setTempoEstimado] = useState("");
 
-  const [editandoSequencia, setEditandoSequencia] = useState<number | null>(
-    null,
-  );
-  const [editandoTipo, setEditandoTipo] = useState("");
-  const [editandoAbertura, setEditandoAbertura] = useState<Date | undefined>(
-    undefined,
-  );
-  const [editandoFechamento, setEditandoFechamento] = useState<
-    Date | undefined
-  >(undefined);
-
-  const edicaoComTempoAberto =
-    editandoSequencia != null &&
-    editandoAbertura != null &&
-    editandoFechamento == null;
+  // Lançamento aberto no modal "Editar produção" (null = fechado).
+  const [producaoEmEdicao, setProducaoEmEdicao] = useState<
+    (typeof producaoList)[number] | null
+  >(null);
 
   useEffect(() => {
-    if (!temProducaoAbertaNaLista && !edicaoComTempoAberto) return;
+    if (!temProducaoAbertaNaLista) return;
     const id = window.setInterval(() => {
       setTempoTick((n) => n + 1);
     }, PRODUCAO_TEMPO_ATUALIZACAO_MS);
     return () => window.clearInterval(id);
-  }, [temProducaoAbertaNaLista, edicaoComTempoAberto]);
+  }, [temProducaoAbertaNaLista]);
 
-  const atualizarProducao = useAtualizarProducao();
   const excluirProducao = useExcluirProducao();
 
   useEffect(() => {
@@ -171,34 +153,6 @@ export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
     tempos?.estimado_minutos,
   ]);
 
-  const handleIniciarEdicao = (row: (typeof producaoList)[number]) => {
-    setEditandoSequencia(row.sequencia);
-    setEditandoTipo(row.tipo ?? "");
-    setEditandoAbertura(apiStringToDate(row.datas?.abertura ?? null));
-    setEditandoFechamento(apiStringToDate(row.datas?.fechamento ?? null));
-  };
-
-  const handleCancelarEdicao = () => {
-    setEditandoSequencia(null);
-    setEditandoTipo("");
-    setEditandoAbertura(undefined);
-    setEditandoFechamento(undefined);
-  };
-
-  const handleSalvarEdicao = async () => {
-    if (editandoSequencia == null) return;
-    await atualizarProducao.mutateAsync({
-      sequencia: editandoSequencia,
-      payload: {
-        tipo_producao: editandoTipo.trim() || undefined,
-        hora_abertura: dateTimeToApiString(editandoAbertura),
-        hora_fechamento: dateTimeToApiString(editandoFechamento),
-      },
-    });
-    handleCancelarEdicao();
-    onProducaoAlterada?.();
-  };
-
   const [excluirModal, setExcluirModal] = useState<{
     open: boolean;
     sequencia: number;
@@ -210,9 +164,6 @@ export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
     setExcluirModal({ open: false, sequencia: 0 });
     onProducaoAlterada?.();
   };
-
-  void DateTimePicker;
-  void parseDataHoraProducaoApi;
 
   return (
     <>
@@ -258,17 +209,7 @@ export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
                   <ProducaoDetalhes
                     producaoList={producaoList}
                     agoraAtual={agoraAtual}
-                    editandoSequencia={editandoSequencia}
-                    editandoTipo={editandoTipo}
-                    editandoAbertura={editandoAbertura}
-                    editandoFechamento={editandoFechamento}
-                    onEditandoTipoChange={setEditandoTipo}
-                    onEditandoAberturaChange={setEditandoAbertura}
-                    onEditandoFechamentoChange={setEditandoFechamento}
-                    isSalvandoEdicao={atualizarProducao.isPending}
-                    onIniciarEdicao={handleIniciarEdicao}
-                    onCancelarEdicao={handleCancelarEdicao}
-                    onSalvarEdicao={handleSalvarEdicao}
+                    onEditar={setProducaoEmEdicao}
                     onAskDelete={(sequencia) =>
                       setExcluirModal({ open: true, sequencia })
                     }
@@ -293,6 +234,15 @@ export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
           </div>
         </CardContent>
       </Card>
+
+      {!readOnly ? (
+        <ProducaoEditarModal
+          producao={producaoEmEdicao}
+          casoId={caso?.id ?? Number(memoriaQueryId)}
+          onClose={() => setProducaoEmEdicao(null)}
+          onSaved={() => onProducaoAlterada?.()}
+        />
+      ) : null}
 
       {!readOnly ? (
         <ConfirmacaoModal
