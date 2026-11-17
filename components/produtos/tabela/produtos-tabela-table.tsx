@@ -55,6 +55,9 @@ export function ProdutosTabelaTable({
               <TableHead className={`${HEADER_CLASS} text-right`}>
                 {PRODUTO_LABELS.status}
               </TableHead>
+              <TableHead className={`${HEADER_CLASS} w-[90px] text-right`}>
+                {PRODUTO_LABELS.acoes}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

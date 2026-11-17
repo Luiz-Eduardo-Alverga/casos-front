@@ -17,7 +17,6 @@ import { CasoFormProvider } from "@/components/fields/caso-form-provider";
 import { useDebouncedValue } from "@/hooks/shared/use-debounced-value";
 import { useSetores } from "@/hooks/catalogos/use-setores";
 import { PRODUTO_LABELS } from "@/components/produtos/constants";
-import { ProdutosFiltrosAplicadosBadges } from "@/components/produtos/filtros/produtos-filtros-aplicados-badges";
 import type {
   ProdutosFiltroTexto,
   ProdutosFiltrosAplicados,
@@ -27,14 +26,12 @@ interface ProdutosFiltrosProps {
   filtros: ProdutosFiltrosAplicados;
   onChange: (key: ProdutosFiltroTexto, value: string | undefined) => void;
   onIncluirDesativadosChange: (value: boolean) => void;
-  onClear: () => void;
 }
 
 export function ProdutosFiltros({
   filtros,
   onChange,
   onIncluirDesativadosChange,
-  onClear,
 }: ProdutosFiltrosProps) {
   const [nome, setNome] = useState(filtros.nome);
   const debouncedNome = useDebouncedValue(nome, 400);
@@ -169,11 +166,6 @@ export function ProdutosFiltros({
             </div>
           </div>
         </div>
-        <ProdutosFiltrosAplicadosBadges
-          filtros={filtros}
-          onRemove={(key) => onChange(key, undefined)}
-          onClear={onClear}
-        />
       </CardContent>
     </Card>
   );

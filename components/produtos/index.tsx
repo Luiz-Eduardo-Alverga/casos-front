@@ -53,7 +53,6 @@ export function Produtos() {
         filtros={filtros}
         onChange={setFiltro}
         onIncluirDesativadosChange={setIncluirDesativados}
-        onClear={limparFiltros}
       />
       <ProdutosTabela
         filtros={filtros}

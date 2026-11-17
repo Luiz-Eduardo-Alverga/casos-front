@@ -40,8 +40,7 @@ components/produtos/
 
 ├── filtros/
 │   ├── produtos-filtros.tsx
-│   ├── produtos-filtros.types.ts
-│   └── produtos-filtros-aplicados-badges.tsx
+│   └── produtos-filtros.types.ts
 
 ├── tabela/
 │   ├── produtos-tabela.tsx        # Card + fetch infinito + empty/error
@@ -147,6 +146,18 @@ por cursor. Os filtros vivem na URL (`useProdutosFiltros`, nuqs): `?nome=`, `?se
   "Limpar filtros" desliga o padrão até a próxima entrada na tela.
 - A tabela só consulta a API com nome ou setor preenchido; o switch sozinho não dispara busca,
   só faz aparecer o "Limpar filtros".
+- Não há badges de "filtros aplicados" abaixo dos campos (removidos em 2026-11-17, a pedido do
+  usuário); limpar é pelo botão "Limpar filtros" do topo da página.
+
+### Abrir produto
+
+Mesmo padrão de Casos e Liberações. Na tabela, a coluna **Ações** tem o lápis (abre na mesma aba,
+`/produtos/{id}`) e o ícone de link externo (abre em nova aba, `buildProdutoHrefForNewTab` →
+`/produtos/{id}?standalone=1`, em `lib/produto-standalone-url.ts`). Clicar na linha continua
+abrindo na mesma aba. No celular, os dois ícones ficam no card, ao lado do status.
+
+No modo standalone, o "Voltar" do detalhe vira **"Fechar"**: tenta fechar a aba e, se o navegador
+não deixar, vai para `/produtos`. Com alteração não salva, o aviso de descartar aparece antes.
 
 `VinculadoA`: `0` = nenhum. No combobox de edição, excluir o próprio produto.
 

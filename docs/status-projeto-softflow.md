@@ -64,6 +64,12 @@ coberto.
   carga direta abrem com SQUAD XP e desativados (15 itens, 4 desativados na 1ª página); desligar
   manda `incluir_desativados=false` e some com os desativados; "Limpar filtros" zera tudo;
   `?nome=Smart` é respeitado sem setor. Ver [`produtos/decisoes.md`](produtos/decisoes.md) #13.
+- **Produtos: abrir nesta aba / em nova aba e sem badges de filtros** (2026-11-17, na `dev`).
+  Coluna Ações com lápis e link externo (`?standalone=1`, "Voltar" vira "Fechar"); card do
+  celular com os mesmos ícones. Testado no navegador: lápis abre na mesma aba, standalone mostra
+  "Fechar" e o clique fecha a aba, toque no card no celular abre o produto. Em telas por volta
+  de 950 px a coluna Ações fica fora da área visível e exige rolar a tabela para o lado; em
+  1440 px cabe inteira.
 - **Minha Visão: Painel de ideias abre Melhorias em nova aba, com hover e ícone** (2026-11-17,
   na `dev`). Testado: 6 linhas com link `target="_blank"`, ícone e fundo no hover, clique na
   linha chama `window.open(..., "_blank")` sem sair da Minha Visão. Corrigido no mesmo dia: o
