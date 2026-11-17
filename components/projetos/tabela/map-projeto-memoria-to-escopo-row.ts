@@ -3,6 +3,16 @@ import type {
   UsuarioRef,
 } from "@/interfaces/projeto-memoria";
 import type { ProjetosTabelaEscopoRow } from "@/components/projetos/tabela/projetos-tabela-types";
+import { getCasoProducaoEstado } from "@/components/casos/tabela/caso-producao-indicador";
+
+/** Produção iniciada: mesma regra do botão Iniciar/Parar da edição do caso. */
+export function isEmProducao(item: ProjetoMemoriaItem): boolean {
+  const tempoStatus =
+    item.caso.tempos?.tempo_status ?? item.caso.status?.tempo_status;
+  const statusTempo =
+    item.caso.tempos?.status_tempo ?? item.caso.status?.status_tempo;
+  return getCasoProducaoEstado(tempoStatus, statusTempo) === "iniciado";
+}
 
 function usuarioAtribuidoNome(usuario?: UsuarioRef | null): string {
   const id = usuario?.id;
@@ -47,6 +57,7 @@ export function mapProjetoMemoriaToTabelaRow(
     showNaoPlanejado: isNaoPlanejado(item),
     showViavel: isViavel(item),
     showDuplicado: isDuplicado(item),
+    emProducao: isEmProducao(item),
     projetoId: String(item.projeto.id),
     dataConclusao: item.caso.datas.conclusao_dev,
   };

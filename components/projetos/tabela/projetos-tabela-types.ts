@@ -27,6 +27,8 @@ export interface ProjetosTabelaEscopoRow {
   showNaoPlanejado: boolean;
   showViavel: boolean;
   showDuplicado: boolean;
+  /** Produção do caso em andamento (alguém está com o tempo rodando). */
+  emProducao: boolean;
 }
 
 export interface ProjetosTabelaTableListagemProps {

@@ -331,7 +331,8 @@ export function DatePickerInput(props: DatePickerInputProps) {
             <InputGroup
               data-disabled={disabled ? true : undefined}
               className={cn(
-                "border-border-input bg-background shadow-sm dark:border-input",
+                // min-w-0: deixa a data encolher ao lado da hora em colunas estreitas.
+                "min-w-0 border-border-input bg-background shadow-sm dark:border-input",
                 controlHeightClassName,
                 disabled && "cursor-not-allowed opacity-50",
               )}
@@ -350,7 +351,7 @@ export function DatePickerInput(props: DatePickerInputProps) {
                     setOpen(true);
                   }
                 }}
-                className="flex-1 font-medium rounded-none border-0 bg-transparent px-2 py-1 text-sm shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:bg-transparent dark:bg-transparent dark:disabled:bg-transparent"
+                className="min-w-0 flex-1 font-medium rounded-none border-0 bg-transparent px-2 py-1 text-sm shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:bg-transparent dark:bg-transparent dark:disabled:bg-transparent"
               />
               <InputGroupAddon align="inline-start">
                 <PopoverTrigger asChild>

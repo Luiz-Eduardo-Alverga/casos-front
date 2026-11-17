@@ -239,6 +239,7 @@ export function AbaProducao({ item, readOnly = false }: AbaProducaoProps) {
         <ProducaoEditarModal
           producao={producaoEmEdicao}
           casoId={caso?.id ?? Number(memoriaQueryId)}
+          setorProjeto={item?.projeto?.setores?.setor_projeto}
           onClose={() => setProducaoEmEdicao(null)}
           onSaved={() => onProducaoAlterada?.()}
         />

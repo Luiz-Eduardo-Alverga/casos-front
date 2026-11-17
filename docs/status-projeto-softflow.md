@@ -64,7 +64,17 @@ coberto.
   enviou tipo e horas; API devolveu os novos valores; tabela mostrou 30 minutos), validação de
   fechamento ≤ abertura, salvar sem alteração não chama a API. Depois o lançamento foi excluído e
   o caso voltou a status Aberto e sem "Não planejado"; o histórico do caso guarda esses passos.
-  Usuário e Projeto comentados até a API aceitar ([`casos/decisoes.md`](casos/decisoes.md) #7).
+  Em seguida, Usuário, Projeto, Quem ajudou (valeu) e Anotação passaram a ser editáveis
+  ([`casos/decisoes.md`](casos/decisoes.md) #8 e #9): testado no lançamento 294341 do caso
+  104020 trocando projeto para 3301, "quem ajudou" para Mendonça e anotação; a API devolveu os
+  novos valores com o lançamento ainda no caso; depois projeto e "quem ajudou" voltaram ao
+  original. O projeto vai em `cronograma_id` (`registro` é o caso).
+- **Casos: indicador de caso em produção na listagem** (2026-11-17, na `dev`). Faixa verde à
+  esquerda e fundo leve para casos com o tempo rodando (o selo "Em produção" foi tirado por
+  aumentar a linha); aparece também no Escopo de Projetos (linha compartilhada). Testado no
+  navegador em `/casos?projeto_id=3278`: 104020 e 104000 (iniciados) com faixa, sem selo, e a
+  coluna de status com a mesma altura das outras linhas. Ver
+  [`casos/decisoes.md`](casos/decisoes.md) #10 e #11.
 - **Produtos: filtro "Incluir desativados" e setor do usuário por padrão** (2026-11-17, na `dev`).
   Listagem passa `incluir_desativados` ao legado. Testado no navegador: entrada pelo menu e
   carga direta abrem com SQUAD XP e desativados (15 itens, 4 desativados na 1ª página); desligar
@@ -102,6 +112,10 @@ usuário):
   conta 6 (5 pendentes, 1 recusada), a tela de Melhorias com o mês inteiro lista 7 (6 aguardando,
   1 recusada). A sobra é a #25837 (30/09, sem produto exibido na lista). Causa não investigada
   (regra de contagem do painel no legado).
+- **Anotação de lançamento de produção não pode ser apagada**: o
+  `PUT /projeto-casos-producao/{sequencia}` ignora `anotacao` vazia (`""` e `null`). Precisa de
+  ajuste no legado. Efeito do teste de 2026-11-17: o lançamento 294341 do caso 104020 ficou com
+  a anotação "teste anotacao" e com os segundos de abertura/fechamento zerados (15:02:00–15:03:00).
 - **Rota antiga `/painel/old`** (`components/painel/painel`) continua publicada.
 - **Link quebrado** para `db/scripts/reset-supabase-dev.sql` em
   [`camada-de-dados/`](camada-de-dados/README.md) (o arquivo não existe).
