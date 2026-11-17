@@ -42,3 +42,11 @@ estava registrado, está marcado "a confirmar".
     já usa essas versões para agrupar casos fora de uma release (encontradas em maiúsculas em
     Heimdall Gateway, PBX Softcom, Servidor Asgard, Meu Fiscal Web e Hub Softcom), e a validação
     antiga impedia criar ou editar uma delas pela tela.
+
+12. **Na edição, Responsável bugs e Responsável melhorias limpos vão como `0` no PUT, não
+    `null`** (`parseOptionalIdForUpdate` em `cadastro/utils.ts`). **Por quê:** o legado
+    (`PUT /projeto-versoes/{id}`) ignora `null` e mantém o valor antigo, que voltava para a tela
+    depois de salvar; produtos sem responsável já vêm da API com `0`. Testado em 2026-11-17 no
+    produto 375. **Limitação conhecida, sem solução no front:** o mesmo PUT ignora `null` e `""`
+    em `InformacoesTecnicas`, então apagar todo o texto não limpa o campo. Resolver exige
+    mudança no legado.

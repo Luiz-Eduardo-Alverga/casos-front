@@ -40,6 +40,16 @@ export function parseOptionalId(value: string | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+/**
+ * Id opcional para o PUT do legado: campo limpo vira 0, não null.
+ * O legado ignora null (mantém o valor antigo) e usa 0 como "sem responsável";
+ * produtos sem responsável já vêm da API com 0.
+ */
+export function parseOptionalIdForUpdate(value: string | undefined): number {
+  const parsed = parseOptionalId(value);
+  return parsed != null && parsed > 0 ? parsed : 0;
+}
+
 export function parseVinculadoA(value: string | undefined): number {
   const parsed = parseOptionalId(value);
   return parsed != null && parsed > 0 ? parsed : 0;
@@ -243,10 +253,14 @@ export function buildUpdateProdutoPayload(
     MostrarTeste: data.mostrarTeste,
     VinculadoA: parseVinculadoAForUpdate(data.vinculadoA, existing),
     FAQExibir: data.faqExibir,
+    // Limitação do legado: PUT /projeto-versoes ignora null e "" neste campo, então
+    // apagar todo o texto não limpa (o texto antigo volta). Ver docs/produtos/decisoes.md #12.
     InformacoesTecnicas: data.informacoesTecnicas?.trim() || null,
     CalcularBurnDown: data.calcularBurndown,
-    responsavel_bugs_suporte_id: parseOptionalId(data.responsavelBugs),
-    responsavel_melhorias_suporte_id: parseOptionalId(data.responsavelMelhorias),
+    responsavel_bugs_suporte_id: parseOptionalIdForUpdate(data.responsavelBugs),
+    responsavel_melhorias_suporte_id: parseOptionalIdForUpdate(
+      data.responsavelMelhorias,
+    ),
     vacaLeiteira: vacaLeiteiraToApi(data.vacaLeiteira),
   };
 }
