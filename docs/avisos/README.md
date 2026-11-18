@@ -251,6 +251,17 @@ opção, ignorar avisos com `datas.enviado` nulo (não foram enviados).
 Resposta (2026-11-18, Claude Code): janela móvel de **7 dias** (variação da opção A), contada de
 `datas.enviado`; avisos sem `datas.enviado` não entram.
 
+### Andamento da implementação (aviso automático)
+
+- [x] Parte 1: dados (2026-11-18). `hooks/mensagens/use-janela-consulta-avisos.ts` (o
+  `AvisosDropdown` passou a usar), `hooks/mensagens/use-avisos-automaticos.ts`,
+  `lib/mensagens/avisos-automaticos.ts` (consulta dos últimos 30 dias por `data_msg` + corte de 7
+  dias em `datas.enviado`, decisão #25), `lib/mensagens/formatar.ts`,
+  `components/avisos/aviso-link-confirmacao.tsx`. Na API de dev, para o registro 2384, a fila
+  ficou só com o 8011 (resposta de 7 KB, ~2 s).
+- [ ] Parte 2: janela
+- [ ] Parte 3: fechamento
+
 ### Plano de implementação
 
 1. **Parte 1: dados.** `use-janela-consulta-avisos` (e `AvisosDropdown` passando a usar),
