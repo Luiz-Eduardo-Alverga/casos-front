@@ -42,6 +42,11 @@ coberto.
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
+- **Projetos: seleção de casos ao duplicar o escopo** (2026-11-17, na `dev`). A aba Escopo marca
+  casos na tabela. Sem marcação, `POST /api/projeto-casos/transferir-proximo-projeto` segue sem
+  `registros` e a API duplica os elegíveis do projeto. Com marcação, envia só esses ids. ESLint dos
+  arquivos alterados passou. No navegador local a rota caiu no login, então a seleção e o POST não
+  foram exercitados. Ver [`projetos/`](projetos/README.md).
 - **Flags Liberação / Entregue / Atualização Automática na edição de caso** (2026-11-17, na
   `dev`). Pílulas com checkbox no header de "Classificação e Origem", salvas no PATCH do caso.
   Testado no navegador com o caso 104020 (dev local + API real): leitura da API, marcar e

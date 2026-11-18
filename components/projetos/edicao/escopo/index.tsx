@@ -49,6 +49,7 @@ export function AbaEscopo({
   const { statusIds, usuarioDevId, naoPlanejadoFiltro } = filtrosAplicados;
 
   const [sort, setSort] = useState<ProjetoMemoriaSortState>({});
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isDuplicarModalOpen, setIsDuplicarModalOpen] = useState(false);
 
   const memoriaParams = useMemo(
@@ -84,6 +85,33 @@ export function AbaEscopo({
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (!escopoQuery.data) return;
+    const idsAtuais = new Set(itens.map((item) => item.id));
+    setSelectedIds((prev) => prev.filter((id) => idsAtuais.has(id)));
+  }, [escopoQuery.data, itens]);
+
+  const handleToggleItem = useCallback((id: string, checked: boolean) => {
+    setSelectedIds((prev) => {
+      if (checked) {
+        if (prev.includes(id)) return prev;
+        return [...prev, id];
+      }
+      return prev.filter((selectedId) => selectedId !== id);
+    });
+  }, []);
+
+  const handleToggleAll = useCallback(
+    (checked: boolean) => {
+      if (!checked) {
+        setSelectedIds([]);
+        return;
+      }
+      setSelectedIds(itens.map((item) => item.id));
+    },
+    [itens],
+  );
+
   const handleDevChange = useCallback(
     (devId: string) => {
       setUsuarioDevId(devId);
@@ -94,9 +122,13 @@ export function AbaEscopo({
   const handleDuplicarCasos = useCallback(
     async (cronogramaDestino: number) => {
       try {
+        const registros = selectedIds
+          .map(Number)
+          .filter((n) => Number.isFinite(n) && n > 0);
         const result = await transferirProximoProjeto.mutateAsync({
           cronograma_origem: Number(projetoId),
           cronograma_destino: cronogramaDestino,
+          ...(registros.length > 0 ? { registros } : {}),
         });
         const falhas = Array.isArray(result.falhas) ? result.falhas.length : 0;
         if (falhas > 0) {
@@ -106,6 +138,7 @@ export function AbaEscopo({
         } else {
           toast.success("Casos duplicados com sucesso.");
         }
+        setSelectedIds([]);
         setIsDuplicarModalOpen(false);
       } catch (error) {
         toast.error(
@@ -115,7 +148,7 @@ export function AbaEscopo({
         );
       }
     },
-    [projetoId, transferirProximoProjeto],
+    [projetoId, selectedIds, transferirProximoProjeto],
   );
 
   const isAtualizandoEscopo = isFetching && !isFetchingNextPage;
@@ -156,7 +189,7 @@ export function AbaEscopo({
     enabled && escopoQuery.isLoading && !escopoQuery.data;
 
   if (isInitialLoading) {
-    return <AbaEscopoSkeleton />;
+    return <AbaEscopoSkeleton showCheckbox={canDuplicar} />;
   }
 
   return (
@@ -196,7 +229,7 @@ export function AbaEscopo({
               : "Erro ao carregar escopo do projeto."}
           </p>
         ) : isContentLoading ? (
-          <EscopoContentSkeleton />
+          <EscopoContentSkeleton showCheckbox={canDuplicar} />
         ) : (
           <>
             <EscopoSummaryCards
@@ -219,7 +252,9 @@ export function AbaEscopo({
                   onClick={() => setIsDuplicarModalOpen(true)}
                 >
                   <CopyPlus className="size-4 text-text-primary" />
-                  Duplicar casos
+                  {selectedIds.length > 0
+                    ? `Duplicar casos (${selectedIds.length})`
+                    : "Duplicar casos"}
                 </Button>
               </div>
             ) : null}
@@ -237,6 +272,10 @@ export function AbaEscopo({
                   variant="escopo"
                   itens={itens}
                   isFetchingNextPage={escopoQuery.isFetchingNextPage}
+                  showCheckbox={canDuplicar}
+                  selectedIds={selectedIds}
+                  onToggleItem={handleToggleItem}
+                  onToggleAll={handleToggleAll}
                   sort={sort}
                   onSortChange={setSort}
                 />
@@ -254,6 +293,7 @@ export function AbaEscopo({
         onOpenChange={setIsDuplicarModalOpen}
         cronogramaOrigem={projetoId}
         setorProjeto={setorProjeto}
+        casosSelecionados={selectedIds.length}
         isSubmitting={transferirProximoProjeto.isPending}
         onConfirm={handleDuplicarCasos}
       />

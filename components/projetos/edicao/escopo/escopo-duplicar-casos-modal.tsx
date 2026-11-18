@@ -22,8 +22,25 @@ interface EscopoDuplicarCasosModalProps {
   onOpenChange: (open: boolean) => void;
   cronogramaOrigem: number | string;
   setorProjeto?: string;
+  casosSelecionados?: number;
   isSubmitting?: boolean;
   onConfirm: (cronogramaDestino: number) => Promise<void> | void;
+}
+
+function textoDuplicacao(casosSelecionados: number): string {
+  const complemento =
+    "A marcação Não planejado será removida nos casos gerados. Casos bloqueados não entram nessa operação.";
+
+  if (casosSelecionados <= 0) {
+    return `Os casos em Aberto e Em desenvolvimento deste projeto serão duplicados no projeto destino. ${complemento}`;
+  }
+
+  const inicio =
+    casosSelecionados === 1
+      ? "O caso marcado será duplicado"
+      : `Os ${casosSelecionados} casos marcados serão duplicados`;
+
+  return `${inicio} no projeto destino. ${complemento}`;
 }
 
 export function EscopoDuplicarCasosModal({
@@ -31,6 +48,7 @@ export function EscopoDuplicarCasosModal({
   onOpenChange,
   cronogramaOrigem,
   setorProjeto,
+  casosSelecionados = 0,
   isSubmitting = false,
   onConfirm,
 }: EscopoDuplicarCasosModalProps) {
@@ -90,8 +108,9 @@ export function EscopoDuplicarCasosModal({
                       Duplicar casos
                     </h3>
                     <p className="text-xs text-text-secondary">
-                      Selecione o projeto destino para duplicar os casos
-                      elegíveis.
+                      {casosSelecionados > 0
+                        ? "Selecione o projeto destino para duplicar os casos marcados."
+                        : "Selecione o projeto destino para duplicar os casos elegíveis."}
                     </p>
                   </div>
                 </div>
@@ -110,10 +129,7 @@ export function EscopoDuplicarCasosModal({
                   <div className="flex items-start gap-2">
                     <Info className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
                     <p className="text-xs text-muted-foreground">
-                      Os casos em Aberto e Em desenvolvimento deste projeto
-                      serão duplicados no projeto destino. A marcação Não
-                      planejado será removida nos casos gerados. Casos
-                      bloqueados não entram nessa operação.
+                      {textoDuplicacao(casosSelecionados)}
                     </p>
                   </div>
                 </div>
