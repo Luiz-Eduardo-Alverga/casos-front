@@ -134,3 +134,14 @@ Origem: chat de planejamento do comportamento do `auto`, com protótipo em
     fica por cima de qualquer outro modal aberto, sem desmontar a tela de baixo.** **Por quê:**
     o aviso é prioritário, e nada que o usuário estava digitando se perde, porque a tela de
     baixo continua montada.
+
+## Aviso automático: respostas da Fase 0 (2026-11-18, Claude Code)
+
+25. **Só bloqueiam os avisos automáticos não lidos enviados nos últimos 7 dias** (janela móvel,
+    contada de `datas.enviado`). Aviso com `datas.enviado` nulo não entra (não foi enviado).
+    **Revoga a decisão #21** (consulta sem período); o resto da #21 vale (o sino e `/avisos`
+    seguem com "Este mês"). Resposta da P7. **Por quê:** sem período, o registro 2384 tinha 375
+    automáticos não lidos desde 2023 (538 KB, ~22 s por consulta) e teria que marcar um por um
+    antes de usar o Softflow. A janela móvel continua resolvendo a virada do mês, que era o
+    motivo da #21. Técnica: a consulta pede à API os últimos 30 dias por `data_msg` (que pode
+    ser anterior ao envio) e o front aplica os 7 dias sobre `datas.enviado`.
