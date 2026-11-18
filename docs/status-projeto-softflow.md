@@ -123,5 +123,11 @@ usuário):
 
 ## 📋 Backlog consciente (decisão sua, não esquecimento)
 
-Nada registrado ainda. Especificação aprovada e ainda não implementada fica em
-`docs/<slug>/README.md` com **"Estado: planejado"** e aparece aqui.
+Especificação aprovada e ainda não implementada fica em `docs/<slug>/README.md` com **"Estado:
+planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
+
+- **Envio de avisos (tela Novo aviso, `/avisos/novo`)**: especificado em 2026-11-18, com
+  protótipo, API (`comunicado-filtros`, `usuarios-comunicado`, `POST comunicados`), permissão
+  `create-aviso` e plano em 4 partes em [`avisos/`](avisos/README.md#próxima-mudança-planejada-envio-de-avisos).
+  Há perguntas em aberto sobre a API (`auto`, `enviado: false`, `suporte_ids`) para a Fase 0.
+  Implementar com `/implementar avisos`.
