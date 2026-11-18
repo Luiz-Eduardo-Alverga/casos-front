@@ -88,3 +88,7 @@ Não reabrir sem o usuário decidir de novo. Origem: chat de planejamento do env
 
 17. **Cartão de rádio selecionado usa `border-primary` + `bg-primary/5`, sem token novo.**
     Resposta da P6. **Por quê:** não cria cor nova e funciona nos dois temas.
+
+Nota (2026-11-18, implementação): a decisão #14 foi confirmada na API de teste (comunicado com
+filtros que batiam em 5 usuários e `suporte_ids: [2384]` gerou `total_destinatarios: 1`), e a
+#4 também (grupo com array vazio dá 422).

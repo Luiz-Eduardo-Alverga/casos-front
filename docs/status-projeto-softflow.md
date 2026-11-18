@@ -42,6 +42,14 @@ coberto.
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
+- **Envio de avisos (tela Novo aviso, `/avisos/novo`)** (2026-11-18, na `dev`). Botão "Novo
+  aviso" em `/avisos` com a permissão `create-aviso` (seed aplicado no Postgres e atribuído ao
+  papel "PM/PO Squad Xp"), conteúdo, modo Todos/Filtrar, quatro filtros, "Adicionar usuário
+  específico", lista com seleção e envio por `POST /api/comunicados`. Testado na API de teste:
+  envio pela tela só para o registro 2384 (201) e o aviso apareceu na lista. `GET
+  /auxiliar/comunicado-filtros` dava 503 na API de teste, então os filtros foram vistos com a
+  resposta simulada no navegador. Falta conferir com o endpoint real e ir para produção
+  (atribuir `create-aviso` aos papéis certos). Ver [`avisos/`](avisos/README.md).
 - **Projetos: seleção de casos ao duplicar o escopo** (2026-11-17, na `dev`). A aba Escopo marca
   casos na tabela. Sem marcação, `POST /api/projeto-casos/transferir-proximo-projeto` segue sem
   `registros` e a API duplica os elegíveis do projeto. Com marcação, envia só esses ids. ESLint dos
@@ -131,8 +139,6 @@ usuário):
 Especificação aprovada e ainda não implementada fica em `docs/<slug>/README.md` com **"Estado:
 planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 
-- **Envio de avisos (tela Novo aviso, `/avisos/novo`)**: especificado em 2026-11-18, com
-  protótipo, API (`comunicado-filtros`, `usuarios-comunicado`, `POST comunicados`), permissão
-  `create-aviso` e plano em 4 partes em [`avisos/`](avisos/README.md#próxima-mudança-planejada-envio-de-avisos).
-  Há perguntas em aberto sobre a API (`auto`, `enviado: false`, `suporte_ids`) para a Fase 0.
-  Implementar com `/implementar avisos`.
+- **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
+  avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
+  [`avisos/`](avisos/decisoes.md)).

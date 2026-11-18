@@ -80,9 +80,9 @@ Navegação em três blocos: **painéis pessoais**, **gerenciar** e **recursos**
 
 ### Painéis
 
-- **Avisos** (`/avisos`) — notificações internas, lista + detalhe, filtro por período. Envio de
-  avisos (comunicados para a empresa toda, por filtros ou para usuários específicos) está
-  especificado em `docs/avisos/` e ainda não implementado.
+- **Avisos** (`/avisos`) — notificações internas, lista + detalhe, filtro por período. Quem tem
+  `create-aviso` envia comunicados em `/avisos/novo` (empresa toda, por PDV/setor/nível/função
+  e/ou usuários específicos) pela API Soft Flow (`POST /comunicados`). Detalhe em `docs/avisos/`.
 - **Painel do desenvolvedor** (`/painel`) — Kanban operacional do dev. Colunas: **Abertos / Corrigidos / Retornos / Concluídos**. Filtros (produto, projeto, setor, agenda), drag-and-drop persiste status, infinite scroll, modal de resumo do caso. É a “home” de quem desenvolve. Detalhe em `docs/painel-desenvolvedor/README.md`.
 - **Indicadores** (`/painel/indicadores`) — premiação e metas do período por colaborador (baseline, recálculo); ver outros colaboradores exige `list-indicadores-all`.
 - **Painel Minha Visão** (`/painel/minha-visao`) — visão gerencial: KPIs, casos para testar, casos em produção, prazos de clientes, próximas/últimas liberações, painel de ideias. Filtros de setor/produto/projeto/versão.
@@ -224,7 +224,7 @@ há decisão não óbvia pelo código, um `decisoes.md`.
 | [`painel-desenvolvedor/`](painel-desenvolvedor/README.md) | Kanban do dev (`/painel`) |
 | [`indicadores/`](indicadores/README.md) | Premiação e metas (`/painel/indicadores`) |
 | [`minha-visao/`](minha-visao/README.md) | Painel gerencial (`/painel/minha-visao`) |
-| [`avisos/`](avisos/README.md) | Notificações internas (`/avisos`); envio de avisos (`/avisos/novo`) planejado |
+| [`avisos/`](avisos/README.md) | Notificações internas (`/avisos`) e envio de avisos (`/avisos/novo`, permissão `create-aviso`) |
 | [`casos/`](casos/README.md) | Casos (`/casos`) |
 | [`reports/`](reports/README.md) | Fila de análise e abertura de reports (`/reports`) |
 | [`projetos/`](projetos/README.md) | Projetos SGP (`/projetos`) |
