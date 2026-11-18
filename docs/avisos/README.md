@@ -381,7 +381,14 @@ Resposta (2026-11-18, Claude Code): A — `border-primary` + `bg-primary/5`, sem
     usuários + `suporte_ids: [2384]` geraram `total_destinatarios: 1`. **Decisão #14
     confirmada:** `suporte_ids` é a lista final, e a API não recalcula pelos filtros. A resposta
     tem também `link: null`, e o aviso aparece em `GET /mensagens` (campo `msg_texto`).
-- [ ] Parte 2: rota e conteúdo
+- [x] Parte 2: rota e conteúdo (2026-11-18). `/avisos/novo` com `RequirePermission`, botão
+  "Novo aviso" em `/avisos`, card Conteúdo, modo Todos com a lista, validação, envio, toast e
+  "Descartar aviso?". `/avisos/novo` entrou em `ROUTES_WITH_INTERNAL_SCROLL`
+  (`app/(dashboard)/layout.tsx`). O "Exibir automaticamente" foi montado com tokens no próprio
+  card, sem `switch-choice-card` (que usa `zinc-*` e tem 4 usos em outras telas).
+  Conferido no navegador: botão, layout 3:2, validação inline, descarte e estado de erro. O
+  envio pela tela ficou sem teste porque `comunicado-filtros` dá 503 na API de teste.
+  Obs.: `npm run lint` (`next lint`) não roda no Next 16; a validação foi feita com `npx eslint`.
 - [ ] Parte 3: destinatários
 - [ ] Parte 4: fechamento
 

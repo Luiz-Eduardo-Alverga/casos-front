@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 // A maioria das telas terá scroll do navegador
 const ROUTES_WITH_INTERNAL_SCROLL = [
   "/avisos",
+  "/avisos/novo",
   "/painel",
   "/cadastros/adquirentes/status",
   "",
