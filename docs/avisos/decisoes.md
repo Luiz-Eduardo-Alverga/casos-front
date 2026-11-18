@@ -63,3 +63,28 @@ Não reabrir sem o usuário decidir de novo. Origem: chat de planejamento do env
 
 11. **O bloco "Payload enviado para a API" do protótipo não vai para o app.** **Por quê:** existe
     só para o dev ver o formato do payload durante o planejamento.
+
+## Respostas da Fase 0 (2026-11-18, Claude Code)
+
+12. **`auto` é "Exibir automaticamente"** (o aviso abre sozinho quando o destinatário entra no
+    Softflow), switch ligado por padrão. Resposta da P1. **Por quê:** é o significado no legado.
+
+13. **Sem botão "Salvar rascunho" nesta entrega; o envio vai sempre com `enviado: true`.**
+    Revoga a parte "Salvar rascunho (`enviado: false`)" da decisão #7 (o resto da #7 vale). O
+    botão volta junto com a tela de enviados/rascunhos, que fica no backlog. Resposta da P2.
+    **Por quê:** salvar um rascunho que o usuário não consegue reabrir no Softflow é perda de
+    texto disfarçada.
+
+14. **`suporte_ids` é a lista final de destinatários; os arrays de filtro são registro, e grupo
+    sem seleção vai com todos os valores.** Confirmar na Parte 1 contra a API de teste (a `.env`
+    local aponta para ela). Resposta da P3.
+
+15. **Função tem nome: a API passou a devolver `funcao: ["LIDER", "OPERACIONAL"]`.** O filtro
+    Função aparece como os outros três e a linha do usuário mostra a função. Resposta da P4
+    (a API foi alterada em 2026-11-18).
+
+16. **Título com no máximo 120 caracteres; descrição sem limite no front.** Erro de validação da
+    API vira toast. Resposta da P5.
+
+17. **Cartão de rádio selecionado usa `border-primary` + `bg-primary/5`, sem token novo.**
+    Resposta da P6. **Por quê:** não cria cor nova e funciona nos dois temas.

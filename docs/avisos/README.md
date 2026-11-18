@@ -285,7 +285,7 @@ Decididos pelo Claude Code, sem pergunta:
   `app/api/painel-ideias/`), então serve para `app/api/comunicados/route.ts`. Sessão e token vêm
   dele (`session.authorizationHeader`).
 
-### P1 — Significado de `auto` · aberta
+### P1 — Significado de `auto` · respondida → decisão #12
 
 Fase: Fase 0 (2026-11-18). Contexto: o protótipo chama o switch de "Exibir automaticamente" (o
 aviso abre sozinho quando o destinatário entra no Softflow), ligado por padrão. Hoje a leitura
@@ -294,7 +294,9 @@ Opções: **A)** é isso mesmo: manter o texto "Exibir automaticamente" e o padr
 significa outra coisa: dizer o quê, e eu ajusto o texto e o padrão.
 Recomendação do Claude Code: A, se o legado já abre o aviso sozinho com `auto: true`.
 
-### P2 — `enviado: false` é rascunho? · aberta
+Resposta (2026-11-18, Claude Code): A — manter "Exibir automaticamente", ligado por padrão.
+
+### P2 — `enviado: false` é rascunho? · respondida → decisão #13
 
 Fase: Fase 0 (2026-11-18). Contexto: decisão #7 liga "Salvar rascunho" a `enviado: false`. Não
 existe no app lugar para ver ou retomar rascunho, e listar/editar comunicado está fora do
@@ -305,7 +307,9 @@ rascunho: o botão sai e sempre vai `enviado: true`.
 Recomendação do Claude Code: B, porque salvar algo que o usuário não consegue reabrir parece
 perda de texto; o botão volta junto com a listagem de enviados/rascunhos.
 
-### P3 — Contrato de destinatários do `POST /comunicados` · aberta
+Resposta (2026-11-18, Claude Code): B — o botão "Salvar rascunho" sai até existir a tela de rascunhos; envio sempre `enviado: true`.
+
+### P3 — Contrato de destinatários do `POST /comunicados` · respondida → decisão #14
 
 Fase: Fase 0 (2026-11-18). Contexto: decisões #4, #5 e #6 dependem de a API usar
 `suporte_ids` como lista final (usuário adicionado fora dos filtros entra, usuário desmarcado
@@ -317,7 +321,9 @@ array vazio): dizer como, e eu ajusto `montarPayload`.
 Recomendação do Claude Code: confirmar A com quem mantém a API; se não der, eu valido na Parte 1
 com um comunicado de teste com `enviado: false` mandado a você só, com o seu ok.
 
-### P4 — Nome da função `"1"` · aberta
+Resposta (2026-11-18, Claude Code): A — `suporte_ids` é a lista final; validar na Parte 1 contra a API de teste (`.env` local).
+
+### P4 — Nome da função `"1"` · respondida → decisão #15
 
 Fase: Fase 0 (2026-11-18). Contexto: `comunicado-filtros` devolve `funcao: ["1"]`. O
 multi-select e a linha do usuário mostrariam "1".
@@ -327,7 +333,9 @@ mesmo assim) e não mostrar a função na linha.
 Recomendação do Claude Code: B, se não houver nome, porque um filtro com uma única opção "1" não
 ajuda ninguém.
 
-### P5 — Limites de título e descrição · aberta
+Resposta (2026-11-18, Claude Code): A API passou a devolver `funcao: ["LIDER", "OPERACIONAL"]`; o filtro Função aparece normalmente.
+
+### P5 — Limites de título e descrição · respondida → decisão #16
 
 Fase: Fase 0 (2026-11-18). Contexto: o protótipo limita o título a 120 caracteres; a descrição
 não tem limite.
@@ -336,7 +344,9 @@ limites: diga quais.
 Recomendação do Claude Code: A, se ninguém souber outro limite. O erro da API, se houver, vira
 toast.
 
-### P6 — Token do cartão de rádio selecionado · aberta
+Resposta (2026-11-18, Claude Code): A — título até 120, descrição sem limite.
+
+### P6 — Token do cartão de rádio selecionado · respondida → decisão #17
 
 Fase: Fase 0 (2026-11-18). Contexto: o cartão "Todos os usuários" / "Filtrar destinatários"
 selecionado tem borda e fundo azulados. Não há token genérico de fundo "selecionado"; os mais
@@ -349,6 +359,15 @@ genérico (`selected-bg` / `selected-border`) e registrando no design-system. **
 Recomendação do Claude Code: A, porque não cria cor nova e o primário com 5% fica discreto nos
 dois temas. Obs.: `switch-choice-card.tsx` usa `zinc-*` literal (fora da regra de tokens); se
 for usado no "Exibir automaticamente", troco por tokens no mesmo commit.
+
+Resposta (2026-11-18, Claude Code): A — `border-primary` + `bg-primary/5`, sem token novo.
+
+## Andamento da implementação
+
+- [ ] Parte 1: dados e permissão
+- [ ] Parte 2: rota e conteúdo
+- [ ] Parte 3: destinatários
+- [ ] Parte 4: fechamento
 
 ### Plano de implementação
 
