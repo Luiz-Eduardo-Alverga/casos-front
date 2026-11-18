@@ -42,6 +42,12 @@ coberto.
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
+- **Avisos: aviso automático (bloqueante)** (2026-11-18, na `dev`). Aviso não lido com `auto`,
+  enviado nos últimos 7 dias, abre numa janela sem X sobre qualquer tela do dashboard, um por vez
+  do mais antigo para o mais novo, até marcar como lido. Testado na API de dev com os avisos 8011,
+  8012 e 8013 (só para o registro 2384): fila, Esc e clique fora bloqueados, erro simulado no
+  marcar, sino e mobile 390px. Não exercitado: a janela por cima de outro modal aberto. Falta ir
+  para produção. Ver [`avisos/`](avisos/README.md).
 - **Envio de avisos (tela Novo aviso, `/avisos/novo`)** (2026-11-18, na `dev`). Botão "Novo
   aviso" em `/avisos` com a permissão `create-aviso` (seed aplicado no Postgres e atribuído ao
   papel "PM/PO Squad Xp"), conteúdo, modo Todos/Filtrar, quatro filtros, "Adicionar usuário
@@ -142,8 +148,3 @@ planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
-- **Avisos: aviso automático (bloqueante)**: especificado em 2026-11-18. Aviso não lido com
-  `auto: true` abre numa janela sobre qualquer tela do dashboard, um por vez, e só fecha marcando
-  como lido. Protótipo, decisões #18 a #24 e plano em 3 partes em
-  [`avisos/`](avisos/README.md#próxima-mudança-planejada-aviso-automático). Duas perguntas sobre
-  `GET /mensagens` para a Fase 0. Implementar com `/implementar avisos`.

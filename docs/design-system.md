@@ -237,6 +237,11 @@ Não usar `mb-4` por aba no lugar de `pb-12`/`pb-24`. Referências:
 - **Badges:** pílulas da seção 2.4; contadores compactos (~36×28px).
 - **Tabs:** sublinhado ou pill discreto.
 - **Modais / sheets:** branco, radius 8px, ações no rodapé (outline + primary).
+  `DialogContent` aceita `showCloseButton={false}` (some o X) e `overlayClassName`. Janela
+  bloqueante: sem X, `preventDefault` em `onEscapeKeyDown` / `onPointerDownOutside` /
+  `onInteractOutside` e `role="alertdialog"`; acima de outros modais e do mini-player do caso use
+  `z-[80]` no conteúdo e no overlay. Referência: aviso automático
+  (`components/avisos/aviso-automatico/`).
 - **Skeleton:** blocos `muted` espelhando o layout real.
 - **Empty state:** `EmptyState` (`@/components/painel/empty-state`), ícone/ilustração + título +
   descrição curta. Ilustrações do painel em `public/images/empty-state-*.svg` (exportadas do

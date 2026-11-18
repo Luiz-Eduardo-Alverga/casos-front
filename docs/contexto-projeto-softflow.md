@@ -83,8 +83,8 @@ Navegação em três blocos: **painéis pessoais**, **gerenciar** e **recursos**
 - **Avisos** (`/avisos`) — notificações internas, lista + detalhe, filtro por período. Quem tem
   `create-aviso` envia comunicados em `/avisos/novo` (empresa toda, por PDV/setor/nível/função
   e/ou usuários específicos) pela API Soft Flow (`POST /comunicados`). Detalhe em `docs/avisos/`.
-  Planejado (não implementado): aviso com `auto` abre numa janela bloqueante em qualquer tela até
-  ser marcado como lido.
+  Aviso automático (`auto`, não lido, enviado nos últimos 7 dias) abre numa janela bloqueante em
+  qualquer tela do dashboard até ser marcado como lido.
 - **Painel do desenvolvedor** (`/painel`) — Kanban operacional do dev. Colunas: **Abertos / Corrigidos / Retornos / Concluídos**. Filtros (produto, projeto, setor, agenda), drag-and-drop persiste status, infinite scroll, modal de resumo do caso. É a “home” de quem desenvolve. Detalhe em `docs/painel-desenvolvedor/README.md`.
 - **Indicadores** (`/painel/indicadores`) — premiação e metas do período por colaborador (baseline, recálculo); ver outros colaboradores exige `list-indicadores-all`.
 - **Painel Minha Visão** (`/painel/minha-visao`) — visão gerencial: KPIs, casos para testar, casos em produção, prazos de clientes, próximas/últimas liberações, painel de ideias. Filtros de setor/produto/projeto/versão.

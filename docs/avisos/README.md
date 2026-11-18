@@ -1,14 +1,10 @@
 # Avisos
 
 Notificações internas do Softflow: leitura em `/avisos` e envio de comunicados em
-`/avisos/novo`. O envio foi especificado num chat de planejamento e implementado em 2026-11-18
+`/avisos/novo`. O envio e o aviso automático foram especificados num chat de planejamento e implementados em
+2026-11-18
 (decisões em [`decisoes.md`](decisoes.md), protótipo em [`prototipo/`](prototipo/), histórico das
 perguntas e do andamento no fim deste arquivo).
-
-> **Próxima mudança planejada: aviso automático (bloqueante).** Especificada em 2026-11-18 e
-> ainda não implementada. Ver a seção
-> [Próxima mudança planejada](#próxima-mudança-planejada-aviso-automático) e as decisões #18 a
-> #24.
 
 ## O que é
 
@@ -31,17 +27,32 @@ perguntas e do andamento no fim deste arquivo).
     e volta para `/avisos`.
 - No desktop a página não rola: rolam a descrição e a lista de usuários. No mobile os cards
   empilham e a página rola.
+- **Aviso automático (bloqueante)**: aviso não lido com `status_leitura.auto = true`, enviado
+  nos últimos 7 dias (decisão #25), abre sozinho numa janela sobre qualquer tela do dashboard,
+  inclusive `/avisos` e por cima de outro modal (decisões #18 e #24). Sem X, Esc e clique fora
+  não fecham: só **Marcar como lido** (decisão #19). Com mais de um, aparece um por vez, do mais
+  antigo para o mais novo, com "Mais N aviso(s) depois deste" e o botão "Marcar como lido e ver o
+  próximo" (decisão #20); no fim, toast "Aviso marcado como lido.". Consulta ao abrir o Softflow
+  e a cada 5 minutos das 6h às 23h59, a mesma regra do sino (decisão #22). Erro ao marcar: a
+  janela fica, com toast e mensagem inline; erro ao consultar: a janela não abre (decisão #23).
+  No mobile vira folha presa embaixo, com o texto rolando.
 
 ## Arquitetura
 
 ```text
 app/(dashboard)/avisos/page.tsx            leitura (sem permissão)
 app/(dashboard)/avisos/novo/page.tsx       RequirePermission("create-aviso") → <NovoAviso />
-app/(dashboard)/layout.tsx                 /avisos e /avisos/novo em ROUTES_WITH_INTERNAL_SCROLL
+app/(dashboard)/layout.tsx                 /avisos e /avisos/novo em ROUTES_WITH_INTERNAL_SCROLL;
+                                           monta <AvisoAutomatico /> ao lado do CasoAbertoMiniPlayer
 components/avisos/
 ├── avisos.tsx              entrypoint da leitura + botão "Novo aviso" (hasPermission)
 ├── avisos-lista.tsx · avisos-detalhe.tsx · skeletons
-├── avisos-dropdown.tsx     dropdown do header
+├── avisos-dropdown.tsx     dropdown do header (usa use-janela-consulta-avisos)
+├── aviso-link-confirmacao.tsx  link de confirmação de presença (detalhe e aviso automático)
+├── aviso-automatico/
+│   ├── index.tsx               fila (tira na hora os marcados), marcar como lido, erro
+│   └── aviso-automatico-dialog.tsx  alertdialog sem X, Esc/clique fora bloqueados, z-[80],
+│                                    folha embaixo no mobile
 └── novo/
     ├── index.tsx               entrypoint: react-hook-form + Zod, consultas, montagem da lista, envio
     ├── novo-aviso.types.ts     Destinatario, ModoDestinatarios, GRUPOS_FILTRO, FILTROS_VAZIOS
@@ -59,7 +70,12 @@ app/api/auxiliar/comunicado-filtros/route.ts   GET  → /auxiliar/comunicado-fil
 app/api/auxiliar/usuarios-comunicado/route.ts  POST → /auxiliar/usuarios-comunicado
 app/api/comunicados/route.ts                   POST → /comunicados, withPermission("create-aviso")
 services/comunicados/       index.ts (3 chamadas), request.ts (fetchWithAuth + erro), types.ts
-hooks/mensagens/            use-mensagens, use-marcar-mensagem-lida
+hooks/mensagens/            use-mensagens, use-marcar-mensagem-lida,
+                            use-janela-consulta-avisos (6h–23h59, 5 min; sino e aviso automático),
+                            use-avisos-automaticos (fila)
+lib/mensagens/              formatar.ts (data longa, iniciais), sort-por-data-envio.ts
+                            (decrescente e crescente), avisos-automaticos.ts (intervalo + filtro)
+components/ui/dialog.tsx    DialogContent com showCloseButton (padrão true) e overlayClassName
 hooks/comunicados/          use-comunicado-filtros, use-usuarios-comunicado (debounce 300ms),
                             use-todos-usuarios-comunicado, use-criar-comunicado
 db/scripts/seed-create-aviso-rbac.sql       módulo `notices` + permissão `create-aviso`
@@ -83,6 +99,10 @@ duplicar; `suporte_ids` = lista − `excluidos`. Desmarcar um usuário adicionad
   enviado }` → 201 com `data.total_destinatarios` e `data.usuarios`. **`suporte_ids` é a lista
   final** (decisão #14, confirmada): a API não recalcula pelos filtros. O aviso aparece em
   `GET /mensagens` (texto em `msg_texto`).
+- `GET /mensagens?lido=false` aceita a consulta sem datas, mas devolve o histórico inteiro (para
+  o registro 2384: 389 não lidos, 375 automáticos desde 2023, 538 KB, ~22 s). O aviso
+  automático pede 30 dias por `data_msg` (que pode ser anterior ao envio) e corta 7 dias em
+  `datas.enviado` no front. `status_leitura.auto` reflete o `auto` do envio (comunicado 8011).
 - O token nunca vai ao browser: tudo passa por route handler (decisão #10).
 
 ## O que é reaproveitável
@@ -96,6 +116,10 @@ duplicar; `suporte_ids` = lista − `excluidos`. Desmarcar um usuário adicionad
   (`destructive/10` + texto vermelho). Hoje é o único no app; extrair para `components/ui/` se
   uma segunda tela precisar.
 - `ListaDestinatarios`: lista selecionável com checkbox mestre parcial e busca local.
+- `DialogContent` com `showCloseButton={false}` + `preventDefault` em `onEscapeKeyDown` /
+  `onPointerDownOutside` / `onInteractOutside`: receita de janela bloqueante para outros casos.
+- `useJanelaConsultaAvisos`: qualquer outra consulta periódica de avisos deve usar a mesma regra.
+- `lib/mensagens/formatar.ts` e `AvisoLinkConfirmacao` para mostrar um aviso em outro lugar.
 
 ## Como estender
 
@@ -108,6 +132,11 @@ duplicar; `suporte_ids` = lista − `excluidos`. Desmarcar um usuário adicionad
   `prazo_limite`, `enviar_discord`, `link`); o payload aceitaria os campos, a tela não.
 - Permissão: `create-aviso` só cobre o envio; atribuir a papéis na UI de Configurações.
 - Tipo novo de aviso na leitura: o conteúdo vem do legado; a tela só lista.
+- **Janela de dias do aviso automático**: `DIAS_AVISO_AUTOMATICO` em
+  `lib/mensagens/avisos-automaticos.ts` (decisão #25). Se a janela passar de ~25 dias, aumentar
+  também `DIAS_CONSULTA_API`.
+- Adiar ("ver depois"), lembrete por e-mail/Discord, aceite com assinatura e relatório de quem
+  leu ficaram fora do escopo (a decisão #19 descarta o adiar).
 
 ## Pendências
 
@@ -115,103 +144,14 @@ duplicar; `suporte_ids` = lista − `excluidos`. Desmarcar um usuário adicionad
   endpoints respondiam). Sem ele a tela mostra erro com "Tentar de novo" e não envia. A UI dos
   filtros foi conferida com a resposta simulada no navegador; falta ver com o endpoint real.
 
-## Próxima mudança planejada: aviso automático
+## Histórico da implementação
 
-### Objetivo
+### Aviso automático (2026-11-18)
 
-Hoje o `auto` é gravado no envio (switch "Exibir automaticamente", decisão #12), mas a leitura
-não usa o campo. Com esta mudança, **todo aviso não lido com `status_leitura.auto = true` abre
-sozinho, numa janela bloqueante sobre qualquer tela do dashboard, até o usuário marcar como
-lido** (decisão #18). O usuário não consegue fechar a janela de outro jeito (decisão #19).
+Especificado com protótipo (`prototipo/capturas/09` a `11`) e decisões #18 a #25; plano em 3
+partes (dados; janela; fechamento), um commit por parte com escopo `(avisos)`.
 
-### Protótipo
-
-[`prototipo/softflow-prototipo.html`](prototipo/softflow-prototipo.html), atualizado em
-2026-11-18. Os avisos 7748 e 7741 do mock têm `auto: true` e abrem ao carregar qualquer tela. A
-lógica está em `aaVals` e a marcação em `<sc-if value="{{ aaOn }}">`. Um aviso enviado pelo
-Novo aviso para o próprio usuário (Mendonça, #816) com "Exibir automaticamente" ligado também
-abre.
-
-| Captura | Estado |
-|---------|--------|
-| `capturas/09-aviso-automatico-fila.png` | Dois avisos na fila, sobre a tela de Casos: "Mais 1 aviso depois deste" e botão "Marcar como lido e ver o próximo" |
-| `capturas/10-aviso-automatico-ultimo.png` | Último da fila, com o botão "Marcar como lido" |
-| `capturas/11-aviso-automatico-mobile.png` | 390px: a janela vira uma folha presa embaixo, com o texto rolando dentro |
-
-### Comportamento
-
-1. **Onde aparece:** em qualquer rota de `app/(dashboard)`, montado uma vez no layout, ao lado
-   do `CasoAbertoMiniPlayer`. Fica fora das telas públicas e do login.
-2. **Fonte:** `GET /mensagens?lido=false` **sem período** (decisão #21), filtrando no front
-   `status_leitura.auto === true && !status_leitura.lido`.
-3. **Quando consulta:** ao montar o layout (login ou recarregar a página) e depois a cada 5
-   minutos, das 6h às 23h, com a mesma regra do `AvisosDropdown` (decisão #22). Um aviso
-   automático enviado durante o expediente aparece em até 5 minutos.
-4. **Fila:** se houver mais de um, mostra **um por vez, do mais antigo para o mais novo**
-   (decisão #20). O header mostra "Mais N aviso(s) depois deste" e o botão vira "Marcar como lido
-   e ver o próximo". Depois do último, a janela fecha com o toast "Aviso marcado como lido.".
-5. **Janela (alertdialog):**
-   - Header: selo "Aviso importante" (ícone `Bell`, tokens de info), título do aviso (h2) e
-     "Enviado por X" com a data longa ("Enviado 12 de Outubro de 2026 às 08:40"), com avatar de
-     iniciais.
-   - Corpo: `msg_texto` com `whitespace-pre-wrap`, rolando dentro da janela (`max-h` ~88vh no
-     total). Quando houver `link`, mostra "Link para confirmação de presença:" com o link em nova
-     aba. Abrir o link **não** marca como lido.
-   - Rodapé: à esquerda, "Este aviso continua aparecendo até ser marcado como lido." (ícone
-     `Info`, `text-text-secondary`); à direita, o botão primário **Marcar como lido** (ícone
-     `Check`), com foco inicial.
-   - **Sem X, Esc não fecha e clique fora não fecha** (decisão #19).
-   - Mobile (< 640px): folha presa embaixo, largura total, cantos arredondados só em cima.
-6. **Marcar como lido:** `PUT /mensagens/{id}/lido` (`useMarcarMensagemComoLida`, que já
-   invalida `["mensagens"]`, então a lista, o detalhe e o contador do sino se atualizam). Durante
-   a chamada, o botão fica desabilitado com "Marcando...".
-7. **Erro ao marcar** (decisão #23): toast de erro e mensagem inline acima do rodapé ("Não foi
-   possível marcar como lido. Tente de novo."). O botão volta a funcionar. A janela continua
-   aberta.
-8. **Erro ao consultar** `GET /mensagens`: a janela não abre (não bloqueia por falha de rede) e
-   tenta de novo no próximo ciclo.
-9. **Prioridade sobre outros modais:** a janela do aviso fica por cima de qualquer outro modal
-   aberto (z-index acima de `Dialog`/`Sheet`). Os dados digitados nas telas por baixo não se
-   perdem, porque nada é desmontado.
-
-### O que reaproveitar
-
-- `useMensagens` e `useMarcarMensagemComoLida` (`hooks/mensagens/`), sem mudança de contrato. O
-  tipo `MensagemStatusLeitura` já tem `auto`.
-- Formatação da data longa e o bloco de link de `components/avisos/avisos-detalhe.tsx`
-  (`formatarDataLonga`): extrair para `lib/mensagens/` se precisar usar nos dois lugares, em vez
-  de duplicar.
-- Ordenação: `lib/mensagens/sort-por-data-envio.ts` (aqui em ordem crescente).
-- Janela: `components/ui/dialog.tsx` (Radix). O `DialogContent` sempre renderiza o X. Proposta:
-  acrescentar a prop opcional `showCloseButton` (padrão `true`, sem mudar os usos atuais) e usar
-  `onEscapeKeyDown` / `onPointerDownOutside` / `onInteractOutside` com `preventDefault()`, mais
-  `role="alertdialog"`. O overlay usa o `DialogOverlay` existente.
-- Horário de consulta (6h–23h, 5 min): extrair do `AvisosDropdown` para um hook pequeno
-  (ex.: `hooks/mensagens/use-janela-consulta-avisos.ts`) e usar nos dois.
-
-### Arquitetura proposta
-
-```text
-app/(dashboard)/layout.tsx                      + <AvisoAutomatico /> ao lado do CasoAbertoMiniPlayer
-components/avisos/aviso-automatico/
-├── index.tsx                  consulta, fila (mais antigo primeiro), estado de erro, marcar como lido
-└── aviso-automatico-dialog.tsx  apresentação (alertdialog sem X, Esc e clique fora bloqueados)
-hooks/mensagens/use-avisos-automaticos.ts       useMensagens({ lido: false }) + filtro auto + ordenação
-hooks/mensagens/use-janela-consulta-avisos.ts   6h–23h e 5 min, compartilhado com o AvisosDropdown
-components/ui/dialog.tsx                        + prop showCloseButton (padrão true)
-lib/mensagens/formatar-data-longa.ts            (se extrair do avisos-detalhe)
-```
-
-### Perguntas em aberto (resolver na Fase 0)
-
-1. **`GET /mensagens?lido=false` sem `data_msg_inicio`/`data_msg_fim`** devolve todos os não lidos
-   de qualquer data? Conferir na API de teste o comportamento e o volume. Se a API exigir período,
-   usar uma janela larga (ex.: 12 meses) e registrar como decisão nova.
-2. **`status_leitura.auto` no `GET /mensagens`** reflete o `auto` do envio para cada
-   destinatário? Conferir com o comunicado 7757 (`auto: false`) e um novo de teste com
-   `auto: true` mandado só ao registro 2384, como na Parte 3 do envio.
-
-### Perguntas do Claude Code (aviso automático)
+#### Perguntas do Claude Code (aviso automático)
 
 Fase 0 feita em 2026-11-18. O plano bate com o código. Decididos pelo Claude Code, sem
 pergunta: a regra do sino (6h às 23h59, 5 min) vai como está para
@@ -230,7 +170,7 @@ mais):
 - **Pergunta 1 do planejamento:** a API aceita `lido=false` sem datas e devolve tudo, mas o
   volume muda o desenho (P7 abaixo).
 
-#### P7 — Avisos automáticos antigos não lidos · respondida → decisão #25
+##### P7 — Avisos automáticos antigos não lidos · respondida → decisão #25
 
 Fase: Fase 0 (2026-11-18). Contexto: `GET /mensagens?lido=false` sem período devolveu, para o
 registro 2384, **389 não lidos, 375 com `auto: true`**, enviados de fevereiro de 2023 a novembro
@@ -251,7 +191,7 @@ opção, ignorar avisos com `datas.enviado` nulo (não foram enviados).
 Resposta (2026-11-18, Claude Code): janela móvel de **7 dias** (variação da opção A), contada de
 `datas.enviado`; avisos sem `datas.enviado` não entram.
 
-### Andamento da implementação (aviso automático)
+#### Andamento (aviso automático)
 
 - [x] Parte 1: dados (2026-11-18). `hooks/mensagens/use-janela-consulta-avisos.ts` (o
   `AvisosDropdown` passou a usar), `hooks/mensagens/use-avisos-automaticos.ts`,
@@ -266,25 +206,9 @@ Resposta (2026-11-18, Claude Code): janela móvel de **7 dias** (variação da o
   mensagem inline e o botão volta, a fila avança ("Mais 1 aviso depois deste" → "Marcar como
   lido"), o sino cai e o toast aparece no fim; mobile 390px vira folha presa embaixo, com o texto
   rolando. Não exercitado: a janela por cima de outro modal já aberto.
-- [ ] Parte 3: fechamento
+- [x] Parte 3: fechamento (2026-11-18). README no formato padrão, contexto, status e design-system.
 
-### Plano de implementação
-
-1. **Parte 1: dados.** `use-janela-consulta-avisos` (e `AvisosDropdown` passando a usar),
-   `use-avisos-automaticos`, conferência das perguntas 1 e 2 na API de teste.
-2. **Parte 2: janela.** Prop `showCloseButton` no `DialogContent`, `aviso-automatico/` com fila,
-   marcar como lido, erro inline, mobile, e montagem no layout do dashboard. Conferir no
-   navegador: abre ao recarregar, Esc e clique fora não fecham, fila avança, contador do sino
-   cai, mobile 390px.
-3. **Parte 3: fechamento.** README (sair de "Próxima mudança planejada" para o formato padrão),
-   decisões, contexto e status.
-
-### Fora do escopo
-
-Lembrete por e-mail ou Discord, "ver depois"/adiar (descartado na decisão #19), confirmação de
-leitura com assinatura ou aceite, relatório de quem leu.
-
-## Histórico da implementação
+### Envio de avisos (2026-11-18)
 
 Plano executado em 4 partes (dados e permissão; rota e conteúdo; destinatários; fechamento), um
 commit por parte com escopo `(avisos)`. As perguntas abaixo e o andamento ficam como referência.
