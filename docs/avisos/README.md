@@ -230,7 +230,7 @@ mais):
 - **Pergunta 1 do planejamento:** a API aceita `lido=false` sem datas e devolve tudo, mas o
   volume muda o desenho (P7 abaixo).
 
-#### P7 — Avisos automáticos antigos não lidos · aberta
+#### P7 — Avisos automáticos antigos não lidos · respondida → decisão #25
 
 Fase: Fase 0 (2026-11-18). Contexto: `GET /mensagens?lido=false` sem período devolveu, para o
 registro 2384, **389 não lidos, 375 com `auto: true`**, enviados de fevereiro de 2023 a novembro
@@ -247,6 +247,9 @@ talvez com uma limpeza no legado antes (marcar os antigos como lidos no banco).
 Recomendação do Claude Code: A, porque não depende de limpeza no legado, mantém a consulta leve
 e um aviso de 30 dias atrás ainda é recente o bastante para cobrar a leitura. Em qualquer
 opção, ignorar avisos com `datas.enviado` nulo (não foram enviados).
+
+Resposta (2026-11-18, Claude Code): janela móvel de **7 dias** (variação da opção A), contada de
+`datas.enviado`; avisos sem `datas.enviado` não entram.
 
 ### Plano de implementação
 
