@@ -12,12 +12,17 @@ import { useComunicadoFiltros } from "@/hooks/comunicados/use-comunicado-filtros
 import { useCriarComunicado } from "@/hooks/comunicados/use-criar-comunicado";
 import { useTodosUsuariosComunicado } from "@/hooks/comunicados/use-todos-usuarios-comunicado";
 import { useUsuariosComunicado } from "@/hooks/comunicados/use-usuarios-comunicado";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { UsuarioComunicado } from "@/services/comunicados/types";
+import { AdicionarUsuario } from "./adicionar-usuario";
 import { ConfirmarDescarte } from "./confirmar-descarte";
 import { ConteudoCard } from "./conteudo-card";
 import { DestinatariosCard } from "./destinatarios-card";
+import { FiltroMultiSelect } from "./filtro-multi-select";
 import { ListaDestinatarios } from "./lista-destinatarios";
 import {
   FILTROS_VAZIOS,
+  GRUPOS_FILTRO,
   type ModoDestinatarios,
 } from "./novo-aviso.types";
 import {
@@ -135,6 +140,14 @@ export function NovoAviso() {
     });
   };
 
+  const handleAdicionar = (usuario: UsuarioComunicado) => {
+    setValue("extras", [usuario, ...extras], { shouldDirty: true });
+    setValue(
+      "excluidos",
+      excluidos.filter((id) => id !== usuario.registro),
+    );
+  };
+
   const handleLimparFiltros = () => {
     setValue("filtros", FILTROS_VAZIOS, { shouldDirty: true });
     setValue("excluidos", []);
@@ -236,6 +249,40 @@ export function NovoAviso() {
           disabled={enviando}
           erro={erroDestinatarios}
         >
+          {modo === "filtrar" ? (
+            filtrosQuery.isLoading ? (
+              <FiltrosSkeleton />
+            ) : opcoes ? (
+              <div className="grid shrink-0 grid-cols-1 gap-4 sm:grid-cols-2">
+                {GRUPOS_FILTRO.map(({ grupo, label }) => (
+                  <FiltroMultiSelect
+                    key={grupo}
+                    id={`aviso-filtro-${grupo}`}
+                    label={label}
+                    opcoes={opcoes[grupo]}
+                    value={filtros[grupo]}
+                    onChange={(v) =>
+                      setValue(
+                        "filtros",
+                        { ...filtros, [grupo]: v },
+                        { shouldDirty: true },
+                      )
+                    }
+                    disabled={enviando}
+                  />
+                ))}
+              </div>
+            ) : null
+          ) : null}
+
+          <AdicionarUsuario
+            usuarios={todosQuery.data ?? []}
+            jaNaLista={lista.map((u) => u.registro)}
+            onAdicionar={handleAdicionar}
+            isLoading={todosQuery.isLoading || filtrosQuery.isLoading}
+            disabled={enviando}
+          />
+
           <ListaDestinatarios
             lista={lista}
             excluidos={excluidos}
@@ -258,5 +305,18 @@ export function NovoAviso() {
         onConfirm={() => router.push("/avisos")}
       />
     </ListagemPageLayout>
+  );
+}
+
+function FiltrosSkeleton() {
+  return (
+    <div className="grid shrink-0 grid-cols-1 gap-4 sm:grid-cols-2" aria-hidden>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-9 w-full" />
+        </div>
+      ))}
+    </div>
   );
 }

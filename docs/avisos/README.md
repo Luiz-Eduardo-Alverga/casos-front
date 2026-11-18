@@ -389,7 +389,14 @@ Resposta (2026-11-18, Claude Code): A — `border-primary` + `bg-primary/5`, sem
   Conferido no navegador: botão, layout 3:2, validação inline, descarte e estado de erro. O
   envio pela tela ficou sem teste porque `comunicado-filtros` dá 503 na API de teste.
   Obs.: `npm run lint` (`next lint`) não roda no Next 16; a validação foi feita com `npx eslint`.
-- [ ] Parte 3: destinatários
+- [x] Parte 3: destinatários (2026-11-18). Quatro multi-selects (`Popover` + `Command`, busca
+  com mais de 8 opções, "Selecionar todos" / "Limpar", gatilho com resumo), "Adicionar usuário
+  específico" (busca por nome ou registro na empresa inteira, Enter adiciona a 1ª sugestão),
+  skeleton dos filtros. Conferido no navegador com `comunicado-filtros` simulado no próprio
+  navegador (o endpoint segue com 503 na API de teste): PDV JOAO PESSOA → 334 usuários
+  marcados; "Limpar filtros"; usuário adicionado com selo "Adicionado"; envio real só para o
+  registro 2384 (201, `suporte_ids: [2384]`, `auto: false`), volta para `/avisos` com o aviso
+  na lista. Mobile 390px: cards empilhados, página rola, sem scroll horizontal.
 - [ ] Parte 4: fechamento
 
 ### Plano de implementação
