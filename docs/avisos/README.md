@@ -263,6 +263,93 @@ db/scripts/seed-create-aviso-rbac.sql
    valores de cada filtro (o mesmo do modo Todos) e buscar localmente. Confirmar que o volume de
    usuários permite, ou se existe/existirá endpoint de busca.
 
+## Perguntas do Claude Code
+
+Fase 0 feita em 2026-11-18. Os arquivos citados existem (`components/avisos/*`,
+`hooks/mensagens/*`, `app/api/mensagens/route.ts`, `combobox2`, `status-multi-select`,
+`switch-choice-card`, `EmptyState`, `Dialog`, `withPermission`, `getAuthorizationHeader`).
+Decididos pelo Claude Code, sem pergunta:
+
+- **Seed (pergunta 6 do planejamento):** os seeds `seed-*-rbac.sql` só criam a permissão
+  (módulo + `permissions`); a atribuição a papéis é feita na UI de Configurações. O
+  `seed-create-aviso-rbac.sql` segue esse padrão.
+- **Base da busca "Adicionar usuário" (pergunta 8):** `POST usuarios-comunicado` com todos os
+  valores de cada grupo, como no plano. É a mesma consulta que dá o "N usuários" e o
+  `suporte_ids` do modo Todos, e já traz PDV/setor/nível para a linha.
+  `GET /auxiliar/usuarios` (que tem `search`) não traz PDV nem nível.
+- **Multi-select dos filtros:** `Popover` + `Command` + `Checkbox`. O `combobox2` multiple
+  renderiza chips que quebram linha, e o gatilho precisa ficar em 36px com o resumo.
+- **Confirmação de descarte:** não há dialog de confirmação compartilhado (só `window.confirm` em
+  `components/docs/formulario/index.tsx`). Monta-se `confirmar-descarte.tsx` com `Dialog`.
+- `withPermission` também é usado em rotas de proxy fora de `/api/db` (`app/api/produtos/`,
+  `app/api/painel-ideias/`), então serve para `app/api/comunicados/route.ts`. Sessão e token vêm
+  dele (`session.authorizationHeader`).
+
+### P1 — Significado de `auto` · aberta
+
+Fase: Fase 0 (2026-11-18). Contexto: o protótipo chama o switch de "Exibir automaticamente" (o
+aviso abre sozinho quando o destinatário entra no Softflow), ligado por padrão. Hoje a leitura
+(`components/avisos/`) não usa `auto` para nada.
+Opções: **A)** é isso mesmo: manter o texto "Exibir automaticamente" e o padrão ligado. **B)**
+significa outra coisa: dizer o quê, e eu ajusto o texto e o padrão.
+Recomendação do Claude Code: A, se o legado já abre o aviso sozinho com `auto: true`.
+
+### P2 — `enviado: false` é rascunho? · aberta
+
+Fase: Fase 0 (2026-11-18). Contexto: decisão #7 liga "Salvar rascunho" a `enviado: false`. Não
+existe no app lugar para ver ou retomar rascunho, e listar/editar comunicado está fora do
+escopo. Um rascunho salvo hoje ficaria inacessível pelo Softflow.
+Opções: **A)** é rascunho e o botão fica, mesmo sem tela para retomá-lo por enquanto (vira item
+no backlog). **B)** é rascunho, mas o botão sai até existir a tela de rascunhos. **C)** não é
+rascunho: o botão sai e sempre vai `enviado: true`.
+Recomendação do Claude Code: B, porque salvar algo que o usuário não consegue reabrir parece
+perda de texto; o botão volta junto com a listagem de enviados/rascunhos.
+
+### P3 — Contrato de destinatários do `POST /comunicados` · aberta
+
+Fase: Fase 0 (2026-11-18). Contexto: decisões #4, #5 e #6 dependem de a API usar
+`suporte_ids` como lista final (usuário adicionado fora dos filtros entra, usuário desmarcado
+sai) e aceitar grupo sem seleção mandado com todos os valores. Não testei contra a API porque
+criaria comunicado real (e o token dos exemplos não deve ser usado, decisão #10).
+Opções: **A)** `suporte_ids` é a lista final e os arrays de filtro são só registro; mandar todos
+os valores do grupo sem seleção está certo. **B)** a API recalcula pelos filtros (ou prefere
+array vazio): dizer como, e eu ajusto `montarPayload`.
+Recomendação do Claude Code: confirmar A com quem mantém a API; se não der, eu valido na Parte 1
+com um comunicado de teste com `enviado: false` mandado a você só, com o seu ok.
+
+### P4 — Nome da função `"1"` · aberta
+
+Fase: Fase 0 (2026-11-18). Contexto: `comunicado-filtros` devolve `funcao: ["1"]`. O
+multi-select e a linha do usuário mostrariam "1".
+Opções: **A)** existe um nome (diga qual, ou o endpoint que o traz) e eu mapeio. **B)** não há
+nome: esconder o filtro Função enquanto houver só um valor (vai no payload com todos os valores
+mesmo assim) e não mostrar a função na linha.
+Recomendação do Claude Code: B, se não houver nome, porque um filtro com uma única opção "1" não
+ajuda ninguém.
+
+### P5 — Limites de título e descrição · aberta
+
+Fase: Fase 0 (2026-11-18). Contexto: o protótipo limita o título a 120 caracteres; a descrição
+não tem limite.
+Opções: **A)** 120 no título e sem limite na descrição está certo. **B)** a API tem outros
+limites: diga quais.
+Recomendação do Claude Code: A, se ninguém souber outro limite. O erro da API, se houver, vira
+toast.
+
+### P6 — Token do cartão de rádio selecionado · aberta
+
+Fase: Fase 0 (2026-11-18). Contexto: o cartão "Todos os usuários" / "Filtrar destinatários"
+selecionado tem borda e fundo azulados. Não há token genérico de fundo "selecionado"; os mais
+próximos são `papeis-perm-selected-bg/-border` (específicos de Papéis), `public-info-bg` (página
+pública) e `panel-badge-open-bg` (selo). Pela regra do design-system, paro e pergunto.
+Opções: **A)** sem token novo: borda `border-primary` e fundo `bg-primary/5` (opacidade sobre
+token existente). **B)** reaproveitar `papeis-perm-selected-bg/-border`, renomeando-os para algo
+genérico (`selected-bg` / `selected-border`) e registrando no design-system. **C)** token novo
+`selected-bg` só para isto.
+Recomendação do Claude Code: A, porque não cria cor nova e o primário com 5% fica discreto nos
+dois temas. Obs.: `switch-choice-card.tsx` usa `zinc-*` literal (fora da regra de tokens); se
+for usado no "Exibir automaticamente", troco por tokens no mesmo commit.
+
 ### Plano de implementação
 
 1. **Parte 1: dados e permissão.** Os três route handlers, `services/comunicados`, os hooks e o
