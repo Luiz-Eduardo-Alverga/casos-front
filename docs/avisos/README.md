@@ -259,7 +259,13 @@ Resposta (2026-11-18, Claude Code): janela móvel de **7 dias** (variação da o
   dias em `datas.enviado`, decisão #25), `lib/mensagens/formatar.ts`,
   `components/avisos/aviso-link-confirmacao.tsx`. Na API de dev, para o registro 2384, a fila
   ficou só com o 8011 (resposta de 7 KB, ~2 s).
-- [ ] Parte 2: janela
+- [x] Parte 2: janela (2026-11-18). Prop `showCloseButton` (padrão `true`) e `overlayClassName`
+  no `DialogContent`; `components/avisos/aviso-automatico/` montado no layout do dashboard.
+  Conferido no navegador com os avisos de teste 8011, 8012 e 8013 (só para o registro 2384): abre
+  sobre `/casos` com foco no botão, Esc e clique fora não fecham, erro simulado no `PUT` mostra a
+  mensagem inline e o botão volta, a fila avança ("Mais 1 aviso depois deste" → "Marcar como
+  lido"), o sino cai e o toast aparece no fim; mobile 390px vira folha presa embaixo, com o texto
+  rolando. Não exercitado: a janela por cima de outro modal já aberto.
 - [ ] Parte 3: fechamento
 
 ### Plano de implementação
