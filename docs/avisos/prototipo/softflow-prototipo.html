@@ -1210,6 +1210,32 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
   </div>
 </sc-if>
 
+<sc-if value="{{ aaOn }}">
+  <div style="position:fixed;inset:0;background:var(--overlay);z-index:62;display:flex;align-items:{{ mAlign }};justify-content:center;padding:{{ mPad }}">
+    <div role="alertdialog" aria-modal="true" aria-labelledby="aa-title" aria-describedby="aa-texto" style="background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:{{ mRadius }};width:min(640px,100%);max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow-pop);overflow:hidden">
+      <div style="padding:20px 24px 16px;border-bottom:1px solid var(--divider);display:flex;flex-direction:column;gap:12px;flex:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <span style="display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;background:var(--info-soft);color:var(--info)"><svg width="13" height="13" aria-hidden="true"><use href="#i-bell"></use></svg>Aviso importante</span>
+          <sc-if value="{{ aaMulti }}"><span style="font-size:12px;font-weight:600;color:var(--ink-3)">{{ aaResto }}</span></sc-if>
+        </div>
+        <h2 id="aa-title" style="margin:0;font-size:20px;font-weight:800;line-height:1.3">{{ aaM.titulo }}</h2>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span aria-hidden="true" style="width:32px;height:32px;border-radius:50%;background:var(--info-soft);color:var(--info);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none">{{ aaM.ini }}</span>
+          <div style="min-width:0"><p style="margin:0;font-size:13px;font-weight:600">Enviado por {{ aaM.por }}</p><p style="margin:1px 0 0;font-size:12px;color:var(--ink-3)">{{ aaM.longa }}</p></div>
+        </div>
+      </div>
+      <div style="flex:1;min-height:0;overflow:auto;padding:16px 24px 20px;display:flex;flex-direction:column;gap:12px">
+        <div id="aa-texto" style="font-size:14px;line-height:1.6;white-space:pre-wrap">{{ aaM.texto }}</div>
+        <sc-if value="{{ aaM.hasLink }}"><div style="display:flex;flex-direction:column;gap:4px;font-size:14px"><span>Link para confirmação de presença:</span><a href="{{ aaM.link }}" target="_blank" rel="noopener noreferrer" style="color:var(--info);font-weight:600;overflow-wrap:anywhere">{{ aaM.link }}</a></div></sc-if>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px 24px;border-top:1px solid var(--divider);flex:none">
+        <span style="flex:1 1 220px;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)"><svg width="14" height="14" aria-hidden="true" style="flex:none"><use href="#i-info"></use></svg>Este aviso continua aparecendo até ser marcado como lido.</span>
+        <button type="button" autofocus onClick="{{ aaMarcar }}" disabled="{{ aaBusy }}" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 18px;border:1px solid var(--primary);background:var(--primary);color:var(--primary-ink);border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;flex:0 0 auto" style-hover="filter:brightness(1.18)"><svg width="14" height="14" aria-hidden="true"><use href="#i-check"></use></svg>{{ aaBtnLabel }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
 <sc-if value="{{ pdOn }}">
   <div onMouseDown="{{ pdBackdrop }}" style="position:fixed;inset:0;background:var(--overlay);z-index:60;display:flex;align-items:{{ mAlign }};justify-content:center;padding:{{ mPad }}">
     <div role="dialog" aria-modal="true" aria-labelledby="pd-title" style="background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:{{ mRadius }};width:min(580px,100%);max-height:92vh;overflow:auto;display:flex;flex-direction:column;box-shadow:var(--shadow-pop)">
@@ -1337,11 +1363,11 @@ const AV_USERS = [
 const AV_EU = 816;
 const avData = (diasAtras, h, m) => { const d = new Date(NOW.getTime() - diasAtras * DAY); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(h)}:${pad(m)}`; };
 const AV_MSGS = [
-  { id: 7748, titulo: 'Liberação do Smart 8.0.14.0', por: 'Luiz', data: avData(0, 8, 40), lido: false, link: '',
+  { id: 7748, titulo: 'Liberação do Smart 8.0.14.0', por: 'Luiz', data: avData(0, 8, 40), lido: false, auto: true, link: '',
     texto: 'Prezados,\n\nA versão 8.0.14.0 do Smart foi liberada hoje para todos os clientes.\n\nPrincipais pontos:\n- Correção das configurações de emissão fiscal perdidas após sincronizar a Smart 8.0 - Stone.\n- Ajustes no envio do grupo de responsável técnico.\n\nQualquer retorno de cliente, abram caso no projeto 3244.' },
   { id: 7745, titulo: 'Treinamento: novo fluxo de Reports', por: 'Ana', data: avData(1, 16, 10), lido: false, link: 'https://example.com/confirmar-presenca',
     texto: 'Olá, pessoal!\n\nNa próxima quinta, às 15h, teremos o treinamento do novo fluxo de Reports no Softflow, com análise, aprovação e devolução para o Suporte.\n\nConfirmem a presença pelo link abaixo.' },
-  { id: 7741, titulo: 'Janela de manutenção da API Soft Flow', por: 'Igor', data: avData(2, 18, 5), lido: false, link: '',
+  { id: 7741, titulo: 'Janela de manutenção da API Soft Flow', por: 'Igor', data: avData(2, 18, 5), lido: false, auto: true, link: '',
     texto: 'A API Soft Flow ficará indisponível no sábado, das 22h às 23h30, para atualização do servidor.\n\nDurante esse período o Softflow não carrega casos nem reports.' },
   { id: 7736, titulo: 'Atualização da política de home office', por: 'Fernanda', data: avData(6, 10, 0), lido: true, link: '',
     texto: 'A política de home office foi atualizada. O documento completo está disponível na Documentação, na pasta Gente & Cultura.' },
@@ -1567,7 +1593,7 @@ class Component extends DCLogic {
     vView: 'geral', vAgrupar: 'versao', vDev: '', vVersao: '', vBusca: '', vTipo: 'todos', vConcl: false, vLoading: false,
     rItems: REPORTS.slice(), rLoaded: false, rLoading: false, rSev: [], rPrazo: '', rCat: '', rProd: [], rSort: 'prazo', rView: 'lista',
     rExp: { 101395: true }, rSel: null, rSus: {}, rSusTxt: {}, rFOpen: true, lastRemoved: null,
-    avTab: 'nao', avSel: null, avPeriodo: 'este_mes', avMsgs: AV_MSGS.map(m => ({ ...m })), avNovo: null, ...CASOS_STATE()
+    avTab: 'nao', avSel: null, avPeriodo: 'este_mes', avMsgs: AV_MSGS.map(m => ({ ...m })), avNovo: null, aaMarcando: null, ...CASOS_STATE()
   };
   componentDidMount() {
     this.onResize = () => this.setState({ vw: window.innerWidth });
@@ -1868,6 +1894,25 @@ class Component extends DCLogic {
       avAbrirNovo: () => { lsSet('sf-screen', 'avisos'); this.setState({ screen: 'avisoNovo', avNovo: AV_NOVO(), drawer: false, modal: null }); window.scrollTo(0, 0); }
     };
   }
+  // Aviso automático: aviso com auto=true e não lido abre bloqueante sobre qualquer tela, até ser marcado como lido.
+  aaVals(st) {
+    const fila = st.avMsgs.filter(m => m.auto && !m.lido).sort((p, q) => avTs(p.data) - avTs(q.data));
+    if (!fila.length) return { aaOn: false, aaM: {} };
+    const m = fila[0], marcando = st.aaMarcando === m.id, resto = fila.length - 1;
+    return {
+      aaOn: true, aaM: { ...m, ini: avIni(m.por), longa: avLonga(m.data), hasLink: !!m.link },
+      aaMulti: resto > 0, aaResto: `Mais ${resto} ${resto === 1 ? 'aviso' : 'avisos'} depois deste`,
+      aaBusy: marcando, aaBtnLabel: marcando ? 'Marcando...' : resto > 0 ? 'Marcar como lido e ver o próximo' : 'Marcar como lido',
+      aaMarcar: () => {
+        if (this.state.aaMarcando) return;
+        this.setState({ aaMarcando: m.id });
+        setTimeout(() => {
+          this.setState(s => ({ aaMarcando: null, avMsgs: s.avMsgs.map(x => x.id === m.id ? { ...x, lido: true } : x) }));
+          if (!resto) this.toast('Aviso marcado como lido.');
+        }, 500);
+      }
+    };
+  }
   anVals(st) {
     const a = st.avNovo;
     if (!a || st.screen !== 'avisoNovo') return { anOn: false, anF: {}, anGrupos: [], anUsers: [], anModos: [] };
@@ -1903,7 +1948,7 @@ class Component extends DCLogic {
       setTimeout(() => {
         const n = selIds.length, novoId = Math.max(...this.state.avMsgs.map(m => m.id)) + 1, paraMim = enviado && selIds.includes(AV_EU);
         this.setState(s => ({ avNovo: null, screen: 'avisos',
-          ...(paraMim ? { avMsgs: [{ id: novoId, titulo: a.titulo.trim(), texto: a.descricao.trim(), por: 'Mendonça', data: avData(0, 9, 30), lido: false, link: '' }, ...s.avMsgs], avTab: 'nao', avSel: novoId, avPeriodo: s.avPeriodo === 'mes_passado' ? 'este_mes' : s.avPeriodo } : {}) }));
+          ...(paraMim ? { avMsgs: [{ id: novoId, titulo: a.titulo.trim(), texto: a.descricao.trim(), por: 'Mendonça', data: avData(0, 9, 30), lido: false, auto: a.auto, link: '' }, ...s.avMsgs], avTab: 'nao', avSel: novoId, avPeriodo: s.avPeriodo === 'mes_passado' ? 'este_mes' : s.avPeriodo } : {}) }));
         this.toast(enviado ? `Aviso enviado para ${n} ${n === 1 ? 'destinatário' : 'destinatários'}.` : 'Rascunho salvo. O aviso ainda não foi enviado.');
       }, 700);
     };
@@ -2052,7 +2097,7 @@ class Component extends DCLogic {
     }
 
     return {
-      ...this.casosVals(st, isMobile), ...this.editVals(st, isMobile), ...this.avVals(st), ...this.anVals(st),
+      ...this.casosVals(st, isMobile), ...this.editVals(st, isMobile), ...this.avVals(st), ...this.anVals(st), ...this.aaVals(st),
       sk3: sk(3), sk4: sk(4), sk5: sk(5),
       navSections, showLabels, sideW: collapsed ? '64px' : '256px', sidePos: drawerMode ? 'fixed' : 'sticky',
       sideTf: drawerMode && !st.drawer ? 'translateX(-100%)' : 'none', scrimOn: drawerMode && st.drawer,

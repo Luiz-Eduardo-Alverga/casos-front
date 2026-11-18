@@ -92,3 +92,45 @@ Não reabrir sem o usuário decidir de novo. Origem: chat de planejamento do env
 Nota (2026-11-18, implementação): a decisão #14 foi confirmada na API de teste (comunicado com
 filtros que batiam em 5 usuários e `suporte_ids: [2384]` gerou `total_destinatarios: 1`), e a
 #4 também (grupo com array vazio dá 422).
+
+## Aviso automático (planejamento, 2026-11-18)
+
+Origem: chat de planejamento do comportamento do `auto`, com protótipo em
+[`prototipo/`](prototipo/) (capturas 09 a 11).
+
+18. **`auto: true` faz o aviso abrir sozinho para o destinatário até ele marcar como lido.**
+    Complementa a decisão #12 (o switch "Exibir automaticamente" do envio): o aviso não aparece
+    só uma vez no login, ele continua aparecendo enquanto `status_leitura.lido` for `false`.
+    **Por quê:** é o significado do campo no legado, explicado pelo usuário.
+
+19. **A janela é bloqueante: só fecha com "Marcar como lido".** Sem X, sem "Ver depois", e Esc
+    ou clique fora não fecham. **Por quê:** escolha do usuário entre três opções (adiar até
+    reabrir o Softflow, adiar 30 minutos ou bloquear). Avisos automáticos são os que a empresa
+    precisa garantir que foram lidos.
+
+20. **Com mais de um aviso automático não lido, aparece um por vez, do mais antigo para o mais
+    novo.** O header diz quantos faltam ("Mais N aviso(s) depois deste") e o botão vira "Marcar
+    como lido e ver o próximo". **Por quê:** a leitura segue a ordem em que os avisos foram
+    enviados, e o usuário sabe quanto falta antes de voltar ao trabalho.
+
+21. **A consulta dos automáticos não tem período: todo aviso automático não lido aparece,
+    mesmo de meses anteriores.** O sino e a tela `/avisos` continuam com "Este mês" por padrão.
+    **Por quê:** um aviso que precisa ser lido não pode sumir na virada do mês. Depende da
+    pergunta 1 da seção "Próxima mudança planejada" do README (a API aceitar a consulta sem
+    datas).
+
+22. **A consulta segue a regra do sino: ao abrir o Softflow e a cada 5 minutos, das 6h às
+    23h.** A regra é extraída para um hook compartilhado. **Por quê:** não cria uma segunda
+    política de polling contra a API, e um aviso enviado durante o expediente chega em até 5
+    minutos.
+
+23. **Falha não pode prender nem sumir com o aviso.** Erro ao marcar como lido: a janela
+    continua aberta, com toast e mensagem inline, e o botão volta a funcionar. Erro ao consultar
+    `GET /mensagens`: a janela não abre e o Softflow segue usável até o próximo ciclo. **Por
+    quê:** a janela é bloqueante (decisão #19). Uma falha de rede não pode travar o usuário fora
+    do sistema, e também não pode dar o aviso por lido sem o `PUT`.
+
+24. **A janela aparece em qualquer rota do dashboard, inclusive `/avisos` e `/avisos/novo`, e
+    fica por cima de qualquer outro modal aberto, sem desmontar a tela de baixo.** **Por quê:**
+    o aviso é prioritário, e nada que o usuário estava digitando se perde, porque a tela de
+    baixo continua montada.

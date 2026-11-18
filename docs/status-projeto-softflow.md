@@ -142,3 +142,8 @@ planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
+- **Avisos: aviso automático (bloqueante)**: especificado em 2026-11-18. Aviso não lido com
+  `auto: true` abre numa janela sobre qualquer tela do dashboard, um por vez, e só fecha marcando
+  como lido. Protótipo, decisões #18 a #24 e plano em 3 partes em
+  [`avisos/`](avisos/README.md#próxima-mudança-planejada-aviso-automático). Duas perguntas sobre
+  `GET /mensagens` para a Fase 0. Implementar com `/implementar avisos`.
