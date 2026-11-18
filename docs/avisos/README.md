@@ -375,8 +375,12 @@ Resposta (2026-11-18, Claude Code): A — `border-primary` + `bg-primary/5`, sem
     (grupo sem seleção vai com todos os valores).
   - `comunicado-filtros` devolve **503** ("Serviço temporariamente indisponível") na API de
     teste; os outros endpoints respondem. A tela trata como erro com "Tentar de novo".
-  - `POST /comunicados` **ainda não testado**: o seed não foi aplicado no Postgres. A decisão
-    #14 (`suporte_ids` como lista final) segue sem confirmação.
+  - Seed aplicado no Postgres em 2026-11-18, com `create-aviso` atribuída ao papel
+    "PM/PO Squad Xp" (a pedido do usuário).
+  - `POST /comunicados` testado (comunicado 7757, `auto: false`): filtros que batem em 5
+    usuários + `suporte_ids: [2384]` geraram `total_destinatarios: 1`. **Decisão #14
+    confirmada:** `suporte_ids` é a lista final, e a API não recalcula pelos filtros. A resposta
+    tem também `link: null`, e o aviso aparece em `GET /mensagens` (campo `msg_texto`).
 - [ ] Parte 2: rota e conteúdo
 - [ ] Parte 3: destinatários
 - [ ] Parte 4: fechamento
