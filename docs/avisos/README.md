@@ -364,7 +364,19 @@ Resposta (2026-11-18, Claude Code): A — `border-primary` + `bg-primary/5`, sem
 
 ## Andamento da implementação
 
-- [ ] Parte 1: dados e permissão
+- [x] Parte 1: dados e permissão (2026-11-18). Rotas `app/api/auxiliar/comunicado-filtros`,
+  `app/api/auxiliar/usuarios-comunicado`, `app/api/comunicados` (`withPermission("create-aviso")`),
+  `services/comunicados/`, `hooks/comunicados/` e `db/scripts/seed-create-aviso-rbac.sql`.
+  Conferido na API de teste (`91.99.191.233:8083`):
+  - `usuarios-comunicado`: formato igual ao exemplo, mas **`funcao` vem numérico** (1 = LIDER,
+    0 = OPERACIONAL, inferido filtrando por cada nome). Empresa inteira = 469 usuários, ~54 KB,
+    ~5 s: a busca local de "Adicionar usuário" se sustenta.
+  - Grupo com array vazio dá **422** ("The funcao field is required."): confirma a decisão #4
+    (grupo sem seleção vai com todos os valores).
+  - `comunicado-filtros` devolve **503** ("Serviço temporariamente indisponível") na API de
+    teste; os outros endpoints respondem. A tela trata como erro com "Tentar de novo".
+  - `POST /comunicados` **ainda não testado**: o seed não foi aplicado no Postgres. A decisão
+    #14 (`suporte_ids` como lista final) segue sem confirmação.
 - [ ] Parte 2: rota e conteúdo
 - [ ] Parte 3: destinatários
 - [ ] Parte 4: fechamento
