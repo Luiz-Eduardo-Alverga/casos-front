@@ -15,7 +15,8 @@ import type { Mensagem } from "@/services/mensagens/get-mensagens";
 import { getPeriodoRange } from "@/lib/periodo-avisos";
 import { cn } from "@/lib/utils";
 import { sortMensagensPorDataEnvio } from "@/lib/mensagens/sort-por-data-envio";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useJanelaConsultaAvisos } from "@/hooks/mensagens/use-janela-consulta-avisos";
 
 const LIMITE_DROPDOWN = 10;
 
@@ -41,17 +42,7 @@ export function AvisosDropdown() {
   const [open, setOpen] = useState(false);
 
   const periodoMesAtual = useMemo(() => getPeriodoRange("este_mes"), []);
-  const [now, setNow] = useState(() => new Date());
-
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(new Date()), 60_000);
-    return () => window.clearInterval(id);
-  }, []);
-
-  const dentroHorarioConsulta = useMemo(() => {
-    const hora = now.getHours();
-    return hora >= 6 && hora <= 23;
-  }, [now]);
+  const { queryOptions } = useJanelaConsultaAvisos();
 
   const { data: dataNaoLidos } = useMensagens(
     {
@@ -59,13 +50,7 @@ export function AvisosDropdown() {
       data_msg_inicio: periodoMesAtual.data_msg_inicio,
       data_msg_fim: periodoMesAtual.data_msg_fim,
     },
-    {
-      enabled: dentroHorarioConsulta,
-      refetchInterval: dentroHorarioConsulta ? 300_000 : false,
-      refetchIntervalInBackground: true,
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
+    { ...queryOptions, retry: 1 },
   );
 
   const totalNaoLidosRaw =

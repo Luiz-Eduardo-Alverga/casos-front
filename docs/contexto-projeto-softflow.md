@@ -80,7 +80,11 @@ Navegação em três blocos: **painéis pessoais**, **gerenciar** e **recursos**
 
 ### Painéis
 
-- **Avisos** (`/avisos`) — notificações internas, lista + detalhe, filtro por período.
+- **Avisos** (`/avisos`) — notificações internas, lista + detalhe, filtro por período. Quem tem
+  `create-aviso` envia comunicados em `/avisos/novo` (empresa toda, por PDV/setor/nível/função
+  e/ou usuários específicos) pela API Soft Flow (`POST /comunicados`). Detalhe em `docs/avisos/`.
+  Aviso automático (`auto`, não lido, enviado nos últimos 7 dias) abre numa janela bloqueante em
+  qualquer tela do dashboard até ser marcado como lido.
 - **Painel do desenvolvedor** (`/painel`) — Kanban operacional do dev. Colunas: **Abertos / Corrigidos / Retornos / Concluídos**. Filtros (produto, projeto, setor, agenda), drag-and-drop persiste status, infinite scroll, modal de resumo do caso. É a “home” de quem desenvolve. Detalhe em `docs/painel-desenvolvedor/README.md`.
 - **Indicadores** (`/painel/indicadores`) — premiação e metas do período por colaborador (baseline, recálculo); ver outros colaboradores exige `list-indicadores-all`.
 - **Painel Minha Visão** (`/painel/minha-visao`) — visão gerencial: KPIs, casos para testar, casos em produção, prazos de clientes, próximas/últimas liberações, painel de ideias. Filtros de setor/produto/projeto/versão.
@@ -92,7 +96,7 @@ Navegação em três blocos: **painéis pessoais**, **gerenciar** e **recursos**
 
 ### Projetos e entrega
 
-- **Projetos** (`/projetos`) — listagem, cadastro (`/projetos/novo`) e edição (`/projetos/[id]`) com abas: **Abertura, Escopo, Risco, Stakeholders, Cronograma**. Escopo lista casos/reports da memória do projeto (badges de status, origem caso vs report). Padrão de pastas em `docs/projetos/README.md`.
+- **Projetos** (`/projetos`) — listagem, cadastro (`/projetos/novo`) e edição (`/projetos/[id]`) com abas: **Abertura, Escopo, Risco, Stakeholders, Cronograma**. Escopo lista casos/reports da memória do projeto (badges de status, origem caso vs report) e duplica casos para outro projeto: sem seleção, a API leva os elegíveis do projeto; com casos marcados, só esses ids vão em `registros`. Padrão de pastas em `docs/projetos/README.md`.
 - **Liberações** (`/liberacoes`) — registro de release: versões piloto vs final e casos vinculados por produto. Detalhe em `/liberacoes/[registro]` com abas **Liberação** (identidade, piloto, versão final, flags, encerrar), **Casos da versão** e **Checklist**.
 - **Melhorias** (`/melhorias`) — tela de ideias/melhorias por produto, setor e período, disponível na navegação principal.
 
@@ -222,7 +226,7 @@ há decisão não óbvia pelo código, um `decisoes.md`.
 | [`painel-desenvolvedor/`](painel-desenvolvedor/README.md) | Kanban do dev (`/painel`) |
 | [`indicadores/`](indicadores/README.md) | Premiação e metas (`/painel/indicadores`) |
 | [`minha-visao/`](minha-visao/README.md) | Painel gerencial (`/painel/minha-visao`) |
-| [`avisos/`](avisos/README.md) | Notificações internas (`/avisos`) |
+| [`avisos/`](avisos/README.md) | Notificações internas (`/avisos`) e envio de avisos (`/avisos/novo`, permissão `create-aviso`) |
 | [`casos/`](casos/README.md) | Casos (`/casos`) |
 | [`reports/`](reports/README.md) | Fila de análise e abertura de reports (`/reports`) |
 | [`projetos/`](projetos/README.md) | Projetos SGP (`/projetos`) |

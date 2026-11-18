@@ -12,6 +12,19 @@ casos e reports da memória do projeto. Dados da API Soft Flow (`sgp-*`, `projet
 Abaixo, a organização de `components/projetos/`. Para aba nova, seção 11; campo novo na Abertura,
 seção 12; feature nova, checklist da seção 14.
 
+### Duplicar casos (aba Escopo)
+
+Quem tem `edit-case` ou `edit-report` vê o botão "Duplicar casos" e checkboxes na tabela. O modal
+escolhe o projeto destino e chama `POST /api/projeto-casos/transferir-proximo-projeto`
+(`services/projeto-casos/transferir-proximo-projeto.ts`).
+
+- Nenhum caso marcado: o body vai só com `cronograma_origem` e `cronograma_destino`. A API duplica
+  os elegíveis do projeto (Aberto e Em desenvolvimento; bloqueados ficam de fora). Os filtros da aba
+  não entram nessa chamada.
+- Casos marcados: o body inclui `registros` com os ids dos casos (`caso.id`). O checkbox do
+  cabeçalho marca só as linhas já carregadas (a lista pagina de 15 em 15). Casos que saem da lista
+  carregada (filtro ou troca de projeto) deixam de estar marcados.
+
 ---
 
 ## 1. Visão Geral

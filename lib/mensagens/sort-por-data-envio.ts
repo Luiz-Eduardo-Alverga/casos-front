@@ -19,3 +19,12 @@ export function sortMensagensPorDataEnvio(mensagens: Mensagem[]): Mensagem[] {
     (a, b) => getTimestampEnvio(b) - getTimestampEnvio(a),
   );
 }
+
+/** Do mais antigo para o mais novo (fila do aviso automático); empate pelo id. */
+export function sortMensagensPorDataEnvioCrescente(
+  mensagens: Mensagem[],
+): Mensagem[] {
+  return [...mensagens].sort(
+    (a, b) => getTimestampEnvio(a) - getTimestampEnvio(b) || a.id - b.id,
+  );
+}

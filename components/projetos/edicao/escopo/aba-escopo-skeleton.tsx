@@ -5,7 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EscopoContentSkeleton } from "@/components/projetos/edicao/escopo/escopo-content-skeleton";
 
-export function AbaEscopoSkeleton() {
+export function AbaEscopoSkeleton({
+  showCheckbox = false,
+}: {
+  showCheckbox?: boolean;
+}) {
   return (
     <Card className="rounded-lg bg-card shadow-card">
       <CardHeader className="border-b border-border-divider p-5 pb-2">
@@ -25,7 +29,7 @@ export function AbaEscopoSkeleton() {
         </div>
       </CardHeader>
       <CardContent className="p-6 pt-3">
-        <EscopoContentSkeleton />
+        <EscopoContentSkeleton showCheckbox={showCheckbox} />
       </CardContent>
     </Card>
   );

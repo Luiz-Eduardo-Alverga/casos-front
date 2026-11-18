@@ -5,6 +5,7 @@ import { SidebarProvider } from "@/components/sidebar/sidebar-provider";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { Header } from "@/components/header";
 import { CasoAbertoMiniPlayer } from "@/components/caso-aberto-player";
+import { AvisoAutomatico } from "@/components/avisos/aviso-automatico";
 import { useSidebar } from "@/components/sidebar/sidebar-provider";
 import { Suspense, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -13,6 +14,7 @@ import { usePathname } from "next/navigation";
 // A maioria das telas terá scroll do navegador
 const ROUTES_WITH_INTERNAL_SCROLL = [
   "/avisos",
+  "/avisos/novo",
   "/painel",
   "/cadastros/adquirentes/status",
   "",
@@ -75,6 +77,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
           {children}
         </div>
         <CasoAbertoMiniPlayer />
+        <AvisoAutomatico />
       </div>
     </div>
   );

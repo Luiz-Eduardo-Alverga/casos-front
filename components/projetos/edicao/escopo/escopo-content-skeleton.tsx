@@ -22,7 +22,11 @@ function SummaryCardSkeleton() {
   );
 }
 
-export function EscopoContentSkeleton() {
+export function EscopoContentSkeleton({
+  showCheckbox = false,
+}: {
+  showCheckbox?: boolean;
+}) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 border-b border-border-divider pb-4 pt-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -31,9 +35,18 @@ export function EscopoContentSkeleton() {
         ))}
       </div>
 
+      {showCheckbox ? (
+        <div className="flex justify-end">
+          <Skeleton className="h-8 w-36 rounded-lg" />
+        </div>
+      ) : null}
+
       <Table>
         <TableHeader>
           <TableRow className="bg-background border-b border-background hover:bg-background">
+            {showCheckbox ? (
+              <TableHead className="w-[48px] h-auto py-4 px-2" />
+            ) : null}
             <TableHead className="min-w-[95px] font-medium text-sm text-text-primary h-auto py-4 px-5">
               ID / Categoria
             </TableHead>
@@ -55,7 +68,10 @@ export function EscopoContentSkeleton() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <ProjetosTabelaEscopoSkeletonRows count={6} />
+          <ProjetosTabelaEscopoSkeletonRows
+            count={6}
+            showCheckbox={showCheckbox}
+          />
         </TableBody>
       </Table>
     </div>

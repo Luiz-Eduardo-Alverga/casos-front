@@ -9,51 +9,11 @@ import { Bell, FileText, Check, User } from "lucide-react";
 import { useMarcarMensagemComoLida } from "@/hooks/mensagens/use-marcar-mensagem-lida";
 import { useMensagens } from "@/hooks/mensagens/use-mensagens";
 import { AvisosDetalheSkeleton } from "./avisos-detalhe-skeleton";
+import { AvisoLinkConfirmacao } from "./aviso-link-confirmacao";
+import { formatarDataLonga, iniciaisRemetente as iniciais } from "@/lib/mensagens/formatar";
 
 interface AvisosDetalheProps {
   idSelecionado: number | string | null;
-}
-
-const MESES_PT: Record<number, string> = {
-  0: "Janeiro",
-  1: "Fevereiro",
-  2: "Março",
-  3: "Abril",
-  4: "Maio",
-  5: "Junho",
-  6: "Julho",
-  7: "Agosto",
-  8: "Setembro",
-  9: "Outubro",
-  10: "Novembro",
-  11: "Dezembro",
-};
-
-/** Formata data no estilo "08 de Janeiro de 2025 às 14:55" */
-function formatarDataLonga(value: string | null): string {
-  if (!value) return "—";
-  try {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
-    const dia = date.getDate();
-    const mes = MESES_PT[date.getMonth()] ?? "";
-    const ano = date.getFullYear();
-    const hora = date.getHours();
-    const min = date.getMinutes();
-    const horaStr = `${String(hora).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
-    return `Enviado ${dia} de ${mes} de ${ano} às ${horaStr}`;
-  } catch {
-    return value;
-  }
-}
-
-/** Iniciais para fallback do avatar (primeiras letras do nome) */
-function iniciais(nome: string): string {
-  const partes = nome.trim().split(/\s+/).filter(Boolean);
-  if (partes.length >= 2) {
-    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
-  }
-  return nome.slice(0, 2).toUpperCase() || "?";
 }
 
 export function AvisosDetalhe({ idSelecionado }: AvisosDetalheProps) {
@@ -160,22 +120,7 @@ export function AvisosDetalhe({ idSelecionado }: AvisosDetalheProps) {
           {mensagem.msg_texto || "Sem conteúdo."}
         </div>
 
-        {/* Link quando existir */}
-        {mensagem.link && (
-          <div className="space-y-1">
-            <p className="text-sm text-text-primary">
-              Link para confirmação de presença:
-            </p>
-            <a
-              href={mensagem.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:text-blue-700 hover:underline break-all"
-            >
-              {mensagem.link}
-            </a>
-          </div>
-        )}
+        <AvisoLinkConfirmacao link={mensagem.link} />
       </CardContent>
     </Card>
   );

@@ -42,6 +42,25 @@ coberto.
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
+- **Avisos: aviso automático (bloqueante)** (2026-11-18, na `dev`). Aviso não lido com `auto`,
+  enviado nos últimos 7 dias, abre numa janela sem X sobre qualquer tela do dashboard, um por vez
+  do mais antigo para o mais novo, até marcar como lido. Testado na API de dev com os avisos 8011,
+  8012 e 8013 (só para o registro 2384): fila, Esc e clique fora bloqueados, erro simulado no
+  marcar, sino e mobile 390px. Não exercitado: a janela por cima de outro modal aberto. Falta ir
+  para produção. Ver [`avisos/`](avisos/README.md).
+- **Envio de avisos (tela Novo aviso, `/avisos/novo`)** (2026-11-18, na `dev`). Botão "Novo
+  aviso" em `/avisos` com a permissão `create-aviso` (seed aplicado no Postgres e atribuído ao
+  papel "PM/PO Squad Xp"), conteúdo, modo Todos/Filtrar, quatro filtros, "Adicionar usuário
+  específico", lista com seleção e envio por `POST /api/comunicados`. Testado na API de teste:
+  envio pela tela só para o registro 2384 (201) e o aviso apareceu na lista. `GET
+  /auxiliar/comunicado-filtros` dava 503 na API de teste, então os filtros foram vistos com a
+  resposta simulada no navegador. Falta conferir com o endpoint real e ir para produção
+  (atribuir `create-aviso` aos papéis certos). Ver [`avisos/`](avisos/README.md).
+- **Projetos: seleção de casos ao duplicar o escopo** (2026-11-17, na `dev`). A aba Escopo marca
+  casos na tabela. Sem marcação, `POST /api/projeto-casos/transferir-proximo-projeto` segue sem
+  `registros` e a API duplica os elegíveis do projeto. Com marcação, envia só esses ids. ESLint dos
+  arquivos alterados passou. No navegador local a rota caiu no login, então a seleção e o POST não
+  foram exercitados. Ver [`projetos/`](projetos/README.md).
 - **Flags Liberação / Entregue / Atualização Automática na edição de caso** (2026-11-17, na
   `dev`). Pílulas com checkbox no header de "Classificação e Origem", salvas no PATCH do caso.
   Testado no navegador com o caso 104020 (dev local + API real): leitura da API, marcar e
@@ -123,5 +142,9 @@ usuário):
 
 ## 📋 Backlog consciente (decisão sua, não esquecimento)
 
-Nada registrado ainda. Especificação aprovada e ainda não implementada fica em
-`docs/<slug>/README.md` com **"Estado: planejado"** e aparece aqui.
+Especificação aprovada e ainda não implementada fica em `docs/<slug>/README.md` com **"Estado:
+planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
+
+- **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
+  avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
+  [`avisos/`](avisos/decisoes.md)).
