@@ -211,6 +211,43 @@ lib/mensagens/formatar-data-longa.ts            (se extrair do avisos-detalhe)
    destinatário? Conferir com o comunicado 7757 (`auto: false`) e um novo de teste com
    `auto: true` mandado só ao registro 2384, como na Parte 3 do envio.
 
+### Perguntas do Claude Code (aviso automático)
+
+Fase 0 feita em 2026-11-18. O plano bate com o código. Decididos pelo Claude Code, sem
+pergunta: a regra do sino (6h às 23h59, 5 min) vai como está para
+`hooks/mensagens/use-janela-consulta-avisos.ts`; `formatarDataLonga` e as iniciais saem de
+`avisos-detalhe.tsx` para `lib/mensagens/formatar.ts`; o bloco do link vira
+`components/avisos/aviso-link-confirmacao.tsx` (trocando `text-blue-600` cru por `status-info`);
+`sortMensagensPorDataEnvioCrescente` entra ao lado da ordenação atual; a janela usa `z-[80]`,
+acima do mini-player do caso (`z-[60]`/`z-[70]`) e dos `Dialog`/`Sheet` (`z-50`).
+
+Conferido na API de dev (`91.99.191.233:8083`, base aparentemente renovada: o 7757 não existe
+mais):
+
+- **Pergunta 2 do planejamento, respondida:** `status_leitura.auto` reflete o envio. O
+  comunicado 8011, mandado com `auto: true` só ao registro 2384, volta em `GET /mensagens` com
+  `auto: true, lido: false`.
+- **Pergunta 1 do planejamento:** a API aceita `lido=false` sem datas e devolve tudo, mas o
+  volume muda o desenho (P7 abaixo).
+
+#### P7 — Avisos automáticos antigos não lidos · aberta
+
+Fase: Fase 0 (2026-11-18). Contexto: `GET /mensagens?lido=false` sem período devolveu, para o
+registro 2384, **389 não lidos, 375 com `auto: true`**, enviados de fevereiro de 2023 a novembro
+de 2026 (90 de 2023, 184 de 2024, 98 de 2025, 3 de 2026). Resposta de **538 KB em ~22 s**. Os
+automáticos de novembro de 2026 estão quase todos lidos (o legado os mostra). Com as decisões #19
+a #21 como estão, o usuário teria que clicar 375 vezes em "Marcar como lido" antes de usar o
+Softflow, e cada consulta a cada 5 minutos traria meio megabyte. Nenhum dos 375 tem
+`prazo_limite` no futuro; um tem `datas.enviado: null`.
+Opções: **A)** janela móvel: só entram automáticos enviados nos últimos 30 dias (resolve a
+virada do mês que motivou a #21, sem trazer o passivo; a consulta usa `data_msg_inicio` = hoje
+− 30 dias). **B)** a partir de uma data de corte fixa (ex.: a data em que o aviso automático for
+para produção): nada anterior bloqueia. **C)** manter a #21 (sem período) e aceitar o passivo,
+talvez com uma limpeza no legado antes (marcar os antigos como lidos no banco).
+Recomendação do Claude Code: A, porque não depende de limpeza no legado, mantém a consulta leve
+e um aviso de 30 dias atrás ainda é recente o bastante para cobrar a leitura. Em qualquer
+opção, ignorar avisos com `datas.enviado` nulo (não foram enviados).
+
 ### Plano de implementação
 
 1. **Parte 1: dados.** `use-janela-consulta-avisos` (e `AvisosDropdown` passando a usar),
