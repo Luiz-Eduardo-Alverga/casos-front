@@ -68,3 +68,19 @@ Respostas do usuário às perguntas P1 a P3 do Claude Code (README, "Perguntas d
     projetos na API Soft Flow de desenvolvimento** (a apontada pelo `.env`) pela rota nova, logado
     no app local. **Por quê:** o usuário confirmou que é a API de dev, então os projetos criados no
     teste não afetam produção.
+
+## Clonar projeto (Parte 1, 2026-11-19)
+
+Respostas do usuário às perguntas P4 e P5, depois dos testes na API de dev.
+
+13. **Nome repetido passa no clone.** Nem o front nem a rota checam nome; vale o que a API decide,
+    e hoje ela aceita nome repetido e recusa período sobreposto a outro projeto aberto (422 "Já
+    existe projeto aberto nesse período!!!", mostrado no modal como qualquer erro, decisão #8).
+    Complementa a decisão #5. **Por quê:** clonar a mesma sprint duas vezes já é barrado pela regra
+    de período, e a listagem da API não filtra por nome para uma checagem confiável.
+
+14. **O clone não copia o objetivo, e o modal avisa.** O texto informativo diz que o objetivo não é
+    copiado e deve ser preenchido na aba Abertura do projeto novo. A rota não faz PUT de correção. O
+    comportamento da API (`objetivo_id` volta 0) fica registrado como pendência para o backend.
+    **Por quê:** um PUT completo logo depois do clone duplicaria a montagem do payload da Abertura
+    na rota e poderia sobrescrever campos se a API mudar.
