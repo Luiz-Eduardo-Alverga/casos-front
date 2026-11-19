@@ -323,7 +323,8 @@ mock, o mês atual é outubro de 2026 (`NOW`).
    e mostra "Novembro de 2026" ou "Todos os meses". Ele abre um popover com:
    - o ano e as setas "Ano anterior" e "Próximo ano";
    - uma grade de 3×4 meses ("Jan"…"Dez", com `aria-label` "Novembro de 2026"). O mês escolhido
-     fica com fundo primário e o mês atual com contorno;
+     fica com fundo primário e o mês atual com contorno. Os outros meses ganham fundo `muted` no
+     hover; o mês selecionado não muda no hover;
    - um rodapé com "Este mês" e "Todos os meses".
 
    Escolher um mês fecha o popover. Esc ou clique fora também fecham.

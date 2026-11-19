@@ -1230,9 +1230,9 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
                       <button type="button" onClick="{{ pjAnoProx }}" aria-label="Próximo ano" style="width:30px;height:30px;border:0;background:none;border-radius:6px;display:grid;place-items:center;color:var(--ink);cursor:pointer" style-hover="background:var(--muted)"><svg width="14" height="14" aria-hidden="true"><use href="#i-chevr"></use></svg></button>
                     </div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-                      <sc-for list="{{ pjMeses }}" as="m" hint-placeholder-count="12"><button type="button" onClick="{{ m.go }}" aria-pressed="{{ m.on }}" aria-label="{{ m.nome }}" style="height:34px;border:1px solid {{ m.bd }};border-radius:6px;background:{{ m.bg }};color:{{ m.ink }};font-size:13px;font-weight:600;cursor:pointer" style-hover="filter:brightness(.96)">{{ m.curto }}</button></sc-for>
+                      <sc-for list="{{ pjMeses }}" as="m" hint-placeholder-count="12"><sc-if value="{{ m.on }}"><button type="button" onClick="{{ m.go }}" aria-pressed="true" aria-label="{{ m.nome }}" style="height:34px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:#fff;font-size:13px;font-weight:600;cursor:pointer">{{ m.curto }}</button></sc-if><sc-if value="{{ m.off }}"><button type="button" onClick="{{ m.go }}" aria-pressed="false" aria-label="{{ m.nome }}" style="height:34px;border:1px solid {{ m.bd }};border-radius:6px;background:transparent;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;transition:background .12s" style-hover="background:var(--muted)">{{ m.curto }}</button></sc-if></sc-for>
                     </div>
-                    <div style="display:flex;justify-content:space-between;border-top:1px solid var(--divider);padding-top:8px"><button type="button" onClick="{{ pjMesEste }}" style="border:0;background:none;padding:2px;font-size:12px;font-weight:700;color:var(--info);cursor:pointer">Este mês</button><button type="button" onClick="{{ pjMesLimpar }}" style="border:0;background:none;padding:2px;font-size:12px;font-weight:700;color:var(--ink-3);cursor:pointer">Todos os meses</button></div>
+                    <div style="display:flex;justify-content:space-between;border-top:1px solid var(--divider);padding-top:8px"><button type="button" onClick="{{ pjMesEste }}" style="border:0;background:none;padding:2px;font-size:12px;font-weight:700;color:var(--info);cursor:pointer" style-hover="text-decoration:underline">Este mês</button><button type="button" onClick="{{ pjMesLimpar }}" style="border:0;background:none;padding:2px;font-size:12px;font-weight:700;color:var(--ink-3);cursor:pointer" style-hover="text-decoration:underline">Todos os meses</button></div>
                   </div>
                 </sc-if>
               </div>
@@ -2330,7 +2330,7 @@ class Component extends DCLogic {
       pjMesFechar: () => this.setState({ pjMesOpen: false }),
       pjAnoAnt: () => this.setState(s => ({ pjMesAno: s.pjMesAno - 1 })), pjAnoProx: () => this.setState(s => ({ pjMesAno: s.pjMesAno + 1 })),
       pjMeses: PJ_MESES.map((nm, i) => { const v = `${ano}-${pad(i + 1)}`, on = ff.mes === v, atual = v === hoje;
-        return { curto: nm.slice(0, 3), nome: `${nm} de ${ano}`, on, bg: on ? 'var(--primary)' : 'transparent', ink: on ? '#fff' : 'var(--ink)', bd: atual && !on ? 'var(--primary)' : 'transparent', go: () => setMes(v) }; }),
+        return { curto: nm.slice(0, 3), nome: `${nm} de ${ano}`, on, bg: on ? 'var(--primary)' : 'transparent', off: !on, ink: on ? '#fff' : 'var(--ink)', bd: atual && !on ? 'var(--primary)' : 'transparent', go: () => setMes(v) }; }),
       pjMesEste: () => { this.setState({ pjMesAno: NOW.getFullYear() }); setMes(hoje); }, pjMesLimpar: () => setMes(''),
       pjFiltrar: filtrar, pjFiltrarOff: !podeFiltrar, pjFiltrarBg: podeFiltrar ? 'var(--primary)' : 'var(--ink-4)', pjFiltrarCursor: podeFiltrar ? 'pointer' : 'not-allowed',
       pjOnKeyFiltro: e => { if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') { e.preventDefault(); filtrar(); } },
