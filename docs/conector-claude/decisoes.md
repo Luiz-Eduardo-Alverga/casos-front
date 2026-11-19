@@ -39,7 +39,8 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
    navegador, guardado cifrado e renovado pelo servidor.** O Softflow nunca recebe nem guarda a
    senha. **Por quê:** é o único jeito de agir em nome da pessoa sem mudar o legado. Separar do
    cookie evita que o conector dependa da sessão do navegador. Sujeito às perguntas 1 a 3 do
-   README sobre o comportamento do `POST /auth/refresh`.
+   README sobre o comportamento do `POST /auth/refresh`. (A forma de obter o token foi revogada
+   pela decisão #14.)
 
 8. **Caso aberto pelo conector leva em Informações adicionais a linha "Aberto pelo Claude
    (conector Softflow) por <nome>."** **Por quê:** o legado não tem campo de origem do canal, e
@@ -74,3 +75,15 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     `softflow.hostsoftcom.cloud` é o endereço atual e `softflow.softcom.services` é o antigo. O
     Claude exige que o `resource` dos metadados seja exatamente o endereço cadastrado, então só um
     domínio vale. Resposta da P3.
+
+14. **O token Soft Flow da conexão é emitido por `POST /auth/login` com a senha que a pessoa digita
+    de novo na tela de autorização, não por refresh da sessão do navegador.** A senha só passa pela
+    rota `POST /api/oauth/autorizar` até o legado; nunca é gravada nem registrada em log. Depois de
+    emitido, o token da conexão é guardado cifrado e renovado por `POST /auth/refresh` com ele
+    mesmo (o que só troca o token da conexão). A tela de autorização ganha o campo **Senha** acima
+    de **Permitir acesso**. Revoga a forma de obter o token da decisão #7; o resto da #7 (token
+    próprio, cifrado, renovado pelo servidor) continua. **Por quê:** o teste da P1 mostrou que o
+    refresh invalida o token anterior na hora, então pegar o token da conexão por refresh derrubaria
+    a sessão do navegador. O login emite um segundo token sem depender de mudança no legado
+    (escolha do usuário em 2026-11-19, opção C da P1). Pendente de conferência: o login não pode
+    derrubar as outras sessões da pessoa.

@@ -356,7 +356,7 @@ Resolvido pelo código ou decidido pelo Claude Code (detalhe técnico, não muda
 
 ## Perguntas do Claude Code
 
-### P1 — Comportamento do `POST /auth/refresh` do legado · aberta
+### P1 — Comportamento do `POST /auth/refresh` do legado · respondida → decisão #14
 
 Fase: Fase 0 (2026-11-19). Contexto: perguntas em aberto 1 e 2. O código só usa o refresh em
 `app/api/auth/refresh/route.ts` (troca o cookie pelo token novo) e não dá pista de validade nem de
@@ -399,6 +399,10 @@ Recomendação do Claude Code: C, se o login aceitar duas sessões ao mesmo temp
 do legado e a reautenticação é comum em telas de consentimento. Validade do token e refresh com
 token expirado continuam sem resposta: com C, se o token da conexão vencer, o `401` faz o Claude
 pedir reconexão, que é aceitável.
+
+Resposta (2026-11-19, Claude Code): C. A tela de autorização pede a senha de novo e o servidor emite
+o token da conexão por `POST /auth/login`. Ver decisão #14. Ainda falta conferir que o login não
+derruba as outras sessões da pessoa (entrar em dois navegadores ao mesmo tempo).
 
 ### P2 — Limites de `DescricaoResumo` e `DescricaoCompleta` · aberta
 
