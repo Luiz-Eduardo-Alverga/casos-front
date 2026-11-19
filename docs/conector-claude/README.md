@@ -404,7 +404,7 @@ Resposta (2026-11-19, Claude Code): C. A tela de autorização pede a senha de n
 o token da conexão por `POST /auth/login`. Ver decisão #14. Ainda falta conferir que o login não
 derruba as outras sessões da pessoa (entrar em dois navegadores ao mesmo tempo).
 
-### P2 — Limites de `DescricaoResumo` e `DescricaoCompleta` · aberta
+### P2 — Limites de `DescricaoResumo` e `DescricaoCompleta` · respondida → decisão #15
 
 Fase: Fase 0 (2026-11-19). Contexto: pergunta em aberto 4. O `casoCreateFormSchema`
 (`components/casos/cadastro/caso-create/schema.ts`) só exige `min(1)`; não há limite no front.
@@ -412,6 +412,9 @@ Opções: **A)** informar os limites do legado e a prévia valida com eles. **B)
 prévia; se o legado recusar, `softflow_abrir_caso` devolve o erro dele e o Claude gera nova prévia.
 Recomendação do Claude Code: A, se o limite existir, porque a decisão #6 promete que o caso sai
 igual à prévia. Só bloqueia a Parte 4.
+
+Resposta (2026-11-19, Claude Code): B. A prévia não valida tamanho; se o legado recusar, `softflow_abrir_caso`
+devolve o erro dele e o Claude gera uma prévia nova. Ver decisão #15.
 
 ### P3 — Endereço público do conector · respondida → decisão #13
 

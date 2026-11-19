@@ -87,3 +87,10 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     a sessão do navegador. O login emite um segundo token sem depender de mudança no legado
     (escolha do usuário em 2026-11-19, opção C da P1). Conferido em 2026-11-19: o login do
     conector não derruba as outras sessões da pessoa.
+
+15. **A prévia não valida o tamanho do resumo nem da descrição.** Se o legado recusar o texto ao
+    criar o caso, `softflow_abrir_caso` devolve a mensagem do legado, a prévia continua sem caso
+    criado e o Claude ajusta o texto e gera uma prévia nova. **Por quê:** o limite do legado não é
+    conhecido e o formulário da tela também não valida tamanho (`casoCreateFormSchema` só exige
+    `min(1)`); escolha do usuário em 2026-11-19 (opção B da P2). Ajusta a promessa da decisão #6:
+    o caso, se criado, é exatamente o da prévia; a recusa por tamanho só aparece na abertura.
