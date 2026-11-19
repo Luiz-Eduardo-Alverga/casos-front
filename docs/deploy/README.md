@@ -71,6 +71,28 @@ Em `deploy.labels`, iguais ao Portainer:
 - porta interna `3000`
 - rede `network_public`
 
+## Conector do Claude (`/api/mcp`)
+
+Ver [`conector-claude/`](../conector-claude/README.md). Variáveis de **runtime** (no
+`/opt/casos-front/.env`, lidas pelo `env_file`; não precisam de rebuild):
+
+| Variável | Valor |
+|----------|-------|
+| `SOFTFLOW_PUBLIC_URL` | `https://softflow.hostsoftcom.cloud` (sem barra no fim; é o domínio do conector, decisão #13) |
+| `CLAUDE_CONECTOR_CHAVE` | 32 bytes em hex, gerados uma vez com `openssl rand -hex 32` |
+
+- A chave cifra o token Soft Flow das conexões. **Trocar a chave invalida todas as conexões**
+  (cada pessoa conecta de novo); não trocar sem motivo e não reaproveitar a chave de dev.
+- A migração `0011_conector_claude` cria as tabelas `oauth_*` e `claude_*`. Em 2026-11-19 ela foi
+  aplicada no banco do `.env` local; se o banco de produção for outro, aplicar com
+  `npm run db:apply` apontando para ele antes de publicar.
+- O Claude chama de `160.79.104.0/21`. O Cloudflare na frente do Softflow não pode bloquear essa
+  faixa em `/.well-known/*`, `/api/oauth/*` e `/api/mcp`.
+- Depois de publicar, conferir:
+  `curl https://softflow.hostsoftcom.cloud/.well-known/oauth-protected-resource/api/mcp` deve
+  devolver `"resource": "https://softflow.hostsoftcom.cloud/api/mcp"`, e um `POST` sem token em
+  `/api/mcp` deve devolver `401` com `WWW-Authenticate`.
+
 ## O que não vai para a VPS
 
 - Postgres (Supabase)

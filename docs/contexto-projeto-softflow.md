@@ -122,8 +122,10 @@ Integrações laterais (não são telas, mas fazem parte da experiência):
 
 - **Discord** — DM ao dev quando um caso é aberto/clonado; aviso quando report é concluído.
 - **Assistant** — preenchimento assistido de descrição de caso/report.
-- **Conector do Claude** (planejado) — o Softflow como servidor MCP para o Claude abrir e
-  consultar casos em nome de quem conectou. Ver [`conector-claude/`](conector-claude/README.md).
+- **Conector do Claude** (na `dev`, ainda não publicado) — o Softflow como servidor MCP
+  (`/api/mcp`, OAuth próprio) para o Claude abrir e consultar casos em nome de quem conectou;
+  cada pessoa conecta pelo endereço `https://softflow.hostsoftcom.cloud/api/mcp` e desfaz pelo
+  menu do usuário → Claude. Ver [`conector-claude/`](conector-claude/README.md).
 - **Anexos** — upload no S3 da Softcom (presign/multipart pelo servidor), para casos e documentação.
 
 ---
@@ -247,7 +249,7 @@ há decisão não óbvia pelo código, um `decisoes.md`.
 | [`documentacao/`](documentacao/README.md) | Módulo de documentação (`/documentacao`) |
 | [`configuracoes/`](configuracoes/README.md) | Usuários, perfis de acesso, prompts IA |
 | [`assistente-ia/`](assistente-ia/README.md) | Integração com o Assistant |
-| [`conector-claude/`](conector-claude/README.md) | Conector MCP para abrir e consultar casos pelo Claude (planejado) |
+| [`conector-claude/`](conector-claude/README.md) | Conector MCP para abrir e consultar casos pelo Claude (OAuth, `/api/mcp`, modal no menu do usuário) |
 | [`rbac/`](rbac/README.md) | Permissões e hierarquia de perfis |
 | [`autenticacao/`](autenticacao/README.md) | Login, sessão e redirecionamento |
 | [`camada-de-dados/`](camada-de-dados/README.md) | API Soft Flow (proxy) e `/api/db` (Drizzle) |

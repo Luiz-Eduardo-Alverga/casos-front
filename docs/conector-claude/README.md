@@ -1,319 +1,180 @@
 # Conector do Claude (abrir casos pelo chat)
 
-> **Estado: planejado.** Especificado em 2026-11-19 num chat de planejamento, com protótipo em
-> [`prototipo/`](prototipo/) e decisões em [`decisoes.md`](decisoes.md). Ainda não implementado.
-> Implementar com `/implementar conector-claude`, começando pela Fase 0.
+> **Estado: implementado na `dev` (2026-11-19), ainda não publicado.** Testado no dev server com
+> o cliente MCP do SDK e no navegador; **falta o teste no Claude de verdade**, que só é possível
+> com o endereço público (depois do merge na `master` e das variáveis na VPS, ver
+> [`deploy/`](../deploy/README.md#conector-do-claude-apimcp)). Decisões em
+> [`decisoes.md`](decisoes.md); protótipo em [`prototipo/`](prototipo/).
 
-## Objetivo
+## O que é
 
-Boa parte do planejamento da squad acontece hoje num chat do Claude (skill `planejar-softcom`,
-Brainiac, protótipos). No fim do planejamento, o PO copia o texto e abre o caso à mão em
-`/casos/novo`. O passo 7 da skill diz isso: *"ainda manual; a integração por API é uma evolução
-futura"*.
+O Softflow expõe um **servidor MCP** (`/api/mcp`) que cada pessoa da squad adiciona ao Claude como
+**conector personalizado** na própria conta (decisão #12). Depois de conectar a conta do Softflow
+uma vez, o Claude consegue, em nome dela e com as permissões dela:
 
-Esta mudança faz o Softflow expor um **servidor MCP** (`/api/mcp`) que cada pessoa adiciona ao
-Claude como **conector personalizado** na própria conta (decisão #12). Cada pessoa da squad conecta a própria
-conta do Softflow uma vez e, a partir daí, o Claude consegue, em nome dela e com as permissões
-dela:
-
-- consultar os catálogos que a abertura de caso exige (produto, versão, módulo, projeto, pessoas,
-  categoria, importância e origem), por nome;
-- montar uma **prévia** do caso com os nomes resolvidos e o que falta;
-- **abrir o caso** depois da confirmação da pessoa no chat;
+- consultar os catálogos da abertura de caso (produto, versão, módulo, projeto, pessoas,
+  categoria, importância e origem) por nome;
+- montar uma **prévia** do caso com os nomes resolvidos, os padrões aplicados e o que falta;
+- **abrir o caso** depois da confirmação da pessoa no chat (decisão #6);
 - consultar um caso pelo número.
 
-Fora do escopo desta entrega (decisão #2): reports, edição de caso, mudança de status, anexos e
-produção. O conector nasce só com abertura e consulta de caso.
+Fora do escopo (decisão #2): reports, edição de caso, mudança de status, anexos e produção.
 
-## Como fica para quem usa
+### Como fica para quem usa
 
-Uma vez, por pessoa:
+Uma vez, por pessoa (contas Pro ou Max; no Free cabe um só conector personalizado):
 
-1. A squad usa contas pessoais do Claude (Pro ou Max), não um plano Team/Enterprise. Cada
-   pessoa abre **Customize → Connectors → Add custom connector** e informa o endereço
-   `https://softflow.hostsoftcom.cloud/api/mcp`, com Authentication **Sign in now** e OAuth client
-   **Register automatically** (DCR), se o diálogo perguntar (decisão #12).
-2. Ao clicar em **Add** (ou em **Connect** no conector), a pessoa é levada para a tela
-   **Conectar o Claude ao Softflow** (`/oauth/autorizar`). Se não estiver logada, passa pelo
-   login do Softflow antes e volta para essa tela.
-3. Confere quem está conectando e o que o Claude vai poder fazer e clica em **Permitir acesso**.
-   O Softflow devolve a pessoa ao Claude, já conectada.
+1. No Claude, **Customize → Connectors → Add custom connector**, endereço
+   `https://softflow.hostsoftcom.cloud/api/mcp` (decisão #13). O endereço também aparece, com botão
+   de copiar, no menu do usuário do Softflow → **Claude**.
+2. O Claude abre **Conectar o Claude ao Softflow** (`/oauth/autorizar`). Sem sessão, a pessoa passa
+   pelo login e volta para a mesma tela.
+3. Confere os dados, **digita a senha do Softflow** (decisão #14) e clica em **Permitir acesso**.
 
-No dia a dia (roteiro da conversa, sem tela nova no Softflow):
+No dia a dia: "abre o caso disso no Softflow, produto X, versão Y, dev Fulano" → o Claude busca os
+IDs (`softflow_buscar_opcoes`), chama `softflow_preparar_caso`, mostra a prévia, e só com o "pode
+abrir" chama `softflow_abrir_caso`. A resposta traz o número e o link
+`https://softflow.hostsoftcom.cloud/casos/<registro>`. A DM do Discord segue a regra da tela: só
+caso **não planejado**.
 
-1. No fim do planejamento, a pessoa pede: "abre o caso disso no Softflow, produto Smart, versão
-   8.44, dev Fulano".
-2. O Claude busca os IDs pelo nome (`softflow_buscar_opcoes`) e chama `softflow_preparar_caso`.
-   A ferramenta devolve a prévia em texto: cada campo com o nome resolvido, os padrões aplicados
-   (importância, categoria, origem, relator) e os campos que faltam ou ficaram ambíguos (ex.:
-   dois "Fulano" no catálogo).
-3. O Claude mostra a prévia e pergunta se pode abrir. Ajustes geram uma prévia nova.
-4. Com o "pode abrir", o Claude chama `softflow_abrir_caso` com o código da prévia. O caso é
-   criado exatamente como na prévia (decisão #6), o dev recebe a DM no Discord com a mesma regra da tela (só caso "Não planejado"), e a
-   ferramenta devolve o número e o link `https://softflow.hostsoftcom.cloud/casos/<registro>`.
-5. Com o número, o Claude pode seguir a skill `planejar-softcom` e atualizar a linha "Caso" da
-   Ficha no Brainiac.
-
-No Softflow, a pessoa vê e desfaz a conexão pelo menu do usuário (header): item **Claude**, que
-abre o modal **Conexão com o Claude** (decisão #10).
-
-## Protótipo
-
-[`prototipo/conector-claude-prototipo.html`](prototipo/conector-claude-prototipo.html) é um
-protótipo autocontido (abrir direto do disco). Tem um seletor de cenário no topo. As telas são:
-
-| Tela | Onde fica no app |
-|------|------------------|
-| Conectar o Claude ao Softflow (autorização) | `/oauth/autorizar`, fora do shell, no layout do login |
-| Menu do usuário com o item **Claude** | `components/header/user-dropdown.tsx` |
-| Modal **Conexão com o Claude** | aberto pelo item do menu |
-
-Capturas em [`prototipo/capturas/`](prototipo/capturas/) (1440×900, tema claro, e 390px):
-
-| Arquivo | Estado |
-|---------|--------|
-| `01-autorizar.png` | Autorização: pessoa logada, com permissão de abrir caso |
-| `02-autorizar-sem-permissao.png` | Autorização: pessoa sem `create-case` (aviso, mas pode conectar para consultar) |
-| `03-autorizar-erro.png` | Autorização: pedido inválido (cliente desconhecido ou endereço de retorno fora da lista) |
-| `04-menu-usuario.png` | Menu do usuário com o item **Claude** ("Conectado") |
-| `05-modal-conectado.png` | Modal com a conexão ativa, último uso e **Desconectar** |
-| `06-modal-desconectar.png` | Confirmação de desconectar |
-| `07-modal-sem-conexao.png` | Modal sem conexão, com o passo a passo para conectar |
-| `08-autorizar-mobile.png` | Autorização em 390px |
-
-O protótipo é referência de **estrutura e hierarquia**. Cores e estilos inline dele não entram no
-código: traduzir para tokens e componentes do repositório ([`design-system.md`](../design-system.md)
-e o layout de [`components/login/login.tsx`](../../components/login/login.tsx)).
-
-### Tela de autorização (`/oauth/autorizar`)
-
-- Layout do login (decisão #9): no desktop, banner à esquerda e conteúdo à direita; no mobile,
-  só o conteúdo. Sem sidebar nem header do dashboard.
-- Card central: logos Claude ↔ Softflow, título **Conectar o Claude ao Softflow**, texto
-  "O Claude vai acessar o Softflow em seu nome, com as suas permissões."
-- Bloco da pessoa: avatar, nome, e-mail, setor e o link **Não é você? Entrar com outra conta**
-  (faz logout e volta ao login com o mesmo `callbackUrl`).
-- Lista **O Claude vai poder:** "Consultar produtos, versões, projetos e pessoas", "Consultar
-  casos pelo número", "Abrir casos em seu nome, depois que você confirmar no chat". Abaixo,
-  **Não vai poder:** "Editar, mudar status ou excluir casos", "Ver sua senha".
-- Sem `create-case`: a linha "Abrir casos" aparece riscada, com o aviso "Seu perfil não permite
-  abrir casos. Você pode conectar, mas o Claude só vai consultar." (decisão #5).
-- Ações: **Cancelar** (outline; volta ao Claude com `error=access_denied`) e **Permitir acesso**
-  (CTA amarelo de marca, como o botão do login).
-- Rodapé: "Você pode desconectar quando quiser pelo menu do seu usuário no Softflow."
-- Erro (cliente ou `redirect_uri` inválido, PKCE ausente): card com o ícone de alerta, "Não foi
-  possível conectar", a causa em uma linha e "Volte ao Claude e tente conectar de novo". Nunca
-  redireciona para um endereço que não esteja na lista (decisão #4).
-- Estados: carregando (spinner do `PublicRoute`), enviando ("Conectando..." no botão).
-
-### Modal "Conexão com o Claude"
-
-- Item novo no menu do usuário, entre "Notificações no Discord" e "Sair", no mesmo formato
-  (ícone `Plug` em círculo, título e subtítulo): **Claude**, subtítulo "Abrir casos pelo chat do
-  Claude" e, à direita, a pílula "Conectado" (verde) ou "Não conectado" (cinza).
-- Conectado: quadro com "Conectado desde 19/11/2026 16:50", "Último uso há 5 minutos", "Pode
-  abrir casos: Sim/Não" (tem ou não `create-case`) e
-  **Desconectar** (destrutivo `destructive/10`). Desconectar pede confirmação ("Desconectar o
-  Claude? O Claude não vai mais abrir nem consultar casos em seu nome até você conectar de
-  novo.") e revoga todos os tokens da pessoa na hora.
-- Não conectado: passo a passo curto (Customize → Connectors → Add custom connector → colar o
-  endereço → Permitir acesso) e o endereço do conector com botão de copiar, que é o passo
-  principal em contas pessoais (decisão #12).
-- Carregando: skeleton das duas linhas. Erro: mensagem com "Tentar de novo".
+No Softflow, a conexão aparece e é desfeita pelo menu do usuário → **Claude** → modal
+**Conexão com o Claude** (decisão #10).
 
 ## Arquitetura
 
-### Visão geral
-
 ```text
-Claude (claude.ai / app)                    Softflow (Next)                     API Soft Flow
-─────────────────────────                   ───────────────                     ─────────────
-descobre metadados  ─────────────────────►  /.well-known/oauth-protected-resource
+Claude (claude.ai)                          Softflow (Next)                          API Soft Flow
+──────────────────                          ───────────────                          ─────────────
+metadados  ───────────────────────────────► /.well-known/oauth-protected-resource[/api/mcp]
                                             /.well-known/oauth-authorization-server
-registra cliente (DCR) ──────────────────►  POST /api/oauth/register
-abre o navegador da pessoa ──────────────►  /oauth/autorizar  (login + consentimento)
-                                              └─ cria a conexão com um token Soft Flow próprio ─► POST /auth/refresh
-troca o código (PKCE) ───────────────────►  POST /api/oauth/token
-chama ferramentas (Bearer) ──────────────►  POST /api/mcp  ──── token Soft Flow da conexão ──► /auxiliar/*, /projeto-casos, /projeto-memoria/{id}
+registro (DCR) ───────────────────────────► POST /api/oauth/register
+navegador da pessoa ──────────────────────► /oauth/autorizar ── POST /api/oauth/autorizar
+                                              └─ senha → token próprio da conexão ───────► POST /auth/login
+troca do código (PKCE S256) ──────────────► POST /api/oauth/token
+ferramentas (Bearer) ─────────────────────► POST /api/mcp ── token da conexão ───────────► /auxiliar/*, /projeto-casos,
+                                                              (renova com POST /auth/refresh)  /projeto-memoria/{id}
 ```
 
-O Softflow faz dois papéis (decisão #3): **servidor de autorização OAuth 2.1** (só para o Claude)
-e **servidor MCP**. A API Soft Flow não muda.
+O Softflow é servidor de autorização OAuth 2.1 (só para o Claude) e servidor MCP (decisão #3). A
+API Soft Flow não mudou.
 
-### Requisitos do Claude
-
-Conferidos na documentação do Claude em 2026-11-19 (reconfirmar na Fase 0):
-
-- Transporte **Streamable HTTP** num único endpoint (`/api/mcp`).
-- OAuth 2.1 com **Dynamic Client Registration** (RFC 7591), **PKCE S256**,
-  `token_endpoint_auth_methods_supported: ["none"]`, metadados RFC 9728 (recurso protegido) e
-  RFC 8414 (servidor de autorização). O `401` do `/api/mcp` sem token traz
-  `WWW-Authenticate: Bearer resource_metadata="<url do oauth-protected-resource>"`.
-- Callback do Claude: `https://claude.ai/api/mcp/auth_callback` e
-  `https://claude.com/api/mcp/auth_callback` (os dois na lista permitida). Nome do cliente:
-  `Claude`.
-- O Claude também oferece o modo "Use Claude's published identity" (Client ID Metadata Document,
-  recomendado pela documentação). Esta especificação usa DCR ("Register automatically"); a Fase 0
-  avalia se vale aceitar também o CIMD.
-- Credenciais de OAuth e cabeçalhos não mudam depois que o conector é adicionado: para trocar, a
-  pessoa remove e adiciona de novo.
-- Contas pessoais: Pro e Max adicionam conectores personalizados na própria conta; o plano Free
-  aceita **um** só (se a pessoa já usa outro personalizado, não cabe o Softflow). Nos planos Team e
-  Enterprise, um Owner adiciona para a organização e cada membro conecta; o servidor é o mesmo
-  nos dois casos, então migrar para um plano de organização no futuro não muda o Softflow.
-
-### Rotas novas
+### Rotas
 
 | Rota | Papel |
 |------|-------|
-| `app/.well-known/oauth-protected-resource/route.ts` | Metadados do recurso: `resource`, `authorization_servers` |
-| `app/.well-known/oauth-authorization-server/route.ts` | Metadados do servidor: endpoints, `code_challenge_methods_supported: ["S256"]`, `grant_types_supported: ["authorization_code","refresh_token"]` |
-| `app/api/oauth/register/route.ts` | DCR. Aceita só `redirect_uris` da lista do Claude (decisão #4) |
-| `app/oauth/autorizar/page.tsx` | Tela de consentimento (fora de `(dashboard)`, dentro do `PublicRoute` invertido: exige login) |
-| `app/api/oauth/autorizar/route.ts` | Recebe o "Permitir acesso": valida o pedido, cria a conexão, gera o código e devolve a URL de retorno |
-| `app/api/oauth/token/route.ts` | `authorization_code` (com PKCE) e `refresh_token`, com rotação |
-| `app/api/mcp/route.ts` | Servidor MCP (Streamable HTTP, sem estado de sessão) |
-| `app/api/db/claude-conexao/route.ts` | `GET` (status da conexão da pessoa logada) e `DELETE` (desconectar) |
+| `app/.well-known/oauth-protected-resource/[[...path]]/route.ts` | RFC 9728: `resource` = `<SOFTFLOW_PUBLIC_URL>/api/mcp` |
+| `app/.well-known/oauth-authorization-server/route.ts` | RFC 8414: endpoints, só `S256`, `token_endpoint_auth_methods_supported: ["none"]`; não anuncia CIMD |
+| `app/api/oauth/register/route.ts` | DCR; só aceita os callbacks do Claude (decisão #4); rate limit por IP |
+| `app/oauth/autorizar/page.tsx` | Tela de consentimento (fora do shell, layout do login); o servidor valida o pedido e a sessão |
+| `app/api/oauth/autorizar/route.ts` | "Permitir acesso"/"Cancelar": login com a senha, cria a conexão (revoga a anterior), gera o código; senha errada = 422 |
+| `app/api/oauth/token/route.ts` | `authorization_code` (PKCE S256) e `refresh_token` com rotação; form ou JSON; erros OAuth (`invalid_grant`...) |
+| `app/api/mcp/route.ts` | MCP Streamable HTTP sem estado, resposta JSON (sem SSE); GET/DELETE = 405 |
+| `app/api/db/claude-conexao/route.ts` | `GET` status da conexão da pessoa logada; `DELETE` desconectar |
 
-Biblioteca: `@modelcontextprotocol/sdk` (servidor e tipos), no runtime Node. A escolha fina
-(SDK puro × adaptador para Next) é da Fase 0.
+### Código
 
-### Sessão do conector e token Soft Flow
+| Onde | O que faz |
+|------|-----------|
+| `lib/conector-claude/config.ts` | `SOFTFLOW_PUBLIC_URL`, endereço do MCP, callbacks permitidos, TTLs (código 5 min, access 1 h, refresh 30 dias, prévia 15 min) |
+| `lib/conector-claude/crypto.ts` | Tokens aleatórios, hash SHA-256, PKCE S256, AES-256-GCM com `CLAUDE_CONECTOR_CHAVE` |
+| `lib/conector-claude/legacy-token.ts` | Login do token da conexão, `comTokenDaConexao` (em 401 renova uma vez; falhou = conexão expirada) |
+| `lib/conector-claude/pedido-autorizacao.ts` | Valida o pedido OAuth (cliente, `redirect_uri`, PKCE, `resource`); usado pela tela e pela rota |
+| `lib/api-db/with-conector-permission.ts` | Espelho do `withPermission` a partir do Bearer do Claude: valida o access token, recalcula as permissões (`syncAppUserAndPermissions`), rate limit 60/min por conexão, `401` com `WWW-Authenticate` |
+| `lib/conector-claude/mcp/servidor.ts` | `McpServer` por requisição com as 5 ferramentas e as instruções de uso |
+| `lib/conector-claude/mcp/catalogos.ts` | Catálogos normalizados (id/nome), busca sem acento |
+| `lib/conector-claude/mcp/caso.ts` | Prévia (resolução, padrões, pendências), abertura idempotente, consulta |
+| `lib/db/claude-conector.ts` | Drizzle das tabelas novas |
+| `lib/validators/db/claude-conector.ts` | Zod do DCR, do pedido/autorização e do token endpoint |
+| `components/conector-claude/autorizar/` | Tela de autorização (layout, permissões, senha, erro, sem sessão) |
+| `components/conector-claude/conexao-modal/` | Modal "Conexão com o Claude" e a pílula do menu |
+| `services/conector-claude/`, `hooks/conector-claude/`, `hooks/claude-conexao/` | Front da autorização e da conexão |
 
-O Softflow não guarda senha. No "Permitir acesso", a rota usa o token do cookie `casos_token` da
-pessoa para pedir um **token Soft Flow próprio da conexão** (`POST /auth/refresh`), separado da
-sessão do navegador, e grava esse token **cifrado** (AES-256-GCM, chave em
-`CLAUDE_CONECTOR_CHAVE`) na conexão (decisão #7). Cada chamada do `/api/mcp`:
+### Tabelas (migração `0011_conector_claude`)
 
-1. valida o access token do Claude (hash em Postgres, expiração, conexão não revogada);
-2. decifra o token Soft Flow da conexão e monta `{ Authorization: "Bearer ..." }`;
-3. recalcula as permissões com `syncAppUserAndPermissions(authorizationHeader)`, como o
-   `withPermission` (decisão #5);
-4. chama a API Soft Flow; se ela responder 401, tenta uma vez `POST /auth/refresh` com o token
-   da conexão, grava o novo e repete. Se o refresh falhar, marca a conexão como expirada e devolve
-   `401` com `WWW-Authenticate`, e o Claude pede para reconectar.
+`oauth_clientes` (DCR), `oauth_codigos` (hash, uso único, 5 min), `claude_conexoes` (uma ativa por
+pessoa, decisão #11; token Soft Flow cifrado; hashes dos tokens do Claude; `ultimo_uso_em`;
+`motivo_revogacao` `usuario` | `expirado` | `reconectou`) e `claude_previas_caso` (payload pronto,
+resumo, 15 min, `caso_registro`; `-1` enquanto a abertura está reservada).
 
-Tokens do Claude: access token opaco de 1 hora e refresh token de 30 dias com rotação, guardados
-só como hash SHA-256. Código de autorização de uso único, 5 minutos.
+### Token Soft Flow da conexão
 
-### Tabelas novas (Postgres, `db/schema.ts`)
+No "Permitir acesso", a senha digitada vai uma vez para `POST /auth/login` e o token devolvido
+(próprio da conexão, separado do cookie) é gravado cifrado (decisões #7 e #14). O login não derruba
+as outras sessões da pessoa (conferido). Em 401 da API, o servidor renova com `POST /auth/refresh`
+**usando o próprio token da conexão** (o refresh invalida o token anterior, por isso nunca é feito
+com o token do navegador; ver P1). Se a renovação falhar, a conexão vira `expirado` e o Claude
+recebe `401`, pedindo reconexão. Sair do Softflow não derruba o conector (o logout só apaga o
+cookie).
 
-```text
-oauth_clientes        id (client_id, texto aleatório) · nome · redirect_uris (text[]) · criado_em
-oauth_codigos         codigo_hash (pk) · cliente_id · conexao_id · redirect_uri · code_challenge ·
-                      expira_em · usado_em
-claude_conexoes       id (uuid) · app_user_id (fk app_users) · cliente_id · legacy_token_cifrado ·
-                      legacy_token_atualizado_em · access_token_hash · access_expira_em ·
-                      refresh_token_hash · refresh_expira_em · criado_em · ultimo_uso_em ·
-                      revogado_em · motivo_revogacao ('usuario' | 'expirado' | 'reconectou')
-claude_previas_caso   id (código da prévia) · conexao_id · payload (jsonb) · resumo (jsonb) ·
-                      expira_em · caso_registro (preenchido ao abrir) · criado_em
-```
+### Ferramentas
 
-Uma conexão ativa por pessoa (decisão #11): conectar de novo revoga a anterior (`motivo_revogacao =
-'reconectou'`). Migração em `db/migrations/` no padrão do repositório.
+| Ferramenta | Permissão | Anotação |
+|------------|-----------|----------|
+| `softflow_eu` | conexão válida | somente leitura |
+| `softflow_buscar_opcoes` (`tipo`, `busca?`, `produto_id?`) | conexão válida | somente leitura |
+| `softflow_preparar_caso` | `create-case` | somente leitura (só grava a prévia) |
+| `softflow_abrir_caso` (`codigo_previa`) | `create-case` | escreve, idempotente |
+| `softflow_consultar_caso` (`registro`) | `list-case` | somente leitura |
 
-### Ferramentas do MCP
-
-Nomes com prefixo `softflow_`, descrições em pt-BR e vocabulário do produto (caso, nunca
-"ticket"). Respostas em texto curto e legível para o Claude repetir à pessoa, com os IDs entre
-parênteses. Todas com `readOnlyHint` correto (só `softflow_abrir_caso` escreve).
-
-| Ferramenta | Entrada | O que faz | Permissão |
-|------------|---------|-----------|-----------|
-| `softflow_eu` | — | Nome, registro, setor, se pode abrir caso, e os projetos abertos do setor (para sugerir o padrão) | conexão válida |
-| `softflow_buscar_opcoes` | `tipo` (`produto` \| `versao` \| `modulo` \| `projeto` \| `pessoa` \| `categoria` \| `importancia` \| `origem`), `busca?`, `produto_id?` (obrigatório em `versao` e `modulo`) | Até 15 opções com id e nome, a partir das rotas `/auxiliar/*` que a tela usa | conexão válida |
-| `softflow_preparar_caso` | campos do caso (abaixo) | Resolve e valida, aplica os padrões, grava a prévia e devolve o texto da prévia + `codigo_previa` (15 min). Não cria nada | `create-case` |
-| `softflow_abrir_caso` | `codigo_previa` | Cria o caso com o payload da prévia, dispara a DM do Discord quando `nao_planejado` (mesma regra da tela) e devolve número e link. Código já usado devolve o mesmo caso, sem criar outro (decisão #6) | `create-case` |
-| `softflow_consultar_caso` | `registro` | Resumo do caso: produto, versão, projeto, status, dev, QA, resumo e link (`/projeto-memoria/{id}`) | `list-case` |
-
-Campos de `softflow_preparar_caso` (espelham o `casoCreateFormSchema`):
-
-| Campo | Obrigatório | Padrão |
-|-------|-------------|--------|
-| `produto_id`, `versao`, `projeto_id`, `dev_id`, `resumo`, `descricao` | sim | — |
-| `importancia_id` | não | `3`, o mesmo da tela |
-| `categoria_id` | não | `4`, o mesmo da tela |
-| `origem_id` | não | `4`, o mesmo da tela |
-| `relator_id` | não | a pessoa conectada |
-| `modulo`, `qa_id`, `informacoes_adicionais` | não | vazio |
-| `nao_planejado` | não | `false` |
-
-A prévia confere: cada id existe no catálogo (versão e módulo do produto informado), o resumo não
-passa do limite do legado e a descrição não está vazia. Campo inválido não para a prévia: volta
-listado em "Falta resolver", e `softflow_abrir_caso` recusa uma prévia que tenha pendência.
-
-O campo **Informações adicionais** recebe no fim a linha
-`Aberto pelo Claude (conector Softflow) por <nome>.` (decisão #8).
-
-### Reaproveitamento e refatoração necessária
-
-- **Criação do caso:** extrair o corpo de `app/api/projeto-casos/route.ts` (POST na API Soft
-  Flow + `scheduleDiscordCasoNotify`) para `lib/casos/criar-caso.ts`, usado pela rota e pelo MCP.
-  A rota fica só com `withPermission` e orquestração.
-- **Payload:** `buildCasoCreatePayload` (`components/casos/shared/payload.ts`) é a fonte do
-  formato; o MCP monta `CasoBaseFormInput` e chama ele. Ele importa
-  `resolveVersaoProdutoForApi` de `components/casos/shared/versao-combobox`: mover os helpers
-  puros (payload e versão) para `lib/casos/` para o servidor não importar de `components/`
-  (a Fase 0 confere se há `"use client"` no caminho).
-- **Catálogos:** as rotas de `app/api/auxiliar/*` já sabem os endpoints e parâmetros do legado.
-  Extrair a chamada de cada uma para funções em `lib/` (ou `services/server/`) que recebem o
-  `authorizationHeader`, usadas pela rota e pelo MCP.
-- **Permissões:** `syncAppUserAndPermissions` (`lib/auth/sync-app-user`) aceita qualquer
-  `authorizationHeader`. Criar `withConectorPermission` em `lib/api-db/` no espelho do
-  `withPermission`, partindo do Bearer do Claude em vez do cookie.
-- **Consulta de caso:** o mesmo `GET /projeto-memoria/{id}` de `app/api/projeto-memoria/[id]`.
-- **Menu do usuário:** o item novo segue o botão de "Notificações no Discord" em
-  `components/header/user-dropdown.tsx`; dados por hook em `hooks/claude-conexao/`.
-- **Tela de autorização:** reaproveita o layout de `components/login/login.tsx` (banner +
-  `main`). O guard é o inverso do `PublicRoute`: sem login, `router.push("/login?callbackUrl=
-  /oauth/autorizar?...")` (o `getSafeInternalReturnPath` precisa aceitar esse caminho com query).
+Padrões da prévia iguais aos da tela: importância `3`, categoria `4`, origem `4`, relator = a
+pessoa conectada. Versão aceita a sequência do catálogo ou o texto exato. Campo inválido vira
+"Falta resolver" e a abertura recusa a prévia. O tamanho dos textos não é validado (decisão #15):
+se o legado recusar, a mensagem volta e o Claude gera outra prévia. Informações adicionais
+terminam com `Aberto pelo Claude (conector Softflow) por <nome>.` (decisão #8).
 
 ### Segurança
 
-- `redirect_uri` só da lista do Claude, comparada por igualdade exata (decisão #4).
-- PKCE S256 obrigatório; sem `plain`.
-- Tokens do Claude e código de autorização guardados só como hash; token Soft Flow cifrado em
-  repouso, nunca devolvido ao Claude nem ao browser.
-- `/oauth/autorizar` com proteção contra clickjacking (`X-Frame-Options: DENY` /
-  `frame-ancestors 'none'`) e o "Permitir acesso" por POST com o cookie `SameSite=Lax`.
-- Rate limit simples por conexão no `/api/mcp` (ex.: 60 chamadas/min) e no `register`.
-- Log de cada `softflow_abrir_caso` (conexão, pessoa, registro criado) no log do servidor.
+`redirect_uri` só da lista do Claude, por igualdade exata; PKCE S256 obrigatório; tokens do Claude
+e códigos só como hash; token Soft Flow cifrado e nunca devolvido; reuso de código revoga a
+conexão; `/oauth/autorizar` com `X-Frame-Options: DENY` e `frame-ancestors 'none'`
+(`next.config.js`); POST da autorização com checagem de `Origin` e cookie `SameSite=Lax`; rate limit
+no `register`, no `token`, nas tentativas de senha (10 a cada 15 min) e por conexão no MCP (em
+memória, o deploy tem uma réplica); log de cada conexão, desconexão e caso aberto.
 
-## O que já existe, o que é parcial, o que é novo
+## O que é reaproveitável
 
-| Peça | Situação |
-|------|----------|
-| Criação de caso na API Soft Flow (`POST /projeto-casos`) e DM no Discord | Existe; extrair para `lib/` |
-| Catálogos (`/auxiliar/*`) | Existe; extrair a chamada para `lib/` |
-| Permissões recalculadas no servidor | Existe (`syncAppUserAndPermissions`) |
-| Login e `callbackUrl` seguro | Existe; aceitar `/oauth/autorizar` com query |
-| OAuth (metadados, DCR, autorizar, token) | Novo |
-| Servidor MCP e ferramentas | Novo |
-| Tabelas `oauth_*`, `claude_*` | Novo |
-| Item e modal "Conexão com o Claude" | Novo |
+- `lib/casos/criar-caso.ts`: criação de caso + DM do Discord, fora da rota (usada pela tela e pelo
+  conector).
+- `lib/casos/payload.ts` e `lib/casos/versao-produto.ts`: helpers puros de payload e versão, sem
+  React (os arquivos de `components/casos/shared/` só reexportam).
+- `lib/auxiliar/catalogos.ts`: chamadas dos catálogos `/auxiliar/*` recebendo o `Authorization`.
+- `withConectorPermission` e `comTokenDaConexao`: qualquer ferramenta nova do MCP usa os dois.
+- `getSafeInternalReturnPath` aceita `/oauth/autorizar?` com URL na query sem segunda decodificação.
 
-## Perguntas em aberto
+## Como estender
 
-Respostas na Fase 0 ou durante a implementação, pelo fluxo de "Perguntas do Claude Code".
+- **Ferramenta nova** (ex.: reports, decisão #2 deixa para depois): registrar em
+  `lib/conector-claude/mcp/servidor.ts` com `title`, `description` em pt-BR, anotações corretas e
+  checagem de permissão com `temPermissao`; chamar a API dentro de `comTokenDaConexao`. Se escrever
+  algo, seguir o padrão prévia → confirmação → abertura idempotente.
+- **Outro cliente além do Claude**: exige revisar a decisão #4 (lista de callbacks) com o usuário.
+- **CIMD** ("Use Claude's published identity"): anunciar `client_id_metadata_document_supported` e
+  aceitar `client_id` como URL; hoje é só DCR.
+- **Trocar a chave** `CLAUDE_CONECTOR_CHAVE` invalida todas as conexões.
 
-1. **(dev)** Qual a validade do token da API Soft Flow e do `POST /auth/refresh`? O refresh
-   aceita um token já expirado? Isso define por quanto tempo a conexão dura sem a pessoa
-   reconectar. Se o refresh não aceitar token expirado, avaliar um job que renova os tokens das
-   conexões ativas antes de vencerem.
-2. **(dev)** O `POST /auth/refresh` emite um token novo sem invalidar o anterior? Se invalidar, a
-   sessão do navegador da pessoa cai ao conectar o Claude, e a decisão #7 precisa de outro
-   caminho (ex.: endpoint do legado que emite token para integração).
-3. **(dev)** O logout do Softflow (`/api/auth/logout`) invalida o token no legado ou só apaga o
-   cookie? Se invalidar todos os tokens da pessoa, sair do Softflow derruba o conector.
-4. **(dev)** Qual o limite de caracteres do `DescricaoResumo` e da `DescricaoCompleta` no legado?
-   A prévia precisa validar antes de chamar a API.
-5. **(dev)** O deploy em Docker Swarm roda mais de uma réplica? As prévias e os códigos já vão
-   para o Postgres por isso; conferir se o rate limit também precisa ser compartilhado.
-6. **(dev)** O proxy da VPS deixa passar `/.well-known/*` e respostas de streaming do `/api/mcp`
-   sem buffer?
+## Testes feitos e pendências
 
-## Fase 0 — conferência do plano contra o código (2026-11-19)
+Testado em 2026-11-19 (detalhes no "Andamento" abaixo): catálogos e abertura pela tela depois da
+refatoração; metadados, DCR, autorização com senha, troca de código com PKCE, refresh com rotação,
+reuso de código; tela de autorização (estados, cabeçalhos, 390px); as 5 ferramentas com o cliente
+MCP do SDK, incluindo abertura simultânea sem duplicar; menu, modal e desconectar.
+
+Pendente:
+
+- Teste no Claude de verdade com o endereço público (depois de publicar).
+- Ajustar o passo 7 da skill `planejar-softcom` para abrir o caso pelo conector (fora deste repo).
+- O aviso "Claude desconectado" foi corrigido (`mutateAsync`) depois do teste e não foi reconferido.
+- Casos de teste criados na API de dev, para excluir: 104140, 104141, 104143.
+
+## Protótipo
+
+[`prototipo/conector-claude-prototipo.html`](prototipo/conector-claude-prototipo.html) e as capturas
+em [`prototipo/capturas/`](prototipo/capturas/) são a referência de estrutura usada. A tela
+implementada acrescenta o campo **Senha do Softflow** (decisão #14), que o protótipo não tem.
+
+## Histórico da implementação
+
+### Fase 0 — conferência do plano contra o código (2026-11-19)
 
 Resolvido pelo código ou decidido pelo Claude Code (detalhe técnico, não muda decisão):
 
@@ -439,9 +300,9 @@ Resposta (2026-11-19, Claude Code): B. O endereço atual é `https://softflow.ho
 - [x] Parte 3: tela de autorização (2026-11-19). `app/oauth/autorizar/page.tsx` (servidor valida o pedido e a sessão) + `components/conector-claude/autorizar/`, com o campo **Senha do Softflow** (decisão #14); `getSafeInternalReturnPath` aceita `/oauth/autorizar?` com `://` só na query e sem segunda decodificação; `X-Frame-Options`/`frame-ancestors` no `next.config.js`. Conferido no navegador: erro de endereço de retorno, tela com dados da pessoa, senha vazia, Cancelar (`access_denied` com `state` intacto), cabeçalhos e layout em 390px. "Permitir acesso" com senha conferido pelo usuário (2026-11-19): conexão criada com o token Soft Flow cifrado, `GET /auth/me` com o token da conexão → 200 e **a sessão do navegador continuou valendo** (o login não derruba as outras sessões; pendência da decisão #14 resolvida). O `code` real se perdeu nos redirecionamentos do claude.ai (a página de login dele descarta a query), então a troca foi testada com códigos inseridos para essa mesma conexão: PKCE errado e `redirect_uri` diferente → `invalid_grant`; código certo → tokens de 1 h com refresh e hashes gravados; refresh com rotação (o antigo passa a dar `invalid_grant`); reuso do código → `invalid_grant` e conexão revogada. O teste no Claude de verdade fica para a Parte 4
 - [x] Parte 4: servidor MCP e ferramentas (2026-11-19). `app/api/mcp/route.ts` (SDK `@modelcontextprotocol/sdk`, transporte Web Standard sem estado, resposta JSON) + `lib/conector-claude/mcp/` (`servidor.ts`, `catalogos.ts`, `caso.ts`); prévias em `claude_previas_caso` com reserva atômica. Conferido com o cliente MCP do SDK contra o dev server: 401 com `WWW-Authenticate`, as 5 ferramentas, prévia com pendências recusada na abertura, linha de origem, duas aberturas simultâneas da mesma prévia criaram um caso só (104143, API de dev), repetir o código devolve o mesmo caso, consulta e 401 depois de revogar. **Falta o teste no Claude de verdade**, que precisa do endereço público (só depois de publicar)
 - [x] Parte 5: menu do usuário e modal "Conexão com o Claude" (2026-11-19). `GET`/`DELETE` em `app/api/db/claude-conexao/route.ts`, `services/conector-claude/conexao.ts`, `hooks/claude-conexao/use-claude-conexao.ts`, `components/conector-claude/conexao-modal/` e o item **Claude** em `components/header/user-dropdown.tsx`. O passo 3 do "sem conexão" inclui digitar a senha (decisão #14). Conferido no navegador: pílula "Não conectado"/"Conectado", modal nos dois estados, endereço do conector, confirmação e Desconectar; depois de desconectar a conexão fica revogada (`motivo_revogacao = usuario`) e o `/api/mcp` responde 401
-- [ ] Parte 6: publicação e orientação
+- [x] Parte 6: publicação e orientação (2026-11-19). Variáveis e checagem pós-publicação em [`deploy/`](../deploy/README.md#conector-do-claude-apimcp), passo a passo no modal e neste README, README no formato padrão. Publicar (merge na `master`) e o teste no Claude de verdade dependem do usuário
 
-## Plano de implementação
+### Plano de implementação (original)
 
 Um commit por parte, na `dev`, com escopo `(conector-claude)`.
 
