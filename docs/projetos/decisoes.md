@@ -207,3 +207,13 @@ em [`prototipo/`](prototipo/) (capturas 15 a 19).
     Revoga a parte da decisão #31 que só aplicava o setor e a parte da decisão #34 que deixava o
     mês vazio ao limpar. **Por quê:** pedido do usuário depois de ver o protótipo. O uso comum é
     olhar os projetos do squad no mês corrente.
+
+## Filtros da listagem (Parte 1, 2026-11-19)
+
+38. **O filtro por mês mostra os projetos que começam no mês.** O seletor manda `data_inicio` =
+    1º dia e `data_fim` = último dia do mês, e a API devolve os projetos cuja data de início cai
+    nesse intervalo (regra conferida na API de dev). Projeto longo aparece só no mês em que começa;
+    para vê-lo, o usuário escolhe esse mês ou "Todos os meses". Responde a pergunta 1 do
+    planejamento (P7 do Claude Code) e completa a decisão #32. **Por quê:** resposta do usuário. As
+    sprints, que são o uso principal, aparecem no mês certo, e filtrar "cruza o mês" na tela
+    quebraria a paginação.

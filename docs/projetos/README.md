@@ -380,7 +380,7 @@ app/api/sgp-cadastros/route.ts    GET repassa NomeProjeto, Status, data_inicio e
 
 ### Perguntas do Claude Code (filtros)
 
-#### P7 — Regra do filtro por mês · aberta
+#### P7 — Regra do filtro por mês · respondida → decisão #38
 
 Fase: Parte 1 (2026-11-19). Contexto: pergunta 1 do planejamento, conferida na API de dev com o
 setor SQUAD XP. O `GET /sgp-cadastros` **não** usa "dentro do mês" nem "cruza o mês": ele traz os
@@ -398,6 +398,7 @@ do setor (a listagem hoje pagina de 15 em 15) e piora com o histórico. **C)** p
 parâmetro para "cruza o período" (fora do escopo desta entrega) e ficar com A até lá.
 Recomendação do Claude Code: **A** (com C como pedido ao backend se projetos longos importarem),
 porque as sprints de 15 dias, que são o uso principal, aparecem certas, e a B quebra a paginação.
+Resposta (2026-11-19, Claude Code): opção A, o mês mostra os projetos que começam nele.
 
 Pergunta 2 do planejamento, conferida: `NomeProjeto` busca por **parte do nome** e **sem
 diferenciar maiúsculas** ("squad xp 2026 - 11.02" achou o 3278 e o 3311; "claude code" achou os
