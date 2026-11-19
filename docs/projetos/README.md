@@ -66,7 +66,24 @@ Resposta 200 (testada pelo usuário com a origem 3278):
 
 O `data` tem o mesmo formato de `SgpCadastroData` (`interfaces/sgp-cadastro.ts`). No exemplo,
 `necessidades`, `expectativas`, `objetivo` e os checklists (usabilidade, confiabilidade etc.)
-vieram vazios. A resposta de erro ainda não foi vista (pergunta 5).
+vieram vazios.
+
+**Conferido na API de dev em 2026-11-19 (Parte 1)**, clonando a origem 3278 pela rota
+`/api/sgp-cadastros/3278/clonar` (projetos de teste criados: #3313 e #3314, ambos
+"TESTE Claude Code - clone 3278"):
+
+| Caso | Resposta da API (repassada pela rota como `{ error }`) |
+|------|--------------------------------------------------------|
+| Sucesso | **201** com `success`, `message`, `data` (projeto novo, status `ABERTO`) |
+| Fim antes do início | **422** "The data fim field must be a date after or equal to data inicio." |
+| Origem inexistente | **404** "Projeto não encontrado!!!" |
+| Período sobrepõe outro projeto aberto (mesmo com nome diferente) | **422** "Já existe projeto aberto nesse período!!!" |
+| Nome repetido em período livre | **201**: o nome **não** é checado (#3314 tem o mesmo nome do #3313) |
+
+O que o clone leva: setor, PDV, classe, tipo, cliente e `usuario` (responsável), **os usuários
+autorizados** (17 de 17, então a rota não precisa de `POST /sgp-usuarios`) e **os stakeholders**
+(9 de 9). **Não leva os casos** (memória do #3313 vazia). **Não leva o `objetivo_id`**: a origem tem
+65 e o clone volta com 0. Cronograma e riscos não foram conferidos porque a 3278 não tem nenhum.
 
 ### Protótipo
 
@@ -213,6 +230,37 @@ usuário final vai usar, com o mínimo de projetos criados.
 Resposta (2026-11-19, Claude Code): opção A. A API do `.env` é a de desenvolvimento, e o Claude
 Code pode fazer os testes de clone nela.
 
+#### P4 — Nome repetido é aceito pela API · aberta
+
+Fase: Parte 1 (2026-11-19). Contexto: é a pergunta 2 do planejamento. A API aceitou clonar com um
+nome que já existe (#3313 e #3314 têm o mesmo nome; tabela no "Contrato da API Soft Flow"). Ela
+recusa por **período** sobreposto a outro projeto aberto, não por nome. A decisão #5 diz que o
+front não checa nome.
+Opções: **A)** deixar assim: nome repetido passa, e a regra de período (que o backend já aplica)
+evita a maioria dos duplicados de sprint. **B)** a rota consulta `GET /sgp-cadastros` pelo nome
+antes de clonar e recusa com 422 "Já existe um projeto com esse nome". **C)** pedir ao backend
+que recuse nome repetido (fora do escopo desta entrega).
+Recomendação do Claude Code: **A**, porque o caso real (clonar a mesma sprint duas vezes) já é
+barrado pela regra de período, e a API de listagem não tem filtro por nome para uma checagem
+confiável no servidor.
+
+#### P5 — O clone perde o objetivo do projeto · aberta
+
+Fase: Parte 1 (2026-11-19). Contexto: é a pergunta 4 do planejamento. A origem 3278 tem
+`objetivo_id: 65`, e o clone #3313 voltou com `objetivo_id: 0` (o resto do cadastro, os usuários
+autorizados e os stakeholders vieram iguais). O objetivo é editável na aba Abertura
+(`PUT /sgp-cadastros/{id}` com `ObjetivoID`).
+Opções: **A)** aceitar: o texto do modal avisa que o objetivo não é copiado, e o usuário preenche
+na aba Abertura. **B)** a rota de clonar faz um `PUT /sgp-cadastros/{novo}` logo depois, repondo o
+`ObjetivoID` da origem (o PUT exige o payload completo da Abertura, montado a partir do `data` do
+clone). **C)** tratar como bug do backend e só registrar a pendência, sem aviso no modal.
+Recomendação do Claude Code: **A** agora e avisar o backend, porque o PUT completo logo depois do
+clone duplica a regra de montagem do payload na rota e pode sobrescrever campos se a API mudar.
+
+Detalhe decidido pelo Claude Code (pergunta 4 do planejamento, sem conflito com decisões): o texto
+informativo do modal passa a citar também usuários autorizados e stakeholders, já que a API os
+copia. A decisão #9 continua valendo: os casos não vêm.
+
 ### Plano de implementação
 
 1. **Parte 1: dados.** Rota `app/api/sgp-cadastros/[id]/clonar/route.ts`, tipos, service e hook.
@@ -230,7 +278,10 @@ Fase 0 concluída em 2026-11-19 (decisões #10 a #12). Detalhes decididos pelo C
 `DatePickerInput` (o do cadastro e do cronograma); a linha clonada mostra também "Clonado do projeto
 #…", como na captura 05; se a origem não tiver `data_fim`, as datas padrão do modal ficam vazias.
 
-- [ ] Parte 1: dados (rota, tipos, service, hook) e conferência das perguntas 2 a 5 na API de dev
+- [x] Parte 1: dados (rota, tipos, service, hook) e conferência das perguntas 2 a 5 na API de dev.
+  Perguntas 3 e 5 respondidas pelo teste (tabela no contrato); 2 e 4 viraram P4 e P5. Validação:
+  `npm run build` ok e `eslint` nos arquivos novos ok (o `npm run lint` do repositório está quebrado:
+  `next lint` não existe no Next 16 e a chamada falha com "Invalid project directory").
 - [ ] Parte 2: tela (modal, schema, utils, botão na linha, permissão, destaque da linha nova)
 - [ ] Parte 3: fechamento (README no formato padrão, decisões, contexto, status)
 
