@@ -31,7 +31,7 @@ Uma vez, por pessoa:
 
 1. A squad usa contas pessoais do Claude (Pro ou Max), não um plano Team/Enterprise. Cada
    pessoa abre **Customize → Connectors → Add custom connector** e informa o endereço
-   `https://softflow.softcom.services/api/mcp`, com Authentication **Sign in now** e OAuth client
+   `https://softflow.hostsoftcom.cloud/api/mcp`, com Authentication **Sign in now** e OAuth client
    **Register automatically** (DCR), se o diálogo perguntar (decisão #12).
 2. Ao clicar em **Add** (ou em **Connect** no conector), a pessoa é levada para a tela
    **Conectar o Claude ao Softflow** (`/oauth/autorizar`). Se não estiver logada, passa pelo
@@ -50,7 +50,7 @@ No dia a dia (roteiro da conversa, sem tela nova no Softflow):
 3. O Claude mostra a prévia e pergunta se pode abrir. Ajustes geram uma prévia nova.
 4. Com o "pode abrir", o Claude chama `softflow_abrir_caso` com o código da prévia. O caso é
    criado exatamente como na prévia (decisão #6), o dev recebe a DM no Discord como na tela, e a
-   ferramenta devolve o número e o link `https://softflow.softcom.services/casos/<registro>`.
+   ferramenta devolve o número e o link `https://softflow.hostsoftcom.cloud/casos/<registro>`.
 5. Com o número, o Claude pode seguir a skill `planejar-softcom` e atualizar a linha "Caso" da
    Ficha no Brainiac.
 
@@ -380,7 +380,7 @@ prévia; se o legado recusar, `softflow_abrir_caso` devolve o erro dele e o Clau
 Recomendação do Claude Code: A, se o limite existir, porque a decisão #6 promete que o caso sai
 igual à prévia. Só bloqueia a Parte 4.
 
-### P3 — Endereço público do conector · aberta
+### P3 — Endereço público do conector · respondida → decisão #13
 
 Fase: Fase 0 (2026-11-19). Contexto: a especificação usa `https://softflow.softcom.services/api/mcp`
 (e `contexto-projeto-softflow.md` e os links do Discord usam esse domínio), mas `docs/deploy/` e o
@@ -392,13 +392,16 @@ Recomendação do Claude Code: A, se os dois domínios chegam no mesmo serviço,
 que a squad já vê nos links; confirmar também que ele aceita tráfego de `160.79.104.0/21` sem WAF
 bloqueando.
 
+Resposta (2026-11-19, Claude Code): B. O endereço atual é `https://softflow.hostsoftcom.cloud`;
+`softflow.softcom.services` é o antigo. Ver decisão #13.
+
 ## Andamento da implementação
 
-- [x] Fase 0 (2026-11-19), com P1 a P3 abertas
+- [x] Fase 0 (2026-11-19); P3 respondida, P1 e P2 abertas
 - [ ] Parte 1: refatoração sem mudança de comportamento
 - [ ] Parte 2: banco e OAuth (depende da P1)
 - [ ] Parte 3: tela de autorização
-- [ ] Parte 4: servidor MCP e ferramentas (depende da P2 e da P3)
+- [ ] Parte 4: servidor MCP e ferramentas (depende da P2)
 - [ ] Parte 5: menu do usuário e modal "Conexão com o Claude"
 - [ ] Parte 6: publicação e orientação
 

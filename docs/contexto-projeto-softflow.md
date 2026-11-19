@@ -16,7 +16,7 @@ A Softcom desenvolve software para o mercado de **pagamentos e PDV (Smart POS)**
 
 Tom do produto: corporativo, denso, funcional. Tudo em **português (Brasil)**. Visual de ferramenta de trabalho: sidebar + header + cards brancos, sem hero, sem dashboard genérico colorido.
 
-URL de produção de referência: `https://softflow.softcom.services`.
+URL de produção: `https://softflow.hostsoftcom.cloud` (`softflow.softcom.services` é o endereço antigo).
 
 O repositório deste front é `casos-front`. O produto visível para o usuário se chama **Softflow**.
 

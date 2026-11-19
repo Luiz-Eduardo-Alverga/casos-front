@@ -61,9 +61,16 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     simples.
 
 12. **Cada pessoa adiciona o conector na própria conta do Claude (Pro ou Max), como conector
-    personalizado pelo endereço `https://softflow.softcom.services/api/mcp`.** Não há Owner nem
+    personalizado pelo endereço `https://softflow.hostsoftcom.cloud/api/mcp`.** (domínio atualizado pela decisão #13) Não há Owner nem
     configuração central. **Por quê:** a squad usa contas pessoais do Claude, não um plano
     Team/Enterprise (informado pelo usuário em 2026-11-19). O servidor e o login são os mesmos
     nos dois cenários; só muda quem cadastra o endereço. Por isso o modal "sem conexão" mostra o
     endereço com botão de copiar como passo principal. No plano Free cabe um só conector
     personalizado.
+
+13. **O endereço canônico do conector é `https://softflow.hostsoftcom.cloud/api/mcp`.** O domínio
+    vem da variável `SOFTFLOW_PUBLIC_URL`, não fica fixo no código. Atualiza o domínio citado na
+    decisão #12, que continua valendo no resto. **Por quê:** o usuário informou em 2026-11-19 que
+    `softflow.hostsoftcom.cloud` é o endereço atual e `softflow.softcom.services` é o antigo. O
+    Claude exige que o `resource` dos metadados seja exatamente o endereço cadastrado, então só um
+    domínio vale. Resposta da P3.
