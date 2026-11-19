@@ -339,6 +339,43 @@ hooks/projetos/use-salvar-stakes-em-lote.ts   POST/PUT em sequência, resultado 
 5. **Ordem da lista:** a API devolve em que ordem? Proposta: a ordem do GET, com as linhas novas
    no fim até salvar.
 
+### Perguntas do Claude Code (aba Stakes)
+
+Fase 0 (2026-11-19), conferida no código e na API de dev (só leitura):
+
+- **Pergunta 1 (todas as linhas):** a API aceita `per_page` alto (`per_page=1000` devolveu as 9
+  linhas do 3278 com `has_more: false`). O teto não foi visto, então a busca pede páginas de 100
+  em sequência até `has_more = false`, tanto na aba quanto nos stakes da origem no Importar.
+- **Pergunta 2 (nome → colaborador):** `GET /auxiliar/usuarios?somente_projetos=false` devolve 541
+  colaboradores (`id`, `nome_suporte`), **sem nome repetido** (comparando sem maiúsculas). Os
+  `nomes` gravados nos stakes do 3278 batem com o `nome_suporte` do `suporte_id`. A colagem casa
+  pelo nome; o problema "Mais de um colaborador com esse nome" fica como proteção para o futuro.
+- **Pergunta 3 (função → `id_tipo`):** são 18 tipos `STAKEHOLDERS` (CONSULTOR, PO, TIME, GP, SM,
+  SQA, GC, GP/PO, APOIO, GESTOR, SUB-GERENCIA, DIRETOR COMERCIAL, SUPERVISOR, LT, PM, QA, DEV, TECH
+  LEAD), **sem nome repetido**. Casa pelo `Nomes` sem maiúsculas.
+- **Pergunta 4 (projetos do setor):** `GET /sgp-cadastros?Setor=SQUAD XP` devolve 78 projetos
+  (Abertos e Fechados), já do registro mais novo para o mais antigo. Segue a proposta: combobox com
+  busca, Abertos e Fechados, mais recentes primeiro, sem o próprio projeto aberto.
+- Detalhes decididos pelo Claude Code: o colaborador da célula usa o `ComboboxField` (aceita
+  `controlHeightClassName="h-8"`, `hideLabel` e limpar); a lista segue a permissão atual da aba
+  (`edit-project`): sem ela, a tabela fica só leitura e só "Copiar linhas" aparece; a faixa da
+  linha nova usa `bg-status-info` e a da alterada `bg-panel-badge-importance-yellow` (tokens que
+  já existem, o amarelo como na decisão #11); o aviso de descarte cobre trocar de aba, Voltar,
+  clique em link do app (interceptado enquanto há linhas não salvas) e fechar/recarregar a página
+  (`beforeunload`, com o aviso padrão do navegador).
+
+#### P6 — Ordem da lista de stakeholders · aberta
+
+Fase: Fase 0 (2026-11-19). Contexto: pergunta 5 do planejamento. A API devolve os stakes do **mais
+novo para o mais antigo** (`sequencia` decrescente: 23341, 23340 … 23333 no projeto 3278). Com a
+proposta "ordem do GET, novas no fim até salvar", as linhas que o usuário acabou de lançar no fim
+pulam para o topo depois do Salvar.
+Opções: **A)** ordem de inclusão (`sequencia` crescente): a mais antiga em cima, as novas no fim,
+e continuam no fim depois de salvar. **B)** ordem do GET (mais nova em cima), com as novas no fim
+só até salvar. **C)** ordenar por Função e depois por Colaborador, com as novas no fim até salvar.
+Recomendação do Claude Code: **A**, porque a lista se comporta como planilha (o que foi lançado
+por último fica embaixo) e nada muda de lugar ao salvar.
+
 ### Plano de implementação
 
 1. **Parte 1: dados e regras.** Busca de todas as páginas, `stakes-lista-utils.ts` (conversões,
