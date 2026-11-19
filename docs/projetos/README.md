@@ -406,8 +406,21 @@ Code (aba Stakes)").
   invalida uma vez no fim). Conferido: checagens das regras com `tsx` (horas tolerantes, ida e
   volta do TSV, colagem do Excel, repetidos, payloads) e a paginação por cursor na API de dev
   (3278 com `per_page=2`: 5 páginas, 9 linhas sem repetir). Build e `eslint` ok.
-- [ ] Parte 2: lista editável (lista, linha, skeleton, salvar em lote, excluir, descartar, atalhos,
-  mobile; remover cards e modal antigos)
+- [x] Parte 2: lista editável (lista, linha, skeleton, salvar em lote, excluir, descartar, atalhos,
+  mobile; remover cards e modal antigos). Entregue em 2026-11-19: `stakes-lista.tsx`,
+  `stake-linha.tsx`, `stakes-lista-skeleton.tsx` e `index.tsx` com `useFieldArray`;
+  `mesclarComServidor` junta a lista com o servidor depois de salvar/excluir sem perder o que não
+  foi salvo; guarda de descarte em `edicao/shared/alteracoes-pendentes.tsx` (provider na edição:
+  troca de aba, Voltar, clique em link do app e `beforeunload`). Saíram `stake-card`,
+  `stakes-grid`, `stakes-summary`, `stakes-card`, `stake-form-modal`, `stake-form-schema`,
+  `aba-stakes-skeleton` e `stake-tipo-badge*`. Conferido no navegador no projeto de teste #3315:
+  linha lançada só pelo teclado (foco na Função, Tab, máscara, Enter na observação cria outra),
+  repetido com borda vermelha e "Linha N: …", Ctrl+S, falha parcial simulada (PUT forçado a 500:
+  a nova gravou, a alterada ficou amarela com a mensagem), descarte ao trocar de aba e ao clicar em
+  link da barra lateral, excluir linha nova (na hora) e salva (confirmação + DELETE), erro de
+  carga com "Tentar de novo" (a API de dev deu 500 passageiro) e 390px com rolagem só na tabela.
+  O stake criado no teste foi excluído no fim. Observado: digitar rápido no seletor de Função
+  aberto nem sempre aciona a busca por letra do Radix; setas e clique funcionam.
 - [ ] Parte 3: copiar, colar e importar
 - [ ] Parte 4: fechamento (README, decisões, contexto, status)
 

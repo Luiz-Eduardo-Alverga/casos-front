@@ -1,10 +1,9 @@
 import type {
   CreateSgpStakeRequest,
+  SgpStakeItem,
   UpdateSgpStakeRequest,
 } from "@/interfaces/sgp-stake";
-import type { SgpStakeItem } from "@/interfaces/sgp-stake";
 import { maskHHMM } from "@/components/casos/edicao/producao/utils";
-import type { StakeFormValues } from "@/components/projetos/edicao/stakes/stake-form-schema";
 import { parseSgpHorasToMinutes } from "@/components/projetos/edicao/stakes/utils";
 import type { StakeLinha } from "@/components/projetos/edicao/stakes/stakes-lista.types";
 
@@ -26,23 +25,9 @@ export function formatHorasInputToSgpIso(hhmm: string): string {
   return `${SGP_HORAS_BASE_DATE}T${hour}:${min}:00.000Z`;
 }
 
+/** Máscara `HH:MM` (também usada no Cronograma). */
 export function maskStakeHorasInput(value: string): string {
   return maskHHMM(value);
-}
-
-export function stakeToFormValues(stake: SgpStakeItem): StakeFormValues {
-  return {
-    colaboradorId: String(stake.suporte_id),
-    colaboradorLabel: stake.nomes?.trim() ?? "",
-    idTipo: String(stake.id_tipo),
-    diasUteis: stake.dias_uteis ?? 1,
-    horasPlanejadas: formatMinutesToHorasInput(
-      parseSgpHorasToMinutes(stake.horas_disponiveis),
-    ),
-    horasNaoPlanejadas: formatMinutesToHorasInput(
-      parseSgpHorasToMinutes(stake.horas_nao_planejadas),
-    ),
-  };
 }
 
 /** Preserva horas de risco e metadados do registro existente na edição. */
@@ -50,51 +35,6 @@ function sgpHorasExistenteToIso(value: string | null | undefined): string {
   const min = parseSgpHorasToMinutes(value);
   return formatHorasInputToSgpIso(formatMinutesToHorasInput(min));
 }
-
-export function buildCreateSgpStakePayload(
-  values: StakeFormValues,
-  projetoId: number | string,
-  colaboradorNome: string,
-): CreateSgpStakeRequest {
-  const registro = Number(projetoId);
-  const suporteId = Number(values.colaboradorId);
-  const idTipo = Number(values.idTipo);
-
-  return {
-    Registro: registro,
-    Caracteristica: "STAKEHOLDERS",
-    Id_Tipo: idTipo,
-    Nomes: colaboradorNome.trim(),
-    HorasDisponiveis: formatHorasInputToSgpIso(values.horasPlanejadas),
-    Suporte_id: suporteId,
-    DiasUteis: values.diasUteis,
-    HorasRisco: formatHorasInputToSgpIso("00:00"),
-    HorasNaoPlanejadas: formatHorasInputToSgpIso(values.horasNaoPlanejadas),
-    ProjetoAprovado: 0,
-    Observacoes: null,
-    OcorrenciaGerada: 0,
-  };
-}
-
-export function buildUpdateSgpStakePayload(
-  values: StakeFormValues,
-  projetoId: number | string,
-  colaboradorNome: string,
-  stakeExistente: SgpStakeItem,
-): UpdateSgpStakeRequest {
-  const base = buildCreateSgpStakePayload(values, projetoId, colaboradorNome);
-  return {
-    ...base,
-    HorasRisco: sgpHorasExistenteToIso(stakeExistente.horas_risco),
-    ProjetoAprovado: stakeExistente.projeto_aprovado ?? 0,
-    Observacoes: stakeExistente.observacoes ?? null,
-    OcorrenciaGerada: stakeExistente.ocorrencia_gerada ?? 0,
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Lista editável (aba Stakes em lista): payload a partir da linha
-// ---------------------------------------------------------------------------
 
 /** Linha validada → POST `/sgp-stakes`. `ProjetoAprovado` vai 0 (decisão #17). */
 export function linhaToCreatePayload(

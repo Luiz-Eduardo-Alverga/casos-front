@@ -470,3 +470,35 @@ export function marcarBloqueios(
     return { ...item, bloqueio };
   });
 }
+
+// ---------------------------------------------------------------------------
+// Sincronização com o servidor
+// ---------------------------------------------------------------------------
+
+/**
+ * Junta a lista da tela com o que veio do servidor (depois de salvar, excluir ou recarregar):
+ * linha gravada sem mudança local vira a versão do servidor; linha com mudança local
+ * (comparada com `originaisAnteriores`) é mantida; linha excluída no servidor sai; linhas novas
+ * continuam no fim. A ordem segue a inclusão (decisão #29).
+ */
+export function mesclarComServidor(
+  linhasAtuais: StakeLinha[],
+  stakesServidor: SgpStakeItem[],
+  originaisAnteriores: Map<number, SgpStakeItem>,
+): StakeLinha[] {
+  const atuaisPorSequencia = new Map<number, StakeLinha>();
+  for (const linha of linhasAtuais) {
+    if (linha.sequencia != null) atuaisPorSequencia.set(linha.sequencia, linha);
+  }
+
+  const gravadas = ordenarStakesPorInclusao(stakesServidor).map((stake) => {
+    const atual = atuaisPorSequencia.get(stake.sequencia);
+    if (!atual) return stakeToLinha(stake);
+    const anterior = originaisAnteriores.get(stake.sequencia);
+    const temMudancaLocal = anterior ? linhaAlterada(atual, anterior) : false;
+    return temMudancaLocal ? atual : stakeToLinha(stake);
+  });
+
+  const novas = linhasAtuais.filter((l) => l.sequencia == null);
+  return [...gravadas, ...novas];
+}

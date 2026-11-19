@@ -26,6 +26,10 @@ import {
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { ProjetoEditHeader } from "@/components/projetos/edicao/projeto-edit-header";
 import { ProjetoClonarModal } from "@/components/projetos/clonar";
+import {
+  AlteracoesPendentesProvider,
+  useAlteracoesPendentes,
+} from "@/components/projetos/edicao/shared/alteracoes-pendentes";
 import { AbaAbertura } from "@/components/projetos/edicao/abas/aba-abertura";
 import { AbaCronogramaTab } from "@/components/projetos/edicao/abas/aba-cronograma";
 import { AbaEscopoTab } from "@/components/projetos/edicao/abas/aba-escopo";
@@ -47,20 +51,32 @@ const FORM_ID = "projeto-edit-form";
 const TAB_CONTENT_CLASS =
   "mt-0 flex min-h-0 flex-1 flex-col data-[state=inactive]:hidden";
 
-export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
+export function ProjetoEditForm(props: ProjetoEditFormProps) {
+  return (
+    <AlteracoesPendentesProvider>
+      <ProjetoEditFormConteudo {...props} />
+    </AlteracoesPendentesProvider>
+  );
+}
+
+function ProjetoEditFormConteudo({ cadastro }: ProjetoEditFormProps) {
   const [activeTab, setActiveTabQuery] = useQueryState(
     "aba",
     projetoEditTabParser.withOptions({ history: "replace", shallow: false }),
   );
+  const { confirmarDescarte } = useAlteracoesPendentes();
 
   const handleTabChange = useCallback(
     (value: string) => {
       if (!PROJETO_EDIT_TABS.includes(value as ProjetoEditTab)) return;
-      void setActiveTabQuery(
-        value === "abertura" ? null : (value as ProjetoEditTab),
-      );
+      // Sair da aba com linhas não salvas pede "Descartar alterações?" (decisão #22).
+      confirmarDescarte(() => {
+        void setActiveTabQuery(
+          value === "abertura" ? null : (value as ProjetoEditTab),
+        );
+      });
     },
-    [setActiveTabQuery],
+    [setActiveTabQuery, confirmarDescarte],
   );
 
   const { data: setores } = useSetores({ enabled: true });
@@ -191,6 +207,8 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
                   <div className="flex min-h-0 flex-1 flex-col gap-2 min-w-0">
                     <AbaStakesTab
                       projetoId={cadastro.registro}
+                      nomeProjeto={cadastro.nome_projeto}
+                      setorProjeto={cadastro.setor}
                       enabled={activeTab === "stakes"}
                     />
                   </div>

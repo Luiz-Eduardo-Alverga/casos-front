@@ -29,6 +29,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useDeleteSgpCadastro } from "@/hooks/cadastros/use-delete-sgp-cadastro";
+import { useAlteracoesPendentes } from "@/components/projetos/edicao/shared/alteracoes-pendentes";
 
 const TAB_TRIGGER_CLASS = cn(
   "group shrink-0 rounded-full px-3 py-1.5 text-sm font-medium gap-1.5",
@@ -66,6 +67,7 @@ export function ProjetoEditHeader({
   onClonar,
 }: ProjetoEditHeaderProps) {
   const router = useRouter();
+  const { confirmarDescarte } = useAlteracoesPendentes();
   const deleteProjeto = useDeleteSgpCadastro();
   const [excluirProjetoModal, setExcluirProjetoModal] = useState(false);
 
@@ -145,7 +147,7 @@ export function ProjetoEditHeader({
             type="button"
             variant="outline"
             className="h-9 min-w-0 flex-1 px-2"
-            onClick={() => router.back()}
+            onClick={() => confirmarDescarte(() => router.back())}
             disabled={isSaving}
           >
             <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
