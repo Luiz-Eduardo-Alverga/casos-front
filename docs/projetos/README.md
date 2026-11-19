@@ -378,6 +378,32 @@ app/api/sgp-cadastros/route.ts    GET repassa NomeProjeto, Status, data_inicio e
 3. **Setor do usuário que não aparece em `useSetores`:** cair em "Todos" e mostrar "Nenhum
    filtro aplicado"? Proposta: sim.
 
+### Perguntas do Claude Code (filtros)
+
+#### P7 — Regra do filtro por mês · aberta
+
+Fase: Parte 1 (2026-11-19). Contexto: pergunta 1 do planejamento, conferida na API de dev com o
+setor SQUAD XP. O `GET /sgp-cadastros` **não** usa "dentro do mês" nem "cruza o mês": ele traz os
+projetos que **começam** no período (`data_inicio` do projeto entre os dois parâmetros). Com
+`data_inicio=2026-11-10&data_fim=2026-11-20` veio só o 3278 (16/11→30/11); o 3277 (01/11→15/11),
+que cruza o intervalo, ficou de fora. Só com `data_fim=2022-02-20` vieram os que começam até essa
+data, inclusive o 1804 (16/02→28/02). No uso por mês: sprint de 1 a 15 ou de 16 a 30 aparece no
+mês dela nas duas regras. A diferença é para projeto longo (ex.: Sustentação jan–dez), que só
+aparece no mês em que começa, e para projeto que começa num mês e termina no outro, que aparece só
+no mês de início.
+Opções: **A)** aceitar a regra da API: o mês mostra os projetos que **começam** nele; o seletor
+manda 1º e último dia do mês, como está. **B)** "cruza o mês" no front: pedir à API os que começam
+até o fim do mês e filtrar na tela os que terminam depois do 1º dia; exige buscar todas as páginas
+do setor (a listagem hoje pagina de 15 em 15) e piora com o histórico. **C)** pedir ao backend um
+parâmetro para "cruza o período" (fora do escopo desta entrega) e ficar com A até lá.
+Recomendação do Claude Code: **A** (com C como pedido ao backend se projetos longos importarem),
+porque as sprints de 15 dias, que são o uso principal, aparecem certas, e a B quebra a paginação.
+
+Pergunta 2 do planejamento, conferida: `NomeProjeto` busca por **parte do nome** e **sem
+diferenciar maiúsculas** ("squad xp 2026 - 11.02" achou o 3278 e o 3311; "claude code" achou os
+projetos de teste). Acentos não foram conferidos (não há nome com acento no SQUAD XP). `Status`
+aceita `ABERTO`/`FECHADO` (minúsculas também).
+
 ### Plano de implementação
 
 1. **Parte 1: dados.** Service e route com os 4 parâmetros novos, tipos, parsers e mappers
@@ -406,8 +432,13 @@ Fase 0 concluída em 2026-11-19, sem pergunta para o usuário. Conferido no cód
   contorno `border-primary` no mês atual, `hover:bg-muted` nos outros); o parâmetro `objetivo`
   continua aceito na URL, sem campo na tela (decisão #35).
 
-- [ ] Parte 1: dados (service e route com `NomeProjeto`, `Status`, `data_inicio`, `data_fim`;
-  tipos, parsers e mappers com `mesParaIntervalo`) e conferência das perguntas 1 e 2 na API de dev
+- [x] Parte 1: dados (service e route com `NomeProjeto`, `Status`, `data_inicio`, `data_fim`;
+  tipos, parsers e mappers com `mesParaIntervalo`) e conferência das perguntas 1 e 2 na API de dev.
+  Entregue em 2026-11-19: GET da rota e `getSgpCadastros` repassam os quatro parâmetros; filtros
+  com `nome`, `status` (só `ABERTO`/`FECHADO`) e `mes` (`AAAA-MM`) na URL; `mesParaIntervalo`,
+  `mesDaData` e `contarFiltrosAplicados` nos mappers. Conferido com `tsx` (intervalos, fevereiro
+  bissexto, parâmetros, status inválido ignorado) e na API de dev. A pergunta 2 está respondida
+  acima; a pergunta 1 virou a P7 (regra "começa no período"). Build e `eslint` ok.
 - [ ] Parte 2: tela (`mes-picker`, Nome, Setor, Status e Mês no card, padrão com setor do usuário
   e mês atual, Limpar voltando ao padrão)
 - [ ] Parte 3: fechamento (README, decisões, contexto, status)
