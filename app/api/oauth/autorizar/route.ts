@@ -103,7 +103,8 @@ export async function POST(request: Request) {
     tokenLegacy = login.token;
   } catch (error) {
     if (error instanceof LoginRecusadoError) {
-      return jsonError("Senha incorreta", 401);
+      // 422 e não 401: no front, 401 faz o fetchWithAuth encerrar a sessão do navegador.
+      return jsonError("Senha incorreta", 422);
     }
     console.error("[conector-claude] Falha no login da conexão:", error);
     return jsonError("Não foi possível falar com o Softflow; tente de novo", 502);
