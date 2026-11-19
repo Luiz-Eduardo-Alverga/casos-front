@@ -30,9 +30,10 @@ produção. O conector nasce só com abertura e consulta de caso.
 Uma vez, por pessoa:
 
 1. Um Owner da organização no Claude adiciona o conector personalizado
-   `https://softflow.softcom.services/api/mcp` (Configurações da organização → Conectores). Isso
-   é feito uma vez para todos.
-2. A pessoa abre Conectores no Claude, clica em **Conectar** no Softflow e é levada para a tela
+   `https://softflow.softcom.services/api/mcp` em **Organization settings → Connectors → Add →
+   Custom** (tipo **Web**), com Authentication **Sign in now** e OAuth client **Register
+   automatically** (DCR). Isso é feito uma vez para todos.
+2. A pessoa abre **Customize → Connectors** no Claude, clica em **Connect** no Softflow (selo **Custom**) e é levada para a tela
    **Conectar o Claude ao Softflow** (`/oauth/autorizar`). Se não estiver logada, passa pelo
    login do Softflow antes e volta para essa tela.
 3. Confere quem está conectando e o que o Claude vai poder fazer e clica em **Permitir acesso**.
@@ -150,6 +151,11 @@ Conferidos na documentação do Claude em 2026-11-19 (reconfirmar na Fase 0):
 - Callback do Claude: `https://claude.ai/api/mcp/auth_callback` e
   `https://claude.com/api/mcp/auth_callback` (os dois na lista permitida). Nome do cliente:
   `Claude`.
+- O Claude também oferece o modo "Use Claude's published identity" (Client ID Metadata Document,
+  recomendado pela documentação). Esta especificação usa DCR ("Register automatically"); a Fase 0
+  avalia se vale aceitar também o CIMD.
+- Credenciais de OAuth e cabeçalhos não mudam depois que o conector é adicionado: para trocar, o
+  Owner remove e adiciona de novo, e todos reconectam.
 - Nos planos Team e Enterprise, um Owner adiciona o conector para a organização e cada membro
   conecta a própria conta.
 
