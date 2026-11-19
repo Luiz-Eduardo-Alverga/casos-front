@@ -453,6 +453,13 @@ Fase 0 concluída em 2026-11-19, sem pergunta para o usuário. Conferido no cód
   Nome deram `?…&mes=2025-12&nome=squad+xp&status=FECHADO` com o #2931 e "4 filtros aplicados";
   recarregar com filtros na URL mantém os da URL; Limpar voltou a setor + novembro; "Nenhum
   projeto encontrado"; 390px em coluna única sem rolagem horizontal. Build e `eslint` ok.
+  Ajuste em 2026-11-19, a pedido do usuário (ficar igual ao protótipo): o grid passou a ser o do
+  protótipo, `grid-cols-[repeat(auto-fit,minmax(180px,1fr))]` com `gap-x-4 gap-y-3` (Nome com
+  `md:col-span-2`), em vez de colunas fixas; com espaço (formulário a partir de ~1356px, janela de
+  ~1710px com a barra lateral aberta) tudo fica numa linha, como no protótipo, e em 1440px quebra
+  em duas como a captura 15. O selo "N filtros aplicados" foi para o lado do título, em azul
+  (`panel-badge-open`/`-bg`), e o placeholder do Id virou "Ex.: 3278". Conferido em 1920px (uma
+  linha), 1440px (duas) e 390px (coluna única).
 - [ ] Parte 3: fechamento (README, decisões, contexto, status)
 
 ### Fora do escopo

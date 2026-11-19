@@ -104,24 +104,24 @@ export function ProjetosFiltros({
     <CasoFormProvider value={providerValue}>
       <FormProvider {...methods}>
         <Card className="bg-card shadow-card rounded-lg shrink-0 mb-2">
-          <CardHeader className="flex flex-row items-center justify-between gap-2 border-b border-border-divider p-4 pb-2">
-            <div className="flex items-center gap-2">
-              <Filter className="h-3.5 w-3.5 text-text-primary" />
-              <CardTitle className="text-sm font-semibold text-text-primary">
-                Filtros
-              </CardTitle>
-            </div>
+          <CardHeader className="flex flex-row items-center gap-2 space-y-0 border-b border-border-divider p-4 pb-2">
+            <Filter className="h-3.5 w-3.5 text-text-primary" />
+            <CardTitle className="text-sm font-semibold text-text-primary">
+              Filtros
+            </CardTitle>
             {quantidadeAplicados > 0 ? (
-              <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-text-secondary">
+              <span className="inline-flex items-center rounded-full bg-panel-badge-open-bg px-2 py-0.5 text-xs font-semibold text-panel-badge-open">
                 {quantidadeAplicados === 1
                   ? "1 filtro aplicado"
                   : `${quantidadeAplicados} filtros aplicados`}
               </span>
             ) : null}
           </CardHeader>
-          <CardContent className="p-6 pt-2">
+          <CardContent className="p-6 pt-3">
+            {/* Mesmo grid do protótipo: colunas de no mínimo 180px que se ajustam à largura;
+                com espaço, Id, Nome (2 colunas), Setor, Status, Mês e Filtrar ficam numa linha. */}
             <form
-              className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-5"
+              className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] items-end gap-x-4 gap-y-3"
               onSubmit={handleSubmit}
             >
               <div className="space-y-2">
@@ -131,7 +131,7 @@ export function ProjetosFiltros({
                 <Input
                   id="projetos-filtro-registro"
                   inputMode="numeric"
-                  placeholder="Busque pelo Id do projeto..."
+                  placeholder="Ex.: 3278"
                   className="h-9 rounded-lg border-border-input"
                   {...methods.register("registro", {
                     onChange: (e) => {
@@ -142,7 +142,7 @@ export function ProjetosFiltros({
                 />
               </div>
 
-              <div className="space-y-2 md:col-span-2">
+              <div className="min-w-0 space-y-2 md:col-span-2">
                 <Label htmlFor="projetos-filtro-nome" className={LABEL_CLASS}>
                   Nome do projeto
                 </Label>
