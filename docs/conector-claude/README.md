@@ -1,10 +1,10 @@
 # Conector do Claude (abrir casos pelo chat)
 
-> **Estado: implementado na `dev` (2026-11-19), ainda não publicado.** Testado no dev server com
-> o cliente MCP do SDK e no navegador; **falta o teste no Claude de verdade**, que só é possível
-> com o endereço público (depois do merge na `master` e das variáveis na VPS, ver
-> [`deploy/`](../deploy/README.md#conector-do-claude-apimcp)). Decisões em
-> [`decisoes.md`](decisoes.md); protótipo em [`prototipo/`](prototipo/).
+> **Estado: em produção desde 2026-11-19** (`https://softflow.hostsoftcom.cloud/api/mcp`).
+> Conferido no domínio público: metadados, `401` com `WWW-Authenticate`, registro do cliente,
+> token endpoint com o banco de produção e a tela de autorização (cabeçalhos e volta pelo login).
+> **Falta o teste no Claude de verdade** (conectar com a conta de alguém e abrir um caso). Decisões
+> em [`decisoes.md`](decisoes.md); protótipo em [`prototipo/`](prototipo/).
 
 ## O que é
 
@@ -161,7 +161,10 @@ MCP do SDK, incluindo abertura simultânea sem duplicar; menu, modal e desconect
 
 Pendente:
 
-- Teste no Claude de verdade com o endereço público (depois de publicar).
+- Teste no Claude de verdade: adicionar o conector, autorizar com a senha, preparar e abrir um
+  caso de teste. Em produção já foram conferidos (2026-11-19) os metadados, o `401`, o registro
+  (cliente de teste "Claude (teste de produção)" criado em `oauth_clientes`), o token endpoint e a
+  tela de autorização até o login.
 - Ajustar o passo 7 da skill `planejar-softcom` para abrir o caso pelo conector (fora deste repo).
 - O aviso "Claude desconectado" foi corrigido (`mutateAsync`) depois do teste e não foi reconferido.
 - Casos de teste criados na API de dev, para excluir: 104140, 104141, 104143.

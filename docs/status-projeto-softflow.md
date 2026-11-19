@@ -42,13 +42,14 @@ coberto.
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
-- **Conector do Claude: abrir casos pelo chat** (2026-11-19, na `dev`, não publicado). Servidor
+- **Conector do Claude: abrir casos pelo chat** (2026-11-19, em produção; teste no Claude pendente). Servidor
   MCP `/api/mcp` com OAuth próprio (metadados, DCR, `/oauth/autorizar` com senha, token com PKCE e
   rotação), cinco ferramentas (eu, buscar opções, preparar prévia, abrir caso idempotente,
   consultar caso) e o item "Claude" no menu do usuário com o modal de conexão. Migração `0011`
   aplicada no banco do `.env`. Testado no dev server com o cliente MCP do SDK e no navegador;
-  **falta publicar** (variáveis `SOFTFLOW_PUBLIC_URL` e `CLAUDE_CONECTOR_CHAVE` na VPS, ver
-  [`deploy/`](deploy/README.md)) e testar no Claude de verdade. Ajustar depois o passo 7 da skill
+  Publicado com as variáveis na VPS; no domínio público conferidos metadados, `401`, registro,
+  token endpoint e tela de autorização. **Falta testar no Claude de verdade** (conectar e abrir um
+  caso). Ajustar depois o passo 7 da skill
   `planejar-softcom`. Ver [`conector-claude/`](conector-claude/README.md).
 - **Padrão único de gatilho de select/combobox** (2026-11-19, na `dev`). Combobox
   (`components/ui/combobox.tsx`), multi-selects (`components/ui/v2/combobox2.tsx`, input e chips)

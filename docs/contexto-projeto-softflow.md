@@ -122,7 +122,7 @@ Integrações laterais (não são telas, mas fazem parte da experiência):
 
 - **Discord** — DM ao dev quando um caso é aberto/clonado; aviso quando report é concluído.
 - **Assistant** — preenchimento assistido de descrição de caso/report.
-- **Conector do Claude** (na `dev`, ainda não publicado) — o Softflow como servidor MCP
+- **Conector do Claude** (em produção desde 2026-11-19) — o Softflow como servidor MCP
   (`/api/mcp`, OAuth próprio) para o Claude abrir e consultar casos em nome de quem conectou;
   cada pessoa conecta pelo endereço `https://softflow.hostsoftcom.cloud/api/mcp` e desfaz pelo
   menu do usuário → Claude. Ver [`conector-claude/`](conector-claude/README.md).
