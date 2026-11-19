@@ -313,6 +313,95 @@ Respostas na Fase 0 ou durante a implementação, pelo fluxo de "Perguntas do Cl
 6. **(dev)** O proxy da VPS deixa passar `/.well-known/*` e respostas de streaming do `/api/mcp`
    sem buffer?
 
+## Fase 0 — conferência do plano contra o código (2026-11-19)
+
+Resolvido pelo código ou decidido pelo Claude Code (detalhe técnico, não muda decisão):
+
+- **Pergunta 3 (logout):** `app/api/auth/logout/route.ts` só apaga o cookie `casos_token`; não
+  chama o legado. Sair do Softflow não derruba o conector.
+- **Pergunta 5 (réplicas):** `docker-compose.yml` tem `replicas: 1`. O rate limit em memória
+  (mesmo padrão de `lib/api-public/rate-limit.ts`) basta; prévias e códigos ficam no Postgres de
+  qualquer forma.
+- **Pergunta 6 (proxy):** o Traefik roteia por `Host(...)` sem filtro de caminho, então
+  `/.well-known/*` passa. Para não depender de streaming pelo Cloudflare Tunnel, o `/api/mcp` roda
+  sem estado e com resposta JSON (`enableJsonResponse`), sem SSE.
+- **Biblioteca:** `@modelcontextprotocol/sdk` com o transporte Web Standard (Request/Response) dentro
+  do route handler, sem adaptador extra.
+- **Requisitos do Claude reconfirmados** (claude.com/docs/connectors, 2026-11-19): Streamable HTTP
+  em HTTPS 443; DCR aceito; CIMD só é usado se o servidor anunciar
+  `client_id_metadata_document_supported`, então **não anunciamos CIMD** e fica DCR, como
+  especificado; PKCE S256; `resource` do RFC 9728 igual ao endereço do MCP; token endpoint aceita
+  `application/x-www-form-urlencoded`, refresh com rotação e falha como `invalid_grant`; o Claude
+  renova até 5 min antes de vencer. A documentação atual só cita
+  `https://claude.ai/api/mcp/auth_callback`; mantemos também o `claude.com` da decisão #4 (inofensivo).
+  O Claude Code usa callback em `localhost`, que a decisão #4 deixa de fora (o conector é para o
+  app do Claude). Tráfego do Claude sai de `160.79.104.0/21`.
+- **Anotações das ferramentas:** consultas e `softflow_preparar_caso` com `readOnlyHint: true` (a
+  prévia não muda nada visível); `softflow_abrir_caso` com `readOnlyHint: false`, para o Claude
+  pedir confirmação antes de chamar.
+- **Volta do login para `/oauth/autorizar`:** `getSafeInternalReturnPath` (`lib/safe-callback-url.ts`)
+  decodifica o `callbackUrl` e recusa qualquer `://`, o que barra o `redirect_uri=https://claude.ai/...`
+  da query. Na Parte 3, `/oauth/autorizar?` passa a ser aceito com o `://` só dentro da query; o
+  resto da validação continua.
+- **Refatoração (Parte 1):** `components/casos/shared/payload.ts` e `versao-combobox.ts` não têm
+  `"use client"`, mas se importam mutuamente e `versao-combobox.ts` importa tipo de
+  `components/ui/combobox`. Os helpers puros (payload, `extractVersaoProduto`,
+  `resolveVersaoProdutoForApi`) vão para `lib/casos/`, e os arquivos de `components/` reexportam.
+- **Padrões da tela conferidos:** `importancia "3"`, `categoria "4"`, `origem "4"`, relator = pessoa
+  logada (`components/casos/cadastro/caso-create/index.tsx`). `POST /api/projeto-casos` aceita
+  `create-report` **ou** `create-case`; o conector exige `create-case`, como a decisão #5.
+- **`/auxiliar/projetos`** exige `usuario_id`: o conector usa o id da pessoa conectada.
+- **Clickjacking:** `next.config.js` não tem `headers()` hoje; a Parte 3 acrescenta
+  `X-Frame-Options`/`frame-ancestors` só para `/oauth/autorizar`.
+
+## Perguntas do Claude Code
+
+### P1 — Comportamento do `POST /auth/refresh` do legado · aberta
+
+Fase: Fase 0 (2026-11-19). Contexto: perguntas em aberto 1 e 2. O código só usa o refresh em
+`app/api/auth/refresh/route.ts` (troca o cookie pelo token novo) e não dá pista de validade nem de
+invalidação. A decisão #7 depende disso; sem a resposta não dá para fechar a Parte 2.
+Preciso saber: (a) validade do token; (b) se o refresh aceita token já expirado; (c) se o refresh
+invalida o token anterior.
+Opções: **A)** o refresh **não** invalida o anterior → segue a decisão #7 como está (token próprio
+da conexão, renovado sob demanda; se (b) for "não", um job renova as conexões ativas antes de
+vencer). **B)** o refresh invalida o anterior → conectar derrubaria a sessão do navegador; seria
+preciso um endpoint de integração no legado (muda a decisão #3) ou aceitar que a pessoa seja
+deslogada do navegador ao conectar.
+Recomendação do Claude Code: confirmar com quem mantém a API Soft Flow (ou testar com um token de
+dev) antes da Parte 2. A Parte 1 não depende disso e pode começar.
+
+### P2 — Limites de `DescricaoResumo` e `DescricaoCompleta` · aberta
+
+Fase: Fase 0 (2026-11-19). Contexto: pergunta em aberto 4. O `casoCreateFormSchema`
+(`components/casos/cadastro/caso-create/schema.ts`) só exige `min(1)`; não há limite no front.
+Opções: **A)** informar os limites do legado e a prévia valida com eles. **B)** sem limite na
+prévia; se o legado recusar, `softflow_abrir_caso` devolve o erro dele e o Claude gera nova prévia.
+Recomendação do Claude Code: A, se o limite existir, porque a decisão #6 promete que o caso sai
+igual à prévia. Só bloqueia a Parte 4.
+
+### P3 — Endereço público do conector · aberta
+
+Fase: Fase 0 (2026-11-19). Contexto: a especificação usa `https://softflow.softcom.services/api/mcp`
+(e `contexto-projeto-softflow.md` e os links do Discord usam esse domínio), mas `docs/deploy/` e o
+`docker-compose.yml` publicam o app em `https://softflow.hostsoftcom.cloud`. O Claude exige que o
+`resource` dos metadados seja exatamente o endereço cadastrado, então só um vale como canônico.
+Opções: **A)** `softflow.softcom.services` (o da especificação). **B)** `softflow.hostsoftcom.cloud`.
+Em qualquer caso o valor vem de uma variável nova (`SOFTFLOW_PUBLIC_URL`), não fica fixo no código.
+Recomendação do Claude Code: A, se os dois domínios chegam no mesmo serviço, porque é o domínio
+que a squad já vê nos links; confirmar também que ele aceita tráfego de `160.79.104.0/21` sem WAF
+bloqueando.
+
+## Andamento da implementação
+
+- [x] Fase 0 (2026-11-19), com P1 a P3 abertas
+- [ ] Parte 1: refatoração sem mudança de comportamento
+- [ ] Parte 2: banco e OAuth (depende da P1)
+- [ ] Parte 3: tela de autorização
+- [ ] Parte 4: servidor MCP e ferramentas (depende da P2 e da P3)
+- [ ] Parte 5: menu do usuário e modal "Conexão com o Claude"
+- [ ] Parte 6: publicação e orientação
+
 ## Plano de implementação
 
 Um commit por parte, na `dev`, com escopo `(conector-claude)`.
