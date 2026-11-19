@@ -42,6 +42,21 @@ coberto.
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
+- **Padrão único de gatilho de select/combobox** (2026-11-19, na `dev`). Combobox
+  (`components/ui/combobox.tsx`), multi-selects (`components/ui/v2/combobox2.tsx`, input e chips)
+  e o seletor de mês seguem o `SelectTrigger`: seta só para baixo, sem fundo no hover, fundo
+  transparente, texto regular, foco de 1px; o Estimado de Casos perdeu o negrito. Medido igual em
+  `/projetos` e `/casos`, temas claro e escuro. Afeta todas as telas com combobox; não conferidas
+  uma a uma. Na mesma linha, `Input`, `Textarea` e o campo de data (`input-group` +
+  `DatePickerInput`) passaram a radius 8px, fundo transparente e `shadow-sm`, e a data perdeu o
+  `font-medium`; medido igual em `/casos` e `/projetos/novo`. O `Label` base virou `block` sem `leading-none`, o que alinhou Tipo e Usuário no modal
+  de editar Produção (antes 4px de diferença); verificador de alinhamento sem achados em `/casos`,
+  `/casos/novo`, caso 104108 (com o modal), `/projetos`, `/projetos/novo`, `/projetos/3315`,
+  `/produtos`, `/reports/novo` e `/liberacoes`. No combobox, a lista passou a rolar com a roda do mouse dentro de modais
+  (`Popover` modal) e a seta ficou no lugar do Select quando não há botão de limpar; conferido no
+  modal de editar Produção (Usuário rolou e selecionou; seta a 13px como o Tipo) e nos filtros de
+  Casos. Ver
+  [`design-system.md`](design-system.md).
 - **Avisos: aviso automático (bloqueante)** (2026-11-18, na `dev`). Aviso não lido com `auto`,
   enviado nos últimos 7 dias, abre numa janela sem X sobre qualquer tela do dashboard, um por vez
   do mais antigo para o mais novo, até marcar como lido. Testado na API de dev com os avisos 8011,
@@ -56,6 +71,13 @@ coberto.
   /auxiliar/comunicado-filtros` dava 503 na API de teste, então os filtros foram vistos com a
   resposta simulada no navegador. Falta conferir com o endpoint real e ir para produção
   (atribuir `create-aviso` aos papéis certos). Ver [`avisos/`](avisos/README.md).
+- **Projetos: filtros da listagem** (2026-11-19, na `dev`). `/projetos` filtra por Id, Nome (parte do
+  nome), Setor, Status (Aberto/Fechado) e Mês (seletor só de mês; a API traz os projetos que começam
+  no mês, decisão #38). Abre com o setor do usuário + o mês atual gravados na URL, e "Limpar filtros"
+  volta a esse padrão. Grid igual ao do protótipo. Testado na API de dev: padrão ao abrir, mês
+  anterior + Fechado + Enter no Nome, recarregar com filtros na URL, Limpar, sem resultado, 1920,
+  1440 e 390px. Não conferido: nome com acento. Falta ir para produção. Ver
+  [`projetos/`](projetos/README.md).
 - **Projetos: aba Stakes em lista** (2026-11-19, na `dev`). A aba Stakes de `/projetos/[id]`
   virou lista editável em linha com salvar em lote, faixas de linha nova/alterada, totais,
   atalhos (Enter, Ctrl+S), aviso de descarte, copiar linhas (TSV), colar com Ctrl+V e importar de

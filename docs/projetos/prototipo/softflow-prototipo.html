@@ -1211,8 +1211,40 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
             </div>
           </div>
 
+          <section aria-labelledby="pj-filtros-title" style="background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-card)">
+            <div style="display:flex;align-items:center;gap:8px;padding:12px 16px 8px;border-bottom:1px solid var(--divider)"><svg width="14" height="14" aria-hidden="true"><use href="#i-filter"></use></svg><h2 id="pj-filtros-title" style="margin:0;font-size:14px;font-weight:700">Filtros</h2><sc-if value="{{ pjTemAtivos }}"><span style="border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700;background:var(--info-soft);color:var(--info)">{{ pjAtivos }}</span></sc-if></div>
+            <div onKeyDown="{{ pjOnKeyFiltro }}" style="padding:12px 24px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px 16px;align-items:start">
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ink-2)">Id do projeto<input inputmode="numeric" value="{{ pjF.registro }}" onChange="{{ pjSetRegistro }}" placeholder="Ex.: 3278" style="width:100%;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--input);padding:0 12px;font-size:14px;font-weight:400;color:var(--ink);outline:0"></label>
+              <label style="grid-column:span 2;min-width:0;display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ink-2)">Nome do projeto<span style="position:relative;display:block"><svg width="14" height="14" aria-hidden="true" style="position:absolute;left:11px;top:11px;color:var(--ink-3)"><use href="#i-search"></use></svg><input value="{{ pjF.nome }}" onChange="{{ pjSetNome }}" placeholder="Busque por parte do nome..." style="width:100%;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--input);padding:0 12px 0 32px;font-size:14px;font-weight:400;color:var(--ink);outline:0"></span></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ink-2)">Setor<span style="position:relative;display:block"><select value="{{ pjF.setor }}" onChange="{{ pjSetSetor }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--input);padding:0 34px 0 12px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer"><option value="">Todos</option><sc-for list="{{ pjSetores }}" as="st"><option value="{{ st }}">{{ st }}</option></sc-for></select><svg width="14" height="14" aria-hidden="true" style="position:absolute;right:12px;top:11px;color:var(--ink-3);pointer-events:none"><use href="#i-updown"></use></svg></span></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ink-2)">Status<span style="position:relative;display:block"><select value="{{ pjF.status }}" onChange="{{ pjSetStatus }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--input);padding:0 34px 0 12px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer"><option value="">Todos</option><option value="ABERTO">Aberto</option><option value="FECHADO">Fechado</option></select><svg width="14" height="14" aria-hidden="true" style="position:absolute;right:12px;top:11px;color:var(--ink-3);pointer-events:none"><use href="#i-updown"></use></svg></span></label>
+              <div style="position:relative;display:flex;flex-direction:column;gap:6px;z-index:{{ pjMesZ }}">
+                <span id="pj-mes-lbl" style="font-size:14px;font-weight:600;color:var(--ink-2)">Mês</span>
+                <button type="button" onClick="{{ pjMesToggle }}" aria-haspopup="dialog" aria-expanded="{{ pjMesOpen }}" aria-labelledby="pj-mes-lbl pj-mes-val" style="display:flex;align-items:center;gap:8px;width:100%;height:36px;border:1px solid {{ pjMesBd }};border-radius:8px;background:var(--input);padding:0 10px 0 12px;font-size:14px;font-weight:600;color:{{ pjMesInk }};cursor:pointer;text-align:left"><svg width="14" height="14" aria-hidden="true" style="color:var(--ink-3);flex:none"><use href="#i-calendar"></use></svg><span id="pj-mes-val" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pjMesLabel }}</span><svg width="14" height="14" aria-hidden="true" style="color:var(--ink-3);flex:none"><use href="#i-chev"></use></svg></button>
+                <sc-if value="{{ pjMesOpen }}">
+                  <div onMouseDown="{{ pjMesFechar }}" style="position:fixed;inset:0;z-index:5"></div>
+                  <div role="dialog" aria-label="Escolher mês" style="position:absolute;top:66px;left:0;z-index:6;width:264px;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-pop);padding:12px;display:flex;flex-direction:column;gap:10px">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                      <button type="button" onClick="{{ pjAnoAnt }}" aria-label="Ano anterior" style="width:30px;height:30px;border:0;background:none;border-radius:6px;display:grid;place-items:center;color:var(--ink);cursor:pointer" style-hover="background:var(--muted)"><svg width="14" height="14" aria-hidden="true" style="transform:rotate(180deg)"><use href="#i-chevr"></use></svg></button>
+                      <b aria-live="polite" style="font-size:14px">{{ pjMesAno }}</b>
+                      <button type="button" onClick="{{ pjAnoProx }}" aria-label="Próximo ano" style="width:30px;height:30px;border:0;background:none;border-radius:6px;display:grid;place-items:center;color:var(--ink);cursor:pointer" style-hover="background:var(--muted)"><svg width="14" height="14" aria-hidden="true"><use href="#i-chevr"></use></svg></button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+                      <sc-for list="{{ pjMeses }}" as="m" hint-placeholder-count="12"><sc-if value="{{ m.on }}"><button type="button" onClick="{{ m.go }}" aria-pressed="true" aria-label="{{ m.nome }}" style="height:34px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:#fff;font-size:13px;font-weight:600;cursor:pointer">{{ m.curto }}</button></sc-if><sc-if value="{{ m.off }}"><button type="button" onClick="{{ m.go }}" aria-pressed="false" aria-label="{{ m.nome }}" style="height:34px;border:1px solid {{ m.bd }};border-radius:6px;background:transparent;color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;transition:background .12s" style-hover="background:var(--muted)">{{ m.curto }}</button></sc-if></sc-for>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;border-top:1px solid var(--divider);padding-top:8px"><button type="button" onClick="{{ pjMesEste }}" style="border:0;background:none;padding:2px;font-size:12px;font-weight:700;color:var(--info);cursor:pointer" style-hover="text-decoration:underline">Este mês</button><button type="button" onClick="{{ pjMesLimpar }}" style="border:0;background:none;padding:2px;font-size:12px;font-weight:700;color:var(--ink-3);cursor:pointer" style-hover="text-decoration:underline">Todos os meses</button></div>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="display:flex;align-self:start;padding-top:26px"><button type="button" onClick="{{ pjFiltrar }}" disabled="{{ pjFiltrarOff }}" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 16px;border:1px solid {{ pjFiltrarBg }};background:{{ pjFiltrarBg }};color:#fff;border-radius:8px;font-size:14px;font-weight:700;cursor:{{ pjFiltrarCursor }}"><svg width="14" height="14" aria-hidden="true"><use href="#i-search"></use></svg>Filtrar</button></div>
+            </div>
+          </section>
+
           <section style="background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-card);min-width:0">
             <div style="display:flex;align-items:center;gap:8px;padding:16px 16px 8px;border-bottom:1px solid var(--divider)"><svg width="14" height="14" aria-hidden="true"><use href="#i-folder"></use></svg><h2 style="margin:0;font-size:14px;font-weight:700">Listagem de Projetos</h2><span style="margin-left:auto;font-size:12px;color:var(--ink-3)">{{ pjCount }}</span></div>
+            <sc-if value="{{ pjSemFiltro }}"><div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:56px 16px;text-align:center"><span style="width:48px;height:48px;border-radius:50%;background:var(--muted);display:grid;place-items:center;color:var(--ink-3)"><svg width="22" height="22" aria-hidden="true"><use href="#i-folder"></use></svg></span><p style="margin:6px 0 0;font-weight:700">Nenhum filtro aplicado</p><p style="margin:0;color:var(--ink-3)">Selecione os filtros e clique em Filtrar para visualizar os projetos.</p></div></sc-if>
+            <sc-if value="{{ pjSemResultado }}"><div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:56px 16px;text-align:center"><span style="width:48px;height:48px;border-radius:50%;background:var(--muted);display:grid;place-items:center;color:var(--ink-3)"><svg width="22" height="22" aria-hidden="true"><use href="#i-filterx"></use></svg></span><p style="margin:6px 0 0;font-weight:700">Nenhum projeto encontrado</p><p style="margin:0;color:var(--ink-3)">Ajuste os filtros: nenhum projeto corresponde aos critérios.</p></div></sc-if>
+            <sc-if value="{{ pjTemRows }}">
             <div style="overflow-x:auto"><div style="min-width:760px">
               <div style="display:grid;grid-template-columns:{{ pjCols }};align-items:center;font-size:14px;font-weight:600;border-bottom:1px solid var(--line)">
                 <span style="padding:12px 20px">ID / Nome do projeto</span><span style="padding:12px 20px">Data de início</span><span style="padding:12px 20px">Data de fim</span><span style="padding:12px 20px">Status</span><span style="padding:12px 20px;text-align:right">Ações</span>
@@ -1233,6 +1265,7 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
                 </div>
               </sc-for>
             </div></div>
+            </sc-if>
           </section>
         </div>
       </sc-if>
@@ -1746,6 +1779,23 @@ const PJ_RAW = [
   [3198, 'Sustentação Smart', 'SQUAD XP', 'JOAO PESSOA', 'OPERACIONAL', 'ABERTO', '2026-01-02', '2026-12-31']
 ];
 const PJ_CLASSE = { ESTRATEGICO: 'Estratégico', TATICO: 'Tático', OPERACIONAL: 'Operacional' };
+// Filtros da listagem: espelham GET /sgp-cadastros?Registro=&NomeProjeto=&Setor=&Status=&data_inicio=&data_fim=
+const PJ_SETORES = ['SQUAD CLOUD', 'SQUAD Fiscal', 'SQUAD WEB', 'SQUAD XP'];
+// Padrão ao abrir e ao limpar: setor do usuário logado (no app: getUser()) + mês atual, já aplicados.
+const PJ_SETOR_USUARIO = 'SQUAD XP';
+const PJ_FILTRO_VAZIO = () => ({ registro: '', nome: '', setor: '', status: '', mes: '' });
+const PJ_FILTRO_PADRAO = () => ({ ...PJ_FILTRO_VAZIO(), setor: PJ_SETOR_USUARIO, mes: `${NOW.getFullYear()}-${pad(NOW.getMonth() + 1)}` });
+const PJ_MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+const pjTemFiltro = f => Object.values(f).some(v => String(v).trim());
+// Mês 'AAAA-MM' → data_inicio = 1º dia e data_fim = último dia do mês.
+const pjMesIntervalo = mes => { const [a, m] = mes.split('-').map(Number), ult = new Date(a, m, 0).getDate(); return [`${mes}-01`, `${mes}-${pad(ult)}`]; };
+const pjMesNome = mes => { const [a, m] = mes.split('-').map(Number); return `${PJ_MESES[m - 1]} de ${a}`; };
+// Regra no protótipo: projeto que começa e termina dentro do mês (confirmar na Fase 0).
+const pjFiltra = (p, f) => { const [ini, fim] = f.mes ? pjMesIntervalo(f.mes) : ['', ''];
+  return (!f.registro.trim() || String(p.id) === f.registro.trim())
+    && (!f.nome.trim() || p.nome.toLowerCase().includes(f.nome.trim().toLowerCase()))
+    && (!f.setor || p.setor === f.setor) && (!f.status || p.status === f.status)
+    && (!ini || (p.ini >= ini && p.fim <= fim)); };
 const PJ_ST = { ABERTO: ['Aberto', 'var(--info-soft)', 'var(--info)'], FECHADO: ['Fechado', 'var(--ok-soft)', 'var(--ok)'] };
 const pjBr = s => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? `${m[3]}/${m[2]}/${m[1]}` : '—'; };
 const pjDias = (a, b) => { const x = Date.parse(a + 'T00:00:00'), y = Date.parse(b + 'T00:00:00'); return isNaN(x) || isNaN(y) ? null : Math.round((y - x) / DAY) + 1; };
@@ -1843,11 +1893,13 @@ class Component extends DCLogic {
     rItems: REPORTS.slice(), rLoaded: false, rLoading: false, rSev: [], rPrazo: '', rCat: '', rProd: [], rSort: 'prazo', rView: 'lista',
     rExp: { 101395: true }, rSel: null, rSus: {}, rSusTxt: {}, rFOpen: true, lastRemoved: null,
     avTab: 'nao', avSel: null, avPeriodo: 'este_mes', avMsgs: AV_MSGS.map(m => ({ ...m })), avNovo: null, aaMarcando: null,
-    projetos: PJ_RAW.map(([id, nome, setor, pdv, classe, status, ini, fim]) => ({ id, nome, setor, pdv, classe, status, ini, fim, tipo: 'PROJETO', origem: null })), pjClone: null, pjNovo: null, pjEditId: null, pjTab: 'stakes', stkRows: stkSeed(), stkSaving: false, stkImp: null, ...CASOS_STATE()
+    projetos: PJ_RAW.map(([id, nome, setor, pdv, classe, status, ini, fim]) => ({ id, nome, setor, pdv, classe, status, ini, fim, tipo: 'PROJETO', origem: null })), pjClone: null, pjNovo: null,
+    pjF: PJ_FILTRO_PADRAO(), pjAplic: PJ_FILTRO_PADRAO(), pjMesOpen: false, pjMesAno: NOW.getFullYear(), pjEditId: null, pjTab: 'stakes', stkRows: stkSeed(), stkSaving: false, stkImp: null, ...CASOS_STATE()
   };
   componentDidMount() {
     this.onResize = () => this.setState({ vw: window.innerWidth });
     this.onKey = e => {
+      if (e.key === 'Escape' && this.state.pjMesOpen) { this.setState({ pjMesOpen: false }); return; }
       if (e.key === 'Escape' && this.state.stkImp && !this.state.cf) { this.setState({ stkImp: null }); return; }
       if (this.state.screen === 'projetoEdit' && this.state.pjTab === 'stakes' && !this.state.cf && !this.state.stkImp) {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); this.stkSalvar(); return; }
@@ -2261,15 +2313,38 @@ class Component extends DCLogic {
     this.setState({ pjClone: { srcId: id, nome: `${p.nome} - Clone`, ini, fim: pjAdd(ini, n - 1), tried: false, saving: false, apiErr: '' } });
   }
   pjVals(st, isMobile) {
-    const all = st.projetos, cols = 'minmax(300px,1fr) 150px 150px 130px 104px';
-    const pjRows = all.map(p => { const ps = PJ_ST[p.status] || ['—', 'var(--muted)', 'var(--ink-2)'], novo = st.pjNovo === p.id;
+    const cols = 'minmax(300px,1fr) 150px 150px 130px 104px', fa = st.pjAplic, ff = st.pjF, aplicado = pjTemFiltro(fa);
+    const all = st.projetos, lista = aplicado ? all.filter(p => pjFiltra(p, fa) || p.id === st.pjNovo) : [];
+    const podeFiltrar = pjTemFiltro(ff);
+    const filtrar = () => { if (!podeFiltrar) return; this.setState(s => ({ pjAplic: { ...s.pjF, registro: s.pjF.registro.trim(), nome: s.pjF.nome.trim() }, pjNovo: null, pjMesOpen: false })); };
+    const hoje = `${NOW.getFullYear()}-${pad(NOW.getMonth() + 1)}`, ano = st.pjMesAno;
+    const setMes = v => this.setState(s => ({ pjF: { ...s.pjF, mes: v }, pjMesOpen: false }));
+    const setF = k => e => { const v = k === 'registro' ? e.target.value.replace(/\D/g, '').slice(0, 8) : e.target.value; this.setState(s => ({ pjF: { ...s.pjF, [k]: v } })); };
+    const nAtivos = Object.values(fa).filter(v => String(v).trim()).length;
+    const filtros = {
+      pjF: ff, pjSetRegistro: setF('registro'), pjSetNome: setF('nome'), pjSetSetor: setF('setor'), pjSetStatus: setF('status'), pjSetIni: setF('ini'), pjSetFim: setF('fim'),
+      pjSetores: PJ_SETORES,
+      pjMesOpen: st.pjMesOpen, pjMesZ: st.pjMesOpen ? 20 : 'auto', pjMesAno: ano, pjTemMes: !!ff.mes,
+      pjMesLabel: ff.mes ? pjMesNome(ff.mes) : 'Todos os meses', pjMesInk: ff.mes ? 'var(--ink)' : 'var(--ink-3)', pjMesBd: st.pjMesOpen ? 'var(--primary)' : 'var(--border)',
+      pjMesToggle: () => this.setState(s => ({ pjMesOpen: !s.pjMesOpen, pjMesAno: s.pjF.mes ? +s.pjF.mes.slice(0, 4) : NOW.getFullYear() })),
+      pjMesFechar: () => this.setState({ pjMesOpen: false }),
+      pjAnoAnt: () => this.setState(s => ({ pjMesAno: s.pjMesAno - 1 })), pjAnoProx: () => this.setState(s => ({ pjMesAno: s.pjMesAno + 1 })),
+      pjMeses: PJ_MESES.map((nm, i) => { const v = `${ano}-${pad(i + 1)}`, on = ff.mes === v, atual = v === hoje;
+        return { curto: nm.slice(0, 3), nome: `${nm} de ${ano}`, on, bg: on ? 'var(--primary)' : 'transparent', off: !on, ink: on ? '#fff' : 'var(--ink)', bd: atual && !on ? 'var(--primary)' : 'transparent', go: () => setMes(v) }; }),
+      pjMesEste: () => { this.setState({ pjMesAno: NOW.getFullYear() }); setMes(hoje); }, pjMesLimpar: () => setMes(''),
+      pjFiltrar: filtrar, pjFiltrarOff: !podeFiltrar, pjFiltrarBg: podeFiltrar ? 'var(--primary)' : 'var(--ink-4)', pjFiltrarCursor: podeFiltrar ? 'pointer' : 'not-allowed',
+      pjOnKeyFiltro: e => { if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT') { e.preventDefault(); filtrar(); } },
+      pjAtivos: nAtivos ? `${nAtivos} ${nAtivos === 1 ? 'filtro aplicado' : 'filtros aplicados'}` : '', pjTemAtivos: nAtivos > 0,
+      pjSemFiltro: !aplicado, pjSemResultado: aplicado && !lista.length, pjTemRows: lista.length > 0
+    };
+    const pjRows = lista.map(p => { const ps = PJ_ST[p.status] || ['—', 'var(--muted)', 'var(--ink-2)'], novo = st.pjNovo === p.id;
       return { id: p.id, nome: p.nome, cols, isNovo: novo, bg: novo ? 'var(--yellow-soft)' : 'transparent',
         hasOrigem: !!p.origem, origem: p.origem ? `Clonado do projeto #${p.origem}` : '',
         iniBr: pjBr(p.ini), fimBr: pjBr(p.fim), stL: ps[0], stBg: ps[1], stC: ps[2],
         cloneLabel: `Clonar o projeto ${p.nome}`, editLabel: `Editar o projeto ${p.nome}`,
         clonar: () => this.pjAbrirClone(p.id), editar: () => this.pjAbrirEdicao(p.id) }; });
-    const base = { isProjetos: st.screen === 'projetos', pjRows, pjCols: cols, pjCount: `${all.length} projetos`, pjBtnFlex: isMobile ? '1 1 100%' : '0 0 auto',
-      pjLimpar: () => this.toast('Filtros de setor e ID ficam como no app'), pjNovoProjeto: () => this.toast('Abre o cadastro (/projetos/novo) no app') };
+    const base = { ...filtros, isProjetos: st.screen === 'projetos', pjRows, pjCols: cols, pjCount: aplicado ? `${lista.length} ${lista.length === 1 ? 'projeto' : 'projetos'}` : '', pjBtnFlex: isMobile ? '1 1 100%' : '0 0 auto',
+      pjLimpar: () => this.setState({ pjF: PJ_FILTRO_PADRAO(), pjAplic: PJ_FILTRO_PADRAO(), pjNovo: null, pjMesOpen: false }), pjNovoProjeto: () => this.toast('Abre o cadastro (/projetos/novo) no app') };
     const c = st.pjClone, src = c ? all.find(p => p.id === c.srcId) : null;
     if (!c || !src) return { ...base, pjcOn: false, pjcF: {}, pjcSrc: {} };
     const nome = c.nome.trim(), dur = c.ini && c.fim ? pjDias(c.ini, c.fim) : null;

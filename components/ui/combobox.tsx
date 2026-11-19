@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronDown, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -276,16 +276,19 @@ export function Combobox({
       aria-expanded={open}
       disabled={disabled}
       className={cn(
-        "w-full justify-between h-9",
+        // Mesmo visual do SelectTrigger: fundo transparente, sem fundo no hover, texto normal, px-3.
+        "w-full justify-between h-9 px-3 font-normal bg-transparent hover:bg-transparent dark:bg-transparent",
+        value
+          ? "text-foreground hover:text-foreground"
+          : "hover:text-muted-foreground",
         useAnchorLayout
           ? // Em modo âncora o "chrome" (borda/sombra/hover/ring/altura) fica no
             // container para que gatilho + suffix pareçam um único controle.
             // O gatilho estica (h-full) em vez de impor a própria altura, senão
             // somaria a borda do container e o controle ficaria mais alto.
             "h-full rounded-none border-0 bg-transparent pr-0 shadow-none hover:bg-transparent focus-visible:ring-0 dark:bg-transparent"
-          : value
-            ? "pr-0"
-            : "rounded-lg",
+          : // Sem botão de limpar: mantém o px-3 dos dois lados (a seta fica no lugar do Select).
+            "rounded-lg",
         !value && "text-muted-foreground",
         // No modo âncora, className (altura/borda/etc.) é aplicado ao container,
         // não ao gatilho — assim a altura não soma com a borda do container.
@@ -298,12 +301,16 @@ export function Combobox({
           : placeholder}
       </span>
 
-      <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+      <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
     </Button>
   );
 
   return (
     <Popover
+      // Modal: a lista abre num portal fora do Dialog, e a trava de rolagem do Dialog bloqueava a
+      // roda do mouse nela. Com `modal`, a trava ativa passa a ser a do Popover (lista liberada),
+      // como no Select.
+      modal
       open={disabled ? false : open}
       onOpenChange={disabled ? undefined : handleOpenChange}
     >
@@ -311,10 +318,8 @@ export function Combobox({
         <PopoverAnchor asChild>
           <div
             className={cn(
-              "flex w-full min-w-0 items-stretch overflow-hidden rounded-lg border border-input bg-background shadow-sm transition-colors",
-              disabled
-                ? "opacity-50"
-                : "hover:bg-accent/50 focus-within:ring-1 focus-within:ring-ring dark:hover:bg-accent/10",
+              "flex w-full min-w-0 items-stretch overflow-hidden rounded-lg border border-input bg-transparent shadow-sm transition-colors",
+              disabled ? "opacity-50" : "focus-within:ring-1 focus-within:ring-ring",
               className,
               anchorClassName,
             )}

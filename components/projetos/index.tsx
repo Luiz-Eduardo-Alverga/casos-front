@@ -15,7 +15,7 @@ import type { SgpCadastroData } from "@/interfaces/sgp-cadastro";
 
 export function Projetos() {
   const router = useRouter();
-  const { filtrosAplicados, aplicarFiltros, limparFiltros } =
+  const { filtrosAplicados, aplicarFiltros, limparFiltros, aguardandoPadrao } =
     useProjetosFiltros();
   const canCreateProject =
     !permissionsLoaded() || hasPermission("create-project");
@@ -60,6 +60,7 @@ export function Projetos() {
       />
       <ProjetosTabela
         filtros={filtrosAplicados}
+        aguardandoPadrao={aguardandoPadrao}
         onClonar={canCloneProject ? setOrigemClone : undefined}
         destaque={destaque}
       />

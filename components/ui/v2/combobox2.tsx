@@ -11,7 +11,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/v2/input-group";
-import { ChevronsUpDown, XIcon, Check } from "lucide-react";
+import { ChevronDown, XIcon, Check } from "lucide-react";
 
 /** Ref do campo (input ou chips); usado como anchor padrão para largura do popup */
 const ComboboxInputAnchorContext =
@@ -42,7 +42,7 @@ function ComboboxTrigger({
       {...props}
     >
       {children}
-      <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 pointer-events-none" />
+      <ChevronDown className="h-4 w-4 shrink-0 opacity-50 pointer-events-none" />
     </ComboboxPrimitive.Trigger>
   );
 }
@@ -77,7 +77,8 @@ function ComboboxInput({
   const group = (
     <InputGroup
       className={cn(
-        "w-full h-9 min-h-9 border-input bg-background shadow-sm hover:bg-accent/50 dark:hover:bg-accent/10",
+        // Mesmo visual do SelectTrigger: fundo transparente e sem fundo no hover.
+        "w-full h-9 min-h-9 border-input bg-transparent shadow-sm dark:bg-transparent",
         className,
       )}
     >
@@ -263,7 +264,8 @@ function ComboboxChips({
     <ComboboxPrimitive.Chips
       data-slot="combobox-chips"
       className={cn(
-        "flex h-[42px] flex-wrap items-center gap-1 rounded-lg border border-input bg-background px-2.5 py-1 text-sm shadow-sm transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-background",
+        // Mesmo visual do SelectTrigger: fundo transparente e anel de foco de 1px.
+        "flex h-[42px] flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring has-aria-invalid:border-destructive has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-transparent",
         className,
       )}
       {...props}

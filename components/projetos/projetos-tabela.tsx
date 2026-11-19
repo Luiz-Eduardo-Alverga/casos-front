@@ -22,12 +22,15 @@ interface ProjetosTabelaProps {
   filtros: ProjetosFiltrosAplicados;
   onClonar?: (item: SgpCadastroData) => void;
   destaque?: ProjetoClonadoDestaque | null;
+  /** Padrão (setor do usuário + mês atual) ainda sendo gravado na URL: mostra skeleton. */
+  aguardandoPadrao?: boolean;
 }
 
 export function ProjetosTabela({
   filtros,
   onClonar,
   destaque,
+  aguardandoPadrao = false,
 }: ProjetosTabelaProps) {
   const { data: setores } = useSetores();
   const hasFilters = useMemo(() => hasFiltersApplied(filtros), [filtros]);
@@ -91,7 +94,9 @@ export function ProjetosTabela({
         </div>
       </CardHeader>
       <CardContent className="p-6 pt-3">
-        {!hasFilters ? (
+        {aguardandoPadrao ? (
+          <ProjetosTabelaSkeleton />
+        ) : !hasFilters ? (
           <EmptyState
             imageSrc="/images/empty-state-casos-produto.svg"
             imageAlt="Nenhum filtro aplicado"

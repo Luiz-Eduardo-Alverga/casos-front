@@ -110,6 +110,10 @@ export async function GET(request: Request) {
       const objetivo_id = url.searchParams.get("objetivo_id") ?? undefined;
       const per_page = url.searchParams.get("per_page") ?? undefined;
       const cursor = url.searchParams.get("cursor") ?? undefined;
+      const nomeProjeto = url.searchParams.get("NomeProjeto")?.trim() || undefined;
+      const status = url.searchParams.get("Status")?.trim() || undefined;
+      const dataInicio = url.searchParams.get("data_inicio")?.trim() || undefined;
+      const dataFim = url.searchParams.get("data_fim")?.trim() || undefined;
 
       const response = await api.get("/sgp-cadastros", {
         params: {
@@ -118,6 +122,10 @@ export async function GET(request: Request) {
           ...(objetivo_id ? { objetivo_id } : {}),
           ...(per_page ? { per_page } : {}),
           ...(cursor !== undefined ? { cursor } : {}),
+          ...(nomeProjeto ? { NomeProjeto: nomeProjeto } : {}),
+          ...(status ? { Status: status } : {}),
+          ...(dataInicio ? { data_inicio: dataInicio } : {}),
+          ...(dataFim ? { data_fim: dataFim } : {}),
         },
         headers: authHeaders,
       });

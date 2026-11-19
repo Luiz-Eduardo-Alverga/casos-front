@@ -31,7 +31,7 @@ import type {
 
 export const STAKES_LISTA_COLUNAS = 8;
 
-const CAMPO_CLASS = "h-8 rounded-md border-border-input px-2 text-sm";
+const CAMPO_CLASS = "h-8 rounded-lg border-border-input px-2 text-sm";
 
 const FAIXA_STATUS: Record<StakeLinhaStatus, string> = {
   nova: "bg-status-info",
@@ -187,7 +187,7 @@ export function StakeLinha({
             render={({ field }) => (
               <div
                 className={cn(
-                  "rounded-md",
+                  "rounded-lg",
                   campoErro.colaboradorId && "ring-1 ring-destructive",
                 )}
               >
