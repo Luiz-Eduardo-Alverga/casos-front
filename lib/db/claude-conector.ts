@@ -3,6 +3,7 @@ import { db } from "@/db";
 import {
   appUsers,
   claudeConexoes,
+  claudePreviasCaso,
   oauthClientes,
   oauthCodigos,
 } from "@/db/schema";
@@ -186,6 +187,63 @@ export async function revogarConexoesDoUsuario(
     )
     .returning({ id: claudeConexoes.id });
   return rows.length;
+}
+
+/* ─── Prévias de caso ────────────────────────────────────────────────────── */
+
+export type ClaudePreviaRow = typeof claudePreviasCaso.$inferSelect;
+
+/** `caso_registro` provisório enquanto a abertura está em andamento (evita caso duplicado). */
+export const PREVIA_ABRINDO = -1;
+
+export async function insertPrevia(input: {
+  id: string;
+  conexaoId: string;
+  payload: Record<string, unknown>;
+  resumo: Record<string, unknown>;
+  expiraEm: Date;
+}): Promise<ClaudePreviaRow> {
+  const [row] = await db.insert(claudePreviasCaso).values(input).returning();
+  return row;
+}
+
+export async function getPreviaDaConexao(
+  id: string,
+  conexaoId: string,
+): Promise<ClaudePreviaRow | null> {
+  const [row] = await db
+    .select()
+    .from(claudePreviasCaso)
+    .where(
+      and(
+        eq(claudePreviasCaso.id, id),
+        eq(claudePreviasCaso.conexaoId, conexaoId),
+      ),
+    )
+    .limit(1);
+  return row ?? null;
+}
+
+/** Reserva a prévia para abertura (atômico). Devolve false se outra chamada já reservou/abriu. */
+export async function reservarPreviaParaAbertura(id: string): Promise<boolean> {
+  const rows = await db
+    .update(claudePreviasCaso)
+    .set({ casoRegistro: PREVIA_ABRINDO })
+    .where(
+      and(eq(claudePreviasCaso.id, id), isNull(claudePreviasCaso.casoRegistro)),
+    )
+    .returning({ id: claudePreviasCaso.id });
+  return rows.length > 0;
+}
+
+export async function setPreviaCasoRegistro(
+  id: string,
+  casoRegistro: number | null,
+): Promise<void> {
+  await db
+    .update(claudePreviasCaso)
+    .set({ casoRegistro })
+    .where(eq(claudePreviasCaso.id, id));
 }
 
 /* ─── Códigos de autorização ─────────────────────────────────────────────── */
