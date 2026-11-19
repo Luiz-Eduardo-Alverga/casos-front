@@ -49,7 +49,7 @@ No dia a dia (roteiro da conversa, sem tela nova no Softflow):
    dois "Fulano" no catálogo).
 3. O Claude mostra a prévia e pergunta se pode abrir. Ajustes geram uma prévia nova.
 4. Com o "pode abrir", o Claude chama `softflow_abrir_caso` com o código da prévia. O caso é
-   criado exatamente como na prévia (decisão #6), o dev recebe a DM no Discord como na tela, e a
+   criado exatamente como na prévia (decisão #6), o dev recebe a DM no Discord com a mesma regra da tela (só caso "Não planejado"), e a
    ferramenta devolve o número e o link `https://softflow.hostsoftcom.cloud/casos/<registro>`.
 5. Com o número, o Claude pode seguir a skill `planejar-softcom` e atualizar a linha "Caso" da
    Ficha no Brainiac.
@@ -224,7 +224,7 @@ parênteses. Todas com `readOnlyHint` correto (só `softflow_abrir_caso` escreve
 | `softflow_eu` | — | Nome, registro, setor, se pode abrir caso, e os projetos abertos do setor (para sugerir o padrão) | conexão válida |
 | `softflow_buscar_opcoes` | `tipo` (`produto` \| `versao` \| `modulo` \| `projeto` \| `pessoa` \| `categoria` \| `importancia` \| `origem`), `busca?`, `produto_id?` (obrigatório em `versao` e `modulo`) | Até 15 opções com id e nome, a partir das rotas `/auxiliar/*` que a tela usa | conexão válida |
 | `softflow_preparar_caso` | campos do caso (abaixo) | Resolve e valida, aplica os padrões, grava a prévia e devolve o texto da prévia + `codigo_previa` (15 min). Não cria nada | `create-case` |
-| `softflow_abrir_caso` | `codigo_previa` | Cria o caso com o payload da prévia, dispara a DM do Discord e devolve número e link. Código já usado devolve o mesmo caso, sem criar outro (decisão #6) | `create-case` |
+| `softflow_abrir_caso` | `codigo_previa` | Cria o caso com o payload da prévia, dispara a DM do Discord quando `nao_planejado` (mesma regra da tela) e devolve número e link. Código já usado devolve o mesmo caso, sem criar outro (decisão #6) | `create-case` |
 | `softflow_consultar_caso` | `registro` | Resumo do caso: produto, versão, projeto, status, dev, QA, resumo e link (`/projeto-memoria/{id}`) | `list-case` |
 
 Campos de `softflow_preparar_caso` (espelham o `casoCreateFormSchema`):
@@ -398,7 +398,7 @@ Resposta (2026-11-19, Claude Code): B. O endereço atual é `https://softflow.ho
 ## Andamento da implementação
 
 - [x] Fase 0 (2026-11-19); P3 respondida, P1 e P2 abertas
-- [x] Parte 1: refatoração sem mudança de comportamento (2026-11-19). `lib/casos/versao-produto.ts`, `lib/casos/payload.ts` (os arquivos de `components/casos/shared/` reexportam), `lib/casos/criar-caso.ts` e `lib/auxiliar/catalogos.ts`. Catálogos conferidos na tela `/casos/novo` (2026-11-19, todas as rotas `/api/auxiliar/*` do formulário com 200); abertura conferida com o caso de teste 104140 (produto Softflow, projeto 3316, `POST /api/projeto-casos` → 201). A DM do Discord depende de conferência no Discord
+- [x] Parte 1: refatoração sem mudança de comportamento (2026-11-19). `lib/casos/versao-produto.ts`, `lib/casos/payload.ts` (os arquivos de `components/casos/shared/` reexportam), `lib/casos/criar-caso.ts` e `lib/auxiliar/catalogos.ts`. Catálogos conferidos na tela `/casos/novo` (2026-11-19, todas as rotas `/api/auxiliar/*` do formulário com 200); abertura conferida com o caso de teste 104140 (produto Softflow, projeto 3316, `POST /api/projeto-casos` → 201). A DM só sai para caso "Não planejado" (`shouldNotifyDiscordOnCreate`, regra mantida); segundo teste com `NaoPlanejado: 1`, caso 104141 → 201, DM a conferir no Discord
 - [ ] Parte 2: banco e OAuth (depende da P1)
 - [ ] Parte 3: tela de autorização
 - [ ] Parte 4: servidor MCP e ferramentas (depende da P2)
