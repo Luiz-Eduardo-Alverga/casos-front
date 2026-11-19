@@ -49,7 +49,10 @@ coberto.
   `/projetos` e `/casos`, temas claro e escuro. Afeta todas as telas com combobox; não conferidas
   uma a uma. Na mesma linha, `Input`, `Textarea` e o campo de data (`input-group` +
   `DatePickerInput`) passaram a radius 8px, fundo transparente e `shadow-sm`, e a data perdeu o
-  `font-medium`; medido igual em `/casos` e `/projetos/novo`. Ver
+  `font-medium`; medido igual em `/casos` e `/projetos/novo`. O `Label` base virou `block` sem `leading-none`, o que alinhou Tipo e Usuário no modal
+  de editar Produção (antes 4px de diferença); verificador de alinhamento sem achados em `/casos`,
+  `/casos/novo`, caso 104108 (com o modal), `/projetos`, `/projetos/novo`, `/projetos/3315`,
+  `/produtos`, `/reports/novo` e `/liberacoes`. Ver
   [`design-system.md`](design-system.md).
 - **Avisos: aviso automático (bloqueante)** (2026-11-18, na `dev`). Aviso não lido com `auto`,
   enviado nos últimos 7 dias, abre numa janela sem X sobre qualquer tela do dashboard, um por vez

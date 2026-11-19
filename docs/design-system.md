@@ -246,6 +246,11 @@ Não usar `mb-4` por aba no lugar de `pb-12`/`pb-24`. Referências:
   têm radius 8px (`rounded-lg`) na base, fundo transparente e `shadow-sm`; o texto da data é
   regular. Ajustado em 2026-11-19 (antes: `rounded-md` 6px, e o grupo da data com `bg-background`,
   `dark:bg-input/30` e `shadow-xs`, classe que não existe no Tailwind do projeto).
+- **Rótulo de campo** (`components/ui/label.tsx`): `block`, `text-sm` com a altura de linha dele (20px),
+  sem `leading-none`. Assim o `Label` solto acima de um campo tem a mesma altura do rótulo dos campos
+  de `@/components/fields` e do `ComboboxField`, e campos lado a lado ficam alinhados. Ajustado em
+  2026-11-19: como `inline`, o rótulo ocupava uma linha de 24px, e o Tipo do modal de editar
+  Produção ficava 4px abaixo do Usuário.
 - **Tabelas:** fundo branco, separador `border-divider`, células `py-3 px-2.5`, sem zebra.
 - **Badges:** pílulas da seção 2.4; contadores compactos (~36×28px).
 - **Tabs:** sublinhado ou pill discreto.
