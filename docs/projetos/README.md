@@ -284,7 +284,13 @@ Fase 0 concluída em 2026-11-19 (decisões #10 a #12). Detalhes decididos pelo C
   Perguntas 3 e 5 respondidas pelo teste (tabela no contrato); 2 e 4 viraram P4 e P5. Validação:
   `npm run build` ok e `eslint` nos arquivos novos ok (o `npm run lint` do repositório está quebrado:
   `next lint` não existe no Next 16 e a chamada falha com "Invalid project directory").
-- [ ] Parte 2: tela (modal, schema, utils, botão na linha, permissão, destaque da linha nova)
+- [x] Parte 2: tela (modal, schema, utils, botão na linha, permissão, destaque da linha nova).
+  Conferido no navegador em 2026-11-19: padrões (origem 16–30/11 → 01–15/12, 15 dias), erro de
+  ordem das datas, erro da API (período sobreposto, com toast e dados preservados; editar um campo
+  apaga a mensagem), "Clonando..." com Esc bloqueado, sucesso criando o projeto de teste #3315
+  com selo "Novo" e "Clonado do projeto #3278", tema escuro e 390px. O modal usa o `Dialog` do app
+  (centralizado, largura toda no mobile), não o painel preso embaixo do protótipo. Na API de dev
+  o clone levou cerca de 40 s para responder.
 - [ ] Parte 3: fechamento (README no formato padrão, decisões, contexto, status)
 
 ### Fora do escopo
