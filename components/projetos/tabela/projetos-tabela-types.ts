@@ -36,6 +36,15 @@ export interface ProjetosTabelaTableListagemProps {
   itens: SgpCadastroData[];
   isFetchingNextPage: boolean;
   showCheckbox?: boolean;
+  /** Mostra o botão Clonar nas linhas; ausente = sem permissão. */
+  onClonar?: (item: SgpCadastroData) => void;
+  /** Projeto recém-clonado: linha com destaque e selo "Novo". */
+  destaque?: ProjetoClonadoDestaque | null;
+}
+
+export interface ProjetoClonadoDestaque {
+  registro: number;
+  origemRegistro: number;
 }
 
 export interface ProjetosTabelaTableEscopoProps {

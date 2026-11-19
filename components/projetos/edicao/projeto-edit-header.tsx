@@ -29,6 +29,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useDeleteSgpCadastro } from "@/hooks/cadastros/use-delete-sgp-cadastro";
+import { useAlteracoesPendentes } from "@/components/projetos/edicao/shared/alteracoes-pendentes";
 
 const TAB_TRIGGER_CLASS = cn(
   "group shrink-0 rounded-full px-3 py-1.5 text-sm font-medium gap-1.5",
@@ -45,10 +46,6 @@ const TABS = [
   { value: "risco", label: "Risco" },
 ] as const;
 
-function handleEmBreve() {
-  toast("Em breve");
-}
-
 export interface ProjetoEditHeaderProps {
   projetoId: number;
   nomeProjeto?: string;
@@ -56,6 +53,8 @@ export interface ProjetoEditHeaderProps {
   isSaving?: boolean;
   canEdit?: boolean;
   showSalvar?: boolean;
+  /** Abre o modal Clonar projeto; ausente = item "Clonar" some (sem permissão). */
+  onClonar?: () => void;
 }
 
 export function ProjetoEditHeader({
@@ -65,8 +64,10 @@ export function ProjetoEditHeader({
   isSaving = false,
   canEdit = true,
   showSalvar = false,
+  onClonar,
 }: ProjetoEditHeaderProps) {
   const router = useRouter();
+  const { confirmarDescarte } = useAlteracoesPendentes();
   const deleteProjeto = useDeleteSgpCadastro();
   const [excluirProjetoModal, setExcluirProjetoModal] = useState(false);
 
@@ -125,10 +126,12 @@ export function ProjetoEditHeader({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={handleEmBreve}>
-                <Copy className="mr-2 h-4 w-4" />
-                Clonar
-              </DropdownMenuItem>
+              {onClonar ? (
+                <DropdownMenuItem onClick={onClonar}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Clonar
+                </DropdownMenuItem>
+              ) : null}
               <DropdownMenuItem
                 onClick={() => setExcluirProjetoModal(true)}
                 disabled={deleteProjeto.isPending || !canDeleteProject}
@@ -144,7 +147,7 @@ export function ProjetoEditHeader({
             type="button"
             variant="outline"
             className="h-9 min-w-0 flex-1 px-2"
-            onClick={() => router.back()}
+            onClick={() => confirmarDescarte(() => router.back())}
             disabled={isSaving}
           >
             <ArrowLeft className="h-3.5 w-3.5 shrink-0" />

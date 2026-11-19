@@ -135,6 +135,8 @@ function ProjetosTabelaTableListagem({
   itens,
   isFetchingNextPage,
   showCheckbox = false,
+  onClonar,
+  destaque,
 }: ProjetosTabelaTableListagemProps) {
   const headerCells = [
     showCheckbox ? (
@@ -175,7 +177,7 @@ function ProjetosTabelaTableListagem({
     </TableHead>,
     <TableHead
       key="acoes"
-      className="w-[76px] text-right font-medium text-sm text-text-primary h-auto py-4 px-5"
+      className={`${onClonar ? "w-[112px]" : "w-[76px]"} text-right font-medium text-sm text-text-primary h-auto py-4 px-5`}
     >
       Ações
     </TableHead>,
@@ -183,7 +185,14 @@ function ProjetosTabelaTableListagem({
 
   const bodyRows = [
     ...itens.map((item) => (
-      <ProjetosTabelaRowListagem key={item.registro} item={item} />
+      <ProjetosTabelaRowListagem
+        key={item.registro}
+        item={item}
+        onClonar={onClonar}
+        origemClone={
+          destaque?.registro === item.registro ? destaque.origemRegistro : null
+        }
+      />
     )),
     ...(isFetchingNextPage
       ? [<ProjetosTabelaSkeletonRows key="skeleton" count={3} />]

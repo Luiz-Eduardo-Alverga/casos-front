@@ -96,7 +96,12 @@ Navegação em três blocos: **painéis pessoais**, **gerenciar** e **recursos**
 
 ### Projetos e entrega
 
-- **Projetos** (`/projetos`) — listagem, cadastro (`/projetos/novo`) e edição (`/projetos/[id]`) com abas: **Abertura, Escopo, Risco, Stakeholders, Cronograma**. Escopo lista casos/reports da memória do projeto (badges de status, origem caso vs report) e duplica casos para outro projeto: sem seleção, a API leva os elegíveis do projeto; com casos marcados, só esses ids vão em `registros`. Padrão de pastas em `docs/projetos/README.md`.
+- **Projetos** (`/projetos`) — listagem, cadastro (`/projetos/novo`) e edição (`/projetos/[id]`) com abas: **Abertura, Escopo, Risco, Stakeholders, Cronograma**. Escopo lista casos/reports da memória do projeto (badges de status, origem caso vs report) e duplica casos para outro projeto: sem seleção, a API leva os elegíveis do projeto; com casos marcados, só esses ids vão em `registros`. A aba Stakeholders é uma lista editável em linha (estilo planilha): salvar em lote (um POST/PUT por linha, erro por linha), colaborador repetido bloqueado, aviso "Descartar alterações?" ao sair com linhas não salvas, copiar linhas em TSV, colar com Ctrl+V e importar de outro projeto do mesmo setor. Padrão de pastas em `docs/projetos/README.md`.
+  A listagem e o menu ⋯ da edição clonam um projeto (Clonar, permissão `create-project`): modal com nome e
+  período (padrão: próximo período com a mesma duração), `POST /sgp-cadastros/{registro}/clonar`
+  pela rota `app/api/sgp-cadastros/[id]/clonar`. A API copia o cadastro, os usuários autorizados e
+  os stakeholders; não copia casos nem o objetivo, e recusa período sobreposto a outro projeto
+  aberto. A linha nova fica destacada com o selo "Novo".
 - **Liberações** (`/liberacoes`) — registro de release: versões piloto vs final e casos vinculados por produto. Detalhe em `/liberacoes/[registro]` com abas **Liberação** (identidade, piloto, versão final, flags, encerrar), **Casos da versão** e **Checklist**.
 - **Melhorias** (`/melhorias`) — tela de ideias/melhorias por produto, setor e período, disponível na navegação principal.
 

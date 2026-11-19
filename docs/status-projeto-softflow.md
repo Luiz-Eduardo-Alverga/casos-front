@@ -56,6 +56,24 @@ coberto.
   /auxiliar/comunicado-filtros` dava 503 na API de teste, então os filtros foram vistos com a
   resposta simulada no navegador. Falta conferir com o endpoint real e ir para produção
   (atribuir `create-aviso` aos papéis certos). Ver [`avisos/`](avisos/README.md).
+- **Projetos: aba Stakes em lista** (2026-11-19, na `dev`). A aba Stakes de `/projetos/[id]`
+  virou lista editável em linha com salvar em lote, faixas de linha nova/alterada, totais,
+  atalhos (Enter, Ctrl+S), aviso de descarte, copiar linhas (TSV), colar com Ctrl+V e importar de
+  outro projeto do mesmo setor; cards e modal antigos removidos. Testado nos projetos de teste
+  #3315 e #3316 da API de dev: lançamento só pelo teclado, repetido, falha parcial simulada,
+  descarte (aba e link), excluir nova e salva, erro de carga, 390px, copiar (e reserva sem HTTPS),
+  colagem estilo Excel com problemas, importar de projeto fechado com bloqueios. Não exercitado:
+  Ctrl+V real do teclado (conferido com o evento `paste`) e salvar linhas importadas. Falta ir
+  para produção. Ver [`projetos/`](projetos/README.md).
+- **Projetos: clonar projeto** (2026-11-19, na `dev`). Botão Clonar na listagem `/projetos` e
+  item "Clonar" do menu ⋯ da edição `/projetos/[id]` (`create-project`), modal com nome e período,
+  `POST /api/sgp-cadastros/{id}/clonar`; na listagem a linha nova fica destacada com "Novo", na
+  edição a tela abre o projeto novo. Testado na API de dev (clones de teste #3313, #3314, #3315 a
+  partir do 3278 e #3316 a partir do 3315 pela edição): padrões, erro de datas, erro de período
+  sobreposto (422), origem inexistente (404), sucesso com destaque, ida para o projeto novo, tema
+  escuro e 390px. A API levou cerca de 40 s no clone pela tela.
+  Não conferido: se cronograma e riscos são copiados. Falta ir para produção. Ver
+  [`projetos/`](projetos/README.md).
 - **Projetos: seleção de casos ao duplicar o escopo** (2026-11-17, na `dev`). A aba Escopo marca
   casos na tabela. Sem marcação, `POST /api/projeto-casos/transferir-proximo-projeto` segue sem
   `registros` e a API duplica os elegíveis do projeto. Com marcação, envia só esses ids. ESLint dos
@@ -139,6 +157,12 @@ usuário):
 - **Link quebrado** para `db/scripts/reset-supabase-dev.sql` em
   [`camada-de-dados/`](camada-de-dados/README.md) (o arquivo não existe).
 - **Sem testes automatizados**: validação depende de `lint`, `build` e conferência manual.
+- **`npm run lint` quebrado**: o script chama `next lint`, que não existe no Next 16 (falha com
+  "Invalid project directory ... lint"). Enquanto isso, rodar `npx eslint <arquivos>`. Visto em
+  2026-11-19.
+- **Clone de projeto não copia o objetivo**: `POST /sgp-cadastros/{id}/clonar` devolve
+  `objetivo_id: 0` mesmo com a origem preenchida (3278 tem 65). Precisa de ajuste no backend; até
+  lá o modal avisa (decisão #14 de [`projetos/`](projetos/decisoes.md)).
 
 ## 📋 Backlog consciente (decisão sua, não esquecimento)
 

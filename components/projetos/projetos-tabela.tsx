@@ -10,6 +10,8 @@ import { ProjetosTabelaTable } from "@/components/projetos/tabela/projetos-tabel
 import { useSgpCadastrosInfinite } from "@/hooks/projetos/use-sgp-cadastros";
 import { useSetores } from "@/hooks/catalogos/use-setores";
 import type { ProjetosFiltrosAplicados } from "@/components/projetos/filtros/projetos-filtros.types";
+import type { ProjetoClonadoDestaque } from "@/components/projetos/tabela/projetos-tabela-types";
+import type { SgpCadastroData } from "@/interfaces/sgp-cadastro";
 import {
   canFetchSgpCadastros,
   filtrosToSgpCadastrosParams,
@@ -18,9 +20,15 @@ import {
 
 interface ProjetosTabelaProps {
   filtros: ProjetosFiltrosAplicados;
+  onClonar?: (item: SgpCadastroData) => void;
+  destaque?: ProjetoClonadoDestaque | null;
 }
 
-export function ProjetosTabela({ filtros }: ProjetosTabelaProps) {
+export function ProjetosTabela({
+  filtros,
+  onClonar,
+  destaque,
+}: ProjetosTabelaProps) {
   const { data: setores } = useSetores();
   const hasFilters = useMemo(() => hasFiltersApplied(filtros), [filtros]);
   const apiParams = useMemo(
@@ -108,6 +116,8 @@ export function ProjetosTabela({ filtros }: ProjetosTabelaProps) {
             <ProjetosTabelaTable
               itens={itens}
               isFetchingNextPage={isFetchingNextPage}
+              onClonar={onClonar}
+              destaque={destaque}
             />
             {hasNextPage && itens.length > 0 && (
               <div ref={loadMoreRef} className="mt-4 min-h-[48px]" />
