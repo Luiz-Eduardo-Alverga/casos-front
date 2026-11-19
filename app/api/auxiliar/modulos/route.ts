@@ -1,4 +1,4 @@
-import { api } from "@/lib/axios";
+import { getModulosCatalogo } from "@/lib/auxiliar/catalogos";
 import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
@@ -16,13 +16,10 @@ export async function GET(request: Request) {
       return Response.json({ error: "produto_id é obrigatório" }, { status: 400 });
     }
 
-    const response = await api.get("/auxiliar/modulos", {
-      params: {
-        produto_id,
-        ...(search ? { search } : {}),
-      },
-      headers: authHeaders,
-    });
+    const response = await getModulosCatalogo(
+      { Authorization: authHeaders.Authorization },
+      { produto_id, search },
+    );
 
     return Response.json(response.data, {
       status: response.status,

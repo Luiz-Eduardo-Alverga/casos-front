@@ -42,6 +42,14 @@ coberto.
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
+- **Conector do Claude: abrir casos pelo chat** (2026-11-19, na `dev`, não publicado). Servidor
+  MCP `/api/mcp` com OAuth próprio (metadados, DCR, `/oauth/autorizar` com senha, token com PKCE e
+  rotação), cinco ferramentas (eu, buscar opções, preparar prévia, abrir caso idempotente,
+  consultar caso) e o item "Claude" no menu do usuário com o modal de conexão. Migração `0011`
+  aplicada no banco do `.env`. Testado no dev server com o cliente MCP do SDK e no navegador;
+  **falta publicar** (variáveis `SOFTFLOW_PUBLIC_URL` e `CLAUDE_CONECTOR_CHAVE` na VPS, ver
+  [`deploy/`](deploy/README.md)) e testar no Claude de verdade. Ajustar depois o passo 7 da skill
+  `planejar-softcom`. Ver [`conector-claude/`](conector-claude/README.md).
 - **Padrão único de gatilho de select/combobox** (2026-11-19, na `dev`). Combobox
   (`components/ui/combobox.tsx`), multi-selects (`components/ui/v2/combobox2.tsx`, input e chips)
   e o seletor de mês seguem o `SelectTrigger`: seta só para baixo, sem fundo no hover, fundo
@@ -153,6 +161,13 @@ coberto.
   2026/09: a lista passou a trazer os registros do mês.
 
 ## ❌ Pendências conhecidas, ainda não endereçadas
+
+- **DM do Discord não sai: token do bot inválido** (achado em 2026-11-19). O Discord recusa o
+  `DISCORD_BOT_TOKEN` (`TokenInvalid`) no `.env` local e, segundo o usuário, a DM também não chega
+  em produção. O resto do caminho está certo (regra de "Não planejado", `usuario_discord`, opt-out).
+  Correção do usuário: Reset Token no Developer Portal e trocar o valor no `.env` local e em
+  `/opt/casos-front/.env` na VPS (sem rebuild). O erro só aparece no log do servidor
+  (`[discord] Falha ao notificar caso`).
 
 Encontradas no levantamento de 2026-11-17 (nenhuma foi corrigida; dependem de decisão do
 usuário):

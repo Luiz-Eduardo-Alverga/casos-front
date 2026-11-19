@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, X, ChevronDown, User, Camera, Bell } from "lucide-react";
+import { LogOut, X, ChevronDown, User, Camera, Bell, Plug } from "lucide-react";
 import { getUser, clearAuthData } from "@/lib/auth";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,16 +20,21 @@ import {
   usePatchNotificacaoDiscord,
 } from "@/hooks/use-notificacao-discord";
 import { AlterarFotoPerfilModal } from "@/components/header/alterar-foto-perfil-modal";
+import { useClaudeConexao } from "@/hooks/claude-conexao/use-claude-conexao";
+import { ConexaoClaudeModal } from "@/components/conector-claude/conexao-modal";
+import { ConexaoPill } from "@/components/conector-claude/conexao-modal/conexao-pill";
 
 export function UserDropDown() {
   const [isOpen, setIsOpen] = useState(false);
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+  const [claudeModalOpen, setClaudeModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const user = getUser();
   const { data: avatarData } = useUserAvatarUrl(!!user);
   const { data: notificacaoData } = useNotificacaoDiscord(!!user);
   const patchNotificacao = usePatchNotificacaoDiscord();
+  const { data: claudeConexao } = useClaudeConexao(!!user && isOpen);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
@@ -205,6 +210,30 @@ export function UserDropDown() {
 
                 <div className="p-2">
                   <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false);
+                      setClaudeModalOpen(true);
+                    }}
+                    className="cursor-pointer w-full flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors text-left"
+                  >
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-primary rounded-full flex items-center justify-center shrink-0">
+                      <Plug className="w-5 h-5 text-text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-sm">Claude</div>
+                      <div className="text-xs text-muted-foreground">
+                        Abrir casos pelo chat do Claude
+                      </div>
+                    </div>
+                    {claudeConexao && (
+                      <ConexaoPill conectado={claudeConexao.conectado} />
+                    )}
+                  </button>
+                </div>
+
+                <div className="p-2">
+                  <button
                     onClick={handleLogout}
                     className="cursor-pointer w-full flex items-center gap-4 p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors text-left text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                   >
@@ -229,6 +258,11 @@ export function UserDropDown() {
         open={avatarModalOpen}
         onOpenChange={setAvatarModalOpen}
         userName={user.nome}
+      />
+
+      <ConexaoClaudeModal
+        open={claudeModalOpen}
+        onOpenChange={setClaudeModalOpen}
       />
     </>
   );

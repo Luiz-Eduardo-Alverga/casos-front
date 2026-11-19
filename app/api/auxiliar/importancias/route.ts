@@ -1,4 +1,4 @@
-import { api } from "@/lib/axios";
+import { getImportanciasCatalogo } from "@/lib/auxiliar/catalogos";
 import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
@@ -18,10 +18,10 @@ export async function GET(request: Request) {
       return Response.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const response = await api.get("/auxiliar/importancias", {
-      params: { tipo },
-      headers: authHeaders,
-    });
+    const response = await getImportanciasCatalogo(
+      { Authorization: authHeaders.Authorization },
+      { tipo },
+    );
 
     return Response.json(response.data, {
       status: response.status,
