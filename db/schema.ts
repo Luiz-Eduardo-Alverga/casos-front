@@ -325,3 +325,87 @@ export const caseAttachments = pgTable(
   },
   (t) => [index("case_attachments_caso_registro_idx").on(t.casoRegistro)],
 );
+
+/* ─── Conector do Claude (docs/conector-claude) ─────────────────────────── */
+
+/** Clientes OAuth registrados por DCR (só o Claude; `redirect_uris` da lista permitida). */
+export const oauthClientes = pgTable("oauth_clientes", {
+  id: text("id").primaryKey(),
+  nome: text("nome").notNull(),
+  redirectUris: text("redirect_uris").array().notNull(),
+  criadoEm: timestamp("criado_em", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * Conexão de uma pessoa com o Claude. Guarda o token Soft Flow próprio da conexão (cifrado)
+ * e os tokens OAuth entregues ao Claude (só hash SHA-256). Uma conexão ativa por pessoa.
+ */
+export const claudeConexoes = pgTable(
+  "claude_conexoes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    appUserId: uuid("app_user_id")
+      .notNull()
+      .references(() => appUsers.id, { onDelete: "cascade" }),
+    clienteId: text("cliente_id")
+      .notNull()
+      .references(() => oauthClientes.id, { onDelete: "cascade" }),
+    legacyTokenCifrado: text("legacy_token_cifrado").notNull(),
+    legacyTokenAtualizadoEm: timestamp("legacy_token_atualizado_em", {
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+    accessTokenHash: text("access_token_hash").unique(),
+    accessExpiraEm: timestamp("access_expira_em", { withTimezone: true }),
+    refreshTokenHash: text("refresh_token_hash").unique(),
+    refreshExpiraEm: timestamp("refresh_expira_em", { withTimezone: true }),
+    criadoEm: timestamp("criado_em", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    ultimoUsoEm: timestamp("ultimo_uso_em", { withTimezone: true }),
+    revogadoEm: timestamp("revogado_em", { withTimezone: true }),
+    /** 'usuario' | 'expirado' | 'reconectou' */
+    motivoRevogacao: text("motivo_revogacao"),
+  },
+  (t) => [index("claude_conexoes_app_user_id_idx").on(t.appUserId)],
+);
+
+/** Código de autorização OAuth (uso único, 5 minutos), guardado só como hash. */
+export const oauthCodigos = pgTable("oauth_codigos", {
+  codigoHash: text("codigo_hash").primaryKey(),
+  clienteId: text("cliente_id")
+    .notNull()
+    .references(() => oauthClientes.id, { onDelete: "cascade" }),
+  conexaoId: uuid("conexao_id")
+    .notNull()
+    .references(() => claudeConexoes.id, { onDelete: "cascade" }),
+  redirectUri: text("redirect_uri").notNull(),
+  codeChallenge: text("code_challenge").notNull(),
+  expiraEm: timestamp("expira_em", { withTimezone: true }).notNull(),
+  usadoEm: timestamp("usado_em", { withTimezone: true }),
+  criadoEm: timestamp("criado_em", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/** Prévia de caso montada pelo conector (15 minutos; `caso_registro` preenchido ao abrir). */
+export const claudePreviasCaso = pgTable(
+  "claude_previas_caso",
+  {
+    id: text("id").primaryKey(),
+    conexaoId: uuid("conexao_id")
+      .notNull()
+      .references(() => claudeConexoes.id, { onDelete: "cascade" }),
+    payload: jsonb("payload").$type<Record<string, unknown>>().notNull(),
+    resumo: jsonb("resumo").$type<Record<string, unknown>>().notNull(),
+    expiraEm: timestamp("expira_em", { withTimezone: true }).notNull(),
+    casoRegistro: integer("caso_registro"),
+    criadoEm: timestamp("criado_em", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("claude_previas_caso_conexao_id_idx").on(t.conexaoId)],
+);
