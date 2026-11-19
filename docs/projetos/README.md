@@ -1,11 +1,8 @@
 # Projetos
 
 > **Estado: implementado.** É o modelo de organização de pastas seguido por Casos e Produtos.
-> Padrões gerais em [`padrao-front/`](../padrao-front/README.md).
-
-> **Próxima mudança planejada: clonar projeto.** Especificada em 2026-11-19 e ainda não
-> implementada. Ver a seção [Próxima mudança planejada](#próxima-mudança-planejada-clonar-projeto),
-> as decisões em [`decisoes.md`](decisoes.md) e o protótipo em [`prototipo/`](prototipo/).
+> Padrões gerais em [`padrao-front/`](../padrao-front/README.md). Decisões travadas em
+> [`decisoes.md`](decisoes.md).
 
 ## O que é
 
@@ -29,16 +26,33 @@ escolhe o projeto destino e chama `POST /api/projeto-casos/transferir-proximo-pr
   cabeçalho marca só as linhas já carregadas (a lista pagina de 15 em 15). Casos que saem da lista
   carregada (filtro ou troca de projeto) deixam de estar marcados.
 
-## Próxima mudança planejada: clonar projeto
 
-### Objetivo
+### Clonar projeto (listagem)
 
-Criar um projeto novo a partir de um existente informando só **nome, data de início e data de
-fim**. Setor, PDV, classe, tipo e cliente vêm do projeto de origem. O uso principal é abrir a
-próxima sprint sem recadastrar tudo (ex.: `Squad XP 2026 - 11.02` → `Squad XP 2026 - 12.01`).
-Decisões #1 a #9 em [`decisoes.md`](decisoes.md).
+Cria um projeto novo a partir de um existente informando só **nome, data de início e data de
+fim**. O uso principal é abrir a próxima sprint sem recadastrar tudo (ex.: `Squad XP 2026 - 11.02`
+→ `Squad XP 2026 - 12.01`). Decisões #1 a #14 em [`decisoes.md`](decisoes.md).
 
-### Contrato da API Soft Flow
+- **Entrada:** botão de ícone `Copy` na coluna Ações da listagem, antes do Editar, com tooltip
+  "Clonar projeto". Só aparece com `create-project` (decisão #10). Projetos Abertos e Fechados
+  podem ser clonados (decisão #6).
+- **Modal "Clonar projeto":** bloco de leitura com a origem (`#registro`, nome, setor · PDV ·
+  classe, período), nome (padrão `"{nome} - Clone"`, até 120 caracteres), data de início e de fim
+  (padrão: dia seguinte ao fim da origem, com a mesma duração; sem fim na origem, ficam vazias),
+  duração calculada e texto informativo do que é e do que não é copiado.
+- **Validação** (react-hook-form + Zod): nome obrigatório após `trim`, datas obrigatórias, fim ≥
+  início. O erro de ordem aparece assim que as duas datas estão preenchidas. Nome repetido não é
+  checado (decisões #5 e #13).
+- **Envio:** datas em `YYYY-MM-DD 00:00:00` (`formatDateTimeSgp`). Durante a chamada, botões
+  desabilitados ("Clonando...") e Esc, X e clique fora não fecham.
+- **Sucesso:** fecha o modal, toast `"{message} · #{registro} {nome}"`, invalida
+  `["sgp-cadastros"]` e destaca a linha nova (fundo amarelo suave, selo "Novo" e "Clonado do
+  projeto #…") enquanto a listagem estiver montada (decisão #7). Se a linha não estiver nas
+  páginas carregadas (filtro por outro Id, por exemplo), fica só o toast.
+- **Erro:** o modal continua aberto com os dados, mostra a mensagem da API acima do rodapé e um
+  `toast.error`. Mudar qualquer campo apaga a mensagem (decisão #8).
+
+#### Contrato da API Soft Flow
 
 `POST /sgp-cadastros/{registro}/clonar`, em que `{registro}` é o projeto de origem.
 
@@ -85,218 +99,61 @@ autorizados** (17 de 17, então a rota não precisa de `POST /sgp-usuarios`) e *
 (9 de 9). **Não leva os casos** (memória do #3313 vazia). **Não leva o `objetivo_id`**: a origem tem
 65 e o clone volta com 0. Cronograma e riscos não foram conferidos porque a 3278 não tem nenhum.
 
-### Protótipo
-
-[`prototipo/softflow-prototipo.html`](prototipo/softflow-prototipo.html), menu **Projetos**. A
-listagem do protótipo imita a do app (ID/Nome, Data de início, Data de fim, Status, Ações). A
-lógica está em `pjVals` e `pjAbrirClone`, e a marcação em `<sc-if value="{{ isProjetos }}">` e
-`<sc-if value="{{ pjcOn }}">`. Clonar com o nome de um projeto que já existe simula um erro da
-API, só para mostrar o estado de erro (no app, quem decide é o backend, decisão #5).
-
-| Captura | Estado |
-|---------|--------|
-| `capturas/01-projetos-listagem.png` | Listagem com o botão Clonar (ícone de cópia) antes do Editar |
-| `capturas/02-clonar-modal-padrao.png` | Modal aberto com os padrões: nome "… - Clone", próximo período e duração |
-| `capturas/03-clonar-modal-data-invalida.png` | Data de fim anterior ao início, com o erro no campo |
-| `capturas/04-clonar-modal-erro-api.png` | Erro da API acima do rodapé, dados preservados, toast de erro |
-| `capturas/05-projeto-clonado.png` | Depois do sucesso: toast e linha nova destacada com "Novo" e "Clonado do projeto #…" |
-| `capturas/06-clonar-modal-mobile.png` | 390px: o modal ocupa a largura toda e fica preso embaixo, como os outros |
-
-### Comportamento
-
-1. **Ponto de entrada:** botão de ícone `Copy` na coluna Ações de
-   `projetos-tabela-row-listagem.tsx`, antes do `SquarePen`, com `aria-label="Clonar o projeto
-   {nome}"` e tooltip "Clonar projeto". A coluna Ações cresce o suficiente para os dois ícones.
-   Sem permissão, o botão não aparece (pergunta 1).
-2. **Modal "Clonar projeto"** (`Dialog`, mesmo visual do `EscopoDuplicarCasosModal`: header com
-   ícone escuro, título e subtítulo "Cria um novo projeto com o mesmo cadastro do projeto de
-   origem."):
-   - Bloco de leitura "Projeto de origem": `#registro`, nome, setor · PDV, classe e período.
-   - **Nome do novo projeto** \*: padrão `"{nome} - Clone"`, máximo de 120 caracteres.
-   - **Data de início** \* e **Data de fim** \*, lado a lado (empilham no mobile), com o
-     `DatePicker` do repositório. Padrões na decisão #3.
-   - Linha "Duração do novo projeto: N dias", com "—" quando as datas não fecham.
-   - Texto informativo (ícone `Info`): "O novo projeto copia setor, PDV, classe, tipo e cliente do
-     projeto de origem e começa com status Aberto. O projeto de origem não é alterado. Para levar
-     casos, use "Duplicar casos" na aba Escopo do projeto de origem." Ajustar conforme a pergunta 4.
-   - Rodapé: **Cancelar** (outline) e **Clonar projeto** (primário, ícone `Copy`), que vira
-     "Clonando...".
-3. **Validação** (react-hook-form + Zod): nome obrigatório após `trim`, as duas datas
-   obrigatórias e fim maior ou igual ao início. Os erros de obrigatório aparecem no envio, e o de
-   ordem das datas aparece assim que as duas estão preenchidas. Sem checagem de nome duplicado no
-   front (decisão #5).
-4. **Envio:** datas com `formatDateTimeSgp`. Durante a chamada, botões desabilitados, e Esc, X e
-   clique fora não fecham (decisão #8).
-5. **Sucesso** (decisão #7): fecha o modal, mostra o toast "{message} · #{registro} {nome}",
-   invalida `["sgp-cadastros"]` e destaca a linha do `registro` novo com `bg` de destaque e o selo
-   "Novo" enquanto a tela estiver montada. Se a linha não estiver nas páginas carregadas, fica só o
-   toast.
-6. **Erro** (decisão #8): o modal fica aberto com os dados, mostra a mensagem da API acima do
-   rodapé (ícone `AlertTriangle`, `text-destructive`) e um `toast.error`. Mudar qualquer campo
-   apaga a mensagem.
-
-### O que reaproveitar
-
-- Rota: copiar o padrão de `app/api/sgp-cadastros/route.ts` (`withPermission`,
-  `getAuthorizationHeader`, `extractApiError`) e de `app/api/projeto-casos/clonar/[id]/route.ts`.
-- Service e hook: mesmo formato de `services/sgp-cadastros/update-sgp-cadastro.ts` (`fetchWithAuth`)
-  e de `hooks/casos/use-clonar-caso.tsx` (`useMutation`).
-- Tipos: `SgpCadastroData` para o `data` da resposta.
-- Datas: `parseSgpDateToDate` e `formatDateTimeSgp` de `components/projetos/cadastro/utils.ts`;
-  `formatSgpDateTimeToPt` de `components/projetos/utils.ts` para o período no bloco de origem.
-- Modal: estrutura de `components/projetos/edicao/escopo/escopo-duplicar-casos-modal.tsx` e
-  `DatePicker` de `components/ui/date-picker.tsx` (ou `date-picker-input.tsx`, o que o cadastro
-  usar).
-- Permissão: `hasPermission` / `permissionsLoaded` de `lib/rbac-client`, decidida no entrypoint
-  `components/projetos/index.tsx`, como o `canCreateProject`.
-
-### Arquitetura proposta
+## Arquitetura do clonar projeto
 
 ```text
-app/api/sgp-cadastros/[id]/clonar/route.ts      POST → API externa POST /sgp-cadastros/{id}/clonar (withPermission)
-interfaces/sgp-cadastro.ts                      + ClonarSgpCadastroRequest / ClonarSgpCadastroResponse
+app/api/sgp-cadastros/[id]/clonar/route.ts      POST → API externa POST /sgp-cadastros/{id}/clonar (withPermission create-project)
+interfaces/sgp-cadastro.ts                      ClonarSgpCadastroRequest / ClonarSgpCadastroResponse
 services/sgp-cadastros/clonar-sgp-cadastro.ts   fetchWithAuth para /api/sgp-cadastros/{id}/clonar
-hooks/projetos/use-clonar-sgp-cadastro.tsx      useMutation + invalidate ["sgp-cadastros"]
+hooks/projetos/use-clonar-sgp-cadastro.tsx      useMutation({ origemId, data }) + invalidate ["sgp-cadastros"]
 components/projetos/clonar/
-├── index.tsx                  ProjetoClonarModal: useForm, mutation, sucesso/erro
-├── schema.ts                  Zod (nome, dataInicio, dataFim, fim ≥ início)
-└── utils.ts                   padrões do clone (nome, próximo período) e duração em dias (funções puras)
-components/projetos/index.tsx                   canCloneProject + estado do modal e do registro destacado
-components/projetos/projetos-tabela.tsx         repassa onClonar e registroDestacado para a tabela
-components/projetos/tabela/projetos-tabela-types.ts  + onClonar?, registroDestacado? na variante listagem
-components/projetos/tabela/projetos-tabela-row-listagem.tsx  + botão Clonar e destaque "Novo"
+├── index.tsx                  ProjetoClonarModal: useForm, mutation, sucesso/erro, bloqueio de fechamento
+├── schema.ts                  Zod (nomeProjeto, dataInicio, dataFim, fim ≥ início), NOME_PROJETO_MAX
+└── utils.ts                   valoresPadraoClone, duracaoEmDias (inclusiva), textoDuracao (funções puras)
+components/projetos/index.tsx                   canCloneProject (= create-project), origem do modal e linha destacada
+components/projetos/projetos-tabela.tsx         repassa onClonar e destaque
+components/projetos/tabela/projetos-tabela-types.ts        onClonar?, destaque? (ProjetoClonadoDestaque) na variante listagem
+components/projetos/tabela/projetos-tabela-table.tsx       coluna Ações com 112px quando há onClonar
+components/projetos/tabela/projetos-tabela-row-listagem.tsx  botão Clonar e destaque "Novo"
 ```
 
-O botão só aparece quando `onClonar` é passado. Assim a permissão fica no entrypoint e a linha
-não conhece RBAC (regra da seção 10 deste README).
+- A rota valida nome e datas, repassa o corpo para a API e devolve a resposta como veio (201). Erro
+  da API vira `{ error }` com o mesmo status (`extractApiError`). Não faz `POST /sgp-usuarios`: o
+  clone já leva os usuários autorizados.
+- O botão só aparece quando `onClonar` é passado. A permissão fica no entrypoint e a linha não
+  conhece RBAC (seção 10).
+- O destaque é estado local de `Projetos` (`{ registro, origemRegistro }`), não vem da API: some ao
+  sair da tela.
+- Cores do destaque: `bg-panel-badge-importance-yellow-bg` na linha e selo
+  `bg-panel-badge-importance-yellow` com `text-primary` (decisão #11).
 
-### Perguntas em aberto (resolver na Fase 0)
+## O que é reaproveitável
 
-1. **Permissão:** usar `create-project` (recomendado: clonar cria um projeto, e não precisa de
-   permissão nova nem seed) ou criar `clone-project` com seed em `db/scripts/`? Decisão do usuário.
-2. **Nome duplicado:** o backend recusa um nome que já existe? Com que status e mensagem? Se não
-   recusar, o usuário decide se isso fica assim.
-3. **Usuários autorizados:** o cadastro faz `POST /sgp-usuarios` logo depois de
-   `POST /sgp-cadastros` (`app/api/sgp-cadastros/route.ts`). O clone já vincula usuários ao projeto
-   novo (o logado ou os da origem)? Conferir na aba de usuários do projeto clonado. Se não vincular,
-   a rota de clonar faz o mesmo `POST /sgp-usuarios` com o usuário logado, e isso vira decisão nova.
-4. **O que mais é copiado:** cronograma, riscos, stakeholders, usuários e casos da origem vêm para
-   o projeto novo? Conferir clonando um projeto de teste que tenha esses dados. O texto informativo
-   do modal e a decisão #9 dependem disso.
-5. **Erro:** formato e status da resposta de erro da API (`success: false` com `message`? 4xx?).
+- `components/projetos/clonar/utils.ts`: `duracaoEmDias` (contagem inclusiva sem efeito de fuso) e
+  `valoresPadraoClone` servem para qualquer "próximo período" de um registro SGP.
+- O modal segue o mesmo esqueleto do `EscopoDuplicarCasosModal` (header com ícone escuro, bloco
+  informativo, rodapé Cancelar/Confirmar) com o erro da API acima do rodapé: bom modelo para outro
+  modal de criação que não pode perder dados no erro.
+- O padrão "callback opcional = ação visível" (`onClonar`) para pôr uma ação na linha da tabela
+  sem a linha conhecer permissão.
 
-### Perguntas do Claude Code
+## Como estender
 
-#### P1 — Permissão do clone · respondida → decisão #10
+- **Clonar a partir da edição** (`/projetos/[id]`): reusar `ProjetoClonarModal` passando o
+  `SgpCadastroData` do projeto e, no `onClonado`, navegar para `/projetos/{novo.registro}`.
+- **Copiar mais campos** (ex.: objetivo, se o backend passar a aceitar): a mudança é no backend
+  ou numa chamada extra na rota; atualizar o `TEXTO_INFORMATIVO` do modal e a decisão #14.
+- **Novo campo no clone:** acrescentar em `ClonarSgpCadastroRequest`, no Zod de `schema.ts`, no
+  padrão de `utils.ts` e no `onSubmit` do modal.
 
-Fase: Fase 0 (2026-11-19). Contexto: é a pergunta 1 do planejamento. Hoje o módulo usa
-`create-project` (`components/projetos/index.tsx`, `app/api/sgp-cadastros/route.ts`, seed em
-`db/scripts/seed-create-project-rbac.sql`) e `edit-project`.
-Opções: **A)** usar `create-project` no botão e no `withPermission` da rota nova. **B)** criar
-`clone-project` com seed `db/scripts/seed-clone-project-rbac.sql` e atribuição aos papéis na UI.
-Recomendação do Claude Code: **A**, porque clonar cria um projeto e quem pode cadastrar já pode
-fazer o mesmo à mão; não exige seed nem configuração de papéis.
-Resposta (2026-11-19, Claude Code): opção A, usar `create-project`.
+## Pendências
 
-#### P2 — Tokens do destaque da linha nova e do selo "Novo" · respondida → decisão #11
-
-Fase: Fase 0 (2026-11-19). Contexto: o protótipo (captura 05, `pjVals`) pinta a linha clonada com
-`--yellow-soft` e o selo "Novo" com fundo amarelo. Não há token semântico de "linha em destaque" em
-`app/globals.css`, e o `CLAUDE.md` restringe o amarelo a CTA de marca. Os amarelos que existem são
-do painel (`panel-badge-importance-yellow` / `-bg`) e da marca (`brand-yellow`).
-Opções: **A)** criar tokens novos `row-highlight` (fundo da linha) e `badge-new` / `badge-new-bg`
-(selo), light e `.dark`, num amarelo suave como o do protótipo, e registrar no `design-system.md`.
-**B)** reaproveitar `panel-badge-importance-yellow-bg` na linha e `panel-badge-importance-yellow`
-no selo, sem token novo. **C)** destaque neutro/azul com os tokens existentes (`bg-muted` na linha
-e selo com `status-info`), sem amarelo.
-Recomendação do Claude Code: **A**, porque mantém o visual aprovado no protótipo com nome
-semântico próprio, sem amarrar a listagem de projetos a tokens do painel.
-Resposta (2026-11-19, Claude Code): opção B, reaproveitar os amarelos do painel.
-
-#### P3 — Onde conferir as perguntas 2 a 5 da API · respondida → decisão #12
-
-Fase: Fase 0 (2026-11-19). Contexto: o plano manda conferir na Parte 1, "clonando um projeto de
-teste". Cada teste cria um projeto de verdade na API Soft Flow apontada pelo `.env`, e não há
-rota de exclusão de projeto no app. As respostas mudam a rota (vínculo em `/sgp-usuarios`,
-pergunta 3), o texto do modal e a decisão #9 (pergunta 4).
-Opções: **A)** o usuário indica um projeto de teste (registro) e autoriza o Claude Code a cloná-lo
-pela rota nova, logado no app local, duas vezes (uma com sucesso, outra com nome repetido/datas
-inválidas para ver o erro). **B)** o usuário faz os testes no Postman/Insomnia e responde as
-perguntas 2 a 5 aqui. **C)** implementar as Partes 1 e 2 sem conferir: a rota repassa o erro da
-API como vier (`extractApiError`), não faz `POST /sgp-usuarios` e o texto do modal fica como está;
-corrige-se depois se o teste mostrar diferença.
-Recomendação do Claude Code: **A**, porque responde tudo de uma vez pelo mesmo caminho que o
-usuário final vai usar, com o mínimo de projetos criados.
-Resposta (2026-11-19, Claude Code): opção A. A API do `.env` é a de desenvolvimento, e o Claude
-Code pode fazer os testes de clone nela.
-
-#### P4 — Nome repetido é aceito pela API · respondida → decisão #13
-
-Fase: Parte 1 (2026-11-19). Contexto: é a pergunta 2 do planejamento. A API aceitou clonar com um
-nome que já existe (#3313 e #3314 têm o mesmo nome; tabela no "Contrato da API Soft Flow"). Ela
-recusa por **período** sobreposto a outro projeto aberto, não por nome. A decisão #5 diz que o
-front não checa nome.
-Opções: **A)** deixar assim: nome repetido passa, e a regra de período (que o backend já aplica)
-evita a maioria dos duplicados de sprint. **B)** a rota consulta `GET /sgp-cadastros` pelo nome
-antes de clonar e recusa com 422 "Já existe um projeto com esse nome". **C)** pedir ao backend
-que recuse nome repetido (fora do escopo desta entrega).
-Recomendação do Claude Code: **A**, porque o caso real (clonar a mesma sprint duas vezes) já é
-barrado pela regra de período, e a API de listagem não tem filtro por nome para uma checagem
-confiável no servidor.
-Resposta (2026-11-19, Claude Code): opção A, nome repetido passa.
-
-#### P5 — O clone perde o objetivo do projeto · respondida → decisão #14
-
-Fase: Parte 1 (2026-11-19). Contexto: é a pergunta 4 do planejamento. A origem 3278 tem
-`objetivo_id: 65`, e o clone #3313 voltou com `objetivo_id: 0` (o resto do cadastro, os usuários
-autorizados e os stakeholders vieram iguais). O objetivo é editável na aba Abertura
-(`PUT /sgp-cadastros/{id}` com `ObjetivoID`).
-Opções: **A)** aceitar: o texto do modal avisa que o objetivo não é copiado, e o usuário preenche
-na aba Abertura. **B)** a rota de clonar faz um `PUT /sgp-cadastros/{novo}` logo depois, repondo o
-`ObjetivoID` da origem (o PUT exige o payload completo da Abertura, montado a partir do `data` do
-clone). **C)** tratar como bug do backend e só registrar a pendência, sem aviso no modal.
-Recomendação do Claude Code: **A** agora e avisar o backend, porque o PUT completo logo depois do
-clone duplica a regra de montagem do payload na rota e pode sobrescrever campos se a API mudar.
-Resposta (2026-11-19, Claude Code): opção A, o modal avisa e o backend fica como pendência.
-
-Detalhe decidido pelo Claude Code (pergunta 4 do planejamento, sem conflito com decisões): o texto
-informativo do modal passa a citar também usuários autorizados e stakeholders, já que a API os
-copia. A decisão #9 continua valendo: os casos não vêm.
-
-### Plano de implementação
-
-1. **Parte 1: dados.** Rota `app/api/sgp-cadastros/[id]/clonar/route.ts`, tipos, service e hook.
-   Conferir as perguntas 2 a 5 na API de teste, clonando um projeto de teste (não usar projetos
-   reais de sprint).
-2. **Parte 2: tela.** `components/projetos/clonar/` (modal, schema, utils), botão na linha, permissão
-   no entrypoint, destaque da linha nova. Conferir no navegador: padrões do modal, erro de datas,
-   erro da API, sucesso com destaque, tema escuro e 390px.
-3. **Parte 3: fechamento.** README (tirar "Próxima mudança planejada" e documentar o clone no
-   formato padrão), decisões, contexto, status e `docs/rbac/` se a permissão mudar.
-
-### Andamento da implementação
-
-Fase 0 concluída em 2026-11-19 (decisões #10 a #12). Detalhes decididos pelo Claude Code: datas com
-`DatePickerInput` (o do cadastro e do cronograma); a linha clonada mostra também "Clonado do projeto
-#…", como na captura 05; se a origem não tiver `data_fim`, as datas padrão do modal ficam vazias.
-
-- [x] Parte 1: dados (rota, tipos, service, hook) e conferência das perguntas 2 a 5 na API de dev.
-  Perguntas 3 e 5 respondidas pelo teste (tabela no contrato); 2 e 4 viraram P4 e P5. Validação:
-  `npm run build` ok e `eslint` nos arquivos novos ok (o `npm run lint` do repositório está quebrado:
-  `next lint` não existe no Next 16 e a chamada falha com "Invalid project directory").
-- [x] Parte 2: tela (modal, schema, utils, botão na linha, permissão, destaque da linha nova).
-  Conferido no navegador em 2026-11-19: padrões (origem 16–30/11 → 01–15/12, 15 dias), erro de
-  ordem das datas, erro da API (período sobreposto, com toast e dados preservados; editar um campo
-  apaga a mensagem), "Clonando..." com Esc bloqueado, sucesso criando o projeto de teste #3315
-  com selo "Novo" e "Clonado do projeto #3278", tema escuro e 390px. O modal usa o `Dialog` do app
-  (centralizado, largura toda no mobile), não o painel preso embaixo do protótipo. Na API de dev
-  o clone levou cerca de 40 s para responder.
-- [ ] Parte 3: fechamento (README no formato padrão, decisões, contexto, status)
-
-### Fora do escopo
-
-Editar outros campos no clone, clonar vários projetos de uma vez, copiar casos (existe "Duplicar
-casos"), clonar a partir da tela de edição e mudanças no backend.
+- O clone não copia o objetivo do projeto (`objetivo_id` volta 0). Ajuste do backend; até lá o
+  modal avisa (decisão #14).
+- Cronograma e riscos da origem: não conferido se o clone os copia (a origem do teste não tinha
+  nenhum). O texto do modal não os cita.
+- Projetos de teste criados na API de dev em 2026-11-19: #3313, #3314 e #3315 (o app não exclui
+  projeto).
 
 ---
 
@@ -342,6 +199,8 @@ components/projetos/
 
 ├── shared/                        # Formulários/comp. usados em cadastro + edição
 │   └── projeto-abertura-form.tsx
+
+├── clonar/                        # Modal Clonar projeto (listagem): index, schema, utils
 
 ├── cadastro/                      # Fluxo de criação
 │   ├── index.tsx                  # Entrypoint: ProjetoCreateForm
@@ -690,7 +549,7 @@ const canCreateProject = !permissionsLoaded() || hasPermission("create-project")
 const canEditProject = !rbacReady || hasPermission("edit-project");
 ```
 
-Códigos usados no módulo: `create-project`, `edit-project`.
+Códigos usados no módulo: `create-project` (também libera o Clonar da listagem, decisão #10), `edit-project`.
 
 ---
 
@@ -768,3 +627,163 @@ Códigos usados no módulo: `create-project`, `edit-project`.
 
 **Última atualização**: Junho 2025  
 **Versão**: 1.0
+
+---
+
+## Histórico da implementação
+
+### Clonar projeto (2026-11-19)
+
+Planejado e implementado em 2026-11-19 (`/implementar projetos`): Fase 0, Parte 1 (dados e testes
+na API de dev), Parte 2 (tela) e Parte 3 (este fechamento).
+
+### Protótipo do clonar projeto
+
+[`prototipo/softflow-prototipo.html`](prototipo/softflow-prototipo.html), menu **Projetos**. A
+listagem do protótipo imita a do app (ID/Nome, Data de início, Data de fim, Status, Ações). A
+lógica está em `pjVals` e `pjAbrirClone`, e a marcação em `<sc-if value="{{ isProjetos }}">` e
+`<sc-if value="{{ pjcOn }}">`. Clonar com o nome de um projeto que já existe simula um erro da
+API, só para mostrar o estado de erro (no app, quem decide é o backend, decisão #5).
+
+| Captura | Estado |
+|---------|--------|
+| `capturas/01-projetos-listagem.png` | Listagem com o botão Clonar (ícone de cópia) antes do Editar |
+| `capturas/02-clonar-modal-padrao.png` | Modal aberto com os padrões: nome "… - Clone", próximo período e duração |
+| `capturas/03-clonar-modal-data-invalida.png` | Data de fim anterior ao início, com o erro no campo |
+| `capturas/04-clonar-modal-erro-api.png` | Erro da API acima do rodapé, dados preservados, toast de erro |
+| `capturas/05-projeto-clonado.png` | Depois do sucesso: toast e linha nova destacada com "Novo" e "Clonado do projeto #…" |
+| `capturas/06-clonar-modal-mobile.png` | 390px: o modal ocupa a largura toda e fica preso embaixo, como os outros |
+
+
+### Perguntas do planejamento (clonar projeto)
+
+Respondidas na Fase 0 e na Parte 1: 1 → decisão #10; 2 → decisão #13; 3 e 5 → teste na API de dev (contrato acima: o clone já vincula os usuários; erros em 4xx com `message`, repassados como `{ error }`); 4 → decisões #9 e #14.
+
+1. **Permissão:** usar `create-project` (recomendado: clonar cria um projeto, e não precisa de
+   permissão nova nem seed) ou criar `clone-project` com seed em `db/scripts/`? Decisão do usuário.
+2. **Nome duplicado:** o backend recusa um nome que já existe? Com que status e mensagem? Se não
+   recusar, o usuário decide se isso fica assim.
+3. **Usuários autorizados:** o cadastro faz `POST /sgp-usuarios` logo depois de
+   `POST /sgp-cadastros` (`app/api/sgp-cadastros/route.ts`). O clone já vincula usuários ao projeto
+   novo (o logado ou os da origem)? Conferir na aba de usuários do projeto clonado. Se não vincular,
+   a rota de clonar faz o mesmo `POST /sgp-usuarios` com o usuário logado, e isso vira decisão nova.
+4. **O que mais é copiado:** cronograma, riscos, stakeholders, usuários e casos da origem vêm para
+   o projeto novo? Conferir clonando um projeto de teste que tenha esses dados. O texto informativo
+   do modal e a decisão #9 dependem disso.
+5. **Erro:** formato e status da resposta de erro da API (`success: false` com `message`? 4xx?).
+
+
+### Perguntas do Claude Code (clonar projeto)
+
+#### P1 — Permissão do clone · respondida → decisão #10
+
+Fase: Fase 0 (2026-11-19). Contexto: é a pergunta 1 do planejamento. Hoje o módulo usa
+`create-project` (`components/projetos/index.tsx`, `app/api/sgp-cadastros/route.ts`, seed em
+`db/scripts/seed-create-project-rbac.sql`) e `edit-project`.
+Opções: **A)** usar `create-project` no botão e no `withPermission` da rota nova. **B)** criar
+`clone-project` com seed `db/scripts/seed-clone-project-rbac.sql` e atribuição aos papéis na UI.
+Recomendação do Claude Code: **A**, porque clonar cria um projeto e quem pode cadastrar já pode
+fazer o mesmo à mão; não exige seed nem configuração de papéis.
+Resposta (2026-11-19, Claude Code): opção A, usar `create-project`.
+
+#### P2 — Tokens do destaque da linha nova e do selo "Novo" · respondida → decisão #11
+
+Fase: Fase 0 (2026-11-19). Contexto: o protótipo (captura 05, `pjVals`) pinta a linha clonada com
+`--yellow-soft` e o selo "Novo" com fundo amarelo. Não há token semântico de "linha em destaque" em
+`app/globals.css`, e o `CLAUDE.md` restringe o amarelo a CTA de marca. Os amarelos que existem são
+do painel (`panel-badge-importance-yellow` / `-bg`) e da marca (`brand-yellow`).
+Opções: **A)** criar tokens novos `row-highlight` (fundo da linha) e `badge-new` / `badge-new-bg`
+(selo), light e `.dark`, num amarelo suave como o do protótipo, e registrar no `design-system.md`.
+**B)** reaproveitar `panel-badge-importance-yellow-bg` na linha e `panel-badge-importance-yellow`
+no selo, sem token novo. **C)** destaque neutro/azul com os tokens existentes (`bg-muted` na linha
+e selo com `status-info`), sem amarelo.
+Recomendação do Claude Code: **A**, porque mantém o visual aprovado no protótipo com nome
+semântico próprio, sem amarrar a listagem de projetos a tokens do painel.
+Resposta (2026-11-19, Claude Code): opção B, reaproveitar os amarelos do painel.
+
+#### P3 — Onde conferir as perguntas 2 a 5 da API · respondida → decisão #12
+
+Fase: Fase 0 (2026-11-19). Contexto: o plano manda conferir na Parte 1, "clonando um projeto de
+teste". Cada teste cria um projeto de verdade na API Soft Flow apontada pelo `.env`, e não há
+rota de exclusão de projeto no app. As respostas mudam a rota (vínculo em `/sgp-usuarios`,
+pergunta 3), o texto do modal e a decisão #9 (pergunta 4).
+Opções: **A)** o usuário indica um projeto de teste (registro) e autoriza o Claude Code a cloná-lo
+pela rota nova, logado no app local, duas vezes (uma com sucesso, outra com nome repetido/datas
+inválidas para ver o erro). **B)** o usuário faz os testes no Postman/Insomnia e responde as
+perguntas 2 a 5 aqui. **C)** implementar as Partes 1 e 2 sem conferir: a rota repassa o erro da
+API como vier (`extractApiError`), não faz `POST /sgp-usuarios` e o texto do modal fica como está;
+corrige-se depois se o teste mostrar diferença.
+Recomendação do Claude Code: **A**, porque responde tudo de uma vez pelo mesmo caminho que o
+usuário final vai usar, com o mínimo de projetos criados.
+Resposta (2026-11-19, Claude Code): opção A. A API do `.env` é a de desenvolvimento, e o Claude
+Code pode fazer os testes de clone nela.
+
+#### P4 — Nome repetido é aceito pela API · respondida → decisão #13
+
+Fase: Parte 1 (2026-11-19). Contexto: é a pergunta 2 do planejamento. A API aceitou clonar com um
+nome que já existe (#3313 e #3314 têm o mesmo nome; tabela no "Contrato da API Soft Flow"). Ela
+recusa por **período** sobreposto a outro projeto aberto, não por nome. A decisão #5 diz que o
+front não checa nome.
+Opções: **A)** deixar assim: nome repetido passa, e a regra de período (que o backend já aplica)
+evita a maioria dos duplicados de sprint. **B)** a rota consulta `GET /sgp-cadastros` pelo nome
+antes de clonar e recusa com 422 "Já existe um projeto com esse nome". **C)** pedir ao backend
+que recuse nome repetido (fora do escopo desta entrega).
+Recomendação do Claude Code: **A**, porque o caso real (clonar a mesma sprint duas vezes) já é
+barrado pela regra de período, e a API de listagem não tem filtro por nome para uma checagem
+confiável no servidor.
+Resposta (2026-11-19, Claude Code): opção A, nome repetido passa.
+
+#### P5 — O clone perde o objetivo do projeto · respondida → decisão #14
+
+Fase: Parte 1 (2026-11-19). Contexto: é a pergunta 4 do planejamento. A origem 3278 tem
+`objetivo_id: 65`, e o clone #3313 voltou com `objetivo_id: 0` (o resto do cadastro, os usuários
+autorizados e os stakeholders vieram iguais). O objetivo é editável na aba Abertura
+(`PUT /sgp-cadastros/{id}` com `ObjetivoID`).
+Opções: **A)** aceitar: o texto do modal avisa que o objetivo não é copiado, e o usuário preenche
+na aba Abertura. **B)** a rota de clonar faz um `PUT /sgp-cadastros/{novo}` logo depois, repondo o
+`ObjetivoID` da origem (o PUT exige o payload completo da Abertura, montado a partir do `data` do
+clone). **C)** tratar como bug do backend e só registrar a pendência, sem aviso no modal.
+Recomendação do Claude Code: **A** agora e avisar o backend, porque o PUT completo logo depois do
+clone duplica a regra de montagem do payload na rota e pode sobrescrever campos se a API mudar.
+Resposta (2026-11-19, Claude Code): opção A, o modal avisa e o backend fica como pendência.
+
+Detalhe decidido pelo Claude Code (pergunta 4 do planejamento, sem conflito com decisões): o texto
+informativo do modal passa a citar também usuários autorizados e stakeholders, já que a API os
+copia. A decisão #9 continua valendo: os casos não vêm.
+
+
+### Plano de implementação (clonar projeto)
+
+1. **Parte 1: dados.** Rota `app/api/sgp-cadastros/[id]/clonar/route.ts`, tipos, service e hook.
+   Conferir as perguntas 2 a 5 na API de teste, clonando um projeto de teste (não usar projetos
+   reais de sprint).
+2. **Parte 2: tela.** `components/projetos/clonar/` (modal, schema, utils), botão na linha, permissão
+   no entrypoint, destaque da linha nova. Conferir no navegador: padrões do modal, erro de datas,
+   erro da API, sucesso com destaque, tema escuro e 390px.
+3. **Parte 3: fechamento.** README (tirar "Próxima mudança planejada" e documentar o clone no
+   formato padrão), decisões, contexto, status e `docs/rbac/` se a permissão mudar.
+
+### Andamento da implementação (clonar projeto)
+
+Fase 0 concluída em 2026-11-19 (decisões #10 a #12). Detalhes decididos pelo Claude Code: datas com
+`DatePickerInput` (o do cadastro e do cronograma); a linha clonada mostra também "Clonado do projeto
+#…", como na captura 05; se a origem não tiver `data_fim`, as datas padrão do modal ficam vazias.
+
+- [x] Parte 1: dados (rota, tipos, service, hook) e conferência das perguntas 2 a 5 na API de dev.
+  Perguntas 3 e 5 respondidas pelo teste (tabela no contrato); 2 e 4 viraram P4 e P5. Validação:
+  `npm run build` ok e `eslint` nos arquivos novos ok (o `npm run lint` do repositório está quebrado:
+  `next lint` não existe no Next 16 e a chamada falha com "Invalid project directory").
+- [x] Parte 2: tela (modal, schema, utils, botão na linha, permissão, destaque da linha nova).
+  Conferido no navegador em 2026-11-19: padrões (origem 16–30/11 → 01–15/12, 15 dias), erro de
+  ordem das datas, erro da API (período sobreposto, com toast e dados preservados; editar um campo
+  apaga a mensagem), "Clonando..." com Esc bloqueado, sucesso criando o projeto de teste #3315
+  com selo "Novo" e "Clonado do projeto #3278", tema escuro e 390px. O modal usa o `Dialog` do app
+  (centralizado, largura toda no mobile), não o painel preso embaixo do protótipo. Na API de dev
+  o clone levou cerca de 40 s para responder.
+- [x] Parte 3: fechamento (README no formato padrão, decisões, contexto, status), 2026-11-19.
+
+### Fora do escopo (clonar projeto)
+
+Editar outros campos no clone, clonar vários projetos de uma vez, copiar casos (existe "Duplicar
+casos"), clonar a partir da tela de edição e mudanças no backend.
+

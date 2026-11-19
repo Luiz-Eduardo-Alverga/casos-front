@@ -56,6 +56,13 @@ coberto.
   /auxiliar/comunicado-filtros` dava 503 na API de teste, então os filtros foram vistos com a
   resposta simulada no navegador. Falta conferir com o endpoint real e ir para produção
   (atribuir `create-aviso` aos papéis certos). Ver [`avisos/`](avisos/README.md).
+- **Projetos: clonar projeto** (2026-11-19, na `dev`). Botão Clonar na listagem `/projetos`
+  (`create-project`), modal com nome e período, `POST /api/sgp-cadastros/{id}/clonar` e linha nova
+  destacada com "Novo". Testado na API de dev a partir do projeto 3278 (clones de teste #3313,
+  #3314 e #3315): padrões, erro de datas, erro de período sobreposto (422), origem inexistente
+  (404), sucesso com destaque, tema escuro e 390px. A API levou cerca de 40 s no clone pela tela.
+  Não conferido: se cronograma e riscos são copiados. Falta ir para produção. Ver
+  [`projetos/`](projetos/README.md).
 - **Projetos: seleção de casos ao duplicar o escopo** (2026-11-17, na `dev`). A aba Escopo marca
   casos na tabela. Sem marcação, `POST /api/projeto-casos/transferir-proximo-projeto` segue sem
   `registros` e a API duplica os elegíveis do projeto. Com marcação, envia só esses ids. ESLint dos
@@ -139,6 +146,12 @@ usuário):
 - **Link quebrado** para `db/scripts/reset-supabase-dev.sql` em
   [`camada-de-dados/`](camada-de-dados/README.md) (o arquivo não existe).
 - **Sem testes automatizados**: validação depende de `lint`, `build` e conferência manual.
+- **`npm run lint` quebrado**: o script chama `next lint`, que não existe no Next 16 (falha com
+  "Invalid project directory ... lint"). Enquanto isso, rodar `npx eslint <arquivos>`. Visto em
+  2026-11-19.
+- **Clone de projeto não copia o objetivo**: `POST /sgp-cadastros/{id}/clonar` devolve
+  `objetivo_id: 0` mesmo com a origem preenchida (3278 tem 65). Precisa de ajuste no backend; até
+  lá o modal avisa (decisão #14 de [`projetos/`](projetos/decisoes.md)).
 
 ## 📋 Backlog consciente (decisão sua, não esquecimento)
 
@@ -148,9 +161,3 @@ planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
-- **Projetos: clonar projeto**: especificado em 2026-11-19. Botão Clonar na listagem `/projetos`
-  abre um modal com nome, data de início e data de fim (padrão: próximo período com a mesma
-  duração) e chama `POST /sgp-cadastros/{registro}/clonar`. Protótipo, decisões #1 a #9 e plano
-  em 3 partes em [`projetos/`](projetos/README.md#próxima-mudança-planejada-clonar-projeto).
-  Cinco perguntas para a Fase 0 (permissão, nome duplicado, usuários autorizados, o que é
-  copiado, formato do erro). Implementar com `/implementar projetos`.
