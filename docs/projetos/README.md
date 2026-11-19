@@ -168,6 +168,47 @@ não conhece RBAC (regra da seção 10 deste README).
    do modal e a decisão #9 dependem disso.
 5. **Erro:** formato e status da resposta de erro da API (`success: false` com `message`? 4xx?).
 
+### Perguntas do Claude Code
+
+#### P1 — Permissão do clone · aberta
+
+Fase: Fase 0 (2026-11-19). Contexto: é a pergunta 1 do planejamento. Hoje o módulo usa
+`create-project` (`components/projetos/index.tsx`, `app/api/sgp-cadastros/route.ts`, seed em
+`db/scripts/seed-create-project-rbac.sql`) e `edit-project`.
+Opções: **A)** usar `create-project` no botão e no `withPermission` da rota nova. **B)** criar
+`clone-project` com seed `db/scripts/seed-clone-project-rbac.sql` e atribuição aos papéis na UI.
+Recomendação do Claude Code: **A**, porque clonar cria um projeto e quem pode cadastrar já pode
+fazer o mesmo à mão; não exige seed nem configuração de papéis.
+
+#### P2 — Tokens do destaque da linha nova e do selo "Novo" · aberta
+
+Fase: Fase 0 (2026-11-19). Contexto: o protótipo (captura 05, `pjVals`) pinta a linha clonada com
+`--yellow-soft` e o selo "Novo" com fundo amarelo. Não há token semântico de "linha em destaque" em
+`app/globals.css`, e o `CLAUDE.md` restringe o amarelo a CTA de marca. Os amarelos que existem são
+do painel (`panel-badge-importance-yellow` / `-bg`) e da marca (`brand-yellow`).
+Opções: **A)** criar tokens novos `row-highlight` (fundo da linha) e `badge-new` / `badge-new-bg`
+(selo), light e `.dark`, num amarelo suave como o do protótipo, e registrar no `design-system.md`.
+**B)** reaproveitar `panel-badge-importance-yellow-bg` na linha e `panel-badge-importance-yellow`
+no selo, sem token novo. **C)** destaque neutro/azul com os tokens existentes (`bg-muted` na linha
+e selo com `status-info`), sem amarelo.
+Recomendação do Claude Code: **A**, porque mantém o visual aprovado no protótipo com nome
+semântico próprio, sem amarrar a listagem de projetos a tokens do painel.
+
+#### P3 — Onde conferir as perguntas 2 a 5 da API · aberta
+
+Fase: Fase 0 (2026-11-19). Contexto: o plano manda conferir na Parte 1, "clonando um projeto de
+teste". Cada teste cria um projeto de verdade na API Soft Flow apontada pelo `.env`, e não há
+rota de exclusão de projeto no app. As respostas mudam a rota (vínculo em `/sgp-usuarios`,
+pergunta 3), o texto do modal e a decisão #9 (pergunta 4).
+Opções: **A)** o usuário indica um projeto de teste (registro) e autoriza o Claude Code a cloná-lo
+pela rota nova, logado no app local, duas vezes (uma com sucesso, outra com nome repetido/datas
+inválidas para ver o erro). **B)** o usuário faz os testes no Postman/Insomnia e responde as
+perguntas 2 a 5 aqui. **C)** implementar as Partes 1 e 2 sem conferir: a rota repassa o erro da
+API como vier (`extractApiError`), não faz `POST /sgp-usuarios` e o texto do modal fica como está;
+corrige-se depois se o teste mostrar diferença.
+Recomendação do Claude Code: **A**, porque responde tudo de uma vez pelo mesmo caminho que o
+usuário final vai usar, com o mínimo de projetos criados.
+
 ### Plano de implementação
 
 1. **Parte 1: dados.** Rota `app/api/sgp-cadastros/[id]/clonar/route.ts`, tipos, service e hook.
