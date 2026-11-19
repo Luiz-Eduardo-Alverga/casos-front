@@ -241,6 +241,11 @@ Não usar `mb-4` por aba no lugar de `pb-12`/`pb-24`. Referências:
   Valem `components/ui/select.tsx`, `components/ui/combobox.tsx`, `components/ui/v2/combobox2.tsx`
   (input e chips) e `components/fields/mes-picker.tsx`. Não sobrescrever com `font-medium`/
   `font-semibold` no gatilho de campo de formulário.
+- **Inputs, textarea e campo de data** seguem o mesmo padrão de caixa: `components/ui/input.tsx`,
+  `components/ui/textarea.tsx` e `components/ui/input-group.tsx` (usado pelo `DatePickerInput`)
+  têm radius 8px (`rounded-lg`) na base, fundo transparente e `shadow-sm`; o texto da data é
+  regular. Ajustado em 2026-11-19 (antes: `rounded-md` 6px, e o grupo da data com `bg-background`,
+  `dark:bg-input/30` e `shadow-xs`, classe que não existe no Tailwind do projeto).
 - **Tabelas:** fundo branco, separador `border-divider`, células `py-3 px-2.5`, sem zebra.
 - **Badges:** pílulas da seção 2.4; contadores compactos (~36×28px).
 - **Tabs:** sublinhado ou pill discreto.
