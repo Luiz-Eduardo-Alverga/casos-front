@@ -21,7 +21,7 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
 
 4. **Só os endereços de retorno do Claude são aceitos** (`https://claude.ai/api/mcp/auth_callback`
    e `https://claude.com/api/mcp/auth_callback`), por igualdade exata, no registro e na
-   autorização. **Por quê:** o conector é para o Claude da organização. Aceitar qualquer endereço
+   autorização. **Por quê:** o conector é só para o Claude. Aceitar qualquer endereço
    abriria espaço para um site de terceiros pedir acesso em nome de alguém da squad.
 
 5. **Não há permissão nova para conectar.** Qualquer pessoa logada conecta; cada ferramenta usa
@@ -57,5 +57,13 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     nesse menu.
 
 11. **Uma conexão ativa por pessoa.** Conectar de novo revoga a anterior. **Por quê:** a pessoa
-    só usa um Claude (a conta da organização), e uma conexão só deixa o modal e a revogação
+    usa uma conta do Claude, e uma conexão só deixa o modal e a revogação
     simples.
+
+12. **Cada pessoa adiciona o conector na própria conta do Claude (Pro ou Max), como conector
+    personalizado pelo endereço `https://softflow.softcom.services/api/mcp`.** Não há Owner nem
+    configuração central. **Por quê:** a squad usa contas pessoais do Claude, não um plano
+    Team/Enterprise (informado pelo usuário em 2026-11-19). O servidor e o login são os mesmos
+    nos dois cenários; só muda quem cadastra o endereço. Por isso o modal "sem conexão" mostra o
+    endereço com botão de copiar como passo principal. No plano Free cabe um só conector
+    personalizado.

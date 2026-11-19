@@ -11,8 +11,8 @@ Brainiac, protótipos). No fim do planejamento, o PO copia o texto e abre o caso
 `/casos/novo`. O passo 7 da skill diz isso: *"ainda manual; a integração por API é uma evolução
 futura"*.
 
-Esta mudança faz o Softflow expor um **servidor MCP** (`/api/mcp`) que a organização adiciona ao
-Claude como **conector** (do mesmo jeito que o Brainiac). Cada pessoa da squad conecta a própria
+Esta mudança faz o Softflow expor um **servidor MCP** (`/api/mcp`) que cada pessoa adiciona ao
+Claude como **conector personalizado** na própria conta (decisão #12). Cada pessoa da squad conecta a própria
 conta do Softflow uma vez e, a partir daí, o Claude consegue, em nome dela e com as permissões
 dela:
 
@@ -29,11 +29,11 @@ produção. O conector nasce só com abertura e consulta de caso.
 
 Uma vez, por pessoa:
 
-1. Um Owner da organização no Claude adiciona o conector personalizado
-   `https://softflow.softcom.services/api/mcp` em **Organization settings → Connectors → Add →
-   Custom** (tipo **Web**), com Authentication **Sign in now** e OAuth client **Register
-   automatically** (DCR). Isso é feito uma vez para todos.
-2. A pessoa abre **Customize → Connectors** no Claude, clica em **Connect** no Softflow (selo **Custom**) e é levada para a tela
+1. A squad usa contas pessoais do Claude (Pro ou Max), não um plano Team/Enterprise. Cada
+   pessoa abre **Customize → Connectors → Add custom connector** e informa o endereço
+   `https://softflow.softcom.services/api/mcp`, com Authentication **Sign in now** e OAuth client
+   **Register automatically** (DCR), se o diálogo perguntar (decisão #12).
+2. Ao clicar em **Add** (ou em **Connect** no conector), a pessoa é levada para a tela
    **Conectar o Claude ao Softflow** (`/oauth/autorizar`). Se não estiver logada, passa pelo
    login do Softflow antes e volta para essa tela.
 3. Confere quem está conectando e o que o Claude vai poder fazer e clica em **Permitir acesso**.
@@ -116,8 +116,9 @@ e o layout de [`components/login/login.tsx`](../../components/login/login.tsx)).
   **Desconectar** (destrutivo `destructive/10`). Desconectar pede confirmação ("Desconectar o
   Claude? O Claude não vai mais abrir nem consultar casos em seu nome até você conectar de
   novo.") e revoga todos os tokens da pessoa na hora.
-- Não conectado: passo a passo curto (abrir Conectores no Claude → Softflow → Conectar) e o
-  endereço do conector com botão de copiar, para quem precisa adicioná-lo à mão.
+- Não conectado: passo a passo curto (Customize → Connectors → Add custom connector → colar o
+  endereço → Permitir acesso) e o endereço do conector com botão de copiar, que é o passo
+  principal em contas pessoais (decisão #12).
 - Carregando: skeleton das duas linhas. Erro: mensagem com "Tentar de novo".
 
 ## Arquitetura
@@ -154,10 +155,12 @@ Conferidos na documentação do Claude em 2026-11-19 (reconfirmar na Fase 0):
 - O Claude também oferece o modo "Use Claude's published identity" (Client ID Metadata Document,
   recomendado pela documentação). Esta especificação usa DCR ("Register automatically"); a Fase 0
   avalia se vale aceitar também o CIMD.
-- Credenciais de OAuth e cabeçalhos não mudam depois que o conector é adicionado: para trocar, o
-  Owner remove e adiciona de novo, e todos reconectam.
-- Nos planos Team e Enterprise, um Owner adiciona o conector para a organização e cada membro
-  conecta a própria conta.
+- Credenciais de OAuth e cabeçalhos não mudam depois que o conector é adicionado: para trocar, a
+  pessoa remove e adiciona de novo.
+- Contas pessoais: Pro e Max adicionam conectores personalizados na própria conta; o plano Free
+  aceita **um** só (se a pessoa já usa outro personalizado, não cabe o Softflow). Nos planos Team e
+  Enterprise, um Owner adiciona para a organização e cada membro conecta; o servidor é o mesmo
+  nos dois casos, então migrar para um plano de organização no futuro não muda o Softflow.
 
 ### Rotas novas
 
@@ -326,11 +329,11 @@ Um commit por parte, na `dev`, com escopo `(conector-claude)`.
    login com volta, "Não é você?", cancelar e erro.
 4. **Servidor MCP e ferramentas.** As cinco ferramentas, prévia com pendências, abertura
    idempotente, linha de origem, refresh do token Soft Flow e `401` com `WWW-Authenticate`.
-   Testar com o MCP Inspector e depois no Claude com um conector pessoal (sem afetar a
-   organização), abrindo um caso de teste num projeto de teste da API de dev.
+   Testar com o MCP Inspector e depois no Claude com o conector personalizado de uma conta
+   de teste, abrindo um caso de teste num projeto de teste da API de dev.
 5. **Menu do usuário e modal "Conexão com o Claude"**, com `GET`/`DELETE` em
    `/api/db/claude-conexao`. Desconectar e conferir que a ferramenta seguinte pede reconexão.
 6. **Publicação e orientação.** Variáveis novas (`CLAUDE_CONECTOR_CHAVE`, URL pública) no
-   `docs/deploy/`, passo a passo para o Owner adicionar o conector na organização, e atualização
+   `docs/deploy/`, passo a passo para cada pessoa adicionar o conector na própria conta, e atualização
    desta pasta no formato padrão. Avisar o usuário para ajustar o passo 7 da skill
    `planejar-softcom` (abrir o caso pelo conector em vez de entregar o texto para colar).
