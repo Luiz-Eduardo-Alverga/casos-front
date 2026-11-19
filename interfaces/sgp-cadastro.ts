@@ -167,6 +167,20 @@ export interface UpdateSgpCadastroApiResponse {
   data: SgpCadastroData;
 }
 
+/** Payload POST /sgp-cadastros/{id}/clonar (datas `YYYY-MM-DD 00:00:00`) */
+export interface ClonarSgpCadastroRequest {
+  nome_projeto: string;
+  data_inicio: string;
+  data_fim: string;
+}
+
+/** Resposta POST /sgp-cadastros/{id}/clonar: `data` é o projeto novo */
+export interface ClonarSgpCadastroResponse {
+  success: boolean;
+  message: string;
+  data: SgpCadastroData;
+}
+
 /** Resposta DELETE /sgp-cadastros/{id} */
 export interface DeleteSgpCadastroApiResponse {
   success: boolean;
