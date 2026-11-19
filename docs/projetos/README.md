@@ -230,7 +230,7 @@ usuário final vai usar, com o mínimo de projetos criados.
 Resposta (2026-11-19, Claude Code): opção A. A API do `.env` é a de desenvolvimento, e o Claude
 Code pode fazer os testes de clone nela.
 
-#### P4 — Nome repetido é aceito pela API · aberta
+#### P4 — Nome repetido é aceito pela API · respondida → decisão #13
 
 Fase: Parte 1 (2026-11-19). Contexto: é a pergunta 2 do planejamento. A API aceitou clonar com um
 nome que já existe (#3313 e #3314 têm o mesmo nome; tabela no "Contrato da API Soft Flow"). Ela
@@ -243,8 +243,9 @@ que recuse nome repetido (fora do escopo desta entrega).
 Recomendação do Claude Code: **A**, porque o caso real (clonar a mesma sprint duas vezes) já é
 barrado pela regra de período, e a API de listagem não tem filtro por nome para uma checagem
 confiável no servidor.
+Resposta (2026-11-19, Claude Code): opção A, nome repetido passa.
 
-#### P5 — O clone perde o objetivo do projeto · aberta
+#### P5 — O clone perde o objetivo do projeto · respondida → decisão #14
 
 Fase: Parte 1 (2026-11-19). Contexto: é a pergunta 4 do planejamento. A origem 3278 tem
 `objetivo_id: 65`, e o clone #3313 voltou com `objetivo_id: 0` (o resto do cadastro, os usuários
@@ -256,6 +257,7 @@ na aba Abertura. **B)** a rota de clonar faz um `PUT /sgp-cadastros/{novo}` logo
 clone). **C)** tratar como bug do backend e só registrar a pendência, sem aviso no modal.
 Recomendação do Claude Code: **A** agora e avisar o backend, porque o PUT completo logo depois do
 clone duplica a regra de montagem do payload na rota e pode sobrescrever campos se a API mudar.
+Resposta (2026-11-19, Claude Code): opção A, o modal avisa e o backend fica como pendência.
 
 Detalhe decidido pelo Claude Code (pergunta 4 do planejamento, sem conflito com decisões): o texto
 informativo do modal passa a citar também usuários autorizados e stakeholders, já que a API os
