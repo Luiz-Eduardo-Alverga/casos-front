@@ -760,7 +760,7 @@ copia. A decisão #9 continua valendo: os casos não vêm.
 2. **Parte 2: tela.** `components/projetos/clonar/` (modal, schema, utils), botão na linha, permissão
    no entrypoint, destaque da linha nova. Conferir no navegador: padrões do modal, erro de datas,
    erro da API, sucesso com destaque, tema escuro e 390px.
-3. **Parte 3: fechamento.** README (tirar "Próxima mudança planejada" e documentar o clone no
+3. **Parte 3: fechamento.** README (tirar a seção da mudança planejada e documentar o clone no
    formato padrão), decisões, contexto, status e `docs/rbac/` se a permissão mudar.
 
 ### Andamento da implementação (clonar projeto)
