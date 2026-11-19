@@ -387,6 +387,31 @@ app/api/sgp-cadastros/route.ts    GET repassa NomeProjeto, Status, data_inicio e
    Enter, mês, URL com os filtros e mobile.
 3. **Parte 3: fechamento.** README, decisões, contexto e status.
 
+### Andamento da implementação (filtros)
+
+Fase 0 concluída em 2026-11-19, sem pergunta para o usuário. Conferido no código:
+
+- Os arquivos citados existem (`components/projetos/filtros/*`, `hooks/projetos/use-projetos-filtros.ts`,
+  `services/sgp-cadastros/get-sgp-cadastros.ts`, `app/api/sgp-cadastros/route.ts`). Hoje o GET da
+  rota só repassa `Setor`, `Registro`, `objetivo_id`, `per_page` e `cursor`, então as perguntas 1
+  (regra de período) e 2 (`NomeProjeto`) só podem ser conferidas depois da Parte 1, como o plano
+  já prevê.
+- Pergunta 3, resolvida pela decisão #37: se o setor do usuário não estiver em `useSetores`, o
+  Setor fica em "Todos" e o mês atual continua aplicado (a lista mostra todos os setores no mês),
+  em vez de "Nenhum filtro aplicado".
+- Detalhes decididos pelo Claude Code: o Setor usa o `CasoFormSetor` que já existe (combobox;
+  "Todos" = limpar a seleção, com placeholder "Todos"); o padrão (setor do usuário + mês atual) é
+  gravado na URL ao abrir sem filtros, esperando `useSetores` para converter o nome do setor em
+  id, como no cadastro; o `mes-picker` usa só tokens existentes (`bg-primary` no mês escolhido,
+  contorno `border-primary` no mês atual, `hover:bg-muted` nos outros); o parâmetro `objetivo`
+  continua aceito na URL, sem campo na tela (decisão #35).
+
+- [ ] Parte 1: dados (service e route com `NomeProjeto`, `Status`, `data_inicio`, `data_fim`;
+  tipos, parsers e mappers com `mesParaIntervalo`) e conferência das perguntas 1 e 2 na API de dev
+- [ ] Parte 2: tela (`mes-picker`, Nome, Setor, Status e Mês no card, padrão com setor do usuário
+  e mês atual, Limpar voltando ao padrão)
+- [ ] Parte 3: fechamento (README, decisões, contexto, status)
+
 ### Fora do escopo
 
 Filtro de Objetivo, intervalo de datas livre (dia a dia), filtro por PDV ou classe e ordenação da
