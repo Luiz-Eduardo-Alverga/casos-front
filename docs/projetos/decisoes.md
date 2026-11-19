@@ -49,3 +49,22 @@ Origem: chat de planejamento do "Clonar projeto", com protótipo em [`prototipo/
    projeto de origem, que já existe. **Por quê:** a duplicação de casos tem regras próprias
    (elegíveis, bloqueados, "Não planejado") e já está implementada. Depende da pergunta 4 do
    README: se a API de clone copiar casos, o texto muda e esta decisão é revista com o usuário.
+
+## Clonar projeto (Fase 0, 2026-11-19)
+
+Respostas do usuário às perguntas P1 a P3 do Claude Code (README, "Perguntas do Claude Code").
+
+10. **Clonar usa a permissão `create-project`**, no botão da listagem (`hasPermission` no
+    entrypoint `components/projetos/index.tsx`) e no `withPermission` da rota
+    `app/api/sgp-cadastros/[id]/clonar/route.ts`. Sem permissão nova nem seed. **Por quê:**
+    clonar cria um projeto, e quem pode cadastrar já poderia fazer o mesmo à mão.
+
+11. **O destaque da linha clonada e o selo "Novo" reaproveitam os amarelos do painel:** fundo da
+    linha `bg-panel-badge-importance-yellow-bg` e selo com `bg-panel-badge-importance-yellow` (texto
+    em contraste com o token correspondente). Nenhum token novo. **Por quê:** mantém o amarelo
+    suave aprovado no protótipo sem criar token para um uso pontual.
+
+12. **As perguntas 2 a 5 do planejamento são conferidas na Parte 1 pelo Claude Code, clonando
+    projetos na API Soft Flow de desenvolvimento** (a apontada pelo `.env`) pela rota nova, logado
+    no app local. **Por quê:** o usuário confirmou que é a API de dev, então os projetos criados no
+    teste não afetam produção.

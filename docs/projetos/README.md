@@ -170,7 +170,7 @@ não conhece RBAC (regra da seção 10 deste README).
 
 ### Perguntas do Claude Code
 
-#### P1 — Permissão do clone · aberta
+#### P1 — Permissão do clone · respondida → decisão #10
 
 Fase: Fase 0 (2026-11-19). Contexto: é a pergunta 1 do planejamento. Hoje o módulo usa
 `create-project` (`components/projetos/index.tsx`, `app/api/sgp-cadastros/route.ts`, seed em
@@ -179,8 +179,9 @@ Opções: **A)** usar `create-project` no botão e no `withPermission` da rota n
 `clone-project` com seed `db/scripts/seed-clone-project-rbac.sql` e atribuição aos papéis na UI.
 Recomendação do Claude Code: **A**, porque clonar cria um projeto e quem pode cadastrar já pode
 fazer o mesmo à mão; não exige seed nem configuração de papéis.
+Resposta (2026-11-19, Claude Code): opção A, usar `create-project`.
 
-#### P2 — Tokens do destaque da linha nova e do selo "Novo" · aberta
+#### P2 — Tokens do destaque da linha nova e do selo "Novo" · respondida → decisão #11
 
 Fase: Fase 0 (2026-11-19). Contexto: o protótipo (captura 05, `pjVals`) pinta a linha clonada com
 `--yellow-soft` e o selo "Novo" com fundo amarelo. Não há token semântico de "linha em destaque" em
@@ -193,8 +194,9 @@ no selo, sem token novo. **C)** destaque neutro/azul com os tokens existentes (`
 e selo com `status-info`), sem amarelo.
 Recomendação do Claude Code: **A**, porque mantém o visual aprovado no protótipo com nome
 semântico próprio, sem amarrar a listagem de projetos a tokens do painel.
+Resposta (2026-11-19, Claude Code): opção B, reaproveitar os amarelos do painel.
 
-#### P3 — Onde conferir as perguntas 2 a 5 da API · aberta
+#### P3 — Onde conferir as perguntas 2 a 5 da API · respondida → decisão #12
 
 Fase: Fase 0 (2026-11-19). Contexto: o plano manda conferir na Parte 1, "clonando um projeto de
 teste". Cada teste cria um projeto de verdade na API Soft Flow apontada pelo `.env`, e não há
@@ -208,6 +210,8 @@ API como vier (`extractApiError`), não faz `POST /sgp-usuarios` e o texto do mo
 corrige-se depois se o teste mostrar diferença.
 Recomendação do Claude Code: **A**, porque responde tudo de uma vez pelo mesmo caminho que o
 usuário final vai usar, com o mínimo de projetos criados.
+Resposta (2026-11-19, Claude Code): opção A. A API do `.env` é a de desenvolvimento, e o Claude
+Code pode fazer os testes de clone nela.
 
 ### Plano de implementação
 
@@ -219,6 +223,16 @@ usuário final vai usar, com o mínimo de projetos criados.
    erro da API, sucesso com destaque, tema escuro e 390px.
 3. **Parte 3: fechamento.** README (tirar "Próxima mudança planejada" e documentar o clone no
    formato padrão), decisões, contexto, status e `docs/rbac/` se a permissão mudar.
+
+### Andamento da implementação
+
+Fase 0 concluída em 2026-11-19 (decisões #10 a #12). Detalhes decididos pelo Claude Code: datas com
+`DatePickerInput` (o do cadastro e do cronograma); a linha clonada mostra também "Clonado do projeto
+#…", como na captura 05; se a origem não tiver `data_fim`, as datas padrão do modal ficam vazias.
+
+- [ ] Parte 1: dados (rota, tipos, service, hook) e conferência das perguntas 2 a 5 na API de dev
+- [ ] Parte 2: tela (modal, schema, utils, botão na linha, permissão, destaque da linha nova)
+- [ ] Parte 3: fechamento (README no formato padrão, decisões, contexto, status)
 
 ### Fora do escopo
 
