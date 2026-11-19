@@ -52,7 +52,10 @@ coberto.
   `font-medium`; medido igual em `/casos` e `/projetos/novo`. O `Label` base virou `block` sem `leading-none`, o que alinhou Tipo e Usuário no modal
   de editar Produção (antes 4px de diferença); verificador de alinhamento sem achados em `/casos`,
   `/casos/novo`, caso 104108 (com o modal), `/projetos`, `/projetos/novo`, `/projetos/3315`,
-  `/produtos`, `/reports/novo` e `/liberacoes`. Ver
+  `/produtos`, `/reports/novo` e `/liberacoes`. No combobox, a lista passou a rolar com a roda do mouse dentro de modais
+  (`Popover` modal) e a seta ficou no lugar do Select quando não há botão de limpar; conferido no
+  modal de editar Produção (Usuário rolou e selecionou; seta a 13px como o Tipo) e nos filtros de
+  Casos. Ver
   [`design-system.md`](design-system.md).
 - **Avisos: aviso automático (bloqueante)** (2026-11-18, na `dev`). Aviso não lido com `auto`,
   enviado nos últimos 7 dias, abre numa janela sem X sobre qualquer tela do dashboard, um por vez

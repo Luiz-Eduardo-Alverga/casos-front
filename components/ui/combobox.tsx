@@ -287,9 +287,8 @@ export function Combobox({
             // O gatilho estica (h-full) em vez de impor a própria altura, senão
             // somaria a borda do container e o controle ficaria mais alto.
             "h-full rounded-none border-0 bg-transparent pr-0 shadow-none hover:bg-transparent focus-visible:ring-0 dark:bg-transparent"
-          : value
-            ? "pr-0"
-            : "rounded-lg",
+          : // Sem botão de limpar: mantém o px-3 dos dois lados (a seta fica no lugar do Select).
+            "rounded-lg",
         !value && "text-muted-foreground",
         // No modo âncora, className (altura/borda/etc.) é aplicado ao container,
         // não ao gatilho — assim a altura não soma com a borda do container.
@@ -308,6 +307,10 @@ export function Combobox({
 
   return (
     <Popover
+      // Modal: a lista abre num portal fora do Dialog, e a trava de rolagem do Dialog bloqueava a
+      // roda do mouse nela. Com `modal`, a trava ativa passa a ser a do Popover (lista liberada),
+      // como no Select.
+      modal
       open={disabled ? false : open}
       onOpenChange={disabled ? undefined : handleOpenChange}
     >

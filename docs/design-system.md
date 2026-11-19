@@ -251,6 +251,10 @@ Não usar `mb-4` por aba no lugar de `pb-12`/`pb-24`. Referências:
   de `@/components/fields` e do `ComboboxField`, e campos lado a lado ficam alinhados. Ajustado em
   2026-11-19: como `inline`, o rótulo ocupava uma linha de 24px, e o Tipo do modal de editar
   Produção ficava 4px abaixo do Usuário.
+- **Combobox (`components/ui/combobox.tsx`)**: o `Popover` é `modal`, para a lista rolar com a roda do
+  mouse dentro de `Dialog` (sem isso, a trava de rolagem do Dialog bloqueava o portal da lista); e
+  sem botão de limpar (`clearable={false}`) o gatilho mantém `px-3` dos dois lados, com a seta no
+  mesmo lugar do Select (antes ganhava `pr-0` quando havia valor). Ajustado em 2026-11-19.
 - **Tabelas:** fundo branco, separador `border-divider`, células `py-3 px-2.5`, sem zebra.
 - **Badges:** pílulas da seção 2.4; contadores compactos (~36×28px).
 - **Tabs:** sublinhado ou pill discreto.
