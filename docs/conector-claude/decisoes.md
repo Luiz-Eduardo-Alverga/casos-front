@@ -85,5 +85,5 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     próprio, cifrado, renovado pelo servidor) continua. **Por quê:** o teste da P1 mostrou que o
     refresh invalida o token anterior na hora, então pegar o token da conexão por refresh derrubaria
     a sessão do navegador. O login emite um segundo token sem depender de mudança no legado
-    (escolha do usuário em 2026-11-19, opção C da P1). Pendente de conferência: o login não pode
-    derrubar as outras sessões da pessoa.
+    (escolha do usuário em 2026-11-19, opção C da P1). Conferido em 2026-11-19: o login do
+    conector não derruba as outras sessões da pessoa.
