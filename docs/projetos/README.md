@@ -3,6 +3,11 @@
 > **Estado: implementado.** É o modelo de organização de pastas seguido por Casos e Produtos.
 > Padrões gerais em [`padrao-front/`](../padrao-front/README.md). Decisões travadas em
 > [`decisoes.md`](decisoes.md).
+>
+> **Próxima mudança planejada: filtros da listagem** (Nome, Setor do usuário já aplicado, Status e
+> Mês). Especificada em 2026-11-19 e ainda não implementada. Ver a seção
+> [Próxima mudança planejada](#próxima-mudança-planejada-filtros-da-listagem-de-projetos) e as
+> decisões #30 a #36.
 
 ## O que é
 
@@ -273,6 +278,117 @@ hooks/projetos/use-salvar-stakes-em-lote.ts  POST/PUT por linha em sequência, r
 - `stakes/utils.ts` ainda exporta funções dos cards antigos (`computeStakeCardTotalMin`,
   `formatStakeCardTotal`, `computeStakesHorasTotais` etc.) sem uso; `formatSgpHorasCurto` e
   `getUsuarioIniciais` seguem em uso.
+
+## Próxima mudança planejada: filtros da listagem de Projetos
+
+### Objetivo
+
+Hoje a listagem `/projetos` só filtra por **Id do projeto** (`Registro`). Os filtros de Setor e
+Objetivo existem no código, mas estão comentados. Esta mudança acrescenta **Nome do projeto, Setor,
+Status e Mês**, que são parâmetros que o `GET /sgp-cadastros` já aceita. O Setor vem **preenchido e
+aplicado** com o setor do usuário logado, então a lista já abre com os projetos do squad dele
+(decisões #30 a #36).
+
+### Protótipo
+
+[`prototipo/softflow-prototipo.html`](prototipo/softflow-prototipo.html), atualizado em
+2026-11-19, no menu **Projetos**. A lógica está em `pjVals` (bloco `filtros`), e as regras puras
+ficam em `pjFiltra`, `pjMesIntervalo`, `pjMesNome`, `PJ_FILTRO_PADRAO` e `PJ_SETOR_USUARIO`. No
+mock, o mês atual é outubro de 2026 (`NOW`).
+
+| Captura | Estado |
+|---------|--------|
+| `capturas/15-projetos-filtros-padrao.png` | Ao abrir: Setor = setor do usuário, já aplicado ("1 filtro aplicado") |
+| `capturas/16-projetos-seletor-mes.png` | Seletor de mês aberto: ano com setas, 12 meses, mês atual com contorno, "Este mês" e "Todos os meses" |
+| `capturas/17-projetos-filtrado-mes.png` | Novembro de 2026 + Aberto |
+| `capturas/18-projetos-sem-resultado.png` | Nenhum projeto encontrado |
+| `capturas/19-projetos-filtros-mobile.png` | 390px: campos em coluna única |
+
+### Comportamento
+
+1. **Card "Filtros"**: header com ícone `Filter`, título e o selo "N filtro(s) aplicado(s)" quando
+   houver. O content tem um grid que quebra sozinho (no desktop: Id, Nome ocupando 2 colunas,
+   Setor, Status; na linha de baixo, Mês e o botão Filtrar). No mobile, coluna única.
+2. **Campos e parâmetros**:
+
+   | Campo | Parâmetro | Regra |
+   |---|---|---|
+   | Id do projeto | `Registro` | Só dígitos (mantém o campo atual) |
+   | Nome do projeto | `NomeProjeto` | Texto com ícone de busca, "Busque por parte do nome..."; `trim` |
+   | Setor | `Setor` (nome) | Select com "Todos"; abre com o setor do usuário (decisão #31) |
+   | Status | `Status` | Todos / Aberto (`ABERTO`) / Fechado (`FECHADO`) (decisão #33) |
+   | Mês | `data_inicio` + `data_fim` | Seletor só de mês (decisão #32): 1º e último dia do mês, `AAAA-MM-DD` |
+
+3. **Seletor de mês** (decisão #32): o gatilho tem a aparência de um select, com ícone `Calendar`,
+   e mostra "Novembro de 2026" ou "Todos os meses". Ele abre um popover com:
+   - o ano e as setas "Ano anterior" e "Próximo ano";
+   - uma grade de 3×4 meses ("Jan"…"Dez", com `aria-label` "Novembro de 2026"). O mês escolhido
+     fica com fundo primário e o mês atual com contorno;
+   - um rodapé com "Este mês" e "Todos os meses".
+
+   Escolher um mês fecha o popover. Esc ou clique fora também fecham.
+4. **Aplicar**: o botão **Filtrar** e o **Enter** em qualquer campo de texto aplicam os filtros.
+   Filtrar fica desabilitado sem nenhum filtro, como hoje. Os filtros continuam na URL (`nuqs`),
+   com as chaves novas `nome`, `status` e `mes`.
+5. **Ao abrir a tela** sem filtros na URL: Setor = setor do usuário, e a busca já sai (decisão
+   #31). Com filtros na URL, valem os da URL.
+6. **Limpar filtros** (botão do topo da página): volta ao padrão, com o setor do usuário aplicado e
+   o resto vazio (decisão #34). Para ver todos os setores, o usuário escolhe "Todos" no Setor.
+7. Estados: "Nenhum filtro aplicado" (quando o usuário tira tudo), skeleton durante a busca e
+   "Nenhum projeto encontrado". Esses três estados não mudam.
+
+### O que reaproveitar
+
+- `components/projetos/filtros/`: `projetos-filtros.tsx`, `projetos-filtros.types.ts`,
+  `projetos-filtros-mappers.ts` e `projetos-filtros-parsers.ts`. O trabalho é acrescentar campos a
+  esses arquivos, não criar outros.
+- `CasoFormSetor` (já importado no arquivo e comentado) e `resolveSetorNome`. O setor do usuário
+  vem de `getUser().setor` (nome), convertido para id com `resolveSetorIdByNome`, como em
+  `components/projetos/cadastro/index.tsx`.
+- Status: `Select` de `@/components/ui/select`, com as opções do `ProjetoStatusBadge`.
+- Seletor de mês: **não existe no repositório.** Criar em `components/fields/mes-picker.tsx`
+  (`Popover` + grade de `Button`), genérico, para servir a outras telas mensais. Se precisar de
+  cor nova, parar e perguntar (regra do design-system).
+- O filtro de Objetivo (`CasoFormSgpObjetivo`) continua fora (decisão #35).
+
+### Arquitetura proposta
+
+```text
+components/projetos/filtros/
+├── projetos-filtros.tsx          + Nome, Setor (descomentado), Status, Mês; grid 4 colunas
+├── projetos-filtros.types.ts     + nome, status, mes (AAAA-MM)
+├── projetos-filtros-mappers.ts   + mesParaIntervalo; filtrosToSgpCadastrosParams com os novos
+├── projetos-filtros-parsers.ts   + nome, status, mes na URL
+components/fields/mes-picker.tsx  seletor só de mês (novo, genérico)
+hooks/projetos/use-projetos-filtros.ts   padrão com o setor do usuário; limpar volta ao padrão
+services/sgp-cadastros/get-sgp-cadastros.ts  + nome_projeto, status, data_inicio, data_fim
+app/api/sgp-cadastros/route.ts    GET repassa NomeProjeto, Status, data_inicio e data_fim
+```
+
+### Perguntas em aberto (resolver na Fase 0)
+
+1. **Regra de período da API:** com `data_inicio` = 01/11 e `data_fim` = 30/11, a API traz os
+   projetos que **começam e terminam** dentro do mês, ou os que **cruzam** o mês? No protótipo,
+   a regra é "dentro do mês", mas projetos longos (ex.: Sustentação, jan–dez) só aparecem na
+   outra regra. Conferir na API de teste e registrar como decisão. Se a API não cobrir a regra
+   desejada, perguntar ao usuário.
+2. **`NomeProjeto`** busca por parte do nome e sem diferenciar maiúsculas? Conferir.
+3. **Setor do usuário que não aparece em `useSetores`:** cair em "Todos" e mostrar "Nenhum
+   filtro aplicado"? Proposta: sim.
+
+### Plano de implementação
+
+1. **Parte 1: dados.** Service e route com os 4 parâmetros novos, tipos, parsers e mappers
+   (`mesParaIntervalo`). Conferir as perguntas 1 e 2 na API de teste.
+2. **Parte 2: tela.** `mes-picker`, campos novos no card, setor do usuário como padrão e Limpar
+   voltando ao padrão. Conferir no navegador: abrir já filtrado, Enter, mês, URL com os filtros e
+   mobile.
+3. **Parte 3: fechamento.** README, decisões, contexto e status.
+
+### Fora do escopo
+
+Filtro de Objetivo, intervalo de datas livre (dia a dia), filtro por PDV ou classe e ordenação da
+listagem.
 
 ---
 

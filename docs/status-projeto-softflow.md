@@ -172,3 +172,8 @@ planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
+- **Projetos: filtros da listagem**: especificado em 2026-11-19. Nome do projeto, Setor (já
+  aplicado com o setor do usuário), Status (Aberto/Fechado) e Mês (seletor só de mês → `data_inicio`/
+  `data_fim`), além do Id que já existe. Protótipo, decisões #30 a #36 e plano em 3 partes em
+  [`projetos/`](projetos/README.md#próxima-mudança-planejada-filtros-da-listagem-de-projetos). Regra
+  de período da API para conferir na Fase 0. Implementar com `/implementar projetos`.

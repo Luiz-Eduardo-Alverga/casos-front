@@ -169,3 +169,35 @@ protótipo em [`prototipo/`](prototipo/) (capturas 07 a 14).
     para o mais antigo, então o front reordena. Responde a pergunta 5 do planejamento (P6 do
     Claude Code). **Por quê:** resposta do usuário. A lista se comporta como planilha, e nada muda
     de lugar ao salvar.
+
+## Filtros da listagem (planejamento, 2026-11-19)
+
+Origem: chat de planejamento a partir dos parâmetros do `GET /sgp-cadastros` enviados pelo
+usuário (`Setor`, `NomeProjeto`, `Registro`, `data_inicio`, `data_fim`, `Status`), com protótipo
+em [`prototipo/`](prototipo/) (capturas 15 a 19).
+
+30. **A listagem passa a filtrar por Id, Nome do projeto, Setor, Status e Mês.** O Id já existe.
+    Os outros usam parâmetros que a API já aceita. **Por quê:** pedido do usuário. Só com o Id,
+    era preciso saber o número do projeto para encontrá-lo.
+
+31. **O Setor abre preenchido com o setor do usuário logado e já aplicado**, e a lista carrega ao
+    entrar na tela. Filtros na URL têm prioridade. **Por quê:** resposta do usuário. Quase sempre
+    a pessoa olha os projetos do próprio squad.
+
+32. **O período é por mês, num seletor só de meses** (ano com setas e grade de 12 meses), e não
+    num intervalo livre de datas. O front manda `data_inicio` = 1º dia e `data_fim` = último dia
+    do mês. **Por quê:** resposta do usuário. Os projetos são organizados por mês e sprint. A
+    regra exata de período da API (dentro do mês ou cruzando o mês) fica para a Fase 0.
+
+33. **O Status tem só Todos, Aberto e Fechado.** **Por quê:** resposta do usuário. A API só tem
+    esses dois valores.
+
+34. **"Limpar filtros" volta ao padrão: setor do usuário aplicado e o resto vazio.** Para ver
+    todos os setores, o usuário escolhe "Todos" no Setor. **Por quê:** é coerente com a decisão
+    #31. Limpar não deixa a tela vazia sem motivo.
+
+35. **O filtro de Objetivo (`objetivo_id`) continua fora da tela.** **Por quê:** resposta do
+    usuário. Não estava entre os filtros pedidos.
+
+36. **Filtrar continua por botão (ou Enter), e os filtros continuam na URL.** **Por quê:** é o
+    padrão das outras listagens (Casos, Liberações) e evita uma busca a cada tecla no Nome.
