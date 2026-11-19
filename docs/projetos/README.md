@@ -440,8 +440,19 @@ Fase 0 concluída em 2026-11-19, sem pergunta para o usuário. Conferido no cód
   `mesDaData` e `contarFiltrosAplicados` nos mappers. Conferido com `tsx` (intervalos, fevereiro
   bissexto, parâmetros, status inválido ignorado) e na API de dev. A pergunta 2 está respondida
   acima; a pergunta 1 virou a P7 (regra "começa no período"). Build e `eslint` ok.
-- [ ] Parte 2: tela (`mes-picker`, Nome, Setor, Status e Mês no card, padrão com setor do usuário
-  e mês atual, Limpar voltando ao padrão)
+- [x] Parte 2: tela (`mes-picker`, Nome, Setor, Status e Mês no card, padrão com setor do usuário
+  e mês atual, Limpar voltando ao padrão). Entregue em 2026-11-19: `components/fields/mes-picker.tsx`
+  (genérico: gatilho com `Calendar`, popover com ano e setas, grade 3×4, escolhido `bg-primary`,
+  mês atual `border-primary`, hover `bg-muted`, "Este mês" e "Todos os meses"); card com Id (só
+  dígitos), Nome com lupa, `CasoFormSetor` com placeholder "Todos", Status (Todos/Aberto/Fechado),
+  Mês e Filtrar, em grid `md:2` / `lg:5` colunas (Nome ocupa 2), header `p-4 pb-2` com o selo "N
+  filtros aplicados"; `useProjetosFiltros` grava o padrão na URL ao abrir sem filtros (espera
+  `useSetores`) e o Limpar volta a ele; a tabela mostra skeleton enquanto o padrão não foi gravado.
+  Conferido no navegador: abrir `/projetos` virou `?setor=38&mes=2026-11` com "2 filtros
+  aplicados" e as sprints 3278/3277; Ano anterior → Dezembro de 2025, Status Fechado e Enter no
+  Nome deram `?…&mes=2025-12&nome=squad+xp&status=FECHADO` com o #2931 e "4 filtros aplicados";
+  recarregar com filtros na URL mantém os da URL; Limpar voltou a setor + novembro; "Nenhum
+  projeto encontrado"; 390px em coluna única sem rolagem horizontal. Build e `eslint` ok.
 - [ ] Parte 3: fechamento (README, decisões, contexto, status)
 
 ### Fora do escopo
