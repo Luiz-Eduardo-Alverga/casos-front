@@ -398,7 +398,7 @@ Resposta (2026-11-19, Claude Code): B. O endereço atual é `https://softflow.ho
 ## Andamento da implementação
 
 - [x] Fase 0 (2026-11-19); P3 respondida, P1 e P2 abertas
-- [x] Parte 1: refatoração sem mudança de comportamento (2026-11-19). `lib/casos/versao-produto.ts`, `lib/casos/payload.ts` (os arquivos de `components/casos/shared/` reexportam), `lib/casos/criar-caso.ts` e `lib/auxiliar/catalogos.ts`. Catálogos conferidos na tela `/casos/novo` (2026-11-19, todas as rotas `/api/auxiliar/*` do formulário com 200); abertura de caso com DM no Discord ainda não conferida
+- [x] Parte 1: refatoração sem mudança de comportamento (2026-11-19). `lib/casos/versao-produto.ts`, `lib/casos/payload.ts` (os arquivos de `components/casos/shared/` reexportam), `lib/casos/criar-caso.ts` e `lib/auxiliar/catalogos.ts`. Catálogos conferidos na tela `/casos/novo` (2026-11-19, todas as rotas `/api/auxiliar/*` do formulário com 200); abertura conferida com o caso de teste 104140 (produto Softflow, projeto 3316, `POST /api/projeto-casos` → 201). A DM do Discord depende de conferência no Discord
 - [ ] Parte 2: banco e OAuth (depende da P1)
 - [ ] Parte 3: tela de autorização
 - [ ] Parte 4: servidor MCP e ferramentas (depende da P2)
