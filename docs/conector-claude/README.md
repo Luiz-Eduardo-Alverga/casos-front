@@ -371,6 +371,35 @@ deslogada do navegador ao conectar.
 Recomendação do Claude Code: confirmar com quem mantém a API Soft Flow (ou testar com um token de
 dev) antes da Parte 2. A Parte 1 não depende disso e pode começar.
 
+**Teste na API de dev (2026-11-19, Claude Code, com o token da sessão do navegador):**
+
+| Passo | Resultado |
+|-------|-----------|
+| `GET /auth/me` com o token atual | 200 |
+| `POST /auth/refresh` com o token atual | 200, `{ success, message, authorization: { type: "bearer", token } }`, sem validade na resposta |
+| `GET /auth/me` com o token **antigo** depois do refresh | **401** |
+| `GET /auth/me` com o token novo | 200 |
+| `POST /auth/refresh` de novo com o token antigo | 401 "Não autenticado. Token de acesso necessário." |
+
+Os tokens são opacos (não são JWT), então a validade não aparece no token nem na resposta.
+Conclusão: **é o cenário B.** O refresh troca o token (o anterior morre na hora). Pegar o token da
+conexão por refresh, como a decisão #7 previa, derruba a sessão do navegador, e o teste derrubou de
+fato a sessão usada nele. Renovar o token **da própria conexão** por refresh continua possível: só
+mata o token da conexão, que é trocado pelo novo. O que falta é um jeito de obter um **segundo**
+token sem matar o do navegador. Opções revisadas:
+**C)** Na tela de autorização, a pessoa digita a senha de novo e o servidor chama `POST /auth/login`
+para emitir o token da conexão. A senha só passa pela rota, nunca é guardada. Muda a decisão #7 (e
+acrescenta um campo de senha na tela do protótipo). Depende de o login **não** derrubar os tokens
+que já existem (conferir entrando em dois navegadores ao mesmo tempo).
+**D)** Pedir ao legado um endpoint que emite token de integração a partir do token da sessão. Muda a
+decisão #3 e depende de outra equipe.
+**E)** No "Permitir acesso", dar o token novo do refresh para a conexão e trocar o cookie do navegador
+por... nada: não há como ter dois tokens só com refresh. Descartada.
+Recomendação do Claude Code: C, se o login aceitar duas sessões ao mesmo tempo, porque não depende
+do legado e a reautenticação é comum em telas de consentimento. Validade do token e refresh com
+token expirado continuam sem resposta: com C, se o token da conexão vencer, o `401` faz o Claude
+pedir reconexão, que é aceitável.
+
 ### P2 — Limites de `DescricaoResumo` e `DescricaoCompleta` · aberta
 
 Fase: Fase 0 (2026-11-19). Contexto: pergunta em aberto 4. O `casoCreateFormSchema`
