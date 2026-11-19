@@ -61,7 +61,7 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     simples.
 
 12. **Cada pessoa adiciona o conector na própria conta do Claude (Pro ou Max), como conector
-    personalizado pelo endereço `https://softflow.hostsoftcom.cloud/api/mcp`.** (domínio atualizado pela decisão #13) Não há Owner nem
+    personalizado pelo endereço `https://softflow.softcom.services/api/mcp`.** (Domínio revogado pela decisão #13.) Não há Owner nem
     configuração central. **Por quê:** a squad usa contas pessoais do Claude, não um plano
     Team/Enterprise (informado pelo usuário em 2026-11-19). O servidor e o login são os mesmos
     nos dois cenários; só muda quem cadastra o endereço. Por isso o modal "sem conexão" mostra o
