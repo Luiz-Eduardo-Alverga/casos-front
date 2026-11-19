@@ -96,7 +96,7 @@ Navegação em três blocos: **painéis pessoais**, **gerenciar** e **recursos**
 
 ### Projetos e entrega
 
-- **Projetos** (`/projetos`) — listagem, cadastro (`/projetos/novo`) e edição (`/projetos/[id]`) com abas: **Abertura, Escopo, Risco, Stakeholders, Cronograma**. Escopo lista casos/reports da memória do projeto (badges de status, origem caso vs report) e duplica casos para outro projeto: sem seleção, a API leva os elegíveis do projeto; com casos marcados, só esses ids vão em `registros`. Padrão de pastas em `docs/projetos/README.md`.
+- **Projetos** (`/projetos`) — listagem, cadastro (`/projetos/novo`) e edição (`/projetos/[id]`) com abas: **Abertura, Escopo, Risco, Stakeholders, Cronograma**. Escopo lista casos/reports da memória do projeto (badges de status, origem caso vs report) e duplica casos para outro projeto: sem seleção, a API leva os elegíveis do projeto; com casos marcados, só esses ids vão em `registros`. Planejado (não implementado): a aba Stakeholders vira lista editável em linha, com salvar em lote, copiar/colar (TSV) e importar de outro projeto do mesmo setor. Padrão de pastas em `docs/projetos/README.md`.
   A listagem e o menu ⋯ da edição clonam um projeto (Clonar, permissão `create-project`): modal com nome e
   período (padrão: próximo período com a mesma duração), `POST /sgp-cadastros/{registro}/clonar`
   pela rota `app/api/sgp-cadastros/[id]/clonar`. A API copia o cadastro, os usuários autorizados e

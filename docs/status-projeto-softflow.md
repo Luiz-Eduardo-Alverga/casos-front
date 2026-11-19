@@ -163,3 +163,8 @@ planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
+- **Projetos: aba Stakes em lista**: especificado em 2026-11-19. Lista editável em linha com
+  salvar em lote, colaborador repetido bloqueado, copiar linhas (TSV), colar com Ctrl+V e importar
+  de outro projeto do mesmo setor. Protótipo, decisões #16 a #28 e plano em 4 partes em
+  [`projetos/`](projetos/README.md#próxima-mudança-planejada-aba-stakes-em-lista). Cinco perguntas
+  para a Fase 0. Implementar com `/implementar projetos`.

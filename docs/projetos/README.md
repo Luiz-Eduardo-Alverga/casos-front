@@ -3,6 +3,11 @@
 > **Estado: implementado.** É o modelo de organização de pastas seguido por Casos e Produtos.
 > Padrões gerais em [`padrao-front/`](../padrao-front/README.md). Decisões travadas em
 > [`decisoes.md`](decisoes.md).
+>
+> **Próxima mudança planejada: aba Stakes em lista**, com copiar, colar e importar de outro
+> projeto. Especificada em 2026-11-19 e ainda não implementada. Ver a seção
+> [Próxima mudança planejada](#próxima-mudança-planejada-aba-stakes-em-lista) e as decisões #16 a
+> #28.
 
 ## O que é
 
@@ -159,6 +164,201 @@ components/projetos/edicao/projeto-edit-header.tsx         item "Clonar" do menu
   nenhum). O texto do modal não os cita.
 - Projetos de teste criados na API de dev em 2026-11-19: #3313, #3314, #3315 e #3316 (o app não
   exclui projeto).
+
+## Próxima mudança planejada: aba Stakes em lista
+
+### Objetivo
+
+Hoje a aba **Stakes** de `/projetos/[id]` mostra um card por stakeholder, e cada inclusão ou
+alteração passa pelo `StakeFormModal`. Lançar a equipe de uma sprint leva muitos cliques. Esta
+mudança troca os cards por uma **lista editável em linha**, no estilo de planilha, com salvar em
+lote (decisões #16 a #23). Ela também traz o que o usuário fazia no Access: **copiar as linhas de
+um projeto e colar em outro**, e **importar direto de outro projeto do mesmo setor** (decisões #24
+a #26). O card **Usuários autorizados**, abaixo, não muda.
+
+### Protótipo
+
+[`prototipo/softflow-prototipo.html`](prototipo/softflow-prototipo.html), atualizado em
+2026-11-19. Para abrir a aba, vá em **Projetos** e clique no lápis de qualquer linha. Só a aba
+Stakes está prototipada; as outras mostram "Aba fora deste protótipo". A lógica está em
+`stkVals`, `stkImpVals`, `stkSalvar`, `stkAdd`, `stkCopiar` e `onPaste`, e as regras puras ficam
+em `stkValida`, `stkComDuplicados`, `stkTsv` e `stkParse`. Os dados mockados estão em
+`STK_SEED`, `STK_FUNCOES`, `STK_COLABS` e `stkDoProjeto`.
+
+| Captura | Estado |
+|---------|--------|
+| `capturas/07-stakes-lista.png` | Lista com 10 stakeholders e o rodapé de totais (225h / 135h / 360h) |
+| `capturas/08-stakes-linha-nova.png` | Uma linha alterada (faixa amarela) e uma nova (faixa azul), com "2 linhas não salvas" |
+| `capturas/09-stakes-erro-repetido.png` | Salvar com colaborador repetido: borda vermelha e "Linha 11: Colaborador já está em outra linha" |
+| `capturas/10-stakes-salvo.png` | Depois de salvar: toast "Stakeholders salvos: 1 novo e 1 alterado." |
+| `capturas/11-stakes-copiado.png` | Toast do Copiar linhas |
+| `capturas/12-stakes-colar-previa.png` | Ctrl+V com linhas copiadas: prévia com repetidos bloqueados e linha com problema |
+| `capturas/13-stakes-importar-projeto.png` | Importar › De outro projeto, só com projetos do mesmo setor |
+| `capturas/14-stakes-mobile.png` | 390px: a tabela rola na horizontal dentro do card |
+
+O protótipo é referência de estrutura. As cores inline dele não entram no código: traduzir para
+tokens ([`design-system.md`](../design-system.md)). Onde divergir das decisões, as decisões
+vencem.
+
+### Comportamento
+
+1. **Card "Stakeholders"**:
+   - Header: ícone `Users`, título, selo "N pessoas" e "#registro · nome do projeto".
+   - À direita: o aviso "N linhas não salvas" (bolinha amarela, só quando há), **Importar**
+     (`Upload`), **Copiar linhas** (`Copy`), um divisor, **Adicionar linha** (`Plus`) e **Salvar**
+     (primário, `Save`). Os quatro botões ficam visíveis (decisão #28).
+   - Abaixo do header, uma linha de ajuda: "Horas por dia. Tab passa para o próximo campo, Enter
+     na última linha cria outra, Ctrl+S salva e Ctrl+V com linhas copiadas abre a importação.
+     Faixa azul: linha nova · faixa amarela: linha alterada."
+2. **Tabela** (decisão #17): colunas Função, Colaborador, Planejada, Não planejada, Dias, Total,
+   Observação e Excluir.
+   - Função é um select com os tipos `STAKEHOLDERS` (`useSgpTipos`).
+   - Colaborador é um combobox com busca e botão de limpar.
+   - Planejada e Não planejada são horas **por dia**, `HH:MM` com máscara (`0600` vira `06:00`).
+   - Dias é um número inteiro.
+   - Total = (planejada + não planejada) × dias, só leitura.
+   - Observação é texto livre e opcional.
+   - Campos compactos (altura 32px). À esquerda de cada linha, uma faixa de 3px marca o estado:
+     azul para nova, amarela para alterada, sem cor para salva.
+3. **Rodapé de totais**: "Totais · N pessoas" e as somas de planejada × dias, não planejada × dias
+   e total (ex.: 225h / 135h / 360h). Substitui o `StakesSummary`.
+4. **Adicionar linha** (botão do header ou link "Adicionar linha" abaixo da tabela):
+   - A linha nova entra no fim, com os **dias da linha anterior** e as horas em `00:00`.
+   - O foco vai para a Função.
+   - **Enter** num campo de texto da última linha cria outra linha. **Ctrl+S** salva (decisão #23).
+5. **Salvar** (decisões #18 e #19):
+   - Valida as linhas novas e alteradas: função, colaborador da lista, horas `HH:MM` com minutos
+     abaixo de 60, dias ≥ 1, e **colaborador sem repetir** em outra linha (decisão #20).
+   - Se houver erro, nada é enviado. Cada campo com erro fica com borda vermelha, e embaixo da
+     linha aparece "Linha N: …". Toast: "Corrija N linha(s) antes de salvar."
+   - Sem erro: `POST /sgp-stakes` para as novas e `PUT /sgp-stakes/{sequencia}` para as alteradas,
+     uma chamada por linha. O botão mostra "Salvando...", e o resultado sai num toast só:
+     "Stakeholders salvos: X novos e Y alterados."
+   - Se alguma chamada falhar, as que deram certo ficam salvas, e as que falharam continuam
+     marcadas, com a mensagem da API embaixo da linha (decisão #19).
+   - Sem nada alterado, o toast diz "Nenhuma alteração para salvar."
+6. **Excluir** (decisão #21): linha nova sai na hora. Linha salva abre o `ConfirmacaoModal` atual
+   ("Excluir stakeholder") e chama o `DELETE` na hora, fora do lote.
+7. **Descartar** (decisão #22): com linhas não salvas, Voltar, trocar de aba ou sair da tela abre
+   "Descartar alterações?" (destrutivo). Confirmar volta as linhas para o que está gravado.
+8. **Copiar linhas** (decisão #24):
+   - Copia todas as linhas preenchidas como texto separado por tabulação (TSV), com o cabeçalho
+     `Função  Colaborador  Planejada  Não planejada  Dias  Observação`.
+   - Usa `navigator.clipboard.writeText` quando `window.isSecureContext`. Se não der, usa
+     `document.execCommand("copy")` com um textarea oculto.
+   - Toast: "N linhas copiadas. Cole com Ctrl+V na aba Stakes de outro projeto ou numa planilha."
+9. **Colar** (decisão #25): na aba Stakes, um `paste` cujo texto tenha tabulação é interceptado e
+   abre o modal **Importar** em "Colar linhas", já com o texto e a prévia. Não há botão "Colar".
+   - A leitura aceita variações:
+     - cabeçalho opcional (reconhecido por "Função" ou "Papel" na 1ª coluna);
+     - função e colaborador sem diferenciar maiúsculas;
+     - horas como `6`, `6:00`, `6h30` ou `06,30`;
+     - dias só com dígitos.
+   - Colunas por posição: Função, Colaborador, Planejada, Não planejada, Dias, Observação.
+   - Linha sem tabulação vira "Linha N: colunas não estão separadas por tabulação".
+10. **Importar** (modal "Importar stakeholders", decisão #26):
+    - Duas opções no topo: **De outro projeto** (padrão quando aberto pelo botão) e **Colar
+      linhas**.
+    - De outro projeto: um select só com projetos do **mesmo setor** do projeto aberto, com a
+      ajuda "Só aparecem projetos do setor X". Ao escolher, aparecem os stakeholders dele.
+    - Colar linhas: um textarea (monospace) com a explicação do formato.
+    - Prévia: uma linha por stakeholder, com checkbox, "FUNÇÃO · Colaborador" e "HH:MM + HH:MM por
+      dia × N dias · observação". O resumo diz "X de Y linhas selecionadas · N repetidas
+      bloqueadas".
+    - **Repetidos bloqueados** (decisão #20): quem já está no projeto ("Já está no projeto") ou
+      aparece duas vezes na própria lista ("Repetido nesta lista") fica sem checkbox ativo.
+    - Linha com problema (ex.: "Escolha um colaborador da lista") aparece em vermelho, pode ser
+      importada e entra com o erro já marcado na lista.
+    - **Importar N linhas** acrescenta as escolhidas como linhas novas, que só são gravadas no
+      Salvar. Toast: "N linhas importadas[, M com problema para corrigir]. Revise e clique em
+      Salvar."
+11. **Mobile** (decisão #27): a tabela mantém as colunas e rola na horizontal dentro do card
+    (`min-w` ~1080px). O header quebra os botões em linhas.
+12. Estados obrigatórios: skeleton espelhando a tabela (header + 6 linhas + rodapé) na carga,
+    empty state "Nenhum stakeholder no projeto" com "Adicionar linha", e erro de carregamento com
+    "Tentar de novo".
+
+### O que reaproveitar
+
+- `hooks/projetos/use-create-sgp-stake`, `use-update-sgp-stake` e `use-delete-sgp-stake`, com as
+  chaves de `sgpStakesQueryKeys`. Invalidar uma vez só no fim do lote, não a cada linha.
+- `stake-form-utils.ts`: `formatHorasInputToSgpIso`, `formatMinutesToHorasInput`,
+  `buildCreateSgpStakePayload` e `buildUpdateSgpStakePayload`. Adaptar para receber a linha.
+  Nesta mudança o `Observacoes` passa a vir da linha. O `ProjetoAprovado` continua preservado no
+  PUT e vai 0 no POST (decisão #17).
+- `utils.ts`: `parseSgpHorasToMinutes`, `buildSgpTiposMap` e `formatHorasResumoTotais`.
+- `maskHHMM` (`components/casos/edicao/producao/utils`) para a máscara de horas.
+- Colaborador: a fonte de dados de `CasoFormDevAtribuido` (`useUsuariosProjetos`). O componente
+  em si é feito para formulário de caso, então a célula precisa de uma versão compacta (combobox
+  de 32px). Na Fase 0, ver se `ComboboxField` serve com `className`.
+- Projetos do mesmo setor: `useSgpCadastros` com o parâmetro `setor` (`Setor` na API).
+- Stakes do projeto de origem: `GET /sgp-stakes/projeto/{registro}` (mesmo service da aba).
+- `ConfirmacaoModal` para excluir e descartar. Para o modal Importar, o esqueleto do
+  `EscopoDuplicarCasosModal`.
+- Formulário: react-hook-form com `useFieldArray` e um schema Zod de array, como manda o
+  `CLAUDE.md`.
+
+### Arquitetura proposta
+
+```text
+components/projetos/edicao/stakes/
+├── index.tsx                     orquestra: carrega todas as páginas, form com useFieldArray,
+│                                 salvar em lote, descartar, atalhos (Ctrl+S, Enter, paste)
+├── stakes-lista.tsx              card + header + tabela + rodapé
+├── stake-linha.tsx               uma linha editável
+├── stakes-lista-skeleton.tsx     (substitui aba-stakes-skeleton.tsx)
+├── stakes-importar-modal.tsx     De outro projeto / Colar linhas + prévia
+├── stakes-lista.types.ts         StakeLinha (key, sequencia?, idTipo, colaboradorId/Label,
+│                                 planejada, naoPlanejada, dias, observacao, original)
+├── stakes-lista-schema.ts        Zod por linha + array
+└── stakes-lista-utils.ts         puro: stakeToLinha, linhaAlterada, duplicados, totais,
+                                  gerarTsv, lerTsv (parse tolerante), linhaToPayload
+mantidos: usuarios-autorizados-*.tsx, usuario-autorizado-form-modal.tsx, utils.ts,
+          stake-form-utils.ts (adaptado)
+saem:     stake-card.tsx, stakes-grid.tsx, stakes-summary.tsx, stake-form-modal.tsx,
+          stake-form-schema.ts, stakes-card.tsx; stake-tipo-badge* se ficar sem uso
+hooks/projetos/use-salvar-stakes-em-lote.ts   POST/PUT em sequência, resultado por linha,
+                                              invalida sgpStakesQueryKeys no fim
+```
+
+### Perguntas em aberto (resolver na Fase 0)
+
+1. **Todas as linhas de uma vez:** `GET /sgp-stakes/projeto/{registro}` é paginado (`per_page`
+   15, cursor). A lista precisa de todas as linhas para editar, calcular os totais e checar
+   repetidos. Conferir o `per_page` máximo da API ou buscar as páginas em sequência até
+   `has_more = false`. O mesmo vale para os stakes do projeto de origem no Importar.
+2. **Nome → colaborador na colagem:** o texto colado traz o nome, e a API precisa do
+   `suporte_id`. Conferir se `useUsuariosProjetos` devolve todos os colaboradores com nome
+   único. Se houver nomes iguais, a linha deve vir com o problema "Mais de um colaborador com esse
+   nome" para o usuário escolher.
+3. **Função → `id_tipo`:** casar pelo nome do tipo `STAKEHOLDERS` (`useSgpTipos`), sem
+   diferenciar maiúsculas. Conferir se os nomes são únicos.
+4. **Projetos do setor no Importar:** `useSgpCadastros({ setor })` é paginado. Para o select,
+   usar um combobox com busca (há muitos projetos por setor) e definir se entram Abertos e
+   Fechados (proposta: os dois, mais recentes primeiro).
+5. **Ordem da lista:** a API devolve em que ordem? Proposta: a ordem do GET, com as linhas novas
+   no fim até salvar.
+
+### Plano de implementação
+
+1. **Parte 1: dados e regras.** Busca de todas as páginas, `stakes-lista-utils.ts` (conversões,
+   validação, repetidos, totais, `gerarTsv`/`lerTsv`), schema Zod e
+   `use-salvar-stakes-em-lote`. Conferir as perguntas 1 a 3 na API de teste.
+2. **Parte 2: lista editável.** `stakes-lista`, `stake-linha`, skeleton, salvar em lote com erro
+   por linha, excluir, descartar ao sair, atalhos e mobile. Remover os cards e o modal antigos.
+   Conferir no navegador: lançar 3 linhas só com teclado, erro de repetido, falha parcial
+   (simulada), descarte ao trocar de aba.
+3. **Parte 3: copiar, colar e importar.** Copiar linhas (com fallback), `paste` com TSV,
+   `stakes-importar-modal` com as duas origens, prévia e repetidos bloqueados. Conferir copiando
+   de um projeto e colando em outro, e colando do Excel.
+4. **Parte 4: fechamento.** README (sair de "Próxima mudança planejada"), decisões, contexto e
+   status.
+
+### Fora do escopo
+
+Editar "Aprovou" (`projeto_aprovado`), horas de risco e ocorrência gerada. Importar de projeto de
+outro setor. Desfazer exclusão. Mudanças no card Usuários autorizados e no cadastro
+`/projetos/novo`.
 
 ---
 

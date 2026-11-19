@@ -95,3 +95,69 @@ Respostas do usuário às perguntas P4 e P5, depois dos testes na API de dev.
     breve". Abrir o projeto novo foi escolha do Claude Code: na edição não há lista para destacar
     a linha, e o próximo passo natural é ajustar o projeto novo (o objetivo, por exemplo, decisão
     #14).
+
+## Aba Stakes em lista (planejamento, 2026-11-19)
+
+Origem: chat de planejamento a partir de um esboço do usuário (lista no estilo de planilha), com
+protótipo em [`prototipo/`](prototipo/) (capturas 07 a 14).
+
+16. **A aba Stakes vira uma lista editável em linha e deixa de ter cards e modal de stakeholder.**
+    O card Usuários autorizados não muda. **Por quê:** lançar a equipe de uma sprint pelo modal,
+    uma pessoa por vez, é lento. A lista permite lançar tudo pelo teclado.
+
+17. **Colunas: Função, Colaborador, Planejada, Não planejada, Dias, Total, Observação e Excluir.**
+    As horas são **por dia**, e o Total = (planejada + não planejada) × dias. **"Aprovou" não
+    aparece na lista:** o `projeto_aprovado` gravado é preservado no PUT e vai 0 no POST. A
+    Observação passa a ser editável. **Por quê:** o usuário pediu para tirar o Aprovou. Observação
+    estava no esboço e hoje só era preservada.
+
+18. **Salvar é em lote:** as mudanças ficam na tela, marcadas por uma faixa (azul para nova,
+    amarela para alterada), até clicar em **Salvar** ou apertar Ctrl+S. Como a API não tem
+    endpoint em lote, o front faz um `POST`/`PUT` por linha e invalida as listagens uma vez no fim.
+    **Por quê:** é o modelo do esboço, e o usuário confirmou.
+
+19. **A validação acontece no Salvar e é tudo ou nada antes de enviar.** Se uma linha tiver erro,
+    nada é enviado, e cada linha mostra o problema embaixo dela. Se a API falhar em parte, as
+    linhas que deram certo ficam salvas, e as que falharam continuam marcadas com a mensagem da
+    API. **Por quê:** o usuário corrige tudo de uma vez antes de gravar. Uma falha de rede no meio
+    do lote não pode descartar o que já foi gravado nem o que falta gravar.
+
+20. **Colaborador repetido no mesmo projeto é bloqueado.** No Salvar, o erro é "Colaborador já
+    está em outra linha". No Importar, a linha repetida fica sem checkbox ativo, com "Já está no
+    projeto" ou "Repetido nesta lista". **Por quê:** resposta do usuário.
+
+21. **Excluir não entra no lote.** Linha nova sai na hora. Linha salva pede a confirmação atual e
+    chama o `DELETE` na hora. **Por quê:** mantém o comportamento de hoje e evita uma exclusão
+    "pendente" que o usuário não vê.
+
+22. **Sair com linhas não salvas pede "Descartar alterações?".** Vale para Voltar, trocar de aba
+    ou sair da tela. Confirmar volta as linhas ao que está gravado. **Por quê:** com salvar em
+    lote, sair sem aviso perderia o lançamento inteiro.
+
+23. **Atalhos de lançamento:** Adicionar linha copia os dias da linha anterior e põe o foco na
+    Função; Tab percorre os campos; Enter na última linha cria outra; Ctrl+S salva; as horas têm
+    máscara (`0600` vira `06:00`). **Por quê:** o objetivo da mudança é lançar rápido, sem mouse.
+
+24. **Copiar linhas gera texto separado por tabulação (TSV), com cabeçalho**, nas colunas Função,
+    Colaborador, Planejada, Não planejada, Dias e Observação. Usa a Clipboard API em contexto
+    seguro e `execCommand("copy")` como reserva. **Por quê:** é o formato que Excel e Access
+    colam. O usuário copiava e colava as linhas no Access, e a reserva cobre o Softflow servido
+    sem HTTPS.
+
+25. **Colar é pelo Ctrl+V na aba Stakes, sem botão "Colar".** Texto com tabulação abre o modal
+    Importar em "Colar linhas", com prévia antes de incluir. A leitura é tolerante: cabeçalho
+    opcional, sem diferenciar maiúsculas, horas como `6`, `6h30` etc. **Por quê:** ler a área de
+    transferência por um botão exige permissão do navegador e não funciona sem HTTPS. O Ctrl+V
+    funciona sempre, e a prévia evita colar lixo.
+
+26. **Importar de outro projeto mostra só projetos do mesmo setor** do projeto aberto. As linhas
+    escolhidas entram como novas e só são gravadas no Salvar. **Por quê:** resposta do usuário. É
+    o caminho mais curto para repetir a equipe da sprint anterior, sem passar pela área de
+    transferência.
+
+27. **No celular, a tabela rola na horizontal dentro do card.** Não vira cards empilhados.
+    **Por quê:** resposta do usuário. O lançamento é feito no computador.
+
+28. **O header do card mantém os quatro botões visíveis:** Importar, Copiar linhas, Adicionar
+    linha e Salvar. **Por quê:** resposta do usuário, que preferiu os botões à vista a juntá-los
+    num menu.

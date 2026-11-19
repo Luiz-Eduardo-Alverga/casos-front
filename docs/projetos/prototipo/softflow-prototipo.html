@@ -1134,6 +1134,73 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
         </div>
       </sc-if>
 
+      <sc-if value="{{ isPjEdit }}">
+        <div data-screen-label="Projeto · Stakes" style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;position:sticky;top:64px;z-index:15;background:var(--page);padding:8px 0">
+            <div role="tablist" aria-label="Abas do projeto" style="flex:999 1 520px;min-width:0;display:flex;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px;overflow-x:auto;scrollbar-width:none">
+              <sc-for list="{{ pjTabs }}" as="t" hint-placeholder-count="5"><button role="tab" aria-selected="{{ t.on }}" onClick="{{ t.go }}" style="flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600;background:{{ t.bg }};color:{{ t.ink }};cursor:pointer;white-space:nowrap">{{ t.label }}<sc-if value="{{ t.showCount }}"><span style="min-width:20px;height:20px;border-radius:999px;padding:0 6px;display:inline-grid;place-items:center;font-size:12px;font-weight:700;background:{{ t.cBg }};color:{{ t.cInk }}">{{ t.count }}</span></sc-if></button></sc-for>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;flex:0 0 auto">
+              <button type="button" aria-label="Mais ações" style="width:36px;height:36px;border:1px solid var(--border);background:var(--card);border-radius:8px;display:grid;place-items:center;color:var(--ink);cursor:pointer" style-hover="background:var(--muted)"><svg width="16" height="16" aria-hidden="true"><use href="#i-more"></use></svg></button>
+              <button type="button" onClick="{{ pjVoltar }}" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:1px solid var(--border);background:var(--card);color:var(--ink);border-radius:8px;font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--muted)"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrowleft"></use></svg>Voltar</button>
+            </div>
+          </div>
+
+          <sc-if value="{{ pjTabStakes }}">
+            <section style="background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-card)">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:16px 16px 8px;border-bottom:1px solid var(--divider)">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><svg width="14" height="14" aria-hidden="true" style="color:var(--info)"><use href="#i-users"></use></svg><h2 style="margin:0;font-size:14px;font-weight:700">Stakeholders</h2><span style="border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700;background:var(--info-soft);color:var(--info)">{{ stkPessoas }}</span><span style="font-size:12px;color:var(--ink-3)">#{{ pjE.id }} · {{ pjE.nome }}</span></div>
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+                  <sc-if value="{{ stkDirty }}"><span role="status" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-2)"><span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:var(--yellow)"></span>{{ stkDirtyTxt }}</span></sc-if>
+                  <button type="button" onClick="{{ stkImportar }}" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--border);background:var(--card);color:var(--ink);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--muted)"><svg width="14" height="14" aria-hidden="true"><use href="#i-upload"></use></svg>Importar</button>
+                  <button type="button" onClick="{{ stkCopiar }}" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--border);background:var(--card);color:var(--ink);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--muted)"><svg width="14" height="14" aria-hidden="true"><use href="#i-copy"></use></svg>Copiar linhas</button>
+                  <span aria-hidden="true" style="width:1px;height:20px;background:var(--line)"></span>
+                  <button type="button" onClick="{{ stkAdd }}" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--border);background:var(--card);color:var(--ink);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--muted)"><svg width="14" height="14" aria-hidden="true"><use href="#i-plus"></use></svg>Adicionar linha</button>
+                  <button type="button" onClick="{{ stkSalvar }}" disabled="{{ stkBusy }}" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border:1px solid {{ stkSalvarBg }};background:{{ stkSalvarBg }};color:#fff;border-radius:8px;font-size:13px;font-weight:700;cursor:{{ stkSalvarCursor }}"><svg width="14" height="14" aria-hidden="true"><use href="#i-save"></use></svg>{{ stkSalvarLabel }}</button>
+                </div>
+              </div>
+              <div style="padding:8px 16px 16px;display:flex;flex-direction:column;gap:8px">
+                <p style="margin:0;font-size:12px;color:var(--ink-3)">Horas por dia. Tab passa para o próximo campo, Enter na última linha cria outra, Ctrl+S salva e Ctrl+V com linhas copiadas abre a importação. Faixa azul: linha nova · faixa amarela: linha alterada.</p>
+                <datalist id="stk-colabs"><sc-for list="{{ stkColabs }}" as="nm"><option value="{{ nm }}"></option></sc-for></datalist>
+                <div style="overflow-x:auto;border:1px solid var(--line);border-radius:8px">
+                  <div role="table" aria-label="Stakeholders do projeto" style="min-width:1080px">
+                    <div role="row" style="display:grid;grid-template-columns:3px 150px minmax(180px,1.2fr) 92px 110px 64px 72px minmax(200px,1fr) 40px;gap:8px;align-items:center;padding:8px 12px 8px 0;background:var(--surface-2);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3)">
+                      <span></span><span role="columnheader">Função</span><span role="columnheader">Colaborador</span><span role="columnheader" style="text-align:center">Planejada</span><span role="columnheader" style="text-align:center">Não planejada</span><span role="columnheader" style="text-align:center">Dias</span><span role="columnheader" style="text-align:right">Total</span><span role="columnheader">Observação</span><span role="columnheader"><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ações</span></span>
+                    </div>
+                    <sc-if value="{{ stkVazio }}"><div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:32px 16px;text-align:center;border-top:1px solid var(--line)"><span style="width:44px;height:44px;border-radius:50%;background:var(--muted);display:grid;place-items:center;color:var(--ink-3)"><svg width="20" height="20" aria-hidden="true"><use href="#i-users"></use></svg></span><p style="margin:4px 0 0;font-weight:700">Nenhum stakeholder no projeto</p><p style="margin:0;font-size:13px;color:var(--ink-3)">Clique em Adicionar linha para lançar o primeiro.</p></div></sc-if>
+                    <sc-for list="{{ stkRows }}" as="r">
+                      <div role="row" data-stk-last="{{ r.last }}" style="border-top:1px solid var(--line)">
+                        <div style="display:grid;grid-template-columns:3px 150px minmax(180px,1.2fr) 92px 110px 64px 72px minmax(200px,1fr) 40px;gap:8px;align-items:center;padding:6px 12px 6px 0">
+                          <span title="{{ r.estado }}" style="align-self:stretch;background:{{ r.accent }};border-radius:0 2px 2px 0"></span>
+                          <span role="cell" style="position:relative;display:block"><select id="{{ r.fId }}" aria-label="{{ r.lblF }}" value="{{ r.funcao }}" onChange="{{ r.setFuncao }}" style="appearance:none;-webkit-appearance:none;width:100%;height:32px;border:1px solid {{ r.bdF }};border-radius:6px;background:var(--input);padding:0 28px 0 10px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer"><option value="">Selecione...</option><sc-for list="{{ stkFuncoes }}" as="fn"><option value="{{ fn }}">{{ fn }}</option></sc-for></select><svg width="13" height="13" aria-hidden="true" style="position:absolute;right:9px;top:10px;color:var(--ink-3);pointer-events:none"><use href="#i-chev"></use></svg></span>
+                          <span role="cell" style="position:relative;display:block"><input id="{{ r.cId }}" list="stk-colabs" aria-label="{{ r.lblC }}" value="{{ r.colab }}" onChange="{{ r.setColab }}" placeholder="Buscar colaborador..." autocomplete="off" style="width:100%;height:32px;border:1px solid {{ r.bdC }};border-radius:6px;background:var(--input);padding:0 30px 0 10px;font-size:13px;color:var(--ink);outline:0"><sc-if value="{{ r.hasColab }}"><button type="button" onClick="{{ r.limparColab }}" aria-label="{{ r.lblL }}" style="position:absolute;right:4px;top:4px;width:24px;height:24px;border:0;background:none;border-radius:4px;display:grid;place-items:center;color:var(--ink-3);cursor:pointer" style-hover="background:var(--muted)"><svg width="12" height="12" aria-hidden="true"><use href="#i-x"></use></svg></button></sc-if></span>
+                          <span role="cell"><input inputmode="numeric" aria-label="{{ r.lblP }}" value="{{ r.plan }}" onChange="{{ r.setPlan }}" placeholder="00:00" style="width:100%;height:32px;border:1px solid {{ r.bdP }};border-radius:6px;background:var(--input);padding:0 8px;font-size:13px;font-family:ui-monospace,Menlo,monospace;text-align:center;color:var(--ink);outline:0"></span>
+                          <span role="cell"><input inputmode="numeric" aria-label="{{ r.lblN }}" value="{{ r.nao }}" onChange="{{ r.setNao }}" placeholder="00:00" style="width:100%;height:32px;border:1px solid {{ r.bdN }};border-radius:6px;background:var(--input);padding:0 8px;font-size:13px;font-family:ui-monospace,Menlo,monospace;text-align:center;color:var(--ink);outline:0"></span>
+                          <span role="cell"><input inputmode="numeric" aria-label="{{ r.lblD }}" value="{{ r.dias }}" onChange="{{ r.setDias }}" style="width:100%;height:32px;border:1px solid {{ r.bdD }};border-radius:6px;background:var(--input);padding:0 6px;font-size:13px;text-align:center;color:var(--ink);outline:0"></span>
+                          <b role="cell" style="font-size:13px;text-align:right">{{ r.total }}</b>
+                          <span role="cell"><input aria-label="{{ r.lblO }}" value="{{ r.obs }}" onChange="{{ r.setObs }}" placeholder="Opcional" style="width:100%;height:32px;border:1px solid var(--border);border-radius:6px;background:var(--input);padding:0 10px;font-size:13px;color:var(--ink);outline:0"></span>
+                          <span role="cell" style="display:flex;justify-content:center"><button type="button" onClick="{{ r.excluir }}" aria-label="{{ r.lblX }}" title="Excluir linha" style="width:30px;height:30px;border:0;background:none;color:var(--err);border-radius:6px;display:grid;place-items:center;cursor:pointer" style-hover="background:var(--err-soft)"><svg width="15" height="15" aria-hidden="true"><use href="#i-trash"></use></svg></button></span>
+                        </div>
+                        <sc-if value="{{ r.hasErr }}"><p role="alert" style="margin:0;padding:0 12px 8px 11px;font-size:12px;color:var(--err)">Linha {{ r.n }}: {{ r.errTxt }}</p></sc-if>
+                      </div>
+                    </sc-for>
+                    <sc-if value="{{ stkTem }}">
+                      <div role="row" style="display:grid;grid-template-columns:3px 150px minmax(180px,1.2fr) 92px 110px 64px 72px minmax(200px,1fr) 40px;gap:8px;align-items:center;padding:10px 12px 10px 0;border-top:1px solid var(--line);background:var(--surface-2);font-size:13px">
+                        <span></span><b role="cell" style="grid-column:span 2">Totais · {{ stkPessoas }}</b><b role="cell" style="text-align:center">{{ stkTp }}</b><b role="cell" style="text-align:center">{{ stkTn }}</b><span></span><b role="cell" style="text-align:right">{{ stkTt }}</b><span></span><span></span>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+                <button type="button" onClick="{{ stkAdd }}" style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:4px 2px;font-size:13px;font-weight:700;color:var(--info);cursor:pointer"><svg width="14" height="14" aria-hidden="true"><use href="#i-plus"></use></svg>Adicionar linha</button>
+              </div>
+            </section>
+          </sc-if>
+          <sc-if value="{{ pjTabOutra }}">
+            <section style="background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-card);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:64px 16px"><span style="width:48px;height:48px;border-radius:50%;background:var(--muted);display:grid;place-items:center;color:var(--ink-3)"><svg width="22" height="22" aria-hidden="true"><use href="#i-folder"></use></svg></span><p style="margin:4px 0 0;font-weight:700">Aba fora deste protótipo</p><p style="margin:0;color:var(--ink-3)">Esta proposta muda só a aba Stakes. As outras abas continuam como estão no app.</p></section>
+          </sc-if>
+        </div>
+      </sc-if>
+
       <sc-if value="{{ isProjetos }}">
         <div data-screen-label="Projetos" style="display:flex;flex-direction:column;gap:16px">
           <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
@@ -1242,6 +1309,51 @@ input::placeholder,textarea::placeholder{color:var(--ink-3)}
           <button onClick="{{ mC.toggle }}" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;border:1px solid var(--primary);background:var(--primary);color:var(--primary-ink);border-radius:8px;font-size:14px;font-weight:700;cursor:pointer" style-hover="filter:brightness(1.18)"><svg width="16" height="16"><use href="{{ mC.btnIcon }}"></use></svg>{{ mC.btnLabel }}</button>
         </div>
       </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ stkImpOn }}">
+  <div onMouseDown="{{ impBackdrop }}" style="position:fixed;inset:0;background:var(--overlay);z-index:60;display:flex;align-items:{{ mAlign }};justify-content:center;padding:{{ mPad }}">
+    <div role="dialog" aria-modal="true" aria-labelledby="stk-imp-title" style="background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:{{ mRadius }};width:min(720px,100%);max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow-pop);overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--divider);flex:none">
+        <span style="width:40px;height:40px;border-radius:8px;background:var(--info-soft);color:var(--info);display:grid;place-items:center;flex:none"><svg width="18" height="18" aria-hidden="true"><use href="#i-upload"></use></svg></span>
+        <div style="flex:1;min-width:0"><h2 id="stk-imp-title" style="margin:0;font-size:18px;font-weight:800">Importar stakeholders</h2><p style="margin:2px 0 0;font-size:12px;color:var(--ink-3)">As linhas entram como novas na lista. Nada é gravado até você clicar em Salvar.</p></div>
+        <button type="button" onClick="{{ impFechar }}" aria-label="Fechar" style="width:30px;height:30px;border:0;background:none;border-radius:6px;display:grid;place-items:center;color:var(--ink-3);cursor:pointer" style-hover="background:var(--muted)"><svg width="16" height="16" aria-hidden="true"><use href="#i-x"></use></svg></button>
+      </div>
+      <div style="flex:1;min-height:0;overflow:auto;padding:16px 24px;display:flex;flex-direction:column;gap:14px">
+        <div role="radiogroup" aria-label="Origem das linhas" style="display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:3px">
+          <sc-for list="{{ impModos }}" as="md" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{ md.on }}" onClick="{{ md.go }}" style="flex:1;height:32px;border:0;border-radius:6px;background:{{ md.bg }};box-shadow:{{ md.sh }};color:{{ md.ink }};font-size:13px;font-weight:700;cursor:pointer">{{ md.label }}</button></sc-for>
+        </div>
+        <sc-if value="{{ impModoProj }}">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ink-2)">Projeto de origem<span style="position:relative;display:block"><select value="{{ impProj }}" onChange="{{ impSetProj }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--input);padding:0 34px 0 12px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer"><option value="">Selecione o projeto...</option><sc-for list="{{ impProjs }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><svg width="14" height="14" aria-hidden="true" style="position:absolute;right:12px;top:11px;color:var(--ink-3);pointer-events:none"><use href="#i-updown"></use></svg></span><span style="font-size:12px;font-weight:400;color:var(--ink-3)">Só aparecem projetos do setor {{ impSetor }}.</span></label>
+        </sc-if>
+        <sc-if value="{{ impModoColar }}">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ink-2)">Linhas copiadas<textarea value="{{ impTxt }}" onChange="{{ impSetTxt }}" autofocus placeholder="Cole aqui com Ctrl+V" style="width:100%;min-height:110px;border:1px solid var(--border);border-radius:8px;background:var(--input);padding:10px 12px;font-size:12px;font-weight:400;line-height:1.5;font-family:ui-monospace,Menlo,monospace;white-space:pre;color:var(--ink);resize:vertical;outline:0"></textarea><span style="font-size:12px;font-weight:400;color:var(--ink-3)">Uma pessoa por linha, colunas separadas por tabulação, nesta ordem: Função, Colaborador, Planejada, Não planejada, Dias, Observação. É o que o Copiar linhas gera e o que o Excel cola. O cabeçalho é opcional.</span></label>
+        </sc-if>
+        <sc-if value="{{ impVazio }}"><p style="margin:0;padding:20px 12px;border:1px dashed var(--line);border-radius:8px;text-align:center;font-size:13px;color:var(--ink-3)">{{ impVazioTxt }}</p></sc-if>
+        <sc-if value="{{ impTem }}">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:700;color:var(--ink-2)">{{ impResumo }}</span>
+            <div style="border:1px solid var(--line);border-radius:8px;max-height:300px;overflow:auto">
+              <sc-for list="{{ impItens }}" as="it">
+                <button type="button" role="checkbox" aria-checked="{{ it.on }}" aria-disabled="{{ it.dup }}" onClick="{{ it.toggle }}" style="display:flex;align-items:flex-start;gap:10px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:9px 12px;text-align:left;cursor:{{ it.cur }};color:var(--ink)" style-hover="background:var(--muted)">
+                  <sc-if value="{{ it.temR }}"><span aria-hidden="true" style="width:16px;height:16px;margin-top:2px;border-radius:4px;border:1px solid {{ it.cbBd }};background:{{ it.cbBg }};display:grid;place-items:center;color:#fff;flex:none"><sc-if value="{{ it.on }}"><svg width="12" height="12"><use href="#i-check"></use></svg></sc-if></span></sc-if>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;opacity:{{ it.op }}">
+                    <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><b style="font-size:13px">{{ it.tit }}</b><sc-if value="{{ it.dup }}"><span style="border-radius:999px;padding:0 7px;font-size:11px;font-weight:700;background:var(--muted);color:var(--ink-2)">{{ it.dupTxt }}</span></sc-if></span>
+                    <span style="font-size:12px;color:var(--ink-3)">{{ it.sub }}</span>
+                    <sc-if value="{{ it.hasProb }}"><span style="font-size:12px;color:var(--err)">{{ it.prob }}</span></sc-if>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="display:flex;gap:12px;padding:16px 24px;border-top:1px solid var(--divider);flex:none">
+        <button type="button" onClick="{{ impFechar }}" style="flex:1;height:40px;border:1px solid var(--border);background:var(--card);color:var(--ink);border-radius:8px;font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--muted)">Cancelar</button>
+        <button type="button" onClick="{{ impImportar }}" disabled="{{ impOff }}" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;border:1px solid {{ impBtnBg }};background:{{ impBtnBg }};color:#fff;border-radius:8px;font-size:14px;font-weight:700;cursor:{{ impBtnCursor }}"><svg width="14" height="14" aria-hidden="true"><use href="#i-upload"></use></svg>{{ impBtnLabel }}</button>
+      </div>
     </div>
   </div>
 </sc-if>
@@ -1409,7 +1521,51 @@ const NAV = [
   { title: 'Gerenciar', items: [['avisos', 'Avisos', 'bell'], ['casos', 'Casos', 'file'], ['projetos', 'Projetos', 'folder'], ['produtos', 'Produtos', 'box'], ['reports', 'Reports', 'flag'], ['clientes', 'Clientes', 'building'], ['liberacoes', 'Liberações', 'release'], ['melhorias', 'Melhorias', 'bulb'], ['auditoria', 'Auditoria de horas', 'clock'], ['kanban', 'Kanban Adquirentes', 'kanban'], ['docs', 'Documentação', 'doc']] },
   { title: 'Recursos estratégicos', items: [['cadastros', 'Cadastros Smart', 'tablet'], ['config', 'Configurações', 'gear']] }
 ];
-const BUILT = { painel: 1, visao: 1, reports: 1, casos: 1, casoEdit: 1, avisos: 1, avisoNovo: 1, projetos: 1 };
+const BUILT = { painel: 1, visao: 1, reports: 1, casos: 1, casoEdit: 1, avisos: 1, avisoNovo: 1, projetos: 1, projetoEdit: 1 };
+
+// ===== Projeto · aba Stakes em lista (edição em linha) =====
+// Espelha a API: GET /sgp-stakes/projeto/{registro} · POST /sgp-stakes · PUT /sgp-stakes/{sequencia} · DELETE /sgp-stakes/{sequencia}
+const STK_FUNCOES = ['DEV', 'QA', 'TECH LEAD', 'PM', 'PO', 'UX/UI', 'ANALISTA'];
+const STK_COLABS = ['Anderson', 'Arnaldo', 'Bruno', 'Cariri', 'Carvalho', 'Celso', 'Gustavo', 'Helder', 'Jean', 'Larissa', 'Lins', 'Marina', 'Mendonça', 'Pedrosa', 'Samuel', 'Vinicius', 'Vitorino', 'Yuri'];
+const STK_SEED = [['QA', 'Cariri', '00:00', '00:00', 9, true], ['DEV', 'Vitorino', '06:00', '02:00', 9, true], ['TECH LEAD', 'Anderson', '00:00', '00:00', 9, true],
+  ['PM', 'Jean', '00:00', '00:00', 9, true], ['DEV', 'Vinicius', '06:00', '02:00', 9, true], ['DEV', 'Lins', '06:00', '02:00', 9, true], ['PO', 'Pedrosa', '00:00', '00:00', 9, true],
+  ['QA', 'Helder', '00:00', '00:00', 9, true], ['DEV', 'Arnaldo', '01:00', '07:00', 9, true], ['DEV', 'Carvalho', '06:00', '02:00', 9, true]];
+// "Aprovou" (projeto_aprovado) não aparece na lista: o valor gravado é preservado no PUT e vai 0 no POST.
+const STK_CAMPOS = ['funcao', 'colab', 'plan', 'nao', 'dias', 'obs'];
+const stkChave = v => String(v || '').trim().toLowerCase();
+// Colaborador repetido é bloqueado: marca erro nas linhas não salvas que repetem alguém de outra linha.
+const stkComDuplicados = rows => { const cont = {}; rows.forEach(r => { const k = stkChave(r.colab); if (k) cont[k] = (cont[k] || 0) + 1; });
+  return rows.map(r => stkDirty(r) && cont[stkChave(r.colab)] > 1 && !r.err.colab ? { ...r, err: { ...r.err, colab: 'Colaborador já está em outra linha' } } : r); };
+const stkMin = s => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(s || '').trim()); return m && +m[2] < 60 ? +m[1] * 60 + +m[2] : null; };
+const stkH = min => { const h = Math.floor(min / 60), m = min % 60; return m ? `${h}h${pad(m)}` : `${h}h`; };
+const stkMask = v => { const d = String(v).replace(/\D/g, '').slice(0, 4); return d.length <= 2 ? d : `${d.slice(0, -2)}:${d.slice(-2)}`; };
+const stkSnap = r => STK_CAMPOS.reduce((o, k) => (o[k] = r[k], o), {});
+const stkSeed = () => STK_SEED.map(([funcao, colab, plan, nao, dias, aprovou], i) => { const r = { key: 'k' + i, seq: 5001 + i, funcao, colab, plan, nao, dias: String(dias), aprovou, obs: '', err: {} }; r.orig = stkSnap(r); return r; });
+const stkDirty = r => !r.seq || STK_CAMPOS.some(k => r.orig[k] !== r[k]);
+const stkValida = r => { const e = {};
+  if (!STK_FUNCOES.includes(r.funcao)) e.funcao = 'Escolha a função';
+  if (!STK_COLABS.includes(String(r.colab).trim())) e.colab = 'Escolha um colaborador da lista';
+  if (stkMin(r.plan) == null) e.plan = 'Planejada no formato HH:MM';
+  if (stkMin(r.nao) == null) e.nao = 'Não planejada no formato HH:MM';
+  if (!(+r.dias >= 1)) e.dias = 'Dias deve ser 1 ou mais';
+  return e; };
+// Copiar/colar: texto separado por tabulação (mesmo formato do Excel/Access). Cabeçalho opcional.
+const STK_TSV_HEAD = ['Função', 'Colaborador', 'Planejada', 'Não planejada', 'Dias', 'Observação'];
+const stkTsv = rows => [STK_TSV_HEAD, ...rows.map(r => [r.funcao, String(r.colab).trim(), r.plan, r.nao, r.dias,String(r.obs || '').replace(/[\t\r\n]+/g, ' ')])].map(c => c.join('\t')).join('\n');
+const stkHoraTxt = v => { const s = String(v || '').trim(); if (!s) return '00:00'; if (/^\d{1,2}$/.test(s)) return `${pad(+s)}:00`; const m = /^(\d{1,2})[:h.,](\d{2})$/i.exec(s); return m ? `${pad(+m[1])}:${m[2]}` : s; };
+const stkAcha = (lista, v) => lista.find(x => x.toLowerCase() === String(v || '').trim().toLowerCase()) || String(v || '').trim();
+const stkParse = txt => String(txt || '').split(/\r?\n/).map((l, i) => ({ l, i })).filter(x => x.l.trim()).reduce((out, { l, i }, k) => {
+  const c = l.split('\t').map(s => s.trim());
+  if (k === 0 && /fun[cç][aã]o|papel/i.test(c[0])) return out;
+  if (c.length < 2) { out.push({ linha: i + 1, erro: `Linha ${i + 1}: colunas não estão separadas por tabulação` }); return out; }
+  // Formato atual: 6 colunas. Aceita o formato antigo com "Aprovou" na 6ª coluna (é ignorado).
+  const velho = c.length >= 7 && /^(s|sim|n|n[aã]o|x|0|1|true|false)?$/i.test(c[5]);
+  const [funcao = '', colab = '', plan = '', nao = '', dias = ''] = c, obs = (velho ? c[6] : c[5]) || '';
+  const r = { funcao: stkAcha(STK_FUNCOES, funcao), colab: stkAcha(STK_COLABS, colab), plan: stkHoraTxt(plan), nao: stkHoraTxt(nao), dias: String(dias).replace(/\D/g, '').slice(0, 3), aprovou: false, obs };
+  out.push({ linha: i + 1, r, problemas: Object.values(stkValida(r)) }); return out; }, []);
+// Stakeholders mockados de outro projeto (no app: GET /sgp-stakes/projeto/{registro}).
+const stkDoProjeto = id => { const n = Number(id) % 4, base = STK_SEED.map(([funcao, colab, plan, nao, dias, aprovou]) => ({ funcao, colab, plan, nao, dias: String(dias), aprovou, obs: '' }));
+  return base.slice(0, 6 + n).map((s, i) => i === 1 && n ? { ...s, colab: 'Celso' } : i === 4 && n > 1 ? { ...s, colab: 'Samuel', dias: '10' } : s); };
 
 // ===== Avisos (lista + detalhe + Novo aviso) =====
 // Espelha a API: GET auxiliar/comunicado-filtros · POST auxiliar/usuarios-comunicado · POST comunicados
@@ -1687,11 +1843,17 @@ class Component extends DCLogic {
     rItems: REPORTS.slice(), rLoaded: false, rLoading: false, rSev: [], rPrazo: '', rCat: '', rProd: [], rSort: 'prazo', rView: 'lista',
     rExp: { 101395: true }, rSel: null, rSus: {}, rSusTxt: {}, rFOpen: true, lastRemoved: null,
     avTab: 'nao', avSel: null, avPeriodo: 'este_mes', avMsgs: AV_MSGS.map(m => ({ ...m })), avNovo: null, aaMarcando: null,
-    projetos: PJ_RAW.map(([id, nome, setor, pdv, classe, status, ini, fim]) => ({ id, nome, setor, pdv, classe, status, ini, fim, tipo: 'PROJETO', origem: null })), pjClone: null, pjNovo: null, ...CASOS_STATE()
+    projetos: PJ_RAW.map(([id, nome, setor, pdv, classe, status, ini, fim]) => ({ id, nome, setor, pdv, classe, status, ini, fim, tipo: 'PROJETO', origem: null })), pjClone: null, pjNovo: null, pjEditId: null, pjTab: 'stakes', stkRows: stkSeed(), stkSaving: false, stkImp: null, ...CASOS_STATE()
   };
   componentDidMount() {
     this.onResize = () => this.setState({ vw: window.innerWidth });
     this.onKey = e => {
+      if (e.key === 'Escape' && this.state.stkImp && !this.state.cf) { this.setState({ stkImp: null }); return; }
+      if (this.state.screen === 'projetoEdit' && this.state.pjTab === 'stakes' && !this.state.cf && !this.state.stkImp) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); this.stkSalvar(); return; }
+        const t = e.target;
+        if (e.key === 'Enter' && t && t.tagName === 'INPUT' && t.closest && t.closest('[data-stk-last="true"]')) { e.preventDefault(); this.stkAdd(); return; }
+      }
       if (e.key === 'Escape' && this.state.screen === 'avisoNovo' && this.state.avNovo && this.state.avNovo.pop && !this.state.cf) { this.setState(s => ({ avNovo: { ...s.avNovo, pop: null } })); return; }
       if (e.key === 'Escape' && this.state.pjClone && !this.state.cf) { if (!this.state.pjClone.saving) this.setState({ pjClone: null }); return; }
       if (e.key === 'Escape') { if (this.state.pdEdit && !this.state.cf) this.setState({ pdEdit: null }); else if (this.state.modal) this.setState({ modal: null }); else if (this.state.drawer) this.setState({ drawer: false }); }
@@ -1702,6 +1864,13 @@ class Component extends DCLogic {
     this.onAltD = e => { if (e.altKey && !e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'd' && this.state.screen === 'casoEdit' && !this.state.cf) { e.preventDefault(); this.askDuplicar(); } };
     window.addEventListener('keydown', this.onAltD, true);
     document.addEventListener('keydown', this.onKey);
+    this.onPaste = e => {
+      const s = this.state; if (s.screen !== 'projetoEdit' || s.pjTab !== 'stakes' || s.cf || s.stkImp) return;
+      const t = (e.clipboardData && e.clipboardData.getData('text/plain')) || '';
+      if (!t.includes('\t')) return;
+      e.preventDefault(); this.setState({ stkImp: { modo: 'colar', proj: '', txt: t, sel: {} } });
+    };
+    document.addEventListener('paste', this.onPaste);
   }
   componentWillUnmount() { clearInterval(this.tick); window.removeEventListener('keydown', this.onAltD, true); window.removeEventListener('resize', this.onResize); document.removeEventListener('keydown', this.onKey); clearTimeout(this.tt); }
   toast(msg, undo = false) { clearTimeout(this.tt); this.setState({ toast: { msg, undo } }); this.tt = setTimeout(() => this.setState({ toast: null }), 5000); }
@@ -1962,6 +2131,130 @@ class Component extends DCLogic {
       verCaso: () => this.toast(`Abrindo caso #${r.id} em nova janela...`)
     };
   }
+  pjAbrirEdicao(id) { this.setState({ screen: 'projetoEdit', pjEditId: id, pjTab: 'stakes', stkRows: stkSeed(), drawer: false }); window.scrollTo(0, 0); }
+  stkAdd() {
+    const rows = this.state.stkRows, last = rows[rows.length - 1], key = 'n' + Date.now();
+    const nova = { key, seq: null, funcao: '', colab: '', plan: '00:00', nao: '00:00', dias: last ? last.dias : '', aprovou: false, obs: '', err: {}, orig: null };
+    this.setState({ stkRows: [...rows, nova] }, () => setTimeout(() => { const el = document.getElementById('stk-f-' + key); if (el) el.focus(); }, 30));
+  }
+  stkDescartar(next) {
+    const sujo = this.state.stkRows.some(stkDirty);
+    const reset = () => this.setState(s => ({ stkRows: s.stkRows.filter(r => r.seq).map(r => ({ ...r, ...r.orig, err: {} })) }), next);
+    if (!sujo) { next(); return; }
+    this.confirm({ title: 'Descartar alterações?', desc: 'Existem stakeholders alterados ou novos que não foram salvos.', label: 'Descartar', danger: true, icon: '#i-warn', onOk: reset });
+  }
+  stkSalvar() {
+    if (this.state.stkSaving) return;
+    const rows = stkComDuplicados(this.state.stkRows.map(r => stkDirty(r) ? { ...r, err: stkValida(r) } : r));
+    const comErro = rows.filter(r => Object.keys(r.err).length).length, sujos = rows.filter(stkDirty);
+    if (!sujos.length) { this.toast('Nenhuma alteração para salvar.'); return; }
+    if (comErro) { this.setState({ stkRows: rows }); this.toast(`Corrija ${comErro} ${comErro === 1 ? 'linha' : 'linhas'} antes de salvar.`); return; }
+    const novos = sujos.filter(r => !r.seq).length, alt = sujos.length - novos;
+    this.setState({ stkRows: rows, stkSaving: true });
+    setTimeout(() => {
+      let seq = Math.max(5000, ...this.state.stkRows.map(r => r.seq || 0));
+      this.setState(s => ({ stkSaving: false, stkRows: s.stkRows.map(r => stkDirty(r) ? { ...r, seq: r.seq || ++seq, colab: String(r.colab).trim(), orig: stkSnap({ ...r, colab: String(r.colab).trim() }), err: {} } : r) }));
+      const partes = [novos ? `${novos} ${novos === 1 ? 'novo' : 'novos'}` : '', alt ? `${alt} ${alt === 1 ? 'alterado' : 'alterados'}` : ''].filter(Boolean).join(' e ');
+      this.toast(`Stakeholders salvos: ${partes}.`);
+    }, 700);
+  }
+  stkCopiar() {
+    const rows = this.state.stkRows.filter(r => r.funcao || String(r.colab).trim());
+    if (!rows.length) { this.toast('Não há linhas para copiar.'); return; }
+    const txt = stkTsv(rows), n = rows.length;
+    const ok = () => this.toast(`${n} ${n === 1 ? 'linha copiada' : 'linhas copiadas'}. Cole com Ctrl+V na aba Stakes de outro projeto ou numa planilha.`);
+    const fb = () => { const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+      let r = false; try { r = document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta); if (r) ok(); else this.toast('Não foi possível copiar. Use Importar › De outro projeto.'); };
+    try { if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(ok, fb); else fb(); } catch (e) { fb(); }
+  }
+  stkImpVals(st, rows) {
+    const im = st.stkImp;
+    if (!im) return { stkImpOn: false, impItens: [], impProjs: [], impModos: [] };
+    const atuais = new Set(rows.map(r => String(r.colab).trim().toLowerCase()).filter(Boolean));
+    let itens = im.modo === 'projeto'
+      ? (im.proj ? stkDoProjeto(+im.proj).map((r, i) => ({ id: 'p' + i, r, problemas: [] })) : [])
+      : stkParse(im.txt).map((x, i) => ({ id: 'c' + i, r: x.r || null, problemas: x.erro ? [x.erro] : x.problemas, linha: x.linha }));
+    const vistos = new Set();
+    itens = itens.map(x => { if (!x.r) return { ...x, dup: false };
+      const k = stkChave(x.r.colab), dup = !!k && (atuais.has(k) || vistos.has(k)), dupTxt = atuais.has(k) ? 'Já está no projeto' : 'Repetido nesta lista';
+      if (k) vistos.add(k); return { ...x, dup, dupTxt }; });
+    // Colaborador repetido é bloqueado: linha repetida não pode ser marcada.
+    const marcado = x => !!x.r && !x.dup && (im.sel[x.id] !== undefined ? im.sel[x.id] : true);
+    const escolhidos = itens.filter(marcado), validos = itens.filter(x => x.r && !x.dup).length, dupN = itens.filter(x => x.dup).length;
+    const updI = fn => this.setState(s => s.stkImp ? { stkImp: fn({ ...s.stkImp }) } : null);
+    const fechar = () => this.setState({ stkImp: null }), n = escolhidos.length;
+    return {
+      stkImpOn: true, impModoProj: im.modo === 'projeto', impModoColar: im.modo === 'colar',
+      impModos: [['projeto', 'De outro projeto'], ['colar', 'Colar linhas']].map(([k, label]) => { const on = im.modo === k; return { label, on,
+        bg: on ? 'var(--card)' : 'transparent', ink: on ? 'var(--ink)' : 'var(--ink-3)', sh: on ? 'var(--shadow-card)' : 'none', go: () => updI(x => ({ ...x, modo: k, sel: {} })) }; }),
+      impProj: im.proj, impSetProj: e => { const v = e.target.value; updI(x => ({ ...x, proj: v, sel: {} })); },
+      impProjs: st.projetos.filter(x => x.id !== st.pjEditId && x.setor === (st.projetos.find(y => y.id === st.pjEditId) || {}).setor).map(x => ({ v: String(x.id), l: `#${x.id} · ${x.nome}` })),
+      impSetor: (st.projetos.find(y => y.id === st.pjEditId) || {}).setor || '',
+      impTxt: im.txt, impSetTxt: e => { const v = e.target.value; updI(x => ({ ...x, txt: v, sel: {} })); },
+      impItens: itens.map(x => { const on = marcado(x), ok = !!x.r && !x.dup; return { id: x.id, on, ok, dup: x.dup, dupTxt: x.dupTxt || '', temR: !!x.r,
+        tit: x.r ? `${x.r.funcao || 'Sem função'} · ${x.r.colab || 'Sem colaborador'}` : `Linha ${x.linha}`,
+        sub: x.r ? `${x.r.plan} + ${x.r.nao} por dia × ${x.r.dias || '—'} dias${x.r.obs ? ' · ' + x.r.obs : ''}` : '',
+        prob: x.dup ? '' : x.problemas.join(' · '), hasProb: !x.dup && x.problemas.length > 0, op: on || !x.r ? 1 : .55, cur: ok ? 'pointer' : 'not-allowed',
+        cbBg: on ? 'var(--primary)' : 'var(--card)', cbBd: on ? 'var(--primary)' : 'var(--border)',
+        toggle: () => { if (ok) updI(y => ({ ...y, sel: { ...y.sel, [x.id]: !on } })); } }; }),
+      impVazio: !itens.length, impTem: itens.length > 0,
+      impVazioTxt: im.modo === 'projeto' ? (im.proj ? 'Esse projeto não tem stakeholders.' : 'Escolha o projeto de origem para ver os stakeholders dele.') : 'Cole aqui as linhas copiadas (Ctrl+V). Elas aparecem abaixo para você conferir.',
+      impResumo: `${n} de ${validos} ${validos === 1 ? 'linha selecionada' : 'linhas selecionadas'}${dupN ? ` · ${dupN} ${dupN === 1 ? 'repetida bloqueada' : 'repetidas bloqueadas'}` : ''}`,
+      impBtnLabel: `Importar ${n} ${n === 1 ? 'linha' : 'linhas'}`, impOff: !n, impBtnBg: n ? 'var(--primary)' : 'var(--ink-4)', impBtnCursor: n ? 'pointer' : 'not-allowed',
+      impFechar: fechar, impBackdrop: e => { if (e.target === e.currentTarget) fechar(); },
+      impImportar: () => {
+        if (!n) return; const base = Date.now();
+        const novas = escolhidos.map((x, i) => { const r = { key: 'i' + base + i, seq: null, ...x.r, err: {}, orig: null }; r.err = stkValida(r); return r; });
+        const comProb = novas.filter(r => Object.keys(r.err).length).length;
+        this.setState(s => ({ stkImp: null, stkRows: [...s.stkRows, ...novas] }));
+        this.toast(`${novas.length} ${novas.length === 1 ? 'linha importada' : 'linhas importadas'}${comProb ? `, ${comProb} com problema para corrigir` : ''}. Revise e clique em Salvar.`);
+      }
+    };
+  }
+  stkVals(st) {
+    if (st.screen !== 'projetoEdit') return { isPjEdit: false, stkRows: [], pjTabs: [] };
+    const p = st.projetos.find(x => x.id === st.pjEditId) || {}, rows = st.stkRows;
+    const upd = fn => this.setState(s => ({ stkRows: fn(s.stkRows) }));
+    const set = (key, k, v) => upd(rs => rs.map(r => r.key === key ? { ...r, [k]: v, err: { ...r.err, [k]: undefined } } : r));
+    const salvos = rows.filter(r => r.seq).length, dirtyN = rows.filter(stkDirty).length;
+    let tp = 0, tn = 0, tt = 0;
+    const vr = rows.map((r, i) => {
+      const pm = stkMin(r.plan), nm = stkMin(r.nao), d = +r.dias, ok = pm != null && nm != null && d >= 1;
+      if (ok) { tp += pm * d; tn += nm * d; tt += (pm + nm) * d; }
+      const novo = !r.seq, dirty = stkDirty(r), errs = Object.values(r.err).filter(Boolean), bd = k => r.err[k] ? 'var(--err)' : 'var(--border)';
+      return { ...r, n: i + 1, last: i === rows.length - 1, fId: 'stk-f-' + r.key, cId: 'stk-c-' + r.key,
+        total: ok ? stkH((pm + nm) * d) : '—', accent: novo ? 'var(--info)' : dirty ? 'var(--yellow)' : 'transparent',
+        estado: novo ? 'Nova linha' : dirty ? 'Alterada' : 'Salva', hasErr: errs.length > 0, errTxt: errs.join(' · '),
+        bdF: bd('funcao'), bdC: bd('colab'), bdP: bd('plan'), bdN: bd('nao'), bdD: bd('dias'), hasColab: !!r.colab,
+        cbBg: r.aprovou ? 'var(--primary)' : 'var(--card)', cbBd: r.aprovou ? 'var(--primary)' : 'var(--border)',
+        lblF: `Função da linha ${i + 1}`, lblC: `Colaborador da linha ${i + 1}`, lblP: `Horas planejadas por dia, linha ${i + 1}`, lblN: `Horas não planejadas por dia, linha ${i + 1}`,
+        lblD: `Dias da linha ${i + 1}`, lblA: `Aprovou, linha ${i + 1}`, lblO: `Observação da linha ${i + 1}`, lblX: `Excluir a linha ${i + 1}${r.colab ? ' (' + r.colab + ')' : ''}`, lblL: `Limpar colaborador da linha ${i + 1}`,
+        setFuncao: e => set(r.key, 'funcao', e.target.value), setColab: e => set(r.key, 'colab', e.target.value), limparColab: () => { set(r.key, 'colab', ''); setTimeout(() => { const el = document.getElementById('stk-c-' + r.key); if (el) el.focus(); }, 30); },
+        setPlan: e => set(r.key, 'plan', stkMask(e.target.value)), setNao: e => set(r.key, 'nao', stkMask(e.target.value)),
+        setDias: e => set(r.key, 'dias', e.target.value.replace(/\D/g, '').slice(0, 3)), setObs: e => set(r.key, 'obs', e.target.value),
+        toggleAprov: () => set(r.key, 'aprovou', !r.aprovou),
+        excluir: () => novo ? upd(rs => rs.filter(x => x.key !== r.key))
+          : this.confirm({ title: 'Excluir stakeholder', desc: `Tem certeza que deseja excluir ${r.colab || 'este stakeholder'}? Esta ação não pode ser desfeita.`, label: 'Excluir', danger: true, icon: '#i-trash',
+            onOk: () => { upd(rs => rs.filter(x => x.key !== r.key)); this.toast('Stakeholder excluído com sucesso.'); } })
+      };
+    });
+    const tab = (k, label, count) => { const on = st.pjTab === k; return { label, count, showCount: count > 0, on, bg: on ? 'var(--primary)' : 'transparent', ink: on ? '#fff' : 'var(--ink-3)', cBg: on ? 'var(--yellow)' : 'var(--info-soft)', cInk: on ? 'var(--yellow-ink)' : 'var(--info)',
+      go: () => { if (on) return; if (st.pjTab === 'stakes') this.stkDescartar(() => this.setState({ pjTab: k })); else this.setState({ pjTab: k }); } }; };
+    return {
+      isPjEdit: true, pjE: { id: p.id, nome: p.nome || 'Projeto' },
+      pjTabs: [tab('abertura', 'Abertura', 0), tab('stakes', 'Stakes', salvos), tab('cronograma', 'Cronograma', 16), tab('escopo', 'Escopo', 0), tab('risco', 'Risco', 7)],
+      pjTabStakes: st.pjTab === 'stakes', pjTabOutra: st.pjTab !== 'stakes',
+      pjVoltar: () => this.stkDescartar(() => this.go('projetos')),
+      stkRows: vr, stkVazio: !rows.length, stkTem: rows.length > 0, stkFuncoes: STK_FUNCOES, stkColabs: STK_COLABS,
+      stkPessoas: `${rows.length} ${rows.length === 1 ? 'pessoa' : 'pessoas'}`, stkTp: stkH(tp), stkTn: stkH(tn), stkTt: stkH(tt),
+      stkDirty: dirtyN > 0, stkDirtyTxt: `${dirtyN} ${dirtyN === 1 ? 'linha não salva' : 'linhas não salvas'}`,
+      stkSalvarLabel: st.stkSaving ? 'Salvando...' : 'Salvar', stkBusy: st.stkSaving,
+      stkSalvarBg: dirtyN ? 'var(--primary)' : 'var(--ink-4)', stkSalvarCursor: dirtyN ? 'pointer' : 'default',
+      stkAdd: () => this.stkAdd(), stkSalvar: () => this.stkSalvar(), stkCopiar: () => this.stkCopiar(),
+      stkImportar: () => this.setState({ stkImp: { modo: 'projeto', proj: '', txt: '', sel: {} } }),
+      ...this.stkImpVals(st, rows)
+    };
+  }
   pjAbrirClone(id) {
     const p = this.state.projetos.find(x => x.id === id); if (!p) return;
     const n = pjDias(p.ini, p.fim) || 1, ini = pjAdd(p.fim, 1);
@@ -1974,7 +2267,7 @@ class Component extends DCLogic {
         hasOrigem: !!p.origem, origem: p.origem ? `Clonado do projeto #${p.origem}` : '',
         iniBr: pjBr(p.ini), fimBr: pjBr(p.fim), stL: ps[0], stBg: ps[1], stC: ps[2],
         cloneLabel: `Clonar o projeto ${p.nome}`, editLabel: `Editar o projeto ${p.nome}`,
-        clonar: () => this.pjAbrirClone(p.id), editar: () => this.toast(`Abre a edição do projeto #${p.id} (/projetos/${p.id}) no app`) }; });
+        clonar: () => this.pjAbrirClone(p.id), editar: () => this.pjAbrirEdicao(p.id) }; });
     const base = { isProjetos: st.screen === 'projetos', pjRows, pjCols: cols, pjCount: `${all.length} projetos`, pjBtnFlex: isMobile ? '1 1 100%' : '0 0 auto',
       pjLimpar: () => this.toast('Filtros de setor e ID ficam como no app'), pjNovoProjeto: () => this.toast('Abre o cadastro (/projetos/novo) no app') };
     const c = st.pjClone, src = c ? all.find(p => p.id === c.srcId) : null;
@@ -2146,7 +2439,7 @@ class Component extends DCLogic {
     // Shell
     const navSections = NAV.map((sec, si) => ({
       title: sec.title, showTitle: !!sec.title && showLabels, showRule: !!sec.title && !showLabels,
-      items: sec.items.map(([k, label, icon]) => { const on = st.screen === k || (k === 'casos' && st.screen === 'casoEdit') || (k === 'avisos' && st.screen === 'avisoNovo'); return {
+      items: sec.items.map(([k, label, icon]) => { const on = st.screen === k || (k === 'casos' && st.screen === 'casoEdit') || (k === 'avisos' && st.screen === 'avisoNovo') || (k === 'projetos' && st.screen === 'projetoEdit'); return {
         label, icon: '#i-' + icon, go: () => this.go(k), showLabel: showLabels, showBadge: showLabels && !BUILT[k],
         justify: showLabels ? 'flex-start' : 'center', bg: on ? 'var(--side-2)' : 'transparent', color: on ? '#fff' : 'var(--side-ink)',
         weight: on ? 700 : 500, bar: on ? 'var(--yellow)' : 'transparent' }; })
@@ -2243,7 +2536,7 @@ class Component extends DCLogic {
     }
 
     return {
-      ...this.casosVals(st, isMobile), ...this.editVals(st, isMobile), ...this.avVals(st), ...this.anVals(st), ...this.aaVals(st), ...this.pjVals(st, isMobile),
+      ...this.casosVals(st, isMobile), ...this.editVals(st, isMobile), ...this.avVals(st), ...this.anVals(st), ...this.aaVals(st), ...this.pjVals(st, isMobile), ...this.stkVals(st),
       sk3: sk(3), sk4: sk(4), sk5: sk(5),
       navSections, showLabels, sideW: collapsed ? '64px' : '256px', sidePos: drawerMode ? 'fixed' : 'sticky',
       sideTf: drawerMode && !st.drawer ? 'translateX(-100%)' : 'none', scrimOn: drawerMode && st.drawer,
