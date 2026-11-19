@@ -1,4 +1,4 @@
-import { api } from "@/lib/axios";
+import { getUsuariosCatalogo } from "@/lib/auxiliar/catalogos";
 import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
@@ -21,14 +21,10 @@ export async function GET(request: Request) {
       return Response.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const response = await api.get("/auxiliar/usuarios", {
-      params: {
-        ...(search ? { search } : {}),
-        ...(somente_projetos !== undefined ? { somente_projetos } : {}),
-        ...(projetoId !== undefined ? { projeto: projetoId } : {}),
-      },
-      headers: authHeaders,
-    });
+    const response = await getUsuariosCatalogo(
+      { Authorization: authHeaders.Authorization },
+      { search, somente_projetos, projeto: projetoId },
+    );
 
     return Response.json(response.data, {
       status: response.status,

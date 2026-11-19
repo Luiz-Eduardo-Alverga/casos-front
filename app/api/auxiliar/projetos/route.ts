@@ -1,4 +1,4 @@
-import { api } from "@/lib/axios";
+import { getProjetosCatalogo } from "@/lib/auxiliar/catalogos";
 import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
@@ -18,15 +18,10 @@ export async function GET(request: Request) {
       return Response.json({ error: "usuario_id é obrigatório" }, { status: 400 });
     }
 
-    const response = await api.get("/auxiliar/projetos", {
-      params: {
-        usuario_id,
-        ...(setor_projeto ? { setor_projeto } : {}),
-        ...(numero_projeto ? { numero_projeto } : {}),
-        ...(search ? { search } : {}),
-      },
-      headers: authHeaders,
-    });
+    const response = await getProjetosCatalogo(
+      { Authorization: authHeaders.Authorization },
+      { usuario_id, setor_projeto, numero_projeto, search },
+    );
 
     return Response.json(response.data, {
       status: response.status,

@@ -1,4 +1,4 @@
-import { api } from "@/lib/axios";
+import { getVersoesCatalogo } from "@/lib/auxiliar/catalogos";
 import { getAuthorizationHeader } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
@@ -21,14 +21,10 @@ export async function GET(request: Request) {
       return Response.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const response = await api.get("/auxiliar/versoes", {
-      params: {
-        produto_id,
-        todas,
-        ...(search ? { search } : {}),
-      },
-      headers: authHeaders,
-    });
+    const response = await getVersoesCatalogo(
+      { Authorization: authHeaders.Authorization },
+      { produto_id, search, todas },
+    );
 
     return Response.json(response.data, {
       status: response.status,
