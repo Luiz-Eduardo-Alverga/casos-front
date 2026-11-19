@@ -161,3 +161,11 @@ protótipo em [`prototipo/`](prototipo/) (capturas 07 a 14).
 28. **O header do card mantém os quatro botões visíveis:** Importar, Copiar linhas, Adicionar
     linha e Salvar. **Por quê:** resposta do usuário, que preferiu os botões à vista a juntá-los
     num menu.
+
+## Aba Stakes em lista (Fase 0, 2026-11-19)
+
+29. **A lista de stakeholders segue a ordem de inclusão (`sequencia` crescente):** o mais antigo
+    em cima e as linhas novas no fim, onde continuam depois do Salvar. A API devolve do mais novo
+    para o mais antigo, então o front reordena. Responde a pergunta 5 do planejamento (P6 do
+    Claude Code). **Por quê:** resposta do usuário. A lista se comporta como planilha, e nada muda
+    de lugar ao salvar.

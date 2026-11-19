@@ -364,7 +364,7 @@ Fase 0 (2026-11-19), conferida no código e na API de dev (só leitura):
   clique em link do app (interceptado enquanto há linhas não salvas) e fechar/recarregar a página
   (`beforeunload`, com o aviso padrão do navegador).
 
-#### P6 — Ordem da lista de stakeholders · aberta
+#### P6 — Ordem da lista de stakeholders · respondida → decisão #29
 
 Fase: Fase 0 (2026-11-19). Contexto: pergunta 5 do planejamento. A API devolve os stakes do **mais
 novo para o mais antigo** (`sequencia` decrescente: 23341, 23340 … 23333 no projeto 3278). Com a
@@ -375,6 +375,7 @@ e continuam no fim depois de salvar. **B)** ordem do GET (mais nova em cima), co
 só até salvar. **C)** ordenar por Função e depois por Colaborador, com as novas no fim até salvar.
 Recomendação do Claude Code: **A**, porque a lista se comporta como planilha (o que foi lançado
 por último fica embaixo) e nada muda de lugar ao salvar.
+Resposta (2026-11-19, Claude Code): opção A, ordem de inclusão (`sequencia` crescente).
 
 ### Plano de implementação
 
@@ -390,6 +391,18 @@ por último fica embaixo) e nada muda de lugar ao salvar.
    de um projeto e colando em outro, e colando do Excel.
 4. **Parte 4: fechamento.** README (sair de "Próxima mudança planejada"), decisões, contexto e
    status.
+
+### Andamento da implementação (aba Stakes)
+
+Fase 0 concluída em 2026-11-19 (decisão #29; respostas das perguntas 1 a 4 em "Perguntas do Claude
+Code (aba Stakes)").
+
+- [ ] Parte 1: dados e regras (busca de todas as páginas, `stakes-lista-utils.ts`, schema Zod,
+  `use-salvar-stakes-em-lote`)
+- [ ] Parte 2: lista editável (lista, linha, skeleton, salvar em lote, excluir, descartar, atalhos,
+  mobile; remover cards e modal antigos)
+- [ ] Parte 3: copiar, colar e importar
+- [ ] Parte 4: fechamento (README, decisões, contexto, status)
 
 ### Fora do escopo
 
