@@ -397,8 +397,15 @@ Resposta (2026-11-19, Claude Code): opção A, ordem de inclusão (`sequencia` c
 Fase 0 concluída em 2026-11-19 (decisão #29; respostas das perguntas 1 a 4 em "Perguntas do Claude
 Code (aba Stakes)").
 
-- [ ] Parte 1: dados e regras (busca de todas as páginas, `stakes-lista-utils.ts`, schema Zod,
-  `use-salvar-stakes-em-lote`)
+- [x] Parte 1: dados e regras (busca de todas as páginas, `stakes-lista-utils.ts`, schema Zod,
+  `use-salvar-stakes-em-lote`). Entregue em 2026-11-19: `useSgpStakesTodos` (páginas de 100 até
+  `has_more = false`, chave sob o prefixo que `invalidateSgpStakesQueries` já cobre), regras puras
+  em `stakes-lista-utils.ts` (ordem por `sequencia`, status, totais, validação com repetidos,
+  `gerarTsv`/`lerTsv`, `marcarBloqueios`), `linhaToCreatePayload`/`linhaToUpdatePayload` em
+  `stake-form-utils.ts` e `useSalvarStakesEmLote` (um POST/PUT por linha, sem parar na falha,
+  invalida uma vez no fim). Conferido: checagens das regras com `tsx` (horas tolerantes, ida e
+  volta do TSV, colagem do Excel, repetidos, payloads) e a paginação por cursor na API de dev
+  (3278 com `per_page=2`: 5 páginas, 9 linhas sem repetir). Build e `eslint` ok.
 - [ ] Parte 2: lista editável (lista, linha, skeleton, salvar em lote, excluir, descartar, atalhos,
   mobile; remover cards e modal antigos)
 - [ ] Parte 3: copiar, colar e importar

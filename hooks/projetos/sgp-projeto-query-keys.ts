@@ -31,6 +31,12 @@ export const sgpStakesQueryKeys = {
       String(projetoId),
       perPage ?? 15,
     ] as const,
+  /**
+   * Todas as páginas de uma vez (lista editável da aba Stakes). Fica sob o prefixo de
+   * `byProjetoInfinite` para que `invalidateSgpStakesQueries` também a recarregue.
+   */
+  todos: (projetoId: number | string) =>
+    ["sgp-stakes", "projeto", "infinite", String(projetoId), "todos"] as const,
 };
 
 /** Query keys das listagens GET de cronograma por projeto */

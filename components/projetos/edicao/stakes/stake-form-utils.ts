@@ -6,6 +6,7 @@ import type { SgpStakeItem } from "@/interfaces/sgp-stake";
 import { maskHHMM } from "@/components/casos/edicao/producao/utils";
 import type { StakeFormValues } from "@/components/projetos/edicao/stakes/stake-form-schema";
 import { parseSgpHorasToMinutes } from "@/components/projetos/edicao/stakes/utils";
+import type { StakeLinha } from "@/components/projetos/edicao/stakes/stakes-lista.types";
 
 const SGP_HORAS_BASE_DATE = "1899-12-30";
 
@@ -88,5 +89,48 @@ export function buildUpdateSgpStakePayload(
     ProjetoAprovado: stakeExistente.projeto_aprovado ?? 0,
     Observacoes: stakeExistente.observacoes ?? null,
     OcorrenciaGerada: stakeExistente.ocorrencia_gerada ?? 0,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Lista editável (aba Stakes em lista): payload a partir da linha
+// ---------------------------------------------------------------------------
+
+/** Linha validada → POST `/sgp-stakes`. `ProjetoAprovado` vai 0 (decisão #17). */
+export function linhaToCreatePayload(
+  linha: StakeLinha,
+  projetoId: number | string,
+): CreateSgpStakeRequest {
+  const observacao = linha.observacao.trim();
+  return {
+    Registro: Number(projetoId),
+    Caracteristica: "STAKEHOLDERS",
+    Id_Tipo: Number(linha.idTipo),
+    Nomes: linha.colaboradorLabel.trim(),
+    HorasDisponiveis: formatHorasInputToSgpIso(linha.planejada),
+    Suporte_id: Number(linha.colaboradorId),
+    DiasUteis: Number(linha.dias),
+    HorasRisco: formatHorasInputToSgpIso("00:00"),
+    HorasNaoPlanejadas: formatHorasInputToSgpIso(linha.naoPlanejada),
+    ProjetoAprovado: 0,
+    Observacoes: observacao || null,
+    OcorrenciaGerada: 0,
+  };
+}
+
+/**
+ * Linha validada → PUT `/sgp-stakes/{sequencia}`. Preserva horas de risco, `ProjetoAprovado` e
+ * ocorrência gerada do registro gravado; a observação vem da linha (decisão #17).
+ */
+export function linhaToUpdatePayload(
+  linha: StakeLinha,
+  projetoId: number | string,
+  original: SgpStakeItem,
+): UpdateSgpStakeRequest {
+  return {
+    ...linhaToCreatePayload(linha, projetoId),
+    HorasRisco: sgpHorasExistenteToIso(original.horas_risco),
+    ProjetoAprovado: original.projeto_aprovado ?? 0,
+    OcorrenciaGerada: original.ocorrencia_gerada ?? 0,
   };
 }
