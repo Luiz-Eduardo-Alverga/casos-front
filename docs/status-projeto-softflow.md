@@ -191,6 +191,12 @@ usuário):
 Especificação aprovada e ainda não implementada fica em `docs/<slug>/README.md` com **"Estado:
 planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 
+- **Conector do Claude: abrir casos pelo chat** (especificado em 2026-11-19). O Softflow expõe um
+  servidor MCP (`/api/mcp`) com login OAuth próprio; cada pessoa da squad conecta a conta uma vez
+  e o Claude consulta catálogos, mostra a prévia e abre o caso depois da confirmação. Inclui a
+  tela `/oauth/autorizar` e o item "Claude" no menu do usuário. Ver
+  [`conector-claude/`](conector-claude/README.md); seis perguntas para o dev sobre o token da API
+  Soft Flow e o deploy.
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).

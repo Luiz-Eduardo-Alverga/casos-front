@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Softflow — Conector do Claude (protótipo)</title>
+<!--
+  Protótipo de planejamento (docs/conector-claude). Referência de estrutura e hierarquia.
+  As cores abaixo espelham os tokens de app/globals.css só para visualizar; no código usar as
+  classes de token (bg-primary, text-text-primary, login-*, brand-yellow...). Nunca copiar hex.
+-->
+<style>
+  :root{
+    --primary:hsl(223 23% 15%); --page:hsl(220 14% 96%); --card:#fff;
+    --tp:hsl(215 28% 17%); --ts:hsl(215 16% 47%); --tl:hsl(215 20% 35%);
+    --bi:hsl(220 13% 91%); --bd:hsl(220 14% 96%); --muted:hsl(220 14% 96%);
+    --sidebar:hsl(215 25% 20%); --sidebar-t:hsl(215 20% 80%);
+    --destr:hsl(0 84% 60%); --destr-bg:hsl(0 84% 60% / .1);
+    --ok:hsl(142 71% 35%); --ok-bg:hsl(142 71% 45% / .12);
+    --warn:hsl(32 95% 44%); --warn-bg:hsl(38 92% 50% / .14);
+    --login-start:hsl(216 14% 36%); --login-end:hsl(214 18% 21%);
+    --login-btn-from:hsl(46 88% 60%); --login-btn-to:hsl(42 79% 57%); --login-btn-text:hsl(225 5% 28%);
+    --login-ph:hsl(216 12% 64%); --login-footer:hsl(210 7% 57%); --login-panel:hsl(216 15% 38%);
+  }
+  *{box-sizing:border-box} html,body{margin:0;height:100%}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;color:var(--tp);background:#ddd}
+  .proto-bar{position:fixed;z-index:100;top:8px;right:8px;background:#111c;color:#fff;border-radius:8px;padding:6px 8px;font-size:12px;display:flex;gap:6px;align-items:center}
+  .proto-bar select{font-size:12px}
+  .hidden{display:none!important}
+  svg.i{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  svg.i14{width:14px;height:14px} svg.i20{width:20px;height:20px} svg.i24{width:24px;height:24px}
+
+  /* ---------- Autorização (layout do login) ---------- */
+  .auth{display:grid;grid-template-columns:1fr 1fr;height:100vh;background:var(--primary);overflow:hidden}
+  .auth aside{background:linear-gradient(160deg,var(--login-start),var(--login-end));position:relative;overflow:hidden}
+  .auth aside img{width:100%;height:100%;object-fit:cover;display:block}
+  .auth main{display:flex;flex-direction:column;overflow:auto;padding:48px 72px}
+  .auth .center{flex:1;display:flex;align-items:center;justify-content:center}
+  .auth footer{display:flex;justify-content:center;padding-top:24px}
+  .consent{width:100%;max-width:420px;display:flex;flex-direction:column;gap:24px;color:#fff}
+  .logos{display:flex;align-items:center;justify-content:center;gap:16px}
+  .logo-box{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px}
+  .logo-claude{background:#fff;color:hsl(15 63% 55%)}
+  .logo-sf{background:hsl(46 88% 60%);color:var(--primary)}
+  .logos .link{color:var(--login-ph);display:flex}
+  .consent h1{margin:0;text-align:center;font-size:20px;font-weight:600}
+  .consent .sub{margin:4px 0 0;text-align:center;color:var(--login-ph);font-size:14px;line-height:1.45}
+  .panel{background:hsl(216 15% 24%);border:1px solid hsl(216 15% 32%);border-radius:8px;padding:16px}
+  .who{display:flex;gap:12px;align-items:center}
+  .avatar{width:40px;height:40px;border-radius:999px;background:var(--login-panel);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;color:#fff;flex-shrink:0}
+  .who .n{font-weight:600} .who .m{color:var(--login-ph);font-size:12px;margin-top:2px}
+  .who a{margin-left:auto;color:var(--login-btn-from);font-size:12px;text-decoration:none;white-space:nowrap}
+  .caps h2{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--login-ph);font-weight:600}
+  .caps ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .caps li{display:flex;gap:8px;align-items:flex-start;line-height:1.4}
+  .caps li .y{color:hsl(142 60% 60%)} .caps li .x{color:var(--login-ph)}
+  .caps li.off{color:var(--login-ph);text-decoration:line-through}
+  .caps + .caps{margin-top:16px;padding-top:16px;border-top:1px solid hsl(216 15% 32%)}
+  .alert-w{display:flex;gap:8px;background:hsl(38 92% 50% / .14);border:1px solid hsl(38 92% 50% / .35);color:hsl(43 96% 72%);border-radius:8px;padding:12px;font-size:13px;line-height:1.45}
+  .actions{display:flex;gap:8px}
+  .btn{height:40px;border-radius:8px;padding:0 16px;font-size:14px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;cursor:pointer}
+  .btn-cta{flex:1;background:linear-gradient(90deg,var(--login-btn-from),var(--login-btn-to));color:var(--login-btn-text);font-weight:600}
+  .btn-ghost-dark{flex:1;background:transparent;border-color:hsl(216 15% 40%);color:#fff}
+  .hint{text-align:center;color:var(--login-footer);font-size:12px;line-height:1.45;margin:0}
+  .err-icon{width:48px;height:48px;border-radius:999px;background:hsl(0 84% 60% / .15);color:hsl(0 90% 75%);display:flex;align-items:center;justify-content:center;margin:0 auto}
+  .err code{background:hsl(216 15% 18%);padding:2px 6px;border-radius:4px;font-size:12px}
+
+  /* ---------- Dashboard (shell simplificado) ---------- */
+  .app{display:grid;grid-template-columns:256px 1fr;height:100vh}
+  .sb{background:var(--sidebar);color:var(--sidebar-t);padding:16px 12px;display:flex;flex-direction:column;gap:4px}
+  .sb .brand{display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;padding:4px 8px 16px}
+  .sb .sec{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.6;padding:12px 8px 4px}
+  .sb a{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;color:inherit;text-decoration:none}
+  .sb a.on{background:hsl(215 25% 27%);color:#fff}
+  .main{display:flex;flex-direction:column;background:var(--page);min-width:0;position:relative}
+  .hdr{height:64px;background:var(--card);border-bottom:1px solid var(--bi);display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:0 24px}
+  .av{width:36px;height:36px;border-radius:999px;background:hsl(217 91% 60%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;box-shadow:0 0 0 2px var(--bi)}
+  .content{padding:24px}
+  .content h1{margin:0;font-size:24px;font-weight:700} .content .st{color:var(--ts);margin:4px 0 24px}
+  .ghost-card{background:var(--card);border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.04);height:420px}
+
+  /* menu do usuário (espelha components/header/user-dropdown.tsx) */
+  .um{position:absolute;top:60px;right:24px;width:380px;background:var(--card);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.12);border:1px solid var(--bi);overflow:hidden;z-index:10}
+  .um .top{padding:24px;border-bottom:1px solid var(--bi);background:linear-gradient(90deg,hsl(214 100% 97%),hsl(226 100% 97%));display:flex;gap:16px;align-items:center}
+  .um .top .av{width:64px;height:64px;font-size:18px}
+  .um .top .n{font-weight:600;font-size:18px} .um .top .m{color:var(--ts);font-size:13px} .um .top .s{color:var(--ts);font-size:12px;margin-top:4px}
+  .um .item{margin:8px;display:flex;align-items:center;gap:16px;padding:12px;border-radius:8px;cursor:pointer}
+  .um .item:hover,.um .item.hl{background:hsl(220 14% 96% / .8)}
+  .um .ic{width:40px;height:40px;border-radius:999px;background:hsl(214 95% 93%);display:flex;align-items:center;justify-content:center;color:var(--tp);flex-shrink:0}
+  .um .t{font-weight:500} .um .d{font-size:12px;color:var(--ts)}
+  .um .item .badge{margin-left:auto}
+  .um .item.out{color:hsl(0 72% 51%)} .um .item.out .ic{background:hsl(0 93% 94%);color:hsl(0 72% 51%)}
+  .sw{width:36px;height:20px;border-radius:999px;background:var(--primary);position:relative;margin-left:auto}
+  .sw::after{content:"";position:absolute;top:2px;left:18px;width:16px;height:16px;border-radius:999px;background:#fff}
+  .pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:600}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.mut{background:var(--muted);color:var(--ts)}
+
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:20}
+  .dlg{width:480px;max-width:calc(100vw - 32px);background:var(--card);border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,.2);padding:24px;display:flex;flex-direction:column;gap:16px;position:relative}
+  .dlg h3{margin:0;font-size:18px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .dlg .ds{margin:4px 0 0;color:var(--ts);line-height:1.45}
+  .dlg .close{position:absolute;top:16px;right:16px;color:var(--ts)}
+  .box{border:1px solid var(--bi);border-radius:8px}
+  .box .row{display:flex;align-items:center;gap:12px;padding:12px 16px}
+  .box .row + .row{border-top:1px solid var(--bd)}
+  .box .k{color:var(--ts);width:150px;flex-shrink:0} .box .v{font-weight:500}
+  .foot{display:flex;justify-content:flex-end;gap:8px}
+  .b{height:36px;border-radius:8px;padding:0 16px;font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;cursor:pointer;background:none}
+  .b-out{border-color:var(--bi);box-shadow:0 1px 2px rgba(0,0,0,.04);color:var(--tp)}
+  .b-pri{background:var(--primary);color:#fff}
+  .b-dsoft{background:var(--destr-bg);color:var(--destr)}
+  .b-dsol{background:var(--destr);color:#fff}
+  .steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+  .steps li{display:flex;gap:12px;line-height:1.45}
+  .steps .num{width:24px;height:24px;border-radius:999px;background:var(--muted);color:var(--tp);font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .url{display:flex;gap:8px}
+  .url input{flex:1;height:36px;border:1px solid var(--bi);border-radius:8px;padding:0 12px;font-family:ui-monospace,monospace;font-size:12px;color:var(--tp);background:transparent}
+  .note{font-size:12px;color:var(--ts);line-height:1.45;margin:0}
+  .sk{background:var(--muted);border-radius:6px;height:14px}
+
+  /* mobile */
+  @media (max-width:1023px){
+    .auth{grid-template-columns:1fr} .auth aside{display:none} .auth main{padding:24px 16px}
+    .app{grid-template-columns:1fr} .sb{display:none}
+    .actions{flex-direction:column-reverse} .actions .btn{flex:none;width:100%}
+  }
+</style>
+</head>
+<body>
+
+<div class="proto-bar">
+  Cenário
+  <select id="cen">
+    <option value="autorizar">01 · Autorizar</option>
+    <option value="autorizar-sem-permissao">02 · Autorizar sem create-case</option>
+    <option value="autorizar-erro">03 · Autorizar: pedido inválido</option>
+    <option value="menu">04 · Menu do usuário</option>
+    <option value="conectado">05 · Modal conectado</option>
+    <option value="desconectar">06 · Confirmar desconectar</option>
+    <option value="sem-conexao">07 · Modal sem conexão</option>
+    <option value="carregando">Modal carregando</option>
+  </select>
+</div>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="arrows" viewBox="0 0 24 24"><path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/></symbol>
+  <symbol id="alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+  <symbol id="bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="plug" viewBox="0 0 24 24"><path d="M12 22v-5M9 8V2M15 8V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></symbol>
+  <symbol id="logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="unplug" viewBox="0 0 24 24"><path d="m19 5 3-3M2 22l3-3M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4ZM7.5 13.5 10 11M10.5 16.5 13 14M12 6l6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z"/></symbol>
+  <symbol id="grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+  <symbol id="file" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6"/></symbol>
+  <symbol id="folder" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+</svg>
+
+<!-- =============== AUTORIZAÇÃO =============== -->
+<div id="auth" class="auth">
+  <aside><img src="../../../public/images/Gemini_Generated_Image%20(2).jpeg" alt="" onerror="this.remove()"></aside>
+  <main>
+    <div class="center">
+
+      <!-- consentimento -->
+      <section id="consent" class="consent" aria-labelledby="t-consent">
+        <div>
+          <div class="logos" aria-hidden="true">
+            <div class="logo-box logo-claude">C</div>
+            <span class="link"><svg class="i i20"><use href="#arrows"/></svg></span>
+            <div class="logo-box logo-sf">S</div>
+          </div>
+        </div>
+        <div>
+          <h1 id="t-consent">Conectar o Claude ao Softflow</h1>
+          <p class="sub">O Claude vai acessar o Softflow em seu nome, com as suas permissões.</p>
+        </div>
+
+        <div class="panel who">
+          <div class="avatar">LA</div>
+          <div>
+            <div class="n">Luiz Eduardo da Silva Alverga</div>
+            <div class="m">luizzz154@hotmail.com · SQUAD XP</div>
+          </div>
+          <a href="#">Não é você?</a>
+        </div>
+
+        <div class="panel">
+          <div class="caps">
+            <h2>O Claude vai poder</h2>
+            <ul>
+              <li><svg class="i y"><use href="#check"/></svg>Consultar produtos, versões, projetos e pessoas</li>
+              <li><svg class="i y"><use href="#check"/></svg>Consultar casos pelo número</li>
+              <li id="cap-abrir"><svg class="i y"><use href="#check"/></svg><span>Abrir casos em seu nome, depois que você confirmar no chat</span></li>
+            </ul>
+          </div>
+          <div class="caps">
+            <h2>Não vai poder</h2>
+            <ul>
+              <li><svg class="i x"><use href="#x"/></svg>Editar, mudar status ou excluir casos</li>
+              <li><svg class="i x"><use href="#x"/></svg>Ver sua senha</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="warn-perm" class="alert-w" role="status">
+          <svg class="i"><use href="#alert"/></svg>
+          <span>Seu perfil não permite abrir casos. Você pode conectar, mas o Claude só vai consultar.</span>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-ghost-dark">Cancelar</button>
+          <button class="btn btn-cta">Permitir acesso</button>
+        </div>
+        <p class="hint">Você pode desconectar quando quiser pelo menu do seu usuário no Softflow.</p>
+      </section>
+
+      <!-- erro -->
+      <section id="auth-err" class="consent err" role="alert" aria-labelledby="t-err">
+        <div class="err-icon"><svg class="i i24"><use href="#alert"/></svg></div>
+        <div>
+          <h1 id="t-err">Não foi possível conectar</h1>
+          <p class="sub">O endereço de retorno <code>https://exemplo.com/callback</code> não é do Claude.</p>
+        </div>
+        <div class="panel"><p class="hint" style="color:var(--login-ph);text-align:left">Volte ao Claude e tente conectar de novo. Se o erro continuar, avise o time do Softflow com o horário da tentativa.</p></div>
+      </section>
+
+    </div>
+    <footer><img src="../../../public/images/logo2.svg" alt="" width="150" onerror="this.outerHTML='<span style=&quot;color:#fff;font-weight:700&quot;>Softflow</span>'"></footer>
+  </main>
+</div>
+
+<!-- =============== DASHBOARD =============== -->
+<div id="app" class="app hidden">
+  <nav class="sb" aria-label="Menu">
+    <div class="brand"><span class="logo-box logo-sf" style="width:28px;height:28px;font-size:13px">S</span>Softflow</div>
+    <div class="sec">Painéis</div>
+    <a href="#" class="on"><svg class="i"><use href="#grid"/></svg>Painel do desenvolvedor</a>
+    <div class="sec">Gerenciar</div>
+    <a href="#"><svg class="i"><use href="#file"/></svg>Casos</a>
+    <a href="#"><svg class="i"><use href="#folder"/></svg>Projetos</a>
+  </nav>
+  <div class="main">
+    <header class="hdr"><svg class="i" style="color:var(--ts)"><use href="#bell"/></svg><div class="av">LA</div></header>
+    <div class="content">
+      <h1>Painel do desenvolvedor</h1>
+      <p class="st">O que está com você agora.</p>
+      <div class="ghost-card"></div>
+    </div>
+
+    <!-- menu do usuário -->
+    <div id="menu" class="um" role="menu" aria-label="Menu do usuário">
+      <div class="top">
+        <div class="av">LA</div>
+        <div><div class="n">Luiz Eduardo</div><div class="m">luiz.alverga</div><div class="s">SQUAD XP</div></div>
+      </div>
+      <div class="item"><div class="ic"><svg class="i i20"><use href="#camera"/></svg></div><div><div class="t">Alterar foto de perfil</div><div class="d">Enviar uma nova imagem</div></div></div>
+      <div class="item"><div class="ic"><svg class="i i20"><use href="#bell"/></svg></div><div><div class="t">Notificações no Discord</div><div class="d">Receber DM ao abrir caso ou report</div></div><span class="sw" aria-hidden="true"></span></div>
+      <div class="item hl" role="menuitem"><div class="ic"><svg class="i i20"><use href="#plug"/></svg></div><div><div class="t">Claude</div><div class="d">Abrir casos pelo chat do Claude</div></div><span class="pill ok badge">Conectado</span></div>
+      <div class="item out"><div class="ic"><svg class="i i20"><use href="#logout"/></svg></div><div><div class="t">Sair</div><div class="d" style="color:inherit;opacity:.8">Encerrar sessão</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- modal: conectado -->
+<div id="m-conectado" class="ov hidden">
+  <div class="dlg" role="dialog" aria-labelledby="t-mc">
+    <span class="close"><svg class="i"><use href="#x"/></svg></span>
+    <div>
+      <h3 id="t-mc"><svg class="i"><use href="#plug"/></svg>Conexão com o Claude <span class="pill ok">Conectado</span></h3>
+      <p class="ds">O Claude consulta e abre casos em seu nome, com as suas permissões, sempre depois que você confirma no chat.</p>
+    </div>
+    <div class="box">
+      <div class="row"><span class="k">Conectado desde</span><span class="v">19/11/2026 16:50</span></div>
+      <div class="row"><span class="k">Último uso</span><span class="v">há 5 minutos</span></div>
+      <div class="row"><span class="k">Pode abrir casos</span><span class="v">Sim</span></div>
+    </div>
+    <div class="foot">
+      <button class="b b-dsoft"><svg class="i"><use href="#unplug"/></svg>Desconectar</button>
+      <button class="b b-out">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal: confirmar desconectar -->
+<div id="m-desconectar" class="ov hidden">
+  <div class="dlg" role="alertdialog" aria-labelledby="t-md" style="width:420px">
+    <div>
+      <h3 id="t-md">Desconectar o Claude?</h3>
+      <p class="ds">O Claude não vai mais abrir nem consultar casos em seu nome até você conectar de novo.</p>
+    </div>
+    <div class="foot">
+      <button class="b b-out">Cancelar</button>
+      <button class="b b-dsol">Desconectar</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal: sem conexão -->
+<div id="m-sem" class="ov hidden">
+  <div class="dlg" role="dialog" aria-labelledby="t-ms">
+    <span class="close"><svg class="i"><use href="#x"/></svg></span>
+    <div>
+      <h3 id="t-ms"><svg class="i"><use href="#plug"/></svg>Conexão com o Claude <span class="pill mut">Não conectado</span></h3>
+      <p class="ds">Conecte para o Claude abrir casos no fim do planejamento, sem você sair do chat.</p>
+    </div>
+    <ol class="steps">
+      <li><span class="num">1</span><span>No Claude, abra <b>Configurações → Conectores</b>.</span></li>
+      <li><span class="num">2</span><span>Em <b>Softflow</b>, clique em <b>Conectar</b>.</span></li>
+      <li><span class="num">3</span><span>Confira seus dados e clique em <b>Permitir acesso</b>.</span></li>
+    </ol>
+    <div>
+      <div style="font-weight:500;color:var(--tl);margin-bottom:8px">Endereço do conector</div>
+      <div class="url"><input readonly value="https://softflow.softcom.services/api/mcp" aria-label="Endereço do conector"><button class="b b-out" aria-label="Copiar endereço"><svg class="i"><use href="#copy"/></svg>Copiar</button></div>
+      <p class="note" style="margin-top:8px">Só precisa do endereço se o Softflow não aparecer na lista de conectores da organização.</p>
+    </div>
+    <div class="foot"><button class="b b-out">Fechar</button></div>
+  </div>
+</div>
+
+<!-- modal: carregando -->
+<div id="m-load" class="ov hidden">
+  <div class="dlg" aria-busy="true">
+    <div><h3><svg class="i"><use href="#plug"/></svg>Conexão com o Claude</h3></div>
+    <div class="box">
+      <div class="row"><div class="sk" style="width:130px"></div><div class="sk" style="width:120px"></div></div>
+      <div class="row"><div class="sk" style="width:110px"></div><div class="sk" style="width:90px"></div></div>
+    </div>
+    <div class="foot"><button class="b b-out">Fechar</button></div>
+  </div>
+</div>
+
+<script>
+  var $ = function(id){return document.getElementById(id)};
+  function show(c){
+    var authish = c.indexOf('autorizar') === 0;
+    $('auth').classList.toggle('hidden', !authish);
+    $('app').classList.toggle('hidden', authish);
+    $('consent').classList.toggle('hidden', c === 'autorizar-erro');
+    $('auth-err').classList.toggle('hidden', c !== 'autorizar-erro');
+    var semPerm = c === 'autorizar-sem-permissao';
+    $('warn-perm').classList.toggle('hidden', !semPerm);
+    $('cap-abrir').classList.toggle('off', semPerm);
+    $('cap-abrir').querySelector('use').setAttribute('href', semPerm ? '#x' : '#check');
+    $('cap-abrir').querySelector('svg').setAttribute('class', semPerm ? 'i x' : 'i y');
+    $('menu').classList.toggle('hidden', c !== 'menu');
+    $('m-conectado').classList.toggle('hidden', c !== 'conectado');
+    $('m-desconectar').classList.toggle('hidden', c !== 'desconectar');
+    $('m-sem').classList.toggle('hidden', c !== 'sem-conexao');
+    $('m-load').classList.toggle('hidden', c !== 'carregando');
+  }
+  var sel = $('cen');
+  var q = new URLSearchParams(location.search).get('c');
+  if (q) sel.value = q;
+  sel.addEventListener('change', function(){ show(sel.value); });
+  show(sel.value);
+</script>
+</body>
+</html>
