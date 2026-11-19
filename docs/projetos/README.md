@@ -3,6 +3,10 @@
 > **Estado: implementado.** É o modelo de organização de pastas seguido por Casos e Produtos.
 > Padrões gerais em [`padrao-front/`](../padrao-front/README.md).
 
+> **Próxima mudança planejada: clonar projeto.** Especificada em 2026-11-19 e ainda não
+> implementada. Ver a seção [Próxima mudança planejada](#próxima-mudança-planejada-clonar-projeto),
+> as decisões em [`decisoes.md`](decisoes.md) e o protótipo em [`prototipo/`](prototipo/).
+
 ## O que é
 
 Cadastro SGP de projeto: listagem em `/projetos`, cadastro em `/projetos/novo` e edição em
@@ -24,6 +28,161 @@ escolhe o projeto destino e chama `POST /api/projeto-casos/transferir-proximo-pr
 - Casos marcados: o body inclui `registros` com os ids dos casos (`caso.id`). O checkbox do
   cabeçalho marca só as linhas já carregadas (a lista pagina de 15 em 15). Casos que saem da lista
   carregada (filtro ou troca de projeto) deixam de estar marcados.
+
+## Próxima mudança planejada: clonar projeto
+
+### Objetivo
+
+Criar um projeto novo a partir de um existente informando só **nome, data de início e data de
+fim**. Setor, PDV, classe, tipo e cliente vêm do projeto de origem. O uso principal é abrir a
+próxima sprint sem recadastrar tudo (ex.: `Squad XP 2026 - 11.02` → `Squad XP 2026 - 12.01`).
+Decisões #1 a #9 em [`decisoes.md`](decisoes.md).
+
+### Contrato da API Soft Flow
+
+`POST /sgp-cadastros/{registro}/clonar`, em que `{registro}` é o projeto de origem.
+
+```json
+{
+  "nome_projeto": "Squad XP 2026 - 11.02 - Clone",
+  "data_inicio": "2027-11-01 00:00:00",
+  "data_fim": "2027-11-30 00:00:00"
+}
+```
+
+Resposta 200 (testada pelo usuário com a origem 3278):
+
+```json
+{
+  "success": true,
+  "message": "Projeto clonado com sucesso",
+  "data": { "registro": 3311, "nome_projeto": "Squad XP 2026 - 11.02 - Clone", "status": "ABERTO",
+            "data_inicio": "2027-11-01 00:00:00", "data_fim": "2027-11-30 00:00:00",
+            "datas": "2027-11-01 00:00:00", "data_desativado": "2027-11-30 00:00:00",
+            "cliente": 293, "usuario": 816, "tipo": "PROJETO", "classe_projeto": "ESTRATEGICO",
+            "pdv": "JOAO PESSOA", "setor": "SQUAD XP", "...": "demais campos de SgpCadastroData" }
+}
+```
+
+O `data` tem o mesmo formato de `SgpCadastroData` (`interfaces/sgp-cadastro.ts`). No exemplo,
+`necessidades`, `expectativas`, `objetivo` e os checklists (usabilidade, confiabilidade etc.)
+vieram vazios. A resposta de erro ainda não foi vista (pergunta 5).
+
+### Protótipo
+
+[`prototipo/softflow-prototipo.html`](prototipo/softflow-prototipo.html), menu **Projetos**. A
+listagem do protótipo imita a do app (ID/Nome, Data de início, Data de fim, Status, Ações). A
+lógica está em `pjVals` e `pjAbrirClone`, e a marcação em `<sc-if value="{{ isProjetos }}">` e
+`<sc-if value="{{ pjcOn }}">`. Clonar com o nome de um projeto que já existe simula um erro da
+API, só para mostrar o estado de erro (no app, quem decide é o backend, decisão #5).
+
+| Captura | Estado |
+|---------|--------|
+| `capturas/01-projetos-listagem.png` | Listagem com o botão Clonar (ícone de cópia) antes do Editar |
+| `capturas/02-clonar-modal-padrao.png` | Modal aberto com os padrões: nome "… - Clone", próximo período e duração |
+| `capturas/03-clonar-modal-data-invalida.png` | Data de fim anterior ao início, com o erro no campo |
+| `capturas/04-clonar-modal-erro-api.png` | Erro da API acima do rodapé, dados preservados, toast de erro |
+| `capturas/05-projeto-clonado.png` | Depois do sucesso: toast e linha nova destacada com "Novo" e "Clonado do projeto #…" |
+| `capturas/06-clonar-modal-mobile.png` | 390px: o modal ocupa a largura toda e fica preso embaixo, como os outros |
+
+### Comportamento
+
+1. **Ponto de entrada:** botão de ícone `Copy` na coluna Ações de
+   `projetos-tabela-row-listagem.tsx`, antes do `SquarePen`, com `aria-label="Clonar o projeto
+   {nome}"` e tooltip "Clonar projeto". A coluna Ações cresce o suficiente para os dois ícones.
+   Sem permissão, o botão não aparece (pergunta 1).
+2. **Modal "Clonar projeto"** (`Dialog`, mesmo visual do `EscopoDuplicarCasosModal`: header com
+   ícone escuro, título e subtítulo "Cria um novo projeto com o mesmo cadastro do projeto de
+   origem."):
+   - Bloco de leitura "Projeto de origem": `#registro`, nome, setor · PDV, classe e período.
+   - **Nome do novo projeto** \*: padrão `"{nome} - Clone"`, máximo de 120 caracteres.
+   - **Data de início** \* e **Data de fim** \*, lado a lado (empilham no mobile), com o
+     `DatePicker` do repositório. Padrões na decisão #3.
+   - Linha "Duração do novo projeto: N dias", com "—" quando as datas não fecham.
+   - Texto informativo (ícone `Info`): "O novo projeto copia setor, PDV, classe, tipo e cliente do
+     projeto de origem e começa com status Aberto. O projeto de origem não é alterado. Para levar
+     casos, use "Duplicar casos" na aba Escopo do projeto de origem." Ajustar conforme a pergunta 4.
+   - Rodapé: **Cancelar** (outline) e **Clonar projeto** (primário, ícone `Copy`), que vira
+     "Clonando...".
+3. **Validação** (react-hook-form + Zod): nome obrigatório após `trim`, as duas datas
+   obrigatórias e fim maior ou igual ao início. Os erros de obrigatório aparecem no envio, e o de
+   ordem das datas aparece assim que as duas estão preenchidas. Sem checagem de nome duplicado no
+   front (decisão #5).
+4. **Envio:** datas com `formatDateTimeSgp`. Durante a chamada, botões desabilitados, e Esc, X e
+   clique fora não fecham (decisão #8).
+5. **Sucesso** (decisão #7): fecha o modal, mostra o toast "{message} · #{registro} {nome}",
+   invalida `["sgp-cadastros"]` e destaca a linha do `registro` novo com `bg` de destaque e o selo
+   "Novo" enquanto a tela estiver montada. Se a linha não estiver nas páginas carregadas, fica só o
+   toast.
+6. **Erro** (decisão #8): o modal fica aberto com os dados, mostra a mensagem da API acima do
+   rodapé (ícone `AlertTriangle`, `text-destructive`) e um `toast.error`. Mudar qualquer campo
+   apaga a mensagem.
+
+### O que reaproveitar
+
+- Rota: copiar o padrão de `app/api/sgp-cadastros/route.ts` (`withPermission`,
+  `getAuthorizationHeader`, `extractApiError`) e de `app/api/projeto-casos/clonar/[id]/route.ts`.
+- Service e hook: mesmo formato de `services/sgp-cadastros/update-sgp-cadastro.ts` (`fetchWithAuth`)
+  e de `hooks/casos/use-clonar-caso.tsx` (`useMutation`).
+- Tipos: `SgpCadastroData` para o `data` da resposta.
+- Datas: `parseSgpDateToDate` e `formatDateTimeSgp` de `components/projetos/cadastro/utils.ts`;
+  `formatSgpDateTimeToPt` de `components/projetos/utils.ts` para o período no bloco de origem.
+- Modal: estrutura de `components/projetos/edicao/escopo/escopo-duplicar-casos-modal.tsx` e
+  `DatePicker` de `components/ui/date-picker.tsx` (ou `date-picker-input.tsx`, o que o cadastro
+  usar).
+- Permissão: `hasPermission` / `permissionsLoaded` de `lib/rbac-client`, decidida no entrypoint
+  `components/projetos/index.tsx`, como o `canCreateProject`.
+
+### Arquitetura proposta
+
+```text
+app/api/sgp-cadastros/[id]/clonar/route.ts      POST → API externa POST /sgp-cadastros/{id}/clonar (withPermission)
+interfaces/sgp-cadastro.ts                      + ClonarSgpCadastroRequest / ClonarSgpCadastroResponse
+services/sgp-cadastros/clonar-sgp-cadastro.ts   fetchWithAuth para /api/sgp-cadastros/{id}/clonar
+hooks/projetos/use-clonar-sgp-cadastro.tsx      useMutation + invalidate ["sgp-cadastros"]
+components/projetos/clonar/
+├── index.tsx                  ProjetoClonarModal: useForm, mutation, sucesso/erro
+├── schema.ts                  Zod (nome, dataInicio, dataFim, fim ≥ início)
+└── utils.ts                   padrões do clone (nome, próximo período) e duração em dias (funções puras)
+components/projetos/index.tsx                   canCloneProject + estado do modal e do registro destacado
+components/projetos/projetos-tabela.tsx         repassa onClonar e registroDestacado para a tabela
+components/projetos/tabela/projetos-tabela-types.ts  + onClonar?, registroDestacado? na variante listagem
+components/projetos/tabela/projetos-tabela-row-listagem.tsx  + botão Clonar e destaque "Novo"
+```
+
+O botão só aparece quando `onClonar` é passado. Assim a permissão fica no entrypoint e a linha
+não conhece RBAC (regra da seção 10 deste README).
+
+### Perguntas em aberto (resolver na Fase 0)
+
+1. **Permissão:** usar `create-project` (recomendado: clonar cria um projeto, e não precisa de
+   permissão nova nem seed) ou criar `clone-project` com seed em `db/scripts/`? Decisão do usuário.
+2. **Nome duplicado:** o backend recusa um nome que já existe? Com que status e mensagem? Se não
+   recusar, o usuário decide se isso fica assim.
+3. **Usuários autorizados:** o cadastro faz `POST /sgp-usuarios` logo depois de
+   `POST /sgp-cadastros` (`app/api/sgp-cadastros/route.ts`). O clone já vincula usuários ao projeto
+   novo (o logado ou os da origem)? Conferir na aba de usuários do projeto clonado. Se não vincular,
+   a rota de clonar faz o mesmo `POST /sgp-usuarios` com o usuário logado, e isso vira decisão nova.
+4. **O que mais é copiado:** cronograma, riscos, stakeholders, usuários e casos da origem vêm para
+   o projeto novo? Conferir clonando um projeto de teste que tenha esses dados. O texto informativo
+   do modal e a decisão #9 dependem disso.
+5. **Erro:** formato e status da resposta de erro da API (`success: false` com `message`? 4xx?).
+
+### Plano de implementação
+
+1. **Parte 1: dados.** Rota `app/api/sgp-cadastros/[id]/clonar/route.ts`, tipos, service e hook.
+   Conferir as perguntas 2 a 5 na API de teste, clonando um projeto de teste (não usar projetos
+   reais de sprint).
+2. **Parte 2: tela.** `components/projetos/clonar/` (modal, schema, utils), botão na linha, permissão
+   no entrypoint, destaque da linha nova. Conferir no navegador: padrões do modal, erro de datas,
+   erro da API, sucesso com destaque, tema escuro e 390px.
+3. **Parte 3: fechamento.** README (tirar "Próxima mudança planejada" e documentar o clone no
+   formato padrão), decisões, contexto, status e `docs/rbac/` se a permissão mudar.
+
+### Fora do escopo
+
+Editar outros campos no clone, clonar vários projetos de uma vez, copiar casos (existe "Duplicar
+casos"), clonar a partir da tela de edição e mudanças no backend.
 
 ---
 

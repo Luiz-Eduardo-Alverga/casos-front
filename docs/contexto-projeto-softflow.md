@@ -97,6 +97,8 @@ Navegação em três blocos: **painéis pessoais**, **gerenciar** e **recursos**
 ### Projetos e entrega
 
 - **Projetos** (`/projetos`) — listagem, cadastro (`/projetos/novo`) e edição (`/projetos/[id]`) com abas: **Abertura, Escopo, Risco, Stakeholders, Cronograma**. Escopo lista casos/reports da memória do projeto (badges de status, origem caso vs report) e duplica casos para outro projeto: sem seleção, a API leva os elegíveis do projeto; com casos marcados, só esses ids vão em `registros`. Padrão de pastas em `docs/projetos/README.md`.
+  Planejado (não implementado): clonar projeto pela listagem, informando nome e período
+  (`POST /sgp-cadastros/{registro}/clonar`).
 - **Liberações** (`/liberacoes`) — registro de release: versões piloto vs final e casos vinculados por produto. Detalhe em `/liberacoes/[registro]` com abas **Liberação** (identidade, piloto, versão final, flags, encerrar), **Casos da versão** e **Checklist**.
 - **Melhorias** (`/melhorias`) — tela de ideias/melhorias por produto, setor e período, disponível na navegação principal.
 

@@ -148,3 +148,9 @@ planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
+- **Projetos: clonar projeto**: especificado em 2026-11-19. Botão Clonar na listagem `/projetos`
+  abre um modal com nome, data de início e data de fim (padrão: próximo período com a mesma
+  duração) e chama `POST /sgp-cadastros/{registro}/clonar`. Protótipo, decisões #1 a #9 e plano
+  em 3 partes em [`projetos/`](projetos/README.md#próxima-mudança-planejada-clonar-projeto).
+  Cinco perguntas para a Fase 0 (permissão, nome duplicado, usuários autorizados, o que é
+  copiado, formato do erro). Implementar com `/implementar projetos`.
