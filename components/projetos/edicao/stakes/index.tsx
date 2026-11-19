@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
+import { Copy, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useSgpTipos } from "@/hooks/catalogos/use-sgp-tipos";
 import { useUsuariosProjetos } from "@/hooks/catalogos/use-usuarios";
 import { useSgpStakesTodos } from "@/hooks/projetos/use-sgp-stakes-todos";
@@ -27,9 +29,12 @@ import {
   linhaToUpdatePayload,
 } from "@/components/projetos/edicao/stakes/stake-form-utils";
 import {
+  contarLinhasTsv,
+  gerarTsv,
   mesclarComServidor,
   novaLinha,
   ordenarStakesPorInclusao,
+  pareceTsv,
   statusLinha,
   stakeToLinha,
   totaisLinhas,
@@ -43,6 +48,11 @@ import type {
 } from "@/components/projetos/edicao/stakes/stakes-lista.types";
 import { StakesLista } from "@/components/projetos/edicao/stakes/stakes-lista";
 import { StakesListaSkeleton } from "@/components/projetos/edicao/stakes/stakes-lista-skeleton";
+import {
+  StakesImportarModal,
+  type ModoImportar,
+} from "@/components/projetos/edicao/stakes/stakes-importar-modal";
+import { copiarParaAreaDeTransferencia } from "@/components/projetos/edicao/stakes/area-de-transferencia";
 import { UsuarioAutorizadoFormModal } from "@/components/projetos/edicao/stakes/usuario-autorizado-form-modal";
 import { UsuariosAutorizadosCard } from "@/components/projetos/edicao/stakes/usuarios-autorizados-card";
 
@@ -63,7 +73,12 @@ export interface AbaStakesProps {
   enabled?: boolean;
 }
 
-export function AbaStakes({ projetoId, nomeProjeto, enabled = true }: AbaStakesProps) {
+export function AbaStakes({
+  projetoId,
+  nomeProjeto,
+  setorProjeto,
+  enabled = true,
+}: AbaStakesProps) {
   const rbacReady = permissionsLoaded();
   const canEdit = !rbacReady || hasPermission("edit-project");
   const { setPendentes } = useAlteracoesPendentes();
@@ -149,6 +164,11 @@ export function AbaStakes({ projetoId, nomeProjeto, enabled = true }: AbaStakesP
   const [erros, setErros] = useState<Map<string, StakeLinhaErros>>(() => new Map());
   const [focarLinha, setFocarLinha] = useState<number | null>(null);
   const [excluir, setExcluir] = useState<StakeLinha | null>(null);
+  const [importar, setImportar] = useState<{
+    open: boolean;
+    modo: ModoImportar;
+    texto: string;
+  }>({ open: false, modo: "projeto", texto: "" });
   const [usuarioModalOpen, setUsuarioModalOpen] = useState(false);
   const [excluirUsuarioModal, setExcluirUsuarioModal] = useState<{
     open: boolean;
@@ -345,6 +365,81 @@ export function AbaStakes({ projetoId, nomeProjeto, enabled = true }: AbaStakesP
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [enabled, canEdit]);
 
+  // ---- copiar, colar e importar (decisões #24 a #26) ---------------------
+  const copiarLinhas = async () => {
+    const tsv = gerarTsv(getValues("linhas"), tiposMap);
+    const quantidade = contarLinhasTsv(tsv);
+    if (quantidade === 0) {
+      toast("Nenhuma linha preenchida para copiar.");
+      return;
+    }
+    const ok = await copiarParaAreaDeTransferencia(tsv);
+    if (!ok) {
+      toast.error("Não foi possível copiar. Tente de novo.");
+      return;
+    }
+    toast.success(
+      `${plural(quantidade, "linha copiada", "linhas copiadas")}. Cole com Ctrl+V na aba Stakes de outro projeto ou numa planilha.`,
+    );
+  };
+
+  const importarLinhas = (novas: StakeLinha[]) => {
+    if (novas.length === 0) return;
+    append(novas, { shouldFocus: false });
+    setImportar((atual) => ({ ...atual, open: false }));
+    const comProblema = novas.filter((l) => l.problemaImportacao).length;
+    toast.success(
+      `${plural(novas.length, "linha importada", "linhas importadas")}${
+        comProblema > 0 ? `, ${comProblema} com problema para corrigir` : ""
+      }. Revise e clique em Salvar.`,
+    );
+  };
+
+  // Ctrl+V com linhas copiadas (texto com tabulação) abre o Importar em "Colar linhas".
+  const importarAberto = importar.open;
+  useEffect(() => {
+    if (!enabled || !canEdit || importarAberto) return;
+    const onPaste = (event: ClipboardEvent) => {
+      const alvo = event.target;
+      if (alvo instanceof Element && alvo.closest('[role="dialog"]')) return;
+      const texto = event.clipboardData?.getData("text/plain") ?? "";
+      if (!pareceTsv(texto)) return;
+      event.preventDefault();
+      setImportar({ open: true, modo: "colar", texto });
+    };
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  }, [enabled, canEdit, importarAberto]);
+
+  const acoesExtras = (
+    <>
+      {canEdit ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8"
+          onClick={() => setImportar({ open: true, modo: "projeto", texto: "" })}
+          disabled={salvarLote.isPending || stakesQuery.isError}
+        >
+          <Upload className="h-3.5 w-3.5" />
+          Importar
+        </Button>
+      ) : null}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="h-8"
+        onClick={() => void copiarLinhas()}
+        disabled={linhas.length === 0}
+      >
+        <Copy className="h-3.5 w-3.5" />
+        Copiar linhas
+      </Button>
+    </>
+  );
+
   // ---- usuários autorizados (sem mudança) --------------------------------
   const handleExcluirUsuarioConfirm = async () => {
     const sequencia = excluirUsuarioModal.usuario?.sequencia;
@@ -402,8 +497,23 @@ export function AbaStakes({ projetoId, nomeProjeto, enabled = true }: AbaStakesP
           onSalvar={() => void salvar()}
           onAlterou={handleAlterou}
           onExcluir={handleExcluir}
+          acoesExtras={acoesExtras}
         />
       </FormProvider>
+
+      {canEdit ? (
+        <StakesImportarModal
+          open={importar.open}
+          onOpenChange={(open) => setImportar((atual) => ({ ...atual, open }))}
+          modoInicial={importar.modo}
+          textoInicial={importar.texto}
+          projetoId={projetoId}
+          setorProjeto={setorProjeto}
+          catalogos={catalogos}
+          linhasDoProjeto={linhas}
+          onImportar={importarLinhas}
+        />
+      ) : null}
 
       <UsuariosAutorizadosCard
         usuarios={usuarios}

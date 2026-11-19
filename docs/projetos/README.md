@@ -421,7 +421,22 @@ Code (aba Stakes)").
   carga com "Tentar de novo" (a API de dev deu 500 passageiro) e 390px com rolagem só na tabela.
   O stake criado no teste foi excluído no fim. Observado: digitar rápido no seletor de Função
   aberto nem sempre aciona a busca por letra do Radix; setas e clique funcionam.
-- [ ] Parte 3: copiar, colar e importar
+- [x] Parte 3: copiar, colar e importar. Entregue em 2026-11-19: botões Importar (`Upload`, só com
+  `edit-project`) e Copiar linhas (`Copy`) no header; `area-de-transferencia.ts` (Clipboard API em
+  contexto seguro, `execCommand("copy")` como reserva); `paste` com tabulação na aba abre o
+  `stakes-importar-modal.tsx` em "Colar linhas" (ignorado dentro de outro diálogo); o modal tem
+  "De outro projeto" (combobox com os projetos do setor, mais novos primeiro, Fechados marcados,
+  sem o próprio) e "Colar linhas" (textarea monospace), prévia com checkbox, repetidos bloqueados
+  e problemas em vermelho. Conferido no navegador: Copiar no #3315 (TSV com cabeçalho, 9 linhas,
+  toast); colar esse texto no #3316 (evento `paste` disparado na página, já que o Ctrl+V simulado
+  do painel não lê a área de transferência): 9 bloqueadas "Já está no projeto"; colagem estilo
+  Excel sem cabeçalho (maiúsculas, `2h30`, repetido "Repetido nesta lista", colaborador fora da
+  lista, linha sem tabulação, hora inválida) importada com "5 linhas importadas, 3 com problema
+  para corrigir" e os erros embaixo das linhas; De outro projeto com o #2931 (Fechado): 77
+  projetos do SQUAD XP, "1 de 8 linhas selecionadas · 7 repetidas bloqueadas" (conta também as
+  linhas ainda não salvas); reserva do copiar com `isSecureContext` falso. As linhas importadas no
+  teste foram descartadas (nada gravado no #3316). Não exercitado aqui: Ctrl+V real do teclado e
+  salvar linhas importadas (o salvar é o mesmo da Parte 2).
 - [ ] Parte 4: fechamento (README, decisões, contexto, status)
 
 ### Fora do escopo

@@ -23,7 +23,7 @@ import type {
 } from "@/components/projetos/edicao/stakes/stakes-lista.types";
 
 const TEXTO_AJUDA =
-  "Horas por dia. Tab passa para o próximo campo, Enter na última linha cria outra e Ctrl+S salva. Faixa azul: linha nova · faixa amarela: linha alterada.";
+  "Horas por dia. Tab passa para o próximo campo, Enter na última linha cria outra, Ctrl+S salva e Ctrl+V com linhas copiadas abre a importação. Faixa azul: linha nova · faixa amarela: linha alterada.";
 
 const TH_CLASS = "h-auto py-3 text-xs font-medium text-text-secondary";
 
