@@ -460,6 +460,12 @@ Fase 0 concluída em 2026-11-19, sem pergunta para o usuário. Conferido no cód
   em duas como a captura 15. O selo "N filtros aplicados" foi para o lado do título, em azul
   (`panel-badge-open`/`-bg`), e o placeholder do Id virou "Ex.: 3278". Conferido em 1920px (uma
   linha), 1440px (duas) e 390px (coluna única).
+  Ajuste de estilo (2026-11-19, apontado pelo usuário): o gatilho do `mes-picker` divergia dos
+  selects e comboboxes (sem `shadow-sm`, anel de foco de 2px, fundo `bg-background` em vez de
+  transparente, que no tema escuro virava uma caixa mais escura, e texto `text-text-primary`). Agora
+  usa as mesmas classes do `SelectTrigger`; medido igual ao Status nos temas claro e escuro. Na
+  mesma revisão, os campos da lista de Stakes (`stake-linha.tsx`) passaram de `rounded-md` (6px)
+  para `rounded-lg` (8px), como o combobox da mesma linha e o design-system.
 - [ ] Parte 3: fechamento (README, decisões, contexto, status)
 
 ### Fora do escopo
