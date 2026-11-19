@@ -1781,10 +1781,10 @@ const PJ_RAW = [
 const PJ_CLASSE = { ESTRATEGICO: 'Estratégico', TATICO: 'Tático', OPERACIONAL: 'Operacional' };
 // Filtros da listagem: espelham GET /sgp-cadastros?Registro=&NomeProjeto=&Setor=&Status=&data_inicio=&data_fim=
 const PJ_SETORES = ['SQUAD CLOUD', 'SQUAD Fiscal', 'SQUAD WEB', 'SQUAD XP'];
-// Setor do usuário logado (no app: getUser()). O filtro abre com ele preenchido e já aplicado.
+// Padrão ao abrir e ao limpar: setor do usuário logado (no app: getUser()) + mês atual, já aplicados.
 const PJ_SETOR_USUARIO = 'SQUAD XP';
 const PJ_FILTRO_VAZIO = () => ({ registro: '', nome: '', setor: '', status: '', mes: '' });
-const PJ_FILTRO_PADRAO = () => ({ ...PJ_FILTRO_VAZIO(), setor: PJ_SETOR_USUARIO });
+const PJ_FILTRO_PADRAO = () => ({ ...PJ_FILTRO_VAZIO(), setor: PJ_SETOR_USUARIO, mes: `${NOW.getFullYear()}-${pad(NOW.getMonth() + 1)}` });
 const PJ_MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 const pjTemFiltro = f => Object.values(f).some(v => String(v).trim());
 // Mês 'AAAA-MM' → data_inicio = 1º dia e data_fim = último dia do mês.

@@ -4,10 +4,10 @@
 > Padrões gerais em [`padrao-front/`](../padrao-front/README.md). Decisões travadas em
 > [`decisoes.md`](decisoes.md).
 >
-> **Próxima mudança planejada: filtros da listagem** (Nome, Setor do usuário já aplicado, Status e
-> Mês). Especificada em 2026-11-19 e ainda não implementada. Ver a seção
-> [Próxima mudança planejada](#próxima-mudança-planejada-filtros-da-listagem-de-projetos) e as
-> decisões #30 a #36.
+> **Próxima mudança planejada: filtros da listagem** (Nome, Setor, Status e Mês; abre com o setor
+> do usuário e o mês atual já aplicados). Especificada em 2026-11-19 e ainda não implementada. Ver
+> a seção [Próxima mudança planejada](#próxima-mudança-planejada-filtros-da-listagem-de-projetos)
+> e as decisões #30 a #37.
 
 ## O que é
 
@@ -285,9 +285,9 @@ hooks/projetos/use-salvar-stakes-em-lote.ts  POST/PUT por linha em sequência, r
 
 Hoje a listagem `/projetos` só filtra por **Id do projeto** (`Registro`). Os filtros de Setor e
 Objetivo existem no código, mas estão comentados. Esta mudança acrescenta **Nome do projeto, Setor,
-Status e Mês**, que são parâmetros que o `GET /sgp-cadastros` já aceita. O Setor vem **preenchido e
-aplicado** com o setor do usuário logado, então a lista já abre com os projetos do squad dele
-(decisões #30 a #36).
+Status e Mês**, que são parâmetros que o `GET /sgp-cadastros` já aceita. A tela abre com o **setor do
+usuário logado e o mês atual** preenchidos e aplicados, então a lista já mostra os projetos do
+squad dele no mês (decisões #30 a #37).
 
 ### Protótipo
 
@@ -298,7 +298,7 @@ mock, o mês atual é outubro de 2026 (`NOW`).
 
 | Captura | Estado |
 |---------|--------|
-| `capturas/15-projetos-filtros-padrao.png` | Ao abrir: Setor = setor do usuário, já aplicado ("1 filtro aplicado") |
+| `capturas/15-projetos-filtros-padrao.png` | Ao abrir: Setor = setor do usuário e Mês = mês atual, já aplicados ("2 filtros aplicados") |
 | `capturas/16-projetos-seletor-mes.png` | Seletor de mês aberto: ano com setas, 12 meses, mês atual com contorno, "Este mês" e "Todos os meses" |
 | `capturas/17-projetos-filtrado-mes.png` | Novembro de 2026 + Aberto |
 | `capturas/18-projetos-sem-resultado.png` | Nenhum projeto encontrado |
@@ -315,9 +315,9 @@ mock, o mês atual é outubro de 2026 (`NOW`).
    |---|---|---|
    | Id do projeto | `Registro` | Só dígitos (mantém o campo atual) |
    | Nome do projeto | `NomeProjeto` | Texto com ícone de busca, "Busque por parte do nome..."; `trim` |
-   | Setor | `Setor` (nome) | Select com "Todos"; abre com o setor do usuário (decisão #31) |
+   | Setor | `Setor` (nome) | Select com "Todos"; abre com o setor do usuário (decisões #31 e #37) |
    | Status | `Status` | Todos / Aberto (`ABERTO`) / Fechado (`FECHADO`) (decisão #33) |
-   | Mês | `data_inicio` + `data_fim` | Seletor só de mês (decisão #32): 1º e último dia do mês, `AAAA-MM-DD` |
+   | Mês | `data_inicio` + `data_fim` | Seletor só de mês (decisão #32): 1º e último dia do mês, `AAAA-MM-DD`; abre com o mês atual (decisão #37) |
 
 3. **Seletor de mês** (decisão #32): o gatilho tem a aparência de um select, com ícone `Calendar`,
    e mostra "Novembro de 2026" ou "Todos os meses". Ele abre um popover com:
@@ -331,10 +331,11 @@ mock, o mês atual é outubro de 2026 (`NOW`).
 4. **Aplicar**: o botão **Filtrar** e o **Enter** em qualquer campo de texto aplicam os filtros.
    Filtrar fica desabilitado sem nenhum filtro, como hoje. Os filtros continuam na URL (`nuqs`),
    com as chaves novas `nome`, `status` e `mes`.
-5. **Ao abrir a tela** sem filtros na URL: Setor = setor do usuário, e a busca já sai (decisão
-   #31). Com filtros na URL, valem os da URL.
-6. **Limpar filtros** (botão do topo da página): volta ao padrão, com o setor do usuário aplicado e
-   o resto vazio (decisão #34). Para ver todos os setores, o usuário escolhe "Todos" no Setor.
+5. **Ao abrir a tela** sem filtros na URL: Setor = setor do usuário e Mês = mês atual (data do
+   navegador), e a busca já sai (decisão #37). Com filtros na URL, valem os da URL.
+6. **Limpar filtros** (botão do topo da página): volta ao padrão, com o setor do usuário e o mês
+   atual aplicados e o resto vazio (decisão #37). Para ver todos os setores ou todos os meses, o
+   usuário escolhe "Todos" no Setor ou "Todos os meses" no seletor.
 7. Estados: "Nenhum filtro aplicado" (quando o usuário tira tudo), skeleton durante a busca e
    "Nenhum projeto encontrado". Esses três estados não mudam.
 
@@ -361,7 +362,7 @@ components/projetos/filtros/
 ├── projetos-filtros-mappers.ts   + mesParaIntervalo; filtrosToSgpCadastrosParams com os novos
 ├── projetos-filtros-parsers.ts   + nome, status, mes na URL
 components/fields/mes-picker.tsx  seletor só de mês (novo, genérico)
-hooks/projetos/use-projetos-filtros.ts   padrão com o setor do usuário; limpar volta ao padrão
+hooks/projetos/use-projetos-filtros.ts   padrão = setor do usuário + mês atual; limpar volta ao padrão
 services/sgp-cadastros/get-sgp-cadastros.ts  + nome_projeto, status, data_inicio, data_fim
 app/api/sgp-cadastros/route.ts    GET repassa NomeProjeto, Status, data_inicio e data_fim
 ```
@@ -381,9 +382,9 @@ app/api/sgp-cadastros/route.ts    GET repassa NomeProjeto, Status, data_inicio e
 
 1. **Parte 1: dados.** Service e route com os 4 parâmetros novos, tipos, parsers e mappers
    (`mesParaIntervalo`). Conferir as perguntas 1 e 2 na API de teste.
-2. **Parte 2: tela.** `mes-picker`, campos novos no card, setor do usuário como padrão e Limpar
-   voltando ao padrão. Conferir no navegador: abrir já filtrado, Enter, mês, URL com os filtros e
-   mobile.
+2. **Parte 2: tela.** `mes-picker`, campos novos no card, padrão com setor do usuário e mês atual,
+   e Limpar voltando ao padrão. Conferir no navegador: abrir já filtrado pelo setor e pelo mês,
+   Enter, mês, URL com os filtros e mobile.
 3. **Parte 3: fechamento.** README, decisões, contexto e status.
 
 ### Fora do escopo

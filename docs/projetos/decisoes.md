@@ -201,3 +201,9 @@ em [`prototipo/`](prototipo/) (capturas 15 a 19).
 
 36. **Filtrar continua por botão (ou Enter), e os filtros continuam na URL.** **Por quê:** é o
     padrão das outras listagens (Casos, Liberações) e evita uma busca a cada tecla no Nome.
+
+37. **O padrão da listagem é o setor do usuário + o mês atual, já aplicados.** Vale ao abrir a
+    tela sem filtros na URL e ao clicar em "Limpar filtros". O mês atual vem da data do navegador.
+    Revoga a parte da decisão #31 que só aplicava o setor e a parte da decisão #34 que deixava o
+    mês vazio ao limpar. **Por quê:** pedido do usuário depois de ver o protótipo. O uso comum é
+    olhar os projetos do squad no mês corrente.
