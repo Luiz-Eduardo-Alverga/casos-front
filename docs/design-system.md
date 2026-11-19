@@ -233,6 +233,14 @@ Não usar `mb-4` por aba no lugar de `pb-12`/`pb-24`. Referências:
 - **Inputs / combobox** ~36px (compacto ~32px), borda `border-input`, botão limpar (X) quando há
   valor. Combobox de domínio: reaproveitar `@/components/fields` (ver
   [`padrao-front/`](padrao-front/README.md)).
+- **Select, combobox, multi-select e seletor de mês têm um gatilho só** (unificado em 2026-11-19,
+  com o `SelectTrigger` como referência): radius 8px, borda `border-input`, `shadow-sm`, fundo
+  transparente (sem `bg-background`, que no escuro vira uma caixa mais escura), **sem fundo no
+  hover**, texto `sm` regular em `foreground` (placeholder `muted-foreground`), anel de foco de 1px
+  (`ring-1 ring-ring`) e ícone **`ChevronDown`** com `opacity-50` (não usar `ChevronsUpDown`).
+  Valem `components/ui/select.tsx`, `components/ui/combobox.tsx`, `components/ui/v2/combobox2.tsx`
+  (input e chips) e `components/fields/mes-picker.tsx`. Não sobrescrever com `font-medium`/
+  `font-semibold` no gatilho de campo de formulário.
 - **Tabelas:** fundo branco, separador `border-divider`, células `py-3 px-2.5`, sem zebra.
 - **Badges:** pílulas da seção 2.4; contadores compactos (~36×28px).
 - **Tabs:** sublinhado ou pill discreto.

@@ -45,7 +45,7 @@ export function EstimadoFiltroSelect({
       >
         <SelectTrigger
           aria-label="Filtrar por estimado"
-          className="h-9 w-full rounded-lg border-border-input font-semibold"
+          className="h-9 w-full rounded-lg border-border-input"
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

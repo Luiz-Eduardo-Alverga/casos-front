@@ -42,6 +42,12 @@ coberto.
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
+- **Padrão único de gatilho de select/combobox** (2026-11-19, na `dev`). Combobox
+  (`components/ui/combobox.tsx`), multi-selects (`components/ui/v2/combobox2.tsx`, input e chips)
+  e o seletor de mês seguem o `SelectTrigger`: seta só para baixo, sem fundo no hover, fundo
+  transparente, texto regular, foco de 1px; o Estimado de Casos perdeu o negrito. Medido igual em
+  `/projetos` e `/casos`, temas claro e escuro. Afeta todas as telas com combobox; não conferidas
+  uma a uma. Ver [`design-system.md`](design-system.md).
 - **Avisos: aviso automático (bloqueante)** (2026-11-18, na `dev`). Aviso não lido com `auto`,
   enviado nos últimos 7 dias, abre numa janela sem X sobre qualquer tela do dashboard, um por vez
   do mais antigo para o mais novo, até marcar como lido. Testado na API de dev com os avisos 8011,
