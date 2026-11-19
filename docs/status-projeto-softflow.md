@@ -71,6 +71,13 @@ coberto.
   /auxiliar/comunicado-filtros` dava 503 na API de teste, então os filtros foram vistos com a
   resposta simulada no navegador. Falta conferir com o endpoint real e ir para produção
   (atribuir `create-aviso` aos papéis certos). Ver [`avisos/`](avisos/README.md).
+- **Projetos: filtros da listagem** (2026-11-19, na `dev`). `/projetos` filtra por Id, Nome (parte do
+  nome), Setor, Status (Aberto/Fechado) e Mês (seletor só de mês; a API traz os projetos que começam
+  no mês, decisão #38). Abre com o setor do usuário + o mês atual gravados na URL, e "Limpar filtros"
+  volta a esse padrão. Grid igual ao do protótipo. Testado na API de dev: padrão ao abrir, mês
+  anterior + Fechado + Enter no Nome, recarregar com filtros na URL, Limpar, sem resultado, 1920,
+  1440 e 390px. Não conferido: nome com acento. Falta ir para produção. Ver
+  [`projetos/`](projetos/README.md).
 - **Projetos: aba Stakes em lista** (2026-11-19, na `dev`). A aba Stakes de `/projetos/[id]`
   virou lista editável em linha com salvar em lote, faixas de linha nova/alterada, totais,
   atalhos (Enter, Ctrl+S), aviso de descarte, copiar linhas (TSV), colar com Ctrl+V e importar de
@@ -187,8 +194,3 @@ planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
-- **Projetos: filtros da listagem**: especificado em 2026-11-19. Nome do projeto, Setor, Status
-  (Aberto/Fechado) e Mês (seletor só de mês → `data_inicio`/`data_fim`), além do Id. Abre com o setor
-  do usuário e o mês atual já aplicados. Protótipo, decisões #30 a #37 e plano em 3 partes em
-  [`projetos/`](projetos/README.md#próxima-mudança-planejada-filtros-da-listagem-de-projetos). Regra
-  de período da API para conferir na Fase 0. Implementar com `/implementar projetos`.
