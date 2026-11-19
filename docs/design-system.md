@@ -81,8 +81,8 @@ Uso no código sempre pela classe (`bg-card`, `text-text-primary`), nunca pelo v
 | Abertos / info | `panel-badge-open`, `panel-badge-open-bg` | Azul |
 | Corrigidos / ok | `panel-badge-fixed`, `panel-badge-fixed-bg` | Verde |
 | Retornos / erro | `panel-badge-return`, `panel-badge-return-bg` | Vermelho |
-| Importância; também linha recém-criada e selo "Novo" (clonar projeto, `text-primary` no selo) | `panel-badge-importance-yellow`, `panel-badge-importance-yellow-bg` | Amarelo |
-| Genéricos | `status-success`, `status-warning`, `status-info` | Verde / laranja / azul |
+| Importância; também linha recém-criada e selo "Novo" (clonar projeto, `text-primary` no selo) e faixa/bolinha de linha alterada não salva (lista de Stakes) | `panel-badge-importance-yellow`, `panel-badge-importance-yellow-bg` | Amarelo |
+| Genéricos; `status-info` também é a faixa de linha nova não salva (lista de Stakes) | `status-success`, `status-warning`, `status-info` | Verde / laranja / azul |
 
 Formato: `rounded-full`, texto `xs` semibold, padding horizontal compacto.
 

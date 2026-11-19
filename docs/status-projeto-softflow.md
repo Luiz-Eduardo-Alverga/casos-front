@@ -56,6 +56,15 @@ coberto.
   /auxiliar/comunicado-filtros` dava 503 na API de teste, então os filtros foram vistos com a
   resposta simulada no navegador. Falta conferir com o endpoint real e ir para produção
   (atribuir `create-aviso` aos papéis certos). Ver [`avisos/`](avisos/README.md).
+- **Projetos: aba Stakes em lista** (2026-11-19, na `dev`). A aba Stakes de `/projetos/[id]`
+  virou lista editável em linha com salvar em lote, faixas de linha nova/alterada, totais,
+  atalhos (Enter, Ctrl+S), aviso de descarte, copiar linhas (TSV), colar com Ctrl+V e importar de
+  outro projeto do mesmo setor; cards e modal antigos removidos. Testado nos projetos de teste
+  #3315 e #3316 da API de dev: lançamento só pelo teclado, repetido, falha parcial simulada,
+  descarte (aba e link), excluir nova e salva, erro de carga, 390px, copiar (e reserva sem HTTPS),
+  colagem estilo Excel com problemas, importar de projeto fechado com bloqueios. Não exercitado:
+  Ctrl+V real do teclado (conferido com o evento `paste`) e salvar linhas importadas. Falta ir
+  para produção. Ver [`projetos/`](projetos/README.md).
 - **Projetos: clonar projeto** (2026-11-19, na `dev`). Botão Clonar na listagem `/projetos` e
   item "Clonar" do menu ⋯ da edição `/projetos/[id]` (`create-project`), modal com nome e período,
   `POST /api/sgp-cadastros/{id}/clonar`; na listagem a linha nova fica destacada com "Novo", na
@@ -163,8 +172,3 @@ planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
-- **Projetos: aba Stakes em lista**: especificado em 2026-11-19. Lista editável em linha com
-  salvar em lote, colaborador repetido bloqueado, copiar linhas (TSV), colar com Ctrl+V e importar
-  de outro projeto do mesmo setor. Protótipo, decisões #16 a #28 e plano em 4 partes em
-  [`projetos/`](projetos/README.md#próxima-mudança-planejada-aba-stakes-em-lista). Cinco perguntas
-  para a Fase 0. Implementar com `/implementar projetos`.
