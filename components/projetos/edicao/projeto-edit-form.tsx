@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
@@ -24,6 +25,7 @@ import {
 } from "@/components/projetos/cadastro/utils";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { ProjetoEditHeader } from "@/components/projetos/edicao/projeto-edit-header";
+import { ProjetoClonarModal } from "@/components/projetos/clonar";
 import { AbaAbertura } from "@/components/projetos/edicao/abas/aba-abertura";
 import { AbaCronogramaTab } from "@/components/projetos/edicao/abas/aba-cronograma";
 import { AbaEscopoTab } from "@/components/projetos/edicao/abas/aba-escopo";
@@ -65,6 +67,10 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
   const updateProjeto = useUpdateSgpCadastro(cadastro.registro);
   const rbacReady = permissionsLoaded();
   const canEditProject = !rbacReady || hasPermission("edit-project");
+  // Clonar cria um projeto: mesma permissão do cadastro (decisões #10 e #15).
+  const canCloneProject = !rbacReady || hasPermission("create-project");
+  const router = useRouter();
+  const [clonarAberto, setClonarAberto] = useState(false);
 
   const objetivoDescricao = cadastro.objetivo?.trim() ?? "";
   const precisaResolverObjetivoPorDescricao =
@@ -164,6 +170,7 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
               isSaving={isSavingAbertura}
               canEdit={canEditProject}
               showSalvar={showSalvar}
+              onClonar={canCloneProject ? () => setClonarAberto(true) : undefined}
             />
 
             <div className="mt-2 flex min-h-0 flex-1 flex-col overflow-auto">
@@ -221,6 +228,13 @@ export function ProjetoEditForm({ cadastro }: ProjetoEditFormProps) {
           </Tabs>
         </FormProvider>
       </CasoFormProvider>
+      {canCloneProject ? (
+        <ProjetoClonarModal
+          origem={clonarAberto ? cadastro : null}
+          onOpenChange={setClonarAberto}
+          onClonado={(novo) => router.push(`/projetos/${novo.registro}`)}
+        />
+      ) : null}
     </div>
   );
 }

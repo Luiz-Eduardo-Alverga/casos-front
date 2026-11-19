@@ -84,3 +84,14 @@ Respostas do usuário às perguntas P4 e P5, depois dos testes na API de dev.
     comportamento da API (`objetivo_id` volta 0) fica registrado como pendência para o backend.
     **Por quê:** um PUT completo logo depois do clone duplicaria a montagem do payload da Abertura
     na rota e poderia sobrescrever campos se a API mudar.
+
+## Clonar projeto na edição (2026-11-19)
+
+15. **O item "Clonar" do menu "Mais ações" da edição `/projetos/[id]` abre o mesmo modal da
+    listagem, com o projeto aberto como origem.** Mesma permissão (`create-project`, decisão #10);
+    sem ela o item some. Depois do sucesso, a tela abre o projeto novo (`/projetos/{registro}`),
+    com o toast do clone. Revoga, só nesse ponto, o "clonar a partir da tela de edição" que estava
+    fora do escopo do planejamento. **Por quê:** pedido do usuário; o item já existia como "Em
+    breve". Abrir o projeto novo foi escolha do Claude Code: na edição não há lista para destacar
+    a linha, e o próximo passo natural é ajustar o projeto novo (o objetivo, por exemplo, decisão
+    #14).

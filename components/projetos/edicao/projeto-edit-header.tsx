@@ -45,10 +45,6 @@ const TABS = [
   { value: "risco", label: "Risco" },
 ] as const;
 
-function handleEmBreve() {
-  toast("Em breve");
-}
-
 export interface ProjetoEditHeaderProps {
   projetoId: number;
   nomeProjeto?: string;
@@ -56,6 +52,8 @@ export interface ProjetoEditHeaderProps {
   isSaving?: boolean;
   canEdit?: boolean;
   showSalvar?: boolean;
+  /** Abre o modal Clonar projeto; ausente = item "Clonar" some (sem permissão). */
+  onClonar?: () => void;
 }
 
 export function ProjetoEditHeader({
@@ -65,6 +63,7 @@ export function ProjetoEditHeader({
   isSaving = false,
   canEdit = true,
   showSalvar = false,
+  onClonar,
 }: ProjetoEditHeaderProps) {
   const router = useRouter();
   const deleteProjeto = useDeleteSgpCadastro();
@@ -125,10 +124,12 @@ export function ProjetoEditHeader({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={handleEmBreve}>
-                <Copy className="mr-2 h-4 w-4" />
-                Clonar
-              </DropdownMenuItem>
+              {onClonar ? (
+                <DropdownMenuItem onClick={onClonar}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Clonar
+                </DropdownMenuItem>
+              ) : null}
               <DropdownMenuItem
                 onClick={() => setExcluirProjetoModal(true)}
                 disabled={deleteProjeto.isPending || !canDeleteProject}

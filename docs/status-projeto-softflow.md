@@ -56,11 +56,13 @@ coberto.
   /auxiliar/comunicado-filtros` dava 503 na API de teste, então os filtros foram vistos com a
   resposta simulada no navegador. Falta conferir com o endpoint real e ir para produção
   (atribuir `create-aviso` aos papéis certos). Ver [`avisos/`](avisos/README.md).
-- **Projetos: clonar projeto** (2026-11-19, na `dev`). Botão Clonar na listagem `/projetos`
-  (`create-project`), modal com nome e período, `POST /api/sgp-cadastros/{id}/clonar` e linha nova
-  destacada com "Novo". Testado na API de dev a partir do projeto 3278 (clones de teste #3313,
-  #3314 e #3315): padrões, erro de datas, erro de período sobreposto (422), origem inexistente
-  (404), sucesso com destaque, tema escuro e 390px. A API levou cerca de 40 s no clone pela tela.
+- **Projetos: clonar projeto** (2026-11-19, na `dev`). Botão Clonar na listagem `/projetos` e
+  item "Clonar" do menu ⋯ da edição `/projetos/[id]` (`create-project`), modal com nome e período,
+  `POST /api/sgp-cadastros/{id}/clonar`; na listagem a linha nova fica destacada com "Novo", na
+  edição a tela abre o projeto novo. Testado na API de dev (clones de teste #3313, #3314, #3315 a
+  partir do 3278 e #3316 a partir do 3315 pela edição): padrões, erro de datas, erro de período
+  sobreposto (422), origem inexistente (404), sucesso com destaque, ida para o projeto novo, tema
+  escuro e 390px. A API levou cerca de 40 s no clone pela tela.
   Não conferido: se cronograma e riscos são copiados. Falta ir para produção. Ver
   [`projetos/`](projetos/README.md).
 - **Projetos: seleção de casos ao duplicar o escopo** (2026-11-17, na `dev`). A aba Escopo marca

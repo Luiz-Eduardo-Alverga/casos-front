@@ -31,11 +31,12 @@ escolhe o projeto destino e chama `POST /api/projeto-casos/transferir-proximo-pr
 
 Cria um projeto novo a partir de um existente informando só **nome, data de início e data de
 fim**. O uso principal é abrir a próxima sprint sem recadastrar tudo (ex.: `Squad XP 2026 - 11.02`
-→ `Squad XP 2026 - 12.01`). Decisões #1 a #14 em [`decisoes.md`](decisoes.md).
+→ `Squad XP 2026 - 12.01`). Decisões #1 a #15 em [`decisoes.md`](decisoes.md).
 
 - **Entrada:** botão de ícone `Copy` na coluna Ações da listagem, antes do Editar, com tooltip
-  "Clonar projeto". Só aparece com `create-project` (decisão #10). Projetos Abertos e Fechados
-  podem ser clonados (decisão #6).
+  "Clonar projeto", e item "Clonar" no menu "Mais ações" (⋯) da edição `/projetos/[id]`
+  (decisão #15). Os dois só aparecem com `create-project` (decisão #10). Projetos Abertos e
+  Fechados podem ser clonados (decisão #6).
 - **Modal "Clonar projeto":** bloco de leitura com a origem (`#registro`, nome, setor · PDV ·
   classe, período), nome (padrão `"{nome} - Clone"`, até 120 caracteres), data de início e de fim
   (padrão: dia seguinte ao fim da origem, com a mesma duração; sem fim na origem, ficam vazias),
@@ -46,7 +47,8 @@ fim**. O uso principal é abrir a próxima sprint sem recadastrar tudo (ex.: `Sq
 - **Envio:** datas em `YYYY-MM-DD 00:00:00` (`formatDateTimeSgp`). Durante a chamada, botões
   desabilitados ("Clonando...") e Esc, X e clique fora não fecham.
 - **Sucesso:** fecha o modal, toast `"{message} · #{registro} {nome}"`, invalida
-  `["sgp-cadastros"]` e destaca a linha nova (fundo amarelo suave, selo "Novo" e "Clonado do
+  `["sgp-cadastros"]`. Na edição, abre o projeto novo (`/projetos/{registro}`); na listagem,
+  destaca a linha nova (fundo amarelo suave, selo "Novo" e "Clonado do
   projeto #…") enquanto a listagem estiver montada (decisão #7). Se a linha não estiver nas
   páginas carregadas (filtro por outro Id, por exemplo), fica só o toast.
 - **Erro:** o modal continua aberto com os dados, mostra a mensagem da API acima do rodapé e um
@@ -115,6 +117,8 @@ components/projetos/projetos-tabela.tsx         repassa onClonar e destaque
 components/projetos/tabela/projetos-tabela-types.ts        onClonar?, destaque? (ProjetoClonadoDestaque) na variante listagem
 components/projetos/tabela/projetos-tabela-table.tsx       coluna Ações com 112px quando há onClonar
 components/projetos/tabela/projetos-tabela-row-listagem.tsx  botão Clonar e destaque "Novo"
+components/projetos/edicao/projeto-edit-form.tsx           canCloneProject, modal com origem = cadastro, onClonado → router.push
+components/projetos/edicao/projeto-edit-header.tsx         item "Clonar" do menu ⋯ só com onClonar
 ```
 
 - A rota valida nome e datas, repassa o corpo para a API e devolve a resposta como veio (201). Erro
@@ -139,8 +143,9 @@ components/projetos/tabela/projetos-tabela-row-listagem.tsx  botão Clonar e des
 
 ## Como estender
 
-- **Clonar a partir da edição** (`/projetos/[id]`): reusar `ProjetoClonarModal` passando o
-  `SgpCadastroData` do projeto e, no `onClonado`, navegar para `/projetos/{novo.registro}`.
+- **Outro ponto de entrada:** renderizar `ProjetoClonarModal` com `origem` = o `SgpCadastroData`
+  do projeto (ou `null` para fechar) e decidir no `onClonado` o que fazer com o projeto novo, como
+  em `projeto-edit-form.tsx`.
 - **Copiar mais campos** (ex.: objetivo, se o backend passar a aceitar): a mudança é no backend
   ou numa chamada extra na rota; atualizar o `TEXTO_INFORMATIVO` do modal e a decisão #14.
 - **Novo campo no clone:** acrescentar em `ClonarSgpCadastroRequest`, no Zod de `schema.ts`, no
@@ -152,8 +157,8 @@ components/projetos/tabela/projetos-tabela-row-listagem.tsx  botão Clonar e des
   modal avisa (decisão #14).
 - Cronograma e riscos da origem: não conferido se o clone os copia (a origem do teste não tinha
   nenhum). O texto do modal não os cita.
-- Projetos de teste criados na API de dev em 2026-11-19: #3313, #3314 e #3315 (o app não exclui
-  projeto).
+- Projetos de teste criados na API de dev em 2026-11-19: #3313, #3314, #3315 e #3316 (o app não
+  exclui projeto).
 
 ---
 
