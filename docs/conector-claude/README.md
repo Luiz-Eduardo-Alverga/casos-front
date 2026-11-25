@@ -6,9 +6,8 @@
 > Testado no Claude de verdade em 2026-11-19 (caso 104203, aberto pelo conector). Decisões em
 > [`decisoes.md`](decisoes.md); protótipo em [`prototipo/`](prototipo/).
 >
-> **Há uma [próxima mudança planejada](#próxima-mudança-planejada-contexto-do-brainiac-para-quem-conecta)**
-> (2026-11-25): recomendar o Brainiac no modal e apontar a skill `xp-planejar` nas instruções do
-> servidor. Implementar com `/implementar conector-claude`.
+> **Contexto do Brainiac** (2026-11-25, decisões #16 a #21): implementado e conferido na `dev`;
+> ainda não publicado. Ver "Brainiac" abaixo e as pendências.
 
 ## O que é
 
@@ -42,131 +41,31 @@ abrir" chama `softflow_abrir_caso`. A resposta traz o número e o link
 caso **não planejado**.
 
 No Softflow, a conexão aparece e é desfeita pelo menu do usuário → **Claude** → modal
-**Conexão com o Claude** (decisão #10).
+**Conexão com o Claude** (decisão #10). O modal tem duas colunas (decisão #19): à esquerda, em
+fundo escuro, os logos Claude ↔ Softflow, o que a conexão faz e o quadro "Com o Brainiac também";
+à direita, as seções **Softflow** (passos e endereço, ou o quadro da conexão) e **Brainiac**. No
+mobile vira tela cheia com as colunas empilhadas (a lista do que a conexão faz some).
 
-## Próxima mudança planejada: contexto do Brainiac para quem conecta
+### Brainiac
 
-> **Estado: planejado** (chat de planejamento, 2026-11-25). Decisões #16 a #18 em
-> [`decisoes.md`](decisoes.md) (e #19 a #21); protótipo em
-> [`prototipo/modal-duas-colunas.html`](prototipo/modal-duas-colunas.html) (capturas `11` a `13`).
+Sem o Brainiac, o Claude abre casos mas não conhece os produtos, os padrões da squad nem a skill de
+planejamento. Como cada pessoa usa a própria conta (decisão #12), o conector é quem aponta o
+caminho (decisão #16):
 
-### Problema
+- as **instruções do servidor MCP** mandam ler a skill `xp-planejar` do catálogo do Brainiac
+  (`brainiac_skills_list` + `brainiac_skill_read`) antes de planejar ou escrever um caso e, sem o
+  Brainiac na conversa, avisar uma vez que dá para conectá-lo; abrir um caso já planejado não
+  depende dele;
+- o `softflow_eu` repete o lembrete numa linha fixa, para o cliente que não repassa as instruções;
+- o modal **recomenda** o Brainiac nos dois estados, sempre com a pílula "Recomendado" e sem status
+  (o Softflow não sabe se a pessoa conectou; decisão #17). Conectado o Softflow, mostra os passos
+  próprios do Brainiac (login de colaborador Softcom → **Entrar no Brainiac** → **Autorizar
+  acesso**); sem conexão, só "Adicione do mesmo jeito". Endereço e **OAuth Client ID** (o Brainiac
+  não usa DCR; vai em **Advanced settings**) vêm de `BRAINIAC_MCP_URL` e
+  `BRAINIAC_OAUTH_CLIENT_ID` (decisões #18 e #21); sem uma delas, o campo some e o texto fica.
 
-Quem conecta só o Softflow consegue abrir caso, mas o Claude dela não conhece os produtos, os
-padrões da squad nem o jeito de planejar e escrever o caso. Esse contexto está no Brainiac: as notas
-dos produtos e, a partir de agora, a skill **`xp-planejar`** no catálogo de skills de Engenharia
-(proposta enviada em 2026-11-25, `e95ba449-2946-4520-8fdd-95c977fe2941`, aguardando revisão e
-publicação). Cada pessoa usa conta pessoal do Claude (decisão #12), então não existe configuração
-central que entregue isso: cada uma precisa conectar o Brainiac, e o Claude precisa saber que deve
-ler a skill de lá.
-
-### O que muda
-
-1. **Instruções do servidor MCP** (`INSTRUCOES` em `lib/conector-claude/mcp/servidor.ts`), decisão
-   #16. Acrescentar ao texto atual, sem mexer nas três linhas que já existem:
-
-   ```text
-   Para planejar uma funcionalidade ou escrever o texto de um caso, use a skill xp-planejar do
-   catálogo do Brainiac: se as ferramentas do Brainiac estiverem na conversa, leia-a com
-   brainiac_skills_list (vault "engenharia", busca "xp-planejar") e brainiac_skill_read antes de
-   começar, e siga o passo 7 dela para abrir o caso. Se o Brainiac não estiver conectado, avise a
-   pessoa uma vez que o planejamento fica sem o contexto dos produtos e que ela pode conectá-lo
-   (o endereço está no Softflow, menu do usuário → Claude). Abrir um caso já planejado não depende
-   do Brainiac.
-   ```
-
-   Se a skill ainda não estiver publicada no catálogo, a busca volta vazia e o Claude segue com as
-   regras deste servidor; não há erro a tratar no Softflow.
-
-2. **`softflow_eu`** (decisão #16): depois de "Pode abrir casos: …", uma linha fixa
-   `Contexto dos produtos: conecte também o Brainiac e use a skill xp-planejar do catálogo dele.`
-   É o lembrete que o Claude vê mesmo quando o cliente não repassa as instruções do servidor.
-
-3. **Modal "Conexão com o Claude" em duas colunas** (`components/conector-claude/conexao-modal/index.tsx`),
-   decisões #17 e #19. Protótipo: [`prototipo/modal-duas-colunas.html`](prototipo/modal-duas-colunas.html)
-   (`?c=sem-conexao` / `?c=conectado`), capturas `11`, `12` e `13`. Mesmo padrão da tela de
-   autorização: coluna escura que explica, coluna clara com as informações.
-   - **Tamanho:** `w-[min(96vw,880px)]`; grade `grid-cols-[320px_1fr]`; altura máxima da tela com
-     rolagem dentro de cada coluna.
-   - **Coluna esquerda** (`bg-primary`, textos `text-primary-foreground` e `/70`, como
-     `autorizar-cabecalho.tsx`; o quadro do Brainiac usa o mesmo painel da tela de autorização):
-     - logos Claude ↔ Softflow (decisão #20);
-     - título "Planeje no Claude e abra o caso sem sair do chat" e o texto "O Claude usa a sua conta
-       do Softflow, com as suas permissões. Nada é criado sem você confirmar a prévia no chat.";
-     - lista **Com o Softflow conectado**: "Busca produto, versão, projeto e pessoas pelo nome",
-       "Mostra a prévia e abre o caso depois do seu ok", "Consulta casos pelo número";
-     - quadro com ícone `Sparkles`: "**Com o Brainiac também,** o Claude conhece os produtos, os
-       padrões da squad e a skill de planejamento (xp-planejar). Sem ele, abre casos, mas planeja
-       sem esse contexto."
-   - **Coluna direita** (`bg-card`): título **Conexão com o Claude** e duas seções separadas por
-     `border-t border-border-divider`, cada uma com ícone em círculo, nome e pílula à direita.
-     - **Softflow**, pílula "Conectado"/"Não conectado" (a de hoje):
-       - sem conexão: os 3 passos de hoje e **Endereço do conector** com botão de copiar **só com o
-         ícone** (`aria-label="Copiar endereço do Softflow"`);
-       - conectado: o quadro de hoje (Conectado desde, Último uso, Pode abrir casos).
-     - **Brainiac**, pílula "Recomendado" (sempre a mesma, decisão #17):
-       - Softflow sem conexão: "Adicione do mesmo jeito. Em **Advanced settings**, informe o Client
-         ID. Se você já conectou o Brainiac, não precisa fazer nada." (os passos do Softflow estão
-         logo acima);
-       - Softflow conectado: os passos próprios, porque os do Softflow somem: 1. "No Claude, abra
-         **Customize → Connectors → Add custom connector**." 2. "Cole o endereço e, em **Advanced
-         settings**, informe o Client ID. Clique em **Add**." 3. "Entre com seu e-mail e senha de
-         colaborador Softcom, clique em **Entrar no Brainiac** e depois em **Autorizar acesso**." e a nota "Se você já conectou o Brainiac, não precisa fazer nada.";
-       - nos dois: **Endereço** e **OAuth Client ID**, um abaixo do outro, cada um com copiar só com
-         ícone (`EnderecoCopiavel`, componente único para os três campos).
-     - Rodapé: **Desconectar o Softflow** (só conectado, mesmo estilo de hoje) e **Fechar**.
-   - **Mobile (< 768px):** tela cheia, colunas empilhadas; da coluna escura ficam logos, título,
-     texto e o quadro do Brainiac (a lista some); a direita vem abaixo e tudo rola junto.
-   - Carregando e erro: os de hoje, na coluna direita; a esquerda não depende de dados.
-   - Sem cor nova: só tokens que o modal e a tela de autorização já usam.
-   - Alternativas descartadas (A abas, B lista recolhida, C faixa): [`prototipo/modal-propostas.html`](prototipo/modal-propostas.html), captura `10`.
-
-4. **Endereço e Client ID do Brainiac por variável** (decisões #18 e #21): `BRAINIAC_MCP_URL`
-   (`https://brainiac.softcomtecnologia.com/mcp`) e `BRAINIAC_OAUTH_CLIENT_ID` (`brainiac-claude-ai`) em
-   `lib/conector-claude/config.ts` (`getBrainiacConector()`), expostos pelo `GET
-   /api/db/claude-conexao` como `brainiac: { endereco, clientId }`. Sem uma das variáveis, o campo
-   correspondente some e o texto continua. Documentar as duas em
-   [`deploy/`](../deploy/README.md#conector-do-claude-apimcp).
-
-5. **Logos** (decisão #20): no lugar do "C", o logo oficial do Claude; no lugar do "S", o ícone do
-   Softflow (`public/images/icon.png`). Vale para a tela de autorização (`autorizar-cabecalho.tsx`) e
-   para o modal. O arquivo do Claude é baixado pelo dev do kit de imprensa oficial da Anthropic
-   (newsroom) e salvo em `public/images/claude.svg`, sem redesenhar, recolorir nem distorcer, e
-   seguindo as diretrizes de marca da Anthropic. Se o arquivo oficial não estiver disponível, fica o
-   "C" de hoje.
-
-6. **Protótipo**: o endereço antigo (`softflow.softcom.services`) do protótipo foi trocado pelo atual
-   (decisão #13) neste planejamento.
-
-### Fora do escopo
-
-- Detectar se a pessoa conectou o Brainiac (o Softflow não tem como saber; decisão #17).
-- Instalar a skill na conta da pessoa: ela é lida do catálogo do Brainiac pelo próprio Claude.
-- Publicar a `xp-planejar` no Brainiac: é revisão e publicação administrativa do Brainiac, fora deste
-  repositório.
-
-### Perguntas em aberto
-
-1. ~~Endereço do MCP do Brainiac~~: respondida em 2026-11-25 (`https://brainiac.softcomtecnologia.com/mcp`,
-   Client ID `brainiac-claude-ai`).
-2. ~~Rótulo do login do Brainiac~~: respondida em 2026-11-25 com a tela de login dele (e-mail e senha
-   de colaborador Softcom, botão **Entrar no Brainiac**) e a tela seguinte, "Conectar aplicativo", com o
-   botão **Autorizar acesso**; os dois entraram no passo 3.
-
-### Plano de implementação
-
-Um commit, na `dev`, escopo `(conector-claude)`:
-
-1. `BRAINIAC_MCP_URL`, `BRAINIAC_OAUTH_CLIENT_ID` e `getBrainiacConector()`; `brainiac` no `GET
-   /api/db/claude-conexao` e no tipo `ClaudeConexaoStatus`.
-2. `INSTRUCOES` e a linha do `softflow_eu`.
-3. `public/images/claude.svg` (arquivo oficial) e os logos no `autorizar-cabecalho.tsx` e no modal.
-4. Modal em duas colunas com `EnderecoCopiavel`, nos dois estados e no mobile.
-5. Conferir: `npm run lint`, `npm run build`, modal nos dois estados com e sem as variáveis do
-   Brainiac (desktop e 390px), tela de autorização com os logos e o texto novo do `softflow_eu` pelo
-   cliente MCP do SDK.
-6. Ao concluir: integrar esta seção ao README no formato padrão (O que é / Ferramentas / Como fica
-   para quem usa), tirar o "Estado: planejado" e mover o item no status.
+Se a `xp-planejar` ainda não estiver publicada no catálogo, a busca volta vazia e o Claude segue só
+com as regras do conector; nada a tratar no Softflow.
 
 ## Arquitetura
 
@@ -197,13 +96,13 @@ API Soft Flow não mudou.
 | `app/api/oauth/autorizar/route.ts` | "Permitir acesso"/"Cancelar": login com a senha, cria a conexão (revoga a anterior), gera o código; senha errada = 422 |
 | `app/api/oauth/token/route.ts` | `authorization_code` (PKCE S256) e `refresh_token` com rotação; form ou JSON; erros OAuth (`invalid_grant`...) |
 | `app/api/mcp/route.ts` | MCP Streamable HTTP sem estado, resposta JSON (sem SSE); GET/DELETE = 405 |
-| `app/api/db/claude-conexao/route.ts` | `GET` status da conexão da pessoa logada; `DELETE` desconectar |
+| `app/api/db/claude-conexao/route.ts` | `GET` status da conexão da pessoa logada (inclui `brainiac: { endereco, clientId }`); `DELETE` desconectar |
 
 ### Código
 
 | Onde | O que faz |
 |------|-----------|
-| `lib/conector-claude/config.ts` | `SOFTFLOW_PUBLIC_URL`, endereço do MCP, callbacks permitidos, TTLs (código 5 min, access 1 h, refresh 30 dias, prévia 15 min) |
+| `lib/conector-claude/config.ts` | `SOFTFLOW_PUBLIC_URL`, endereço do MCP, callbacks permitidos, TTLs (código 5 min, access 1 h, refresh 30 dias, prévia 15 min); `getBrainiacConector()` (`BRAINIAC_MCP_URL`, `BRAINIAC_OAUTH_CLIENT_ID`) |
 | `lib/conector-claude/crypto.ts` | Tokens aleatórios, hash SHA-256, PKCE S256, AES-256-GCM com `CLAUDE_CONECTOR_CHAVE` |
 | `lib/conector-claude/legacy-token.ts` | Login do token da conexão, `comTokenDaConexao` (em 401 renova uma vez; falhou = conexão expirada) |
 | `lib/conector-claude/pedido-autorizacao.ts` | Valida o pedido OAuth (cliente, `redirect_uri`, PKCE, `resource`); usado pela tela e pela rota |
@@ -214,7 +113,8 @@ API Soft Flow não mudou.
 | `lib/db/claude-conector.ts` | Drizzle das tabelas novas |
 | `lib/validators/db/claude-conector.ts` | Zod do DCR, do pedido/autorização e do token endpoint |
 | `components/conector-claude/autorizar/` | Tela de autorização (layout, permissões, senha, erro, sem sessão) |
-| `components/conector-claude/conexao-modal/` | Modal "Conexão com o Claude" e a pílula do menu |
+| `components/conector-claude/conexao-modal/` | Modal "Conexão com o Claude" em duas colunas (`index.tsx`), `EnderecoCopiavel` (campo + copiar só com ícone), `PassosNumerados` e a pílula do menu |
+| `components/conector-claude/logos-conector.tsx` | Logos Claude ↔ Softflow (decisão #20), usados na autorização e no modal. `public/images/claude.svg` é o `ClaudeIcon-Rounded.svg` do press kit oficial da Anthropic (anthropic.com/news → "Download press kit"), sem alteração |
 | `services/conector-claude/`, `hooks/conector-claude/`, `hooks/claude-conexao/` | Front da autorização e da conexão |
 
 ### Tabelas (migração `0011_conector_claude`)
@@ -295,7 +195,17 @@ Pendente:
   a consulta pelo número confirmou o caso igual à prévia.
 - ~~Passo 7 da skill `planejar-softcom`~~: ajustado em 2026-11-25 (abre o caso pelo conector e, sem
   ele, entrega o texto para colar). A mesma skill foi proposta ao catálogo do Brainiac como
-  `xp-planejar` (ver "Próxima mudança planejada").
+  `xp-planejar` (ver "Brainiac").
+- **Contexto do Brainiac** (2026-11-25), conferido na `dev`: lint dos arquivos alterados e
+  `npm run build`; instruções novas e as 5 ferramentas pelo cliente MCP do SDK (transporte em
+  memória); modal conectado, sem conexão e sem as variáveis do Brainiac (dados trocados só no
+  navegador), rótulos dos três botões de copiar, mobile em 390px com rolagem até o rodapé; tela de
+  autorização com os logos. **Falta:** pôr `BRAINIAC_MCP_URL` e `BRAINIAC_OAUTH_CLIENT_ID` no
+  `.env` da VPS, publicar e conferir no Claude de verdade que ele lê a `xp-planejar` (depende de
+  ela estar publicada no catálogo do Brainiac). A linha nova do `softflow_eu` só foi conferida no
+  código: a ferramenta precisa de uma conexão real.
+- `npm run lint` não roda no Next 16 (`next lint` foi removido; o script trata `lint` como pasta).
+  Por enquanto, rodar `npx eslint <arquivos>`.
 - O aviso "Claude desconectado" foi corrigido (`mutateAsync`) depois do teste e não foi reconferido.
 - Casos de teste criados na API de dev, para excluir: 104140, 104141, 104143.
 
@@ -303,9 +213,136 @@ Pendente:
 
 [`prototipo/conector-claude-prototipo.html`](prototipo/conector-claude-prototipo.html) e as capturas
 em [`prototipo/capturas/`](prototipo/capturas/) são a referência de estrutura usada. A tela
-implementada acrescenta o campo **Senha do Softflow** (decisão #14), que o protótipo não tem.
+implementada acrescenta o campo **Senha do Softflow** (decisão #14), que o protótipo não tem. O
+modal em duas colunas segue [`prototipo/modal-duas-colunas.html`](prototipo/modal-duas-colunas.html)
+(capturas `11` a `13`); as alternativas descartadas estão em
+[`prototipo/modal-propostas.html`](prototipo/modal-propostas.html).
 
 ## Histórico da implementação
+
+### Especificação da mudança de 2026-11-25: contexto do Brainiac
+
+> Especificação do chat de planejamento (2026-11-25), implementada na mesma data. Decisões #16 a #18 em
+> [`decisoes.md`](decisoes.md) (e #19 a #21); protótipo em
+> [`prototipo/modal-duas-colunas.html`](prototipo/modal-duas-colunas.html) (capturas `11` a `13`).
+
+#### Problema
+
+Quem conecta só o Softflow consegue abrir caso, mas o Claude dela não conhece os produtos, os
+padrões da squad nem o jeito de planejar e escrever o caso. Esse contexto está no Brainiac: as notas
+dos produtos e, a partir de agora, a skill **`xp-planejar`** no catálogo de skills de Engenharia
+(proposta enviada em 2026-11-25, `e95ba449-2946-4520-8fdd-95c977fe2941`, aguardando revisão e
+publicação). Cada pessoa usa conta pessoal do Claude (decisão #12), então não existe configuração
+central que entregue isso: cada uma precisa conectar o Brainiac, e o Claude precisa saber que deve
+ler a skill de lá.
+
+#### O que muda
+
+1. **Instruções do servidor MCP** (`INSTRUCOES` em `lib/conector-claude/mcp/servidor.ts`), decisão
+   #16. Acrescentar ao texto atual, sem mexer nas três linhas que já existem:
+
+   ```text
+   Para planejar uma funcionalidade ou escrever o texto de um caso, use a skill xp-planejar do
+   catálogo do Brainiac: se as ferramentas do Brainiac estiverem na conversa, leia-a com
+   brainiac_skills_list (vault "engenharia", busca "xp-planejar") e brainiac_skill_read antes de
+   começar, e siga o passo 7 dela para abrir o caso. Se o Brainiac não estiver conectado, avise a
+   pessoa uma vez que o planejamento fica sem o contexto dos produtos e que ela pode conectá-lo
+   (o endereço está no Softflow, menu do usuário → Claude). Abrir um caso já planejado não depende
+   do Brainiac.
+   ```
+
+   Se a skill ainda não estiver publicada no catálogo, a busca volta vazia e o Claude segue com as
+   regras deste servidor; não há erro a tratar no Softflow.
+
+2. **`softflow_eu`** (decisão #16): depois de "Pode abrir casos: …", uma linha fixa
+   `Contexto dos produtos: conecte também o Brainiac e use a skill xp-planejar do catálogo dele.`
+   É o lembrete que o Claude vê mesmo quando o cliente não repassa as instruções do servidor.
+
+3. **Modal "Conexão com o Claude" em duas colunas** (`components/conector-claude/conexao-modal/index.tsx`),
+   decisões #17 e #19. Protótipo: [`prototipo/modal-duas-colunas.html`](prototipo/modal-duas-colunas.html)
+   (`?c=sem-conexao` / `?c=conectado`), capturas `11`, `12` e `13`. Mesmo padrão da tela de
+   autorização: coluna escura que explica, coluna clara com as informações.
+   - **Tamanho:** `w-[min(96vw,880px)]`; grade `grid-cols-[320px_1fr]`; altura máxima da tela com
+     rolagem dentro de cada coluna.
+   - **Coluna esquerda** (`bg-primary`, textos `text-primary-foreground` e `/70`, como
+     `autorizar-cabecalho.tsx`; o quadro do Brainiac usa o mesmo painel da tela de autorização):
+     - logos Claude ↔ Softflow (decisão #20);
+     - título "Planeje no Claude e abra o caso sem sair do chat" e o texto "O Claude usa a sua conta
+       do Softflow, com as suas permissões. Nada é criado sem você confirmar a prévia no chat.";
+     - lista **Com o Softflow conectado**: "Busca produto, versão, projeto e pessoas pelo nome",
+       "Mostra a prévia e abre o caso depois do seu ok", "Consulta casos pelo número";
+     - quadro com ícone `Sparkles`: "**Com o Brainiac também,** o Claude conhece os produtos, os
+       padrões da squad e a skill de planejamento (xp-planejar). Sem ele, abre casos, mas planeja
+       sem esse contexto."
+   - **Coluna direita** (`bg-card`): título **Conexão com o Claude** e duas seções separadas por
+     `border-t border-border-divider`, cada uma com ícone em círculo, nome e pílula à direita.
+     - **Softflow**, pílula "Conectado"/"Não conectado" (a de hoje):
+       - sem conexão: os 3 passos de hoje e **Endereço do conector** com botão de copiar **só com o
+         ícone** (`aria-label="Copiar endereço do Softflow"`);
+       - conectado: o quadro de hoje (Conectado desde, Último uso, Pode abrir casos).
+     - **Brainiac**, pílula "Recomendado" (sempre a mesma, decisão #17):
+       - Softflow sem conexão: "Adicione do mesmo jeito. Em **Advanced settings**, informe o Client
+         ID. Se você já conectou o Brainiac, não precisa fazer nada." (os passos do Softflow estão
+         logo acima);
+       - Softflow conectado: os passos próprios, porque os do Softflow somem: 1. "No Claude, abra
+         **Customize → Connectors → Add custom connector**." 2. "Cole o endereço e, em **Advanced
+         settings**, informe o Client ID. Clique em **Add**." 3. "Entre com seu e-mail e senha de
+         colaborador Softcom, clique em **Entrar no Brainiac** e depois em **Autorizar acesso**." e a nota "Se você já conectou o Brainiac, não precisa fazer nada.";
+       - nos dois: **Endereço** e **OAuth Client ID**, um abaixo do outro, cada um com copiar só com
+         ícone (`EnderecoCopiavel`, componente único para os três campos).
+     - Rodapé: **Desconectar o Softflow** (só conectado, mesmo estilo de hoje) e **Fechar**.
+   - **Mobile (< 768px):** tela cheia, colunas empilhadas; da coluna escura ficam logos, título,
+     texto e o quadro do Brainiac (a lista some); a direita vem abaixo e tudo rola junto.
+   - Carregando e erro: os de hoje, na coluna direita; a esquerda não depende de dados.
+   - Sem cor nova: só tokens que o modal e a tela de autorização já usam.
+   - Alternativas descartadas (A abas, B lista recolhida, C faixa): [`prototipo/modal-propostas.html`](prototipo/modal-propostas.html), captura `10`.
+
+4. **Endereço e Client ID do Brainiac por variável** (decisões #18 e #21): `BRAINIAC_MCP_URL`
+   (`https://brainiac.softcomtecnologia.com/mcp`) e `BRAINIAC_OAUTH_CLIENT_ID` (`brainiac-claude-ai`) em
+   `lib/conector-claude/config.ts` (`getBrainiacConector()`), expostos pelo `GET
+   /api/db/claude-conexao` como `brainiac: { endereco, clientId }`. Sem uma das variáveis, o campo
+   correspondente some e o texto continua. Documentar as duas em
+   [`deploy/`](../deploy/README.md#conector-do-claude-apimcp).
+
+5. **Logos** (decisão #20): no lugar do "C", o logo oficial do Claude; no lugar do "S", o ícone do
+   Softflow (`public/images/icon.png`). Vale para a tela de autorização (`autorizar-cabecalho.tsx`) e
+   para o modal. O arquivo do Claude é baixado pelo dev do kit de imprensa oficial da Anthropic
+   (newsroom) e salvo em `public/images/claude.svg`, sem redesenhar, recolorir nem distorcer, e
+   seguindo as diretrizes de marca da Anthropic. Se o arquivo oficial não estiver disponível, fica o
+   "C" de hoje.
+
+6. **Protótipo**: o endereço antigo (`softflow.softcom.services`) do protótipo foi trocado pelo atual
+   (decisão #13) neste planejamento.
+
+#### Fora do escopo
+
+- Detectar se a pessoa conectou o Brainiac (o Softflow não tem como saber; decisão #17).
+- Instalar a skill na conta da pessoa: ela é lida do catálogo do Brainiac pelo próprio Claude.
+- Publicar a `xp-planejar` no Brainiac: é revisão e publicação administrativa do Brainiac, fora deste
+  repositório.
+
+#### Perguntas em aberto
+
+1. ~~Endereço do MCP do Brainiac~~: respondida em 2026-11-25 (`https://brainiac.softcomtecnologia.com/mcp`,
+   Client ID `brainiac-claude-ai`).
+2. ~~Rótulo do login do Brainiac~~: respondida em 2026-11-25 com a tela de login dele (e-mail e senha
+   de colaborador Softcom, botão **Entrar no Brainiac**) e a tela seguinte, "Conectar aplicativo", com o
+   botão **Autorizar acesso**; os dois entraram no passo 3.
+
+#### Plano de implementação
+
+Um commit, na `dev`, escopo `(conector-claude)`:
+
+1. `BRAINIAC_MCP_URL`, `BRAINIAC_OAUTH_CLIENT_ID` e `getBrainiacConector()`; `brainiac` no `GET
+   /api/db/claude-conexao` e no tipo `ClaudeConexaoStatus`.
+2. `INSTRUCOES` e a linha do `softflow_eu`.
+3. `public/images/claude.svg` (arquivo oficial) e os logos no `autorizar-cabecalho.tsx` e no modal.
+4. Modal em duas colunas com `EnderecoCopiavel`, nos dois estados e no mobile.
+5. Conferir: `npm run lint`, `npm run build`, modal nos dois estados com e sem as variáveis do
+   Brainiac (desktop e 390px), tela de autorização com os logos e o texto novo do `softflow_eu` pelo
+   cliente MCP do SDK.
+6. Ao concluir: integrar esta seção ao README no formato padrão (O que é / Ferramentas / Como fica
+   para quem usa), tirar o "Estado: planejado" e mover o item no status.
 
 ### Fase 0 — conferência do plano contra o código (2026-11-19)
 
@@ -447,15 +484,15 @@ Decidido pelo Claude Code: as variáveis do Brainiac também entram no `.env.exa
 reaproveita as classes do quadro da pessoa em `autorizar/index.tsx`
 (`border-primary-foreground/15 bg-primary-foreground/5`). O logo do Claude (item 5) depende de
 baixar o arquivo do kit de imprensa da Anthropic, o que pede o ok do usuário; sem ele fica o "C"
-(decisão #20).
+(decisão #20). O usuário autorizou o download (2026-11-25).
 
 - [x] Fase 0 (2026-11-25)
-- [ ] 1: variáveis `BRAINIAC_*`, `getBrainiacConector()` e `brainiac` no `GET /api/db/claude-conexao`
-- [ ] 2: `INSTRUCOES` e a linha do `softflow_eu`
-- [ ] 3: `public/images/claude.svg` e os logos na autorização e no modal
-- [ ] 4: modal em duas colunas com `EnderecoCopiavel` (dois estados e mobile)
-- [ ] 5: conferência (lint, build, navegador, cliente MCP do SDK)
-- [ ] 6: README no formato padrão e status
+- [x] 1: variáveis `BRAINIAC_*`, `getBrainiacConector()` e `brainiac` no `GET /api/db/claude-conexao` (2026-11-25)
+- [x] 2: `INSTRUCOES` e a linha do `softflow_eu` (2026-11-25)
+- [x] 3: `public/images/claude.svg` e os logos na autorização e no modal (2026-11-25). O press kit é um ZIP com o logo completo, o Spark e o ícone; usado o `ClaudeIcon-Rounded.svg` (spark sobre quadrado arredondado), que ocupa o lugar do quadrado "C" sem redesenhar. O kit não traz diretrizes de uso por escrito
+- [x] 4: modal em duas colunas com `EnderecoCopiavel` (dois estados e mobile) (2026-11-25). A tela de confirmação do Desconectar passa a aparecer na coluna direita, com a esquerda fixa
+- [x] 5: conferência (2026-11-25); detalhes em "Testes feitos e pendências"
+- [x] 6: README no formato padrão e status (2026-11-25)
 
 ### Plano de implementação (original)
 

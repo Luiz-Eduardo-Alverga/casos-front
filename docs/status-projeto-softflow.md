@@ -43,6 +43,15 @@ coberto.
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
+- **Conector do Claude: contexto do Brainiac** (2026-11-25, na `dev`). As instruções do servidor MCP
+  e o `softflow_eu` apontam a skill `xp-planejar` do catálogo do Brainiac. O modal "Conexão com o
+  Claude" ficou em duas colunas, com a recomendação do Brainiac (endereço e Client ID por
+  `BRAINIAC_MCP_URL` e `BRAINIAC_OAUTH_CLIENT_ID`). A autorização e o modal ganharam o logo oficial
+  do Claude e o ícone do Softflow. Conferido com o build, o cliente MCP do SDK e o navegador
+  (estados, sem variáveis, 390px). Falta pôr as duas variáveis no `.env` da VPS, publicar e testar
+  no Claude de verdade (depende de a `xp-planejar` estar publicada no Brainiac). Ver
+  [`conector-claude/`](conector-claude/README.md).
+
 - **Padrão único de gatilho de select/combobox** (2026-11-19, na `dev`). Combobox
   (`components/ui/combobox.tsx`), multi-selects (`components/ui/v2/combobox2.tsx`, input e chips)
   e o seletor de mês seguem o `SelectTrigger`: seta só para baixo, sem fundo no hover, fundo
@@ -199,12 +208,6 @@ usuário):
 Especificação aprovada e ainda não implementada fica em `docs/<slug>/README.md` com **"Estado:
 planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 
-- **Conector do Claude: contexto do Brainiac para quem conecta** (planejado em 2026-11-25). As
-  instruções do servidor MCP e o `softflow_eu` passam a apontar a skill `xp-planejar` do catálogo
-  do Brainiac, o modal "Conexão com o Claude" passa a ter duas colunas (explicação à esquerda,
-  Softflow e Brainiac à direita, com endereço e Client ID do Brainiac por variável) e as telas do
-  conector ganham os logos do Claude e do Softflow. Ver "Próxima mudança planejada" em
-  [`conector-claude/`](conector-claude/README.md).
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).

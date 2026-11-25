@@ -38,3 +38,16 @@ export const CODIGO_TTL_MS = 5 * 60 * 1000;
 export const ACCESS_TOKEN_TTL_MS = 60 * 60 * 1000;
 export const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 export const PREVIA_TTL_MS = 15 * 60 * 1000;
+
+/** Conector do Brainiac recomendado no modal (decisões #18 e #21); cada campo some sem a variável. */
+export interface BrainiacConector {
+  endereco: string | null;
+  clientId: string | null;
+}
+
+export function getBrainiacConector(): BrainiacConector {
+  return {
+    endereco: process.env.BRAINIAC_MCP_URL?.trim() || null,
+    clientId: process.env.BRAINIAC_OAUTH_CLIENT_ID?.trim() || null,
+  };
+}

@@ -33,6 +33,7 @@ const INSTRUCOES = [
   "Conector do Softflow, o sistema de casos da Softcom. Use o vocabulário do produto: caso (nunca ticket), produto, versão, projeto, dev atribuído.",
   "Para abrir um caso: 1) descubra os IDs pelo nome com softflow_buscar_opcoes; 2) chame softflow_preparar_caso; 3) mostre a prévia à pessoa e pergunte se pode abrir; 4) só com a confirmação, chame softflow_abrir_caso com o código da prévia.",
   "Nunca abra um caso sem a pessoa confirmar a prévia. Se houver dois resultados com o mesmo nome, pergunte qual é.",
+  "Para planejar uma funcionalidade ou escrever o texto de um caso, use a skill xp-planejar do catálogo do Brainiac: se as ferramentas do Brainiac estiverem na conversa, leia-a com brainiac_skills_list (vault \"engenharia\", busca \"xp-planejar\") e brainiac_skill_read antes de começar, e siga o passo 7 dela para abrir o caso. Se o Brainiac não estiver conectado, avise a pessoa uma vez que o planejamento fica sem o contexto dos produtos e que ela pode conectá-lo (o endereço está no Softflow, menu do usuário → Claude). Abrir um caso já planejado não depende do Brainiac.",
 ].join("\n");
 
 /** Servidor MCP de uma requisição, com as ferramentas fechadas sobre a conexão da pessoa. */
@@ -61,6 +62,7 @@ export function criarServidorMcp(session: ConectorSession): McpServer {
           [
             `Pessoa: ${appUser.nome} (registro ${appUser.legacyUserId}), setor ${appUser.setor}.`,
             `Pode abrir casos: ${podeAbrir ? "sim" : "não (só consulta)"}.`,
+            "Contexto dos produtos: conecte também o Brainiac e use a skill xp-planejar do catálogo dele.",
             "",
             `Projetos do setor ${appUser.setor}:`,
             ...(projetos.length

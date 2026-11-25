@@ -1,7 +1,10 @@
 import { handleDbRouteError, jsonOk } from "@/lib/api-db/responses";
 import { withSession } from "@/lib/api-db/with-session";
 import { syncAppUserAndPermissions } from "@/lib/auth/sync-app-user";
-import { getMcpResourceUrl } from "@/lib/conector-claude/config";
+import {
+  getBrainiacConector,
+  getMcpResourceUrl,
+} from "@/lib/conector-claude/config";
 import {
   getConexaoAtivaByAppUserId,
   revogarConexoesDoUsuario,
@@ -21,6 +24,7 @@ export async function GET() {
         ultimoUsoEm: conexao?.ultimoUsoEm?.toISOString() ?? null,
         podeAbrirCaso: permissions.includes("create-case"),
         enderecoConector: getMcpResourceUrl(),
+        brainiac: getBrainiacConector(),
       });
     } catch (e) {
       return handleDbRouteError(e, "[api/db/claude-conexao GET]");

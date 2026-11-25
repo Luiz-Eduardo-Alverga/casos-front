@@ -9,6 +9,8 @@ export interface ClaudeConexaoStatus {
   podeAbrirCaso: boolean;
   /** Endereço que a pessoa cadastra no Claude (`.../api/mcp`). */
   enderecoConector: string;
+  /** Conector do Brainiac recomendado (decisões #17, #18 e #21); null = variável ausente. */
+  brainiac: { endereco: string | null; clientId: string | null };
 }
 
 async function parseJsonOk<T>(res: Response): Promise<T> {

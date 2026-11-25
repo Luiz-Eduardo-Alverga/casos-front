@@ -80,6 +80,12 @@ Ver [`conector-claude/`](../conector-claude/README.md). Variáveis de **runtime*
 |----------|-------|
 | `SOFTFLOW_PUBLIC_URL` | `https://softflow.hostsoftcom.cloud` (sem barra no fim; é o domínio do conector, decisão #13) |
 | `CLAUDE_CONECTOR_CHAVE` | 32 bytes em hex, gerados uma vez com `openssl rand -hex 32` |
+| `BRAINIAC_MCP_URL` | `https://brainiac.softcomtecnologia.com/mcp` (recomendado no modal "Conexão com o Claude"; decisão #18) |
+| `BRAINIAC_OAUTH_CLIENT_ID` | `brainiac-claude-ai` (o Brainiac não usa DCR; decisão #21) |
+
+- Sem `BRAINIAC_MCP_URL` ou `BRAINIAC_OAUTH_CLIENT_ID`, o campo correspondente some do modal e o
+  texto da recomendação continua. Os dois são de outro sistema (Squad IA): trocar só aqui, sem
+  rebuild.
 
 - A chave cifra o token Soft Flow das conexões. **Trocar a chave invalida todas as conexões**
   (cada pessoa conecta de novo); não trocar sem motivo e não reaproveitar a chave de dev.
