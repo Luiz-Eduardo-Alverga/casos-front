@@ -92,6 +92,11 @@ Ver [`conector-claude/`](../conector-claude/README.md). Variáveis de **runtime*
 - A migração `0011_conector_claude` cria as tabelas `oauth_*` e `claude_*`. Em 2026-11-19 ela foi
   aplicada no banco do `.env` local; se o banco de produção for outro, aplicar com
   `npm run db:apply` apontando para ele antes de publicar.
+- A migração `0012_conector_claude_tipo_cliente` acrescenta `claude_conexoes.tipo_cliente`
+  (default `'claude'`; compatível com o código anterior). Aplicada no banco do `.env` em
+  2026-11-25; mesma regra se o banco de produção for outro.
+- O Claude Code faz login com retorno para `http://localhost:<porta>/callback` na máquina do dev:
+  isso não passa pela VPS nem pelo Cloudflare, só o `/oauth/autorizar` e o `/api/oauth/*`.
 - O Claude chama de `160.79.104.0/21`. O Cloudflare na frente do Softflow não pode bloquear essa
   faixa em `/.well-known/*`, `/api/oauth/*` e `/api/mcp`.
 - Depois de publicar, conferir:

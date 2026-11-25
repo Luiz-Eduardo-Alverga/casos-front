@@ -52,6 +52,16 @@ coberto.
   no Claude de verdade (depende de a `xp-planejar` estar publicada no Brainiac). Ver
   [`conector-claude/`](conector-claude/README.md).
 
+- **Conector do Claude: consulta completa do caso e Claude Code** (2026-11-25, na `dev`).
+  `softflow_consultar_caso` traz descrição e demais textos, anotações (30 mais recentes), clientes,
+  relações e anexos com link de 5 min (parâmetro `secoes`). O login aceita o Claude Code (retorno
+  loopback `http://localhost|127.0.0.1:<porta>/callback`). Cada pessoa tem uma conexão por tipo de
+  cliente (migração `0012`, já aplicada no banco do `.env`). O modal ganhou o seletor Claude/Claude
+  Code e uma linha por conexão, cada uma com o próprio Desconectar. Conferido com dados reais,
+  regras de retorno, DCR, a tela e o modal (estados e 390px). Falta o ponta a ponta no Claude Code
+  sem derrubar a conexão do app, a consulta com conexão real num caso com relação e publicar. Ver
+  [`conector-claude/`](conector-claude/README.md).
+
 - **Padrão único de gatilho de select/combobox** (2026-11-19, na `dev`). Combobox
   (`components/ui/combobox.tsx`), multi-selects (`components/ui/v2/combobox2.tsx`, input e chips)
   e o seletor de mês seguem o `SelectTrigger`: seta só para baixo, sem fundo no hover, fundo
@@ -208,11 +218,6 @@ usuário):
 Especificação aprovada e ainda não implementada fica em `docs/<slug>/README.md` com **"Estado:
 planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 
-- **Conector do Claude: consulta completa do caso e Claude Code** (planejado em 2026-11-25).
-  `softflow_consultar_caso` passa a trazer descrição e demais textos, anotações, clientes, relações
-  e anexos; o login aceita o Claude Code (retorno loopback) e cada pessoa pode ter uma conexão do
-  Claude no app e outra do Claude Code, listadas no modal. Ver "Próxima mudança planejada" em
-  [`conector-claude/`](conector-claude/README.md).
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
