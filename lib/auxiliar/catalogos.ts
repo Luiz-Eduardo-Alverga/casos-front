@@ -99,3 +99,10 @@ export function getOrigensCatalogo(
 export function getStatusCatalogo(auth: AuthorizationHeader) {
   return getAuxiliar(auth, "status", {});
 }
+
+export function getAgendaDevCatalogo(
+  auth: AuthorizationHeader,
+  params: { id_colaborador: string; Cronograma_id?: string },
+) {
+  return getAuxiliar(auth, "agenda-dev", params);
+}

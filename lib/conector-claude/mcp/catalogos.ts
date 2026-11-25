@@ -87,6 +87,8 @@ export async function listarProjetos(
     detalhe: [str(p.data_inicial).slice(0, 10), str(p.data_final).slice(0, 10)]
       .filter(Boolean)
       .join(" a "),
+    inicio: str(p.data_inicial).slice(0, 10),
+    fim: str(p.data_final).slice(0, 10),
   }));
 }
 

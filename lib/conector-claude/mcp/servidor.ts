@@ -3,6 +3,7 @@ import { z } from "zod";
 import { temPermissao, type ConectorSession } from "@/lib/api-db/with-conector-permission";
 import { comTokenDaConexao } from "@/lib/conector-claude/legacy-token";
 import { abrirCaso, erroDaApi, prepararCaso } from "./caso";
+import { montarAgenda } from "./agenda";
 import { buscarCasos } from "./busca";
 import { consultarCaso, SECOES_CONSULTA } from "./consulta";
 import {
@@ -39,6 +40,7 @@ const INSTRUCOES = [
   "Para planejar uma funcionalidade ou escrever o texto de um caso, use a skill xp-planejar do catálogo do Brainiac: se as ferramentas do Brainiac estiverem na conversa, leia-a com brainiac_skills_list (vault \"engenharia\", busca \"xp-planejar\") e brainiac_skill_read antes de começar, e siga o passo 7 dela para abrir o caso. Se o Brainiac não estiver conectado, avise a pessoa uma vez que o planejamento fica sem o contexto dos produtos e que ela pode conectá-lo (o endereço está no Softflow, menu do usuário → Claude). Abrir um caso já planejado não depende do Brainiac.",
   "Para implementar, testar ou revisar um caso, chame softflow_consultar_caso com o número antes de começar: ela traz descrição, anotações, clientes, relações e anexos.",
   "Para pesquisar casos pelo conteúdo, combine o Brainiac (notas de caso e especificações) com softflow_buscar_casos e confirme os candidatos com softflow_consultar_caso.",
+  "Para \"o que eu tenho para fazer hoje\", use softflow_agenda.",
 ].join("\n");
 
 const DATA_SCHEMA = z
@@ -272,6 +274,28 @@ export function criarServidorMcp(session: ConectorSession): McpServer {
         return texto(r.texto, r.erro);
       } catch (error) {
         return texto(`Não foi possível buscar casos: ${erroDaApi(error, "erro")}.`, true);
+      }
+    },
+  );
+
+  server.registerTool(
+    "softflow_agenda",
+    {
+      title: "Agenda do dev",
+      description:
+        "O que fazer agora: a agenda do Painel do desenvolvedor na sprint atual (projeto do setor cujo período inclui hoje). Traz os totais, os casos em andamento, os retornos (devolvidos pelo QA, vêm primeiro) e os abertos por produto na ordem da agenda, por importância, até 10 por produto e status, e as contagens de corrigidos e resolvidos. Sem pessoa_id, é a agenda da pessoa conectada. Para o detalhe de um caso, use softflow_consultar_caso.",
+      inputSchema: {
+        pessoa_id: idSchema.optional().describe("ID da pessoa (padrão: a conectada); outra pessoa exige a permissão do \"Ver como\" do Painel"),
+        projeto_id: idSchema.optional().describe("ID do projeto (sprint); padrão: a sprint atual do setor"),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (input) => {
+      try {
+        const r = await montarAgenda(session, input);
+        return texto(r.texto, r.erro);
+      } catch (error) {
+        return texto(`Não foi possível montar a agenda: ${erroDaApi(error, "erro")}.`, true);
       }
     },
   );
