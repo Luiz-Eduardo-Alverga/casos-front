@@ -9,6 +9,10 @@
 > **Na `dev`, ainda não publicado** (2026-11-25): contexto do Brainiac (decisões #16 a #21) e
 > consulta completa do caso + Claude Code (decisões #22 a #26). Implementados e conferidos; ver as
 > pendências em "Testes feitos e pendências".
+>
+> **Há uma [próxima mudança planejada](#próxima-mudança-planejada-casos-em-lote-busca-de-casos-e-agenda-do-dev)**
+> (2026-11-25, decisões #27 a #32): abrir vários casos de uma vez (filhos de um caso pai, numerados
+> em partes), buscar casos e ver a agenda do dev. Implementar com `/implementar conector-claude`.
 
 ## O que é
 
@@ -94,6 +98,163 @@ caminho (decisão #16):
 
 Se a `xp-planejar` ainda não estiver publicada no catálogo, a busca volta vazia e o Claude segue só
 com as regras do conector; nada a tratar no Softflow.
+
+## Próxima mudança planejada: casos em lote, busca de casos e agenda do dev
+
+> **Estado: planejado** (chat de planejamento, 2026-11-25). Decisões #27 a #32 em
+> [`decisoes.md`](decisoes.md). Só ferramentas do MCP e instruções do servidor: **nenhuma tela muda**,
+> então não há protótipo.
+
+### Problema
+
+1. **Funcionalidade grande vira vários casos, um por um.** No planejamento, uma funcionalidade maior
+   é dividida em casos menores. Hoje o Claude prepara e abre cada caso separado: uma prévia e uma
+   confirmação por caso, sem ligação entre eles no Softflow e sem ordem garantida na listagem.
+2. **Não dá para pesquisar casos pelo Claude.** Só existe a consulta pelo número. Perguntas como
+   "em quais casos foi implementado o status ErroDeSincronização no Vendas 360?" ficam sem
+   resposta. A API Soft Flow (`GET /projeto-memoria`) filtra texto só pelo **resumo** do caso
+   (`descricao_resumo`); o detalhe do que foi implementado costuma estar na descrição, nas anotações
+   e, para os casos documentados, nas notas de caso do Brainiac
+   (`engenharia/setores/<squad>/<produto>/casos/<registro>.md`).
+3. **O dev não vê a agenda pelo Claude.** No Claude Code, o dev precisa saber o que fazer agora
+   sem abrir o Painel do desenvolvedor (`/painel`). A agenda do Painel é por sprint
+   (`GET /auxiliar/agenda-dev`: produtos priorizados com contagens) e os cards vêm de
+   `GET /projeto-memoria` por status ([`painel-desenvolvedor/`](../painel-desenvolvedor/README.md)).
+
+### 1. Casos em lote: `softflow_preparar_casos` e `softflow_abrir_casos` (decisões #27 a #29)
+
+**`softflow_preparar_casos`** (`create-case`; somente leitura, só grava a prévia):
+
+| Campo | Obrigatório | O que é |
+|-------|-------------|---------|
+| `pai` | sim | `{ "registro": <n> }` para usar um caso que já existe, ou `{ "novo": { resumo, descricao, informacoes_adicionais? } }` para abrir um caso pai junto |
+| `comum` | sim | campos iguais para todos: `produto_id`, `versao`, `projeto_id`, `dev_id` e, opcionais, `qa_id`, `modulo`, `importancia`, `categoria_id`, `origem_id`, `relator_id`, `nao_planejado` (mesmos padrões do `softflow_preparar_caso`) |
+| `titulo_base` | sim | início do título comum às partes (ex.: `Vendas 360 — Status ErroDeSincronização`) |
+| `casos` | sim | de 2 a 15 itens, **na ordem de execução**: `{ titulo, descricao, informacoes_adicionais?, dev_id?, qa_id?, modulo?, importancia?, nao_planejado? }`; os opcionais sobrepõem `comum` só naquele caso |
+
+- **Título de cada parte** (decisão #28): `<titulo_base> — PARTE <n>/<N> — <titulo>`, com `n` e `N`
+  com zero à esquerda quando o lote tiver 10 ou mais casos (`PARTE 01/12`), para a ordenação por
+  título da listagem seguir a ordem do lote. O título do caso pai novo é o `titulo_base` (sem parte).
+  Se o título montado passar do limite do legado (decisão #15: não validamos tamanho), a mensagem
+  do legado volta como hoje.
+- **Caso pai** (decisão #27): o novo usa os campos de `comum` e a descrição informada, e ganha no fim
+  a lista das partes (`PARTE 1/3 — <titulo>`), sem os números dos casos, porque o pai é aberto antes
+  delas e o conector não edita texto (decisão #2); os números ficam nas relações. Pai existente:
+  conferido com `GET /projeto-memoria/{registro}` (precisa existir e a pessoa precisa ter
+  `list-case`); o título e a descrição dele não mudam.
+- **Prévia**: uma só, com o código `pl_...` (15 minutos, uso único), a tabela dos campos comuns, o
+  caso pai (novo ou existente, com resumo) e uma linha por parte (título final, dev, QA e o que foi
+  sobreposto), mais "Falta resolver" por parte. Uma pendência em qualquer parte bloqueia o lote
+  inteiro. Grava em `claude_previas_caso` com `payload` do lote (coluna `tipo`: `'caso'` | `'lote'`,
+  default `'caso'`).
+
+**`softflow_abrir_casos`** (`codigo_previa`; escreve, idempotente):
+
+1. Abre o caso pai, se for novo.
+2. Abre as partes **na ordem**, uma por vez, pelo mesmo `lib/casos/criar-caso.ts` (DM do Discord só
+   para não planejado, como hoje).
+3. Cria a relação de cada parte com o pai: `tipo_relacao 2` ("É FILHO DE") com `caso_relacionado =
+   pai` (mesmo `POST /projeto-casos-relacoes` da aba Relações).
+4. Grava cada número na prévia assim que é criado. Se algo falhar no meio, a resposta lista o que
+   foi aberto e o erro; chamar de novo com o mesmo código **continua de onde parou** (não abre de novo
+   o que já foi aberto). Depois de completo, repetir devolve o mesmo resultado (decisão #29).
+5. Resposta: o pai e cada parte com número, título e link, e as relações criadas.
+
+A linha de origem (decisão #8) vai em todos, com "(lote de <N> casos, pai <registro>)".
+
+### 2. Busca de casos: `softflow_buscar_casos` (decisões #30 e #31)
+
+`list-case`; somente leitura. Mesmos filtros da tela de Casos (`components/casos/filtros/casos-filtros-mappers.ts`):
+
+| Campo | Vai para o legado como |
+|-------|------------------------|
+| `texto` | `descricao_resumo` (o legado busca só no resumo) |
+| `produto_id`, `versao` | `produto_id`, `versao_produto` (texto da versão, como a tela) |
+| `status` (lista de nomes ou ids) | `status_id[]` |
+| `modulo`, `projeto_id`, `setor`, `tipo` (`CASO`/`REPORT`) | `modulo`, `projeto_id`, `setor`, `tipo_abertura` |
+| `dev_id`, `qa_id`, `relator_id` | `usuario_dev_id`, `usuario_qa_id`, `usuario_abertura_id` |
+| `aberto_de`, `aberto_ate`, `producao_de`, `producao_ate` (AAAA-MM-DD) | `data_abertura_inicio/final`, `data_producao_inicio/fim` |
+| `nao_planejado` | `nao_planejado` |
+| `pagina` | página (20 por página) |
+
+- Pelo menos um filtro é obrigatório (sem filtro, a ferramenta recusa e pede um).
+- Resposta: "<total> casos (página <p> de <n>)" e uma linha por caso: número, resumo, produto e
+  versão, status, dev, data de abertura e link. Ordem do legado (a mesma da tela).
+- **Busca no conteúdo** (decisão #31): as `INSTRUCOES` e a descrição da ferramenta orientam o
+  Claude a, quando a pergunta for sobre o que foi implementado (e não só sobre o título):
+  1. buscar no Brainiac (`brainiac_search`, cofre `engenharia`, produto do caso) as notas de caso e as
+     especificações sobre o tema, que trazem o número do caso;
+  2. buscar no Softflow pelo `texto` com variações do termo (o resumo costuma ter o nome da tela ou
+     do status) e filtros de produto e período;
+  3. juntar os números, abrir os mais prováveis com `softflow_consultar_caso` (no máximo 10) para
+     confirmar na descrição e nas anotações, e dizer quais confirmou e quais são só candidatos.
+  Sem o Brainiac na conversa, faz só os passos 2 e 3 e avisa que a busca ficou só no resumo.
+
+### 3. Agenda do dev: `softflow_agenda` (decisão #32)
+
+Somente leitura. Entrada: `pessoa_id?` (padrão: a pessoa conectada) e `projeto_id?` (padrão: a
+sprint do setor cujo período inclui hoje, a mesma regra do `softflow_eu`).
+
+- **Permissão:** a própria agenda exige só a conexão; a de outra pessoa exige `list-painel-dev`
+  (a mesma da tela do Painel).
+- **Dados:** `GET /auxiliar/agenda-dev` (produtos priorizados, na `ordem` da agenda, com as contagens)
+  e, para cada produto da agenda, `GET /projeto-memoria` com `usuario_dev_id`, `produto_id`,
+  `versao_produto`, `projeto_id` e status abertos (`1`, `2`) e retornos (`4`), como as colunas do
+  Painel. Até 10 casos por produto e por status; o resto vira "+<n> no Painel".
+- **Resposta**, nesta ordem:
+  1. cabeçalho: pessoa, sprint (nome e período) e totais (abertos, retornos, corrigidos, resolvidos);
+  2. **Em andamento**: o caso iniciado de cada produto marcado com `tem_caso_iniciado` (ver pergunta 2);
+  3. **Retornos** (vêm antes: o QA devolveu), por produto na ordem da agenda;
+  4. **Abertos**, por produto na ordem da agenda e, dentro do produto, por importância e número;
+  5. uma linha com corrigidos e resolvidos por produto (só contagem) e o link do Painel.
+  Cada caso: número, resumo, versão, status, importância e link.
+- A descrição da ferramenta diz: "o que fazer agora"; para o detalhe de um caso, `softflow_consultar_caso`.
+
+### 4. Instruções do servidor (`INSTRUCOES`)
+
+Acrescentar, sem mexer no que existe:
+
+```text
+Funcionalidade dividida em vários casos: use softflow_preparar_casos com um caso pai (novo ou
+existente) e as partes na ordem de execução; mostre a prévia do lote inteiro e só abra com o ok.
+Para pesquisar casos pelo conteúdo, combine o Brainiac (notas de caso e especificações) com
+softflow_buscar_casos e confirme os candidatos com softflow_consultar_caso.
+Para "o que eu tenho para fazer hoje", use softflow_agenda.
+```
+
+### Fora do escopo
+
+- Busca no texto completo pelo próprio Softflow (índice no Postgres): fica para depois, se a busca
+  combinada não bastar (decisão #31).
+- Mudar status, iniciar ou finalizar caso pela agenda (decisão #2 continua).
+- Editar o caso pai depois do lote (por exemplo, acrescentar os números das partes na descrição).
+
+### Perguntas em aberto
+
+1. **(dev)** Ao criar "É FILHO DE" na parte, o legado cria sozinho o inverso ("É PAI DE") no pai, como
+   parece pela aba Relações? Se não, `softflow_abrir_casos` cria os dois.
+2. **(dev)** Como saber **qual** caso está em andamento? `tem_caso_iniciado` da agenda diz só que há um
+   no produto. Opções: lançamento de produção aberto (`caso.producao` com `abertura` sem
+   `fechamento`) do dev, ou status específico. Define a seção "Em andamento".
+3. **(dev)** O `GET /projeto-memoria` aceita ordenação (por importância, por número)? Se não, a agenda
+   ordena no servidor do Softflow depois de buscar.
+4. **(dev)** O filtro `descricao_resumo` do legado é "contém", sem diferença de maiúsculas e acentos?
+   Isso muda quantas variações do termo o Claude precisa tentar.
+
+### Plano de implementação
+
+Um commit por parte, na `dev`, escopo `(conector-claude)`:
+
+1. **Busca:** `softflow_buscar_casos` reaproveitando o mapeamento de filtros da tela (extrair o
+   pedaço puro de `casos-filtros-mappers.ts` para `lib/casos/` se precisar), descrição e `INSTRUCOES`.
+   Conferir com o cliente MCP do SDK: por texto, por produto e período, sem filtro (recusa), paginação.
+2. **Agenda:** `softflow_agenda` com a regra da sprint atual, permissão para outra pessoa e as seções.
+   Conferir com um dev com casos em vários produtos e com um sem agenda (mensagem clara).
+3. **Lote:** coluna `tipo` em `claude_previas_caso` (migração), `softflow_preparar_casos` e
+   `softflow_abrir_casos` com pai novo e existente, numeração das partes, relações e retomada. Conferir
+   na API de dev: lote de 3 com pai novo, lote de 10+ (zeros à esquerda), falha no meio e retomada.
+4. Ao concluir: integrar esta seção ao README no formato padrão, mover o item no status e atualizar
+   o passo 7 da skill `xp-planejar` (avisar o usuário: a skill mora no Brainiac).
 
 ## Arquitetura
 

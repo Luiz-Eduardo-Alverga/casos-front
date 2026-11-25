@@ -170,3 +170,37 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     Code da seção Softflow. **Por quê:** com o comando do Claude Code abaixo do passo 3, o usuário
     leu o passo 2 ("digite /mcp e escolha softflow") sem ter visto o comando que faz o softflow
     aparecer, e o fluxo ficou confuso (2026-11-25).
+
+27. **Vários casos de uma vez são um lote com um caso pai: cada parte é aberta como filha ("É FILHO
+    DE") de um pai novo ou já existente, numa prévia única.** **Por quê:** no planejamento, uma
+    funcionalidade maior é dividida em casos menores, e o usuário escolheu ligá-los como filhos de um
+    caso pai (2026-11-25). Uma prévia só mantém a regra da decisão #6 (nada abre sem o ok) sem pedir
+    uma confirmação por caso.
+
+28. **O título de cada parte é `<titulo_base> — PARTE <n>/<N> — <titulo>`, com zero à esquerda quando
+    o lote tem 10 ou mais casos.** **Por quê:** pedido do usuário (2026-11-25): com a parte no título, a
+    listagem ordenada por título mostra os casos na ordem de execução. O zero à esquerda evita que
+    "PARTE 10" fique antes de "PARTE 2".
+
+29. **`softflow_abrir_casos` abre na ordem, grava cada número na prévia e, se falhar no meio, continua
+    de onde parou quando chamado de novo com o mesmo código.** Uma pendência em qualquer parte bloqueia
+    o lote inteiro na prévia. **Por quê:** o legado não tem transação entre casos; sem retomada, um erro
+    na parte 3 de 5 levaria a abrir de novo as duas primeiras (casos duplicados) ou a terminar o lote à
+    mão. A idempotência da decisão #6 vale para o lote inteiro.
+
+30. **`softflow_buscar_casos` usa os mesmos filtros da tela de Casos, exige pelo menos um filtro e
+    devolve 20 por página.** **Por quê:** é o que a API Soft Flow oferece (`GET /projeto-memoria`), já
+    mapeado na tela; exigir filtro evita listar a base inteira no chat.
+
+31. **A busca pelo conteúdo do caso é feita pelo Claude combinando o Brainiac (notas de caso e
+    especificações) com `softflow_buscar_casos` e confirmando com `softflow_consultar_caso`; o
+    Softflow não cria índice de texto agora.** **Por quê:** escolha do usuário (2026-11-25). O legado só
+    filtra pelo resumo, e o detalhe do que foi implementado está nas notas de caso do Brainiac e na
+    descrição do caso; combinar as fontes resolve sem infraestrutura nova. Um índice próprio no Postgres
+    fica para depois, se não bastar.
+
+32. **`softflow_agenda` mostra "o que fazer agora" da sprint atual: em andamento, retornos e abertos por
+    produto na ordem da agenda, com as contagens; a agenda de outra pessoa exige `list-painel-dev`.**
+    **Por quê:** escolha do usuário (2026-11-25) para o dev, no Claude Code, saber por onde começar
+    sem abrir o Painel. Retornos vêm antes dos abertos porque foram devolvidos pelo QA. A permissão é a
+    mesma da tela do Painel.

@@ -218,6 +218,11 @@ usuário):
 Especificação aprovada e ainda não implementada fica em `docs/<slug>/README.md` com **"Estado:
 planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 
+- **Conector do Claude: casos em lote, busca de casos e agenda do dev** (planejado em 2026-11-25).
+  `softflow_preparar_casos`/`softflow_abrir_casos` (partes filhas de um caso pai, numeradas no
+  título, com retomada), `softflow_buscar_casos` (filtros da tela de Casos, combinados com o
+  Brainiac para buscar no conteúdo) e `softflow_agenda` (o que fazer agora na sprint). Ver "Próxima
+  mudança planejada" em [`conector-claude/`](conector-claude/README.md).
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
