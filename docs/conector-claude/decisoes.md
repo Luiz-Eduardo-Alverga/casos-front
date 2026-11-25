@@ -204,3 +204,10 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     **Por quê:** escolha do usuário (2026-11-25) para o dev, no Claude Code, saber por onde começar
     sem abrir o Painel. Retornos vêm antes dos abertos porque foram devolvidos pelo QA. A permissão é a
     mesma da tela do Painel.
+
+33. **A própria agenda no `softflow_agenda` exige só a conexão; a agenda de outra pessoa exige
+    `audit-all-users`.** Revoga a permissão da decisão #32 (`list-painel-dev` para outra pessoa); o
+    resto da #32 continua. **Por quê:** no Painel, `list-painel-dev` só abre a tela e todo dev a tem;
+    ver o Painel de outra pessoa ("Ver como") exige `audit-all-users`. Repetir essa regra evita que
+    qualquer dev veja pelo Claude a agenda de um colega, o que a tela não deixa (decisão #5: o conector
+    não cria regra nova). Resposta da P4 (2026-11-25).
