@@ -129,7 +129,9 @@ Integrações laterais (não são telas, mas fazem parte da experiência):
   e recomendação no modal) para o Claude planejar com a skill `xp-planejar` (2026-11-25, na `dev`).
   Também na `dev` (2026-11-25): a consulta traz o caso completo (textos, anotações, clientes,
   relações e anexos) para o dev implementar, e o Claude Code conecta (retorno loopback), com uma
-  conexão por tipo de cliente. Ver [`conector-claude/`](conector-claude/README.md).
+  conexão por tipo de cliente. Ainda na `dev`: abrir vários casos de uma vez como partes filhas de
+  um caso pai (`PARTE n/N` no título), buscar casos com os filtros da tela de Casos e ver a agenda
+  do dev na sprint atual. Ver [`conector-claude/`](conector-claude/README.md).
 - **Anexos** — upload no S3 da Softcom (presign/multipart pelo servidor), para casos e documentação.
 
 ---
@@ -253,7 +255,7 @@ há decisão não óbvia pelo código, um `decisoes.md`.
 | [`documentacao/`](documentacao/README.md) | Módulo de documentação (`/documentacao`) |
 | [`configuracoes/`](configuracoes/README.md) | Usuários, perfis de acesso, prompts IA |
 | [`assistente-ia/`](assistente-ia/README.md) | Integração com o Assistant |
-| [`conector-claude/`](conector-claude/README.md) | Conector MCP para abrir e consultar casos pelo Claude (OAuth, `/api/mcp`, modal no menu do usuário) |
+| [`conector-claude/`](conector-claude/README.md) | Conector MCP para abrir (um ou em lote), consultar e buscar casos e ver a agenda do dev pelo Claude (OAuth, `/api/mcp`, modal no menu do usuário) |
 | [`rbac/`](rbac/README.md) | Permissões e hierarquia de perfis |
 | [`autenticacao/`](autenticacao/README.md) | Login, sessão e redirecionamento |
 | [`camada-de-dados/`](camada-de-dados/README.md) | API Soft Flow (proxy) e `/api/db` (Drizzle) |

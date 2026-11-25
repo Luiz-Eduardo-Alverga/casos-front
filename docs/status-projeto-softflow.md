@@ -62,6 +62,17 @@ coberto.
   sem derrubar a conexão do app, a consulta com conexão real num caso com relação e publicar. Ver
   [`conector-claude/`](conector-claude/README.md).
 
+- **Conector do Claude: casos em lote, busca de casos e agenda do dev** (2026-11-25, na `dev`).
+  `softflow_preparar_casos`/`softflow_abrir_casos` abrem as partes de uma funcionalidade como filhas
+  de um caso pai (novo ou existente), com `PARTE n/N` no título, relações nos dois sentidos e
+  retomada se parar no meio. `softflow_buscar_casos` usa os filtros da tela de Casos (20 por página,
+  por cursor) e as instruções combinam o Brainiac para buscar no conteúdo. `softflow_agenda` mostra o
+  que fazer agora na sprint atual, como o Painel; a de outra pessoa exige `audit-all-users`
+  (decisão #33). Migração `0013` aplicada no banco do `.env`. Conferido na API de dev (lote de 3 com
+  falha e retomada, casos 104305 a 104308 para excluir). Falta testar com uma conexão real no
+  Claude, aplicar a `0013` na produção se o banco for outro, publicar e ajustar o passo 7 da skill
+  `xp-planejar` no Brainiac. Ver [`conector-claude/`](conector-claude/README.md).
+
 - **Padrão único de gatilho de select/combobox** (2026-11-19, na `dev`). Combobox
   (`components/ui/combobox.tsx`), multi-selects (`components/ui/v2/combobox2.tsx`, input e chips)
   e o seletor de mês seguem o `SelectTrigger`: seta só para baixo, sem fundo no hover, fundo
@@ -218,11 +229,6 @@ usuário):
 Especificação aprovada e ainda não implementada fica em `docs/<slug>/README.md` com **"Estado:
 planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 
-- **Conector do Claude: casos em lote, busca de casos e agenda do dev** (planejado em 2026-11-25).
-  `softflow_preparar_casos`/`softflow_abrir_casos` (partes filhas de um caso pai, numeradas no
-  título, com retomada), `softflow_buscar_casos` (filtros da tela de Casos, combinados com o
-  Brainiac para buscar no conteúdo) e `softflow_agenda` (o que fazer agora na sprint). Ver "Próxima
-  mudança planejada" em [`conector-claude/`](conector-claude/README.md).
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
