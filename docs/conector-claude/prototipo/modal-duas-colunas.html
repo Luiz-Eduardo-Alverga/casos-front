@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conexão com o Claude — modal em duas colunas (2026-11-25)</title>
+<!--
+  Proposta D: modal largo no padrão da tela de autorização (coluna escura à esquerda explicando,
+  coluna clara à direita com as informações). Referência de estrutura; no código usar tokens
+  (bg-primary e login-* na coluna esquerda; bg-card, text-text-*, border-border-* na direita).
+  Logos (decisão #20): o quadro "logo Claude" é um marcador do arquivo oficial; o do Softflow é public/images/icon.png.
+  Uso: ?c=sem-conexao | conectado ; viewport < 768px mostra o layout empilhado.
+-->
+<style>
+  :root{
+    --primary:hsl(223 23% 15%); --page:hsl(220 14% 96%); --card:#fff;
+    --tp:hsl(215 28% 17%); --ts:hsl(215 16% 47%); --tl:hsl(215 20% 35%);
+    --bi:hsl(220 13% 91%); --bd:hsl(220 14% 96%); --muted:hsl(220 14% 96%);
+    --destr:hsl(0 84% 60%); --destr-bg:hsl(0 84% 60% / .1);
+    --ok:hsl(142 71% 35%); --ok-bg:hsl(142 71% 45% / .12);
+    --login-ph:hsl(216 12% 64%); --login-panel:hsl(216 15% 24%); --login-line:hsl(216 15% 32%);
+    --yellow:hsl(46 88% 60%);
+  }
+  *{box-sizing:border-box} html,body{margin:0;height:100%}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;color:var(--tp);background:var(--page)}
+  svg.i{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  svg.i20{width:20px;height:20px}
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px}
+  .dlg{width:880px;max-width:100%;max-height:calc(100vh - 32px);display:grid;grid-template-columns:320px 1fr;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative}
+  .x{position:absolute;top:16px;right:16px;color:var(--ts);z-index:2}
+
+  /* esquerda */
+  .side{background:var(--primary);color:#fff;padding:32px 24px;display:flex;flex-direction:column;gap:24px;overflow:auto}
+  .logos{display:flex;align-items:center;gap:12px}
+  .lg{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+  .lg-c{background:#fff;color:hsl(15 63% 55%)} .lg-s{background:var(--yellow);color:var(--primary)}
+  .logos .ar{color:var(--login-ph)}
+  .side h2{margin:0;font-size:20px;font-weight:600;line-height:1.3}
+  .side p{margin:0;color:var(--login-ph);line-height:1.5}
+  .side h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--login-ph);font-weight:600}
+  .side ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .side li{display:flex;gap:8px;line-height:1.45}
+  .side li .y{color:hsl(142 60% 60%)}
+  .side .tip{background:var(--login-panel);border:1px solid var(--login-line);border-radius:8px;padding:12px;display:flex;gap:8px;line-height:1.45}
+  .side .tip b{color:#fff} .side .tip span{color:var(--login-ph)}
+  .side .tip svg{color:var(--yellow);margin-top:2px}
+
+  /* direita */
+  .main{padding:32px 32px 24px;display:flex;flex-direction:column;gap:24px;overflow:auto}
+  .tt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-right:24px}
+  .tt b{font-size:18px;font-weight:600}
+  .pill{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:600}
+  .ok{background:var(--ok-bg);color:var(--ok)} .mut{background:var(--muted);color:var(--ts)}
+  .sec{display:flex;flex-direction:column;gap:12px}
+  .sec + .sec{padding-top:24px;border-top:1px solid var(--bi)}
+  .sh{display:flex;align-items:center;gap:8px}
+  .sh .ic{width:28px;height:28px;border-radius:999px;background:var(--muted);display:flex;align-items:center;justify-content:center}
+  .sh b{font-size:15px} .sh .pill{margin-left:auto}
+  ol.st{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+  ol.st li{display:flex;gap:8px;line-height:1.45}
+  .n{width:22px;height:22px;border-radius:999px;background:var(--muted);font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .fld .k{font-size:12px;font-weight:500;color:var(--tl);margin-bottom:4px}
+  .fld .k span{font-weight:400;color:var(--ts)}
+  .copy{display:flex;gap:8px}
+  .copy code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--bi);border-radius:6px;padding:8px 10px;font-family:ui-monospace,monospace;font-size:12px}
+  .two{display:grid;grid-template-columns:1fr;gap:12px}
+  .fld{min-width:0}
+  .note{margin:0;font-size:12px;color:var(--ts);line-height:1.45}
+  .box{border:1px solid var(--bi);border-radius:8px}
+  .row{display:grid;grid-template-columns:140px 1fr;gap:8px;padding:10px 16px}
+  .row + .row{border-top:1px solid var(--bd)} .row span:first-child{color:var(--ts)}
+  .ft{display:flex;justify-content:flex-end;gap:8px;margin-top:auto}
+  .b{height:36px;border-radius:8px;padding:0 14px;font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;background:none;color:var(--tp);font-family:inherit;white-space:nowrap}
+  .b-out{border-color:var(--bi);box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .b-ds{background:var(--destr-bg);color:var(--destr)}
+  .hidden{display:none!important}
+
+  @media (max-width:767px){
+    .ov{padding:0;align-items:stretch}
+    .dlg{grid-template-columns:1fr;border-radius:0;max-height:none;height:100%;overflow:auto;display:block}
+    .side{padding:24px 16px;gap:16px}
+    .side .list{display:none}
+    .main{padding:24px 16px}
+    .two{grid-template-columns:1fr}
+    .x{color:#fff}
+  }
+</style>
+</head>
+<body>
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="arrows" viewBox="0 0 24 24"><path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/></symbol>
+  <symbol id="plug" viewBox="0 0 24 24"><path d="M12 22v-5M9 8V2M15 8V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></symbol>
+  <symbol id="copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="unplug" viewBox="0 0 24 24"><path d="m19 5 3-3M2 22l3-3M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4ZM7.5 13.5 10 11M10.5 16.5 13 14M12 6l6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z"/></symbol>
+  <symbol id="book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+  <symbol id="spark" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></symbol>
+</svg>
+
+<div class="ov">
+  <div class="dlg" role="dialog" aria-labelledby="t">
+    <span class="x"><svg class="i"><use href="#x"/></svg></span>
+
+    <!-- ESQUERDA: explica -->
+    <aside class="side">
+      <div class="logos" aria-hidden="true"><div class="lg lg-c" title="Logo oficial do Claude (arquivo do press kit da Anthropic)" style="border:1px dashed hsl(216 12% 64%);font-size:9px;font-weight:600;line-height:1.1;text-align:center;color:var(--ts)">logo<br>Claude</div><span class="ar"><svg class="i i20"><use href="#arrows"/></svg></span><div class="lg lg-s" style="padding:6px"><img src="../../../public/images/icon.png" alt="" style="width:100%;height:100%;object-fit:contain"></div></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <h2>Planeje no Claude e abra o caso sem sair do chat</h2>
+        <p>O Claude usa a sua conta do Softflow, com as suas permissões. Nada é criado sem você confirmar a prévia no chat.</p>
+      </div>
+      <div class="list">
+        <h3>Com o Softflow conectado</h3>
+        <ul>
+          <li><svg class="i y"><use href="#check"/></svg>Busca produto, versão, projeto e pessoas pelo nome</li>
+          <li><svg class="i y"><use href="#check"/></svg>Mostra a prévia e abre o caso depois do seu ok</li>
+          <li><svg class="i y"><use href="#check"/></svg>Consulta casos pelo número</li>
+        </ul>
+      </div>
+      <div class="tip"><svg class="i"><use href="#spark"/></svg><div><b>Com o Brainiac também,</b> <span>o Claude conhece os produtos, os padrões da squad e a skill de planejamento (xp-planejar). Sem ele, abre casos, mas planeja sem esse contexto.</span></div></div>
+    </aside>
+
+    <!-- DIREITA: informações -->
+    <section class="main">
+      <div class="tt"><b id="t">Conexão com o Claude</b></div>
+
+      <!-- Softflow: sem conexão -->
+      <div class="sec" id="sf-sem">
+        <div class="sh"><span class="ic"><svg class="i"><use href="#plug"/></svg></span><b>Softflow</b><span class="pill mut">Não conectado</span></div>
+        <ol class="st">
+          <li><span class="n">1</span><span>No Claude, abra <b>Customize → Connectors → Add custom connector</b>.</span></li>
+          <li><span class="n">2</span><span>Cole o endereço abaixo e clique em <b>Add</b>.</span></li>
+          <li><span class="n">3</span><span>No Softflow, digite sua senha e clique em <b>Permitir acesso</b>.</span></li>
+        </ol>
+        <div class="fld"><div class="k">Endereço do conector</div><div class="copy"><code>https://softflow.hostsoftcom.cloud/api/mcp</code><button class="b b-out" aria-label="Copiar endereço do Softflow" style="padding:0 10px"><svg class="i"><use href="#copy"/></svg></button></div></div>
+      </div>
+
+      <!-- Softflow: conectado -->
+      <div class="sec hidden" id="sf-con">
+        <div class="sh"><span class="ic"><svg class="i"><use href="#plug"/></svg></span><b>Softflow</b><span class="pill ok">Conectado</span></div>
+        <div class="box">
+          <div class="row"><span>Conectado desde</span><span>19/11/2026 16:50</span></div>
+          <div class="row"><span>Último uso</span><span>há 5 minutos</span></div>
+          <div class="row"><span>Pode abrir casos</span><span>Sim</span></div>
+        </div>
+      </div>
+
+      <!-- Brainiac -->
+      <div class="sec">
+        <div class="sh"><span class="ic"><svg class="i"><use href="#book"/></svg></span><b>Brainiac</b><span class="pill mut">Recomendado</span></div>
+        <p class="note brn-sem" style="font-size:13px">Adicione do mesmo jeito. Em <b style="color:var(--tp)">Advanced settings</b>, informe o Client ID. Se você já conectou o Brainiac, não precisa fazer nada.</p>
+        <ol class="st brn-con">
+          <li><span class="n">1</span><span>No Claude, abra <b>Customize → Connectors → Add custom connector</b>.</span></li>
+          <li><span class="n">2</span><span>Cole o endereço e, em <b>Advanced settings</b>, informe o Client ID. Clique em <b>Add</b>.</span></li>
+          <li><span class="n">3</span><span>Conclua o login do Brainiac que abrir.</span></li>
+        </ol>
+        <p class="note brn-con">Se você já conectou o Brainiac, não precisa fazer nada.</p>
+        <div class="two">
+          <div class="fld"><div class="k">Endereço</div><div class="copy"><code>https://brainiac.softcomtecnologia.com/mcp</code><button class="b b-out" aria-label="Copiar endereço do Brainiac" style="padding:0 10px"><svg class="i"><use href="#copy"/></svg></button></div></div>
+          <div class="fld"><div class="k">OAuth Client ID</div><div class="copy"><code>brainiac-claude-ai</code><button class="b b-out" aria-label="Copiar Client ID do Brainiac" style="padding:0 10px"><svg class="i"><use href="#copy"/></svg></button></div></div>
+        </div>
+      </div>
+
+      <div class="ft">
+        <button class="b b-ds hidden" id="btn-desc"><svg class="i"><use href="#unplug"/></svg>Desconectar o Softflow</button>
+        <button class="b b-out">Fechar</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  var c = new URLSearchParams(location.search).get('c') || 'sem-conexao';
+  var con = c === 'conectado';
+  document.getElementById(con ? 'sf-sem' : 'sf-con').remove();
+  document.getElementById(con ? 'sf-con' : 'sf-sem').classList.remove('hidden');
+  document.getElementById('btn-desc').classList.toggle('hidden', !con);
+  document.querySelectorAll(con ? '.brn-sem' : '.brn-con').forEach(function(e){ e.remove(); });
+</script>
+</body>
+</html>

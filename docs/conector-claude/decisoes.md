@@ -113,3 +113,25 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     conector vem de `SOFTFLOW_PUBLIC_URL` (decisão #13). Sem a variável, o bloco aparece sem
     endereço. **Por quê:** o endereço é de outro sistema (Squad IA) e pode mudar sem deploy de código
     no Softflow; o bloco continua útil mesmo sem ele.
+
+19. **O modal "Conexão com o Claude" passa a ter duas colunas, no padrão da tela de autorização:
+    coluna escura à esquerda explicando o que a conexão faz e por que o Brainiac ajuda, coluna clara
+    à direita com as seções Softflow e Brainiac.** Revoga a forma do bloco da decisão #17 (quadro
+    abaixo das informações do Softflow); o resto da #17 continua (recomendação nos dois estados, sem
+    status do Brainiac). Com o Softflow conectado, a seção do Brainiac mostra o próprio passo a passo;
+    sem conexão, só "Adicione do mesmo jeito". Botões de copiar só com ícone. **Por quê:** o usuário
+    achou o modal com o bloco empilhado comprido demais e escolheu, entre as propostas de 2026-11-25
+    (abas, lista recolhida, faixa e duas colunas), o modal largo em duas colunas. Os passos próprios
+    do Brainiac existem porque, conectado, os do Softflow não aparecem e "do mesmo jeito" ficaria sem
+    referência.
+
+20. **As telas do conector usam o logo oficial do Claude e o ícone do Softflow (`icon.png`) no lugar
+    das letras "C" e "S".** O logo do Claude vem do kit de imprensa oficial da Anthropic, sem
+    alteração, seguindo as diretrizes de marca dela; sem o arquivo oficial, fica o "C". **Por quê:**
+    pedido do usuário (2026-11-25) para a pessoa reconhecer de cara os dois sistemas. O logo é marca
+    da Anthropic: usar o arquivo oficial evita uma versão redesenhada ou fora das regras de uso.
+
+21. **O Client ID do Brainiac também vem de variável (`BRAINIAC_OAUTH_CLIENT_ID`) e aparece no
+    modal com botão de copiar.** Complementa a decisão #18. **Por quê:** o Brainiac não usa o
+    registro automático de clientes; quem adiciona o conector precisa informar `brainiac-claude-ai`
+    em Advanced settings (informado pelo usuário em 2026-11-25), e o valor é de outro sistema.

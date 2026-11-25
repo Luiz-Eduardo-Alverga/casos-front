@@ -201,9 +201,10 @@ planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 
 - **Conector do Claude: contexto do Brainiac para quem conecta** (planejado em 2026-11-25). As
   instruções do servidor MCP e o `softflow_eu` passam a apontar a skill `xp-planejar` do catálogo
-  do Brainiac, e o modal "Conexão com o Claude" ganha o bloco "Conecte também o Brainiac" com o
-  endereço vindo de `BRAINIAC_MCP_URL`. Ver "Próxima mudança planejada" em
-  [`conector-claude/`](conector-claude/README.md); falta o endereço do MCP do Brainiac.
+  do Brainiac, o modal "Conexão com o Claude" passa a ter duas colunas (explicação à esquerda,
+  Softflow e Brainiac à direita, com endereço e Client ID do Brainiac por variável) e as telas do
+  conector ganham os logos do Claude e do Softflow. Ver "Próxima mudança planejada" em
+  [`conector-claude/`](conector-claude/README.md).
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).
