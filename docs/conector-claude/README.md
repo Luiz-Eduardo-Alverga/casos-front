@@ -435,6 +435,28 @@ Resposta (2026-11-19, Claude Code): B. O endereço atual é `https://softflow.ho
 - [x] Parte 5: menu do usuário e modal "Conexão com o Claude" (2026-11-19). `GET`/`DELETE` em `app/api/db/claude-conexao/route.ts`, `services/conector-claude/conexao.ts`, `hooks/claude-conexao/use-claude-conexao.ts`, `components/conector-claude/conexao-modal/` e o item **Claude** em `components/header/user-dropdown.tsx`. O passo 3 do "sem conexão" inclui digitar a senha (decisão #14). Conferido no navegador: pílula "Não conectado"/"Conectado", modal nos dois estados, endereço do conector, confirmação e Desconectar; depois de desconectar a conexão fica revogada (`motivo_revogacao = usuario`) e o `/api/mcp` responde 401
 - [x] Parte 6: publicação e orientação (2026-11-19). Variáveis e checagem pós-publicação em [`deploy/`](../deploy/README.md#conector-do-claude-apimcp), passo a passo no modal e neste README, README no formato padrão. Publicar (merge na `master`) e o teste no Claude de verdade dependem do usuário
 
+### Contexto do Brainiac (mudança de 2026-11-25)
+
+Fase 0 (2026-11-25): todos os arquivos citados no plano existem e servem como descrito
+(`lib/conector-claude/config.ts`, `lib/conector-claude/mcp/servidor.ts`, `app/api/db/claude-conexao/route.ts`,
+`services/conector-claude/conexao.ts`, `components/conector-claude/conexao-modal/index.tsx`,
+`components/conector-claude/autorizar/autorizar-cabecalho.tsx`, `public/images/icon.png`); nenhuma
+decisão de outra pasta conflita; as duas perguntas em aberto do planejamento já têm resposta.
+Decidido pelo Claude Code: as variáveis do Brainiac também entram no `.env.example` (o deploy lê
+`.env` por `env_file`, sem mudar o `docker-compose.yml`); o painel do Brainiac na coluna escura
+reaproveita as classes do quadro da pessoa em `autorizar/index.tsx`
+(`border-primary-foreground/15 bg-primary-foreground/5`). O logo do Claude (item 5) depende de
+baixar o arquivo do kit de imprensa da Anthropic, o que pede o ok do usuário; sem ele fica o "C"
+(decisão #20).
+
+- [x] Fase 0 (2026-11-25)
+- [ ] 1: variáveis `BRAINIAC_*`, `getBrainiacConector()` e `brainiac` no `GET /api/db/claude-conexao`
+- [ ] 2: `INSTRUCOES` e a linha do `softflow_eu`
+- [ ] 3: `public/images/claude.svg` e os logos na autorização e no modal
+- [ ] 4: modal em duas colunas com `EnderecoCopiavel` (dois estados e mobile)
+- [ ] 5: conferência (lint, build, navegador, cliente MCP do SDK)
+- [ ] 6: README no formato padrão e status
+
 ### Plano de implementação (original)
 
 Um commit por parte, na `dev`, com escopo `(conector-claude)`.
