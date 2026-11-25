@@ -644,7 +644,8 @@ migração é a `0012`, gerada com `npm run db:migrate`; anexos chamam as funç�
 (sem passar pela rota), com a mesma checagem de `list-case-attachment` pelas permissões da conexão.
 
 - [x] Fase 0 (2026-11-25)
-- [ ] Parte 1: consulta completa (seções, `secoes`, anexos com permissão, descrição da ferramenta, `INSTRUCOES`)
+- [x] Parte 1: consulta completa (2026-11-25). `lib/conector-claude/mcp/consulta.ts` (a consulta saiu de `caso.ts`): seções de textos, anotações (30 mais recentes + "+n anotações antigas"), clientes, relações (reserva em `/projeto-casos-relacoes` se a chave não vier) e anexos com link assinado de 5 min (`list-case-attachment`), parâmetro `secoes`, descrição da ferramenta e linha nova nas `INSTRUCOES`. Datas do legado reformatadas sem converter fuso; anexos em `America/Sao_Paulo`. Conferido com o JSON real dos casos 104106 e 95348 (anotações, cliente, descrição com `
+`), anexos reais do 95348 no S3, sem a permissão, caso sem anexos, 35 anotações e uma relação montada (nenhum caso recente com relação encontrado), e pelo cliente MCP do SDK (instruções, esquema de `secoes`, seção inválida recusada). A chamada completa com uma conexão real fica para o teste no Claude
 - [ ] Parte 2: loopback e tipo de cliente (`isRedirectUriPermitida`, `tipo_cliente` + migração, revogação por tipo, título da autorização, `GET`/`DELETE` de `claude-conexao`)
 - [ ] Parte 3: modal (seletor Claude/Claude Code, campo dentro do passo, lista de conexões, desconectar por tipo)
 - [ ] Parte 4: README no formato padrão e status
