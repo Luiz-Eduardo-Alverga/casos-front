@@ -7,6 +7,7 @@ import {
   oauthClientes,
   oauthCodigos,
 } from "@/db/schema";
+import type { TipoCliente } from "@/lib/conector-claude/config";
 
 export type OauthClienteRow = typeof oauthClientes.$inferSelect;
 export type ClaudeConexaoRow = typeof claudeConexoes.$inferSelect;
@@ -40,12 +41,14 @@ export async function getOauthClienteById(
 /* ─── Conexões ───────────────────────────────────────────────────────────── */
 
 /**
- * Cria a conexão da pessoa e revoga a anterior (uma conexão ativa por pessoa, decisão #11).
+ * Cria a conexão da pessoa e revoga a anterior do mesmo tipo de cliente (uma conexão ativa por
+ * pessoa e tipo, decisão #25, que revoga a #11): conectar o Claude Code não derruba o Claude.
  */
 export async function insertConexaoRevogandoAnteriores(input: {
   appUserId: string;
   clienteId: string;
   legacyTokenCifrado: string;
+  tipoCliente: TipoCliente;
 }): Promise<ClaudeConexaoRow> {
   return db.transaction(async (tx) => {
     await tx
@@ -54,6 +57,7 @@ export async function insertConexaoRevogandoAnteriores(input: {
       .where(
         and(
           eq(claudeConexoes.appUserId, input.appUserId),
+          eq(claudeConexoes.tipoCliente, input.tipoCliente),
           isNull(claudeConexoes.revogadoEm),
         ),
       );
@@ -125,10 +129,11 @@ export async function getConexaoAtivaByAccessHash(
   return row ?? null;
 }
 
-export async function getConexaoAtivaByAppUserId(
+/** Conexões ativas da pessoa, a mais recente primeiro (no máximo uma por tipo de cliente). */
+export async function listConexoesAtivasByAppUserId(
   appUserId: string,
-): Promise<ClaudeConexaoRow | null> {
-  const [row] = await db
+): Promise<ClaudeConexaoRow[]> {
+  return db
     .select()
     .from(claudeConexoes)
     .where(
@@ -137,9 +142,7 @@ export async function getConexaoAtivaByAppUserId(
         isNull(claudeConexoes.revogadoEm),
       ),
     )
-    .orderBy(desc(claudeConexoes.criadoEm))
-    .limit(1);
-  return row ?? null;
+    .orderBy(desc(claudeConexoes.criadoEm));
 }
 
 export async function updateConexaoLegacyToken(
@@ -172,9 +175,11 @@ export async function revogarConexao(
 }
 
 /** Revoga todas as conexões ativas da pessoa; devolve quantas foram revogadas. */
+/** Revoga as conexões ativas da pessoa; com `tipo`, só as daquele tipo de cliente. */
 export async function revogarConexoesDoUsuario(
   appUserId: string,
   motivo: MotivoRevogacao,
+  tipo?: TipoCliente,
 ): Promise<number> {
   const rows = await db
     .update(claudeConexoes)
@@ -183,6 +188,7 @@ export async function revogarConexoesDoUsuario(
       and(
         eq(claudeConexoes.appUserId, appUserId),
         isNull(claudeConexoes.revogadoEm),
+        tipo ? eq(claudeConexoes.tipoCliente, tipo) : undefined,
       ),
     )
     .returning({ id: claudeConexoes.id });

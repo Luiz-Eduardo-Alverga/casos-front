@@ -122,10 +122,14 @@ Integrações laterais (não são telas, mas fazem parte da experiência):
 
 - **Discord** — DM ao dev quando um caso é aberto/clonado; aviso quando report é concluído.
 - **Assistant** — preenchimento assistido de descrição de caso/report.
-- **Conector do Claude** (na `dev`, ainda não publicado) — o Softflow como servidor MCP
+- **Conector do Claude** (em produção desde 2026-11-19) — o Softflow como servidor MCP
   (`/api/mcp`, OAuth próprio) para o Claude abrir e consultar casos em nome de quem conectou;
   cada pessoa conecta pelo endereço `https://softflow.hostsoftcom.cloud/api/mcp` e desfaz pelo
-  menu do usuário → Claude. Ver [`conector-claude/`](conector-claude/README.md).
+  menu do usuário → Claude. O conector também aponta o Brainiac (instruções do MCP, `softflow_eu`
+  e recomendação no modal) para o Claude planejar com a skill `xp-planejar` (2026-11-25, na `dev`).
+  Também na `dev` (2026-11-25): a consulta traz o caso completo (textos, anotações, clientes,
+  relações e anexos) para o dev implementar, e o Claude Code conecta (retorno loopback), com uma
+  conexão por tipo de cliente. Ver [`conector-claude/`](conector-claude/README.md).
 - **Anexos** — upload no S3 da Softcom (presign/multipart pelo servidor), para casos e documentação.
 
 ---

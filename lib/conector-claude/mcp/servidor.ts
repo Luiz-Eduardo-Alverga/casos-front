@@ -2,7 +2,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { temPermissao, type ConectorSession } from "@/lib/api-db/with-conector-permission";
 import { comTokenDaConexao } from "@/lib/conector-claude/legacy-token";
-import { abrirCaso, consultarCaso, erroDaApi, prepararCaso } from "./caso";
+import { abrirCaso, erroDaApi, prepararCaso } from "./caso";
+import { consultarCaso, SECOES_CONSULTA } from "./consulta";
 import {
   filtrarPorBusca,
   listarCategorias,
@@ -33,6 +34,8 @@ const INSTRUCOES = [
   "Conector do Softflow, o sistema de casos da Softcom. Use o vocabulário do produto: caso (nunca ticket), produto, versão, projeto, dev atribuído.",
   "Para abrir um caso: 1) descubra os IDs pelo nome com softflow_buscar_opcoes; 2) chame softflow_preparar_caso; 3) mostre a prévia à pessoa e pergunte se pode abrir; 4) só com a confirmação, chame softflow_abrir_caso com o código da prévia.",
   "Nunca abra um caso sem a pessoa confirmar a prévia. Se houver dois resultados com o mesmo nome, pergunte qual é.",
+  "Para planejar uma funcionalidade ou escrever o texto de um caso, use a skill xp-planejar do catálogo do Brainiac: se as ferramentas do Brainiac estiverem na conversa, leia-a com brainiac_skills_list (vault \"engenharia\", busca \"xp-planejar\") e brainiac_skill_read antes de começar, e siga o passo 7 dela para abrir o caso. Se o Brainiac não estiver conectado, avise a pessoa uma vez que o planejamento fica sem o contexto dos produtos e que ela pode conectá-lo (o endereço está no Softflow, menu do usuário → Claude). Abrir um caso já planejado não depende do Brainiac.",
+  "Para implementar, testar ou revisar um caso, chame softflow_consultar_caso com o número antes de começar: ela traz descrição, anotações, clientes, relações e anexos.",
 ].join("\n");
 
 /** Servidor MCP de uma requisição, com as ferramentas fechadas sobre a conexão da pessoa. */
@@ -61,6 +64,7 @@ export function criarServidorMcp(session: ConectorSession): McpServer {
           [
             `Pessoa: ${appUser.nome} (registro ${appUser.legacyUserId}), setor ${appUser.setor}.`,
             `Pode abrir casos: ${podeAbrir ? "sim" : "não (só consulta)"}.`,
+            "Contexto dos produtos: conecte também o Brainiac e use a skill xp-planejar do catálogo dele.",
             "",
             `Projetos do setor ${appUser.setor}:`,
             ...(projetos.length
@@ -202,13 +206,21 @@ export function criarServidorMcp(session: ConectorSession): McpServer {
     {
       title: "Consultar caso",
       description:
-        "Resumo de um caso pelo número: produto, versão, projeto, status, dev, QA, resumo e link.",
-      inputSchema: { registro: idSchema.describe("Número do caso") },
+        "Caso completo pelo número, para implementar, testar ou revisar: produto, versão, projeto, status, dev, QA e link, e em seções Markdown a descrição (com passos, informações adicionais e história), as anotações (30 mais recentes), os clientes, as relações e os anexos com link de download que vence em 5 minutos. Use `secoes` para pedir só parte quando o caso for grande.",
+      inputSchema: {
+        registro: idSchema.describe("Número do caso"),
+        secoes: z
+          .array(z.enum(SECOES_CONSULTA))
+          .optional()
+          .describe(
+            "Seções além do cabeçalho: descricao, anotacoes, clientes, relacoes, anexos. Padrão: todas.",
+          ),
+      },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
-    async ({ registro }) => {
+    async ({ registro, secoes }) => {
       if (!temPermissao(permissions, "list-case")) return semPermissao("consultar casos");
-      return texto(await consultarCaso(session, registro));
+      return texto(await consultarCaso(session, registro, secoes));
     },
   );
 

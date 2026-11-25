@@ -39,17 +39,29 @@ coberto.
 | Notificações no Discord | [`casos/`](casos/README.md), [`reports/`](reports/README.md) | Caso concluído (2026-08-24); opção de desativar por usuário (2026-08-24) |
 | Anexos no S3 da Softcom | [`camada-de-dados/`](camada-de-dados/README.md) | Troca de bucket (2026-10-07); aba de anexos (2026-10-07) |
 | Deploy na VPS (Swarm + GitHub Actions) | [`deploy/`](deploy/README.md) | Ambiente Docker (2026-08-14); doc ajustada (2026-10-13) |
+| Conector do Claude: abrir e consultar casos pelo chat (`/api/mcp`) | [`conector-claude/`](conector-claude/README.md) | Publicado (2026-11-19); teste ponta a ponta no Claude de verdade (2026-11-19): conexão, catálogos, prévia, abertura do caso 104203 e consulta |
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
-- **Conector do Claude: abrir casos pelo chat** (2026-11-19, na `dev`, não publicado). Servidor
-  MCP `/api/mcp` com OAuth próprio (metadados, DCR, `/oauth/autorizar` com senha, token com PKCE e
-  rotação), cinco ferramentas (eu, buscar opções, preparar prévia, abrir caso idempotente,
-  consultar caso) e o item "Claude" no menu do usuário com o modal de conexão. Migração `0011`
-  aplicada no banco do `.env`. Testado no dev server com o cliente MCP do SDK e no navegador;
-  **falta publicar** (variáveis `SOFTFLOW_PUBLIC_URL` e `CLAUDE_CONECTOR_CHAVE` na VPS, ver
-  [`deploy/`](deploy/README.md)) e testar no Claude de verdade. Ajustar depois o passo 7 da skill
-  `planejar-softcom`. Ver [`conector-claude/`](conector-claude/README.md).
+- **Conector do Claude: contexto do Brainiac** (2026-11-25, na `dev`). As instruções do servidor MCP
+  e o `softflow_eu` apontam a skill `xp-planejar` do catálogo do Brainiac. O modal "Conexão com o
+  Claude" ficou em duas colunas, com a recomendação do Brainiac (endereço e Client ID por
+  `BRAINIAC_MCP_URL` e `BRAINIAC_OAUTH_CLIENT_ID`). A autorização e o modal ganharam o logo oficial
+  do Claude e o ícone do Softflow. Conferido com o build, o cliente MCP do SDK e o navegador
+  (estados, sem variáveis, 390px). Falta pôr as duas variáveis no `.env` da VPS, publicar e testar
+  no Claude de verdade (depende de a `xp-planejar` estar publicada no Brainiac). Ver
+  [`conector-claude/`](conector-claude/README.md).
+
+- **Conector do Claude: consulta completa do caso e Claude Code** (2026-11-25, na `dev`).
+  `softflow_consultar_caso` traz descrição e demais textos, anotações (30 mais recentes), clientes,
+  relações e anexos com link de 5 min (parâmetro `secoes`). O login aceita o Claude Code (retorno
+  loopback `http://localhost|127.0.0.1:<porta>/callback`). Cada pessoa tem uma conexão por tipo de
+  cliente (migração `0012`, já aplicada no banco do `.env`). O modal ganhou o seletor Claude/Claude
+  Code e uma linha por conexão, cada uma com o próprio Desconectar. Conferido com dados reais,
+  regras de retorno, DCR, a tela e o modal (estados e 390px). Falta o ponta a ponta no Claude Code
+  sem derrubar a conexão do app, a consulta com conexão real num caso com relação e publicar. Ver
+  [`conector-claude/`](conector-claude/README.md).
+
 - **Padrão único de gatilho de select/combobox** (2026-11-19, na `dev`). Combobox
   (`components/ui/combobox.tsx`), multi-selects (`components/ui/v2/combobox2.tsx`, input e chips)
   e o seletor de mês seguem o `SelectTrigger`: seta só para baixo, sem fundo no hover, fundo

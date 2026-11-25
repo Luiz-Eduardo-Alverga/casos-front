@@ -340,7 +340,8 @@ export const oauthClientes = pgTable("oauth_clientes", {
 
 /**
  * Conexão de uma pessoa com o Claude. Guarda o token Soft Flow próprio da conexão (cifrado)
- * e os tokens OAuth entregues ao Claude (só hash SHA-256). Uma conexão ativa por pessoa.
+ * e os tokens OAuth entregues ao Claude (só hash SHA-256). Uma conexão ativa por pessoa e tipo de
+ * cliente (decisão #25).
  */
 export const claudeConexoes = pgTable(
   "claude_conexoes",
@@ -369,6 +370,8 @@ export const claudeConexoes = pgTable(
     revogadoEm: timestamp("revogado_em", { withTimezone: true }),
     /** 'usuario' | 'expirado' | 'reconectou' */
     motivoRevogacao: text("motivo_revogacao"),
+    /** 'claude' (app e web) | 'claude-code'; uma conexão ativa por pessoa e tipo (decisão #25). */
+    tipoCliente: text("tipo_cliente").notNull().default("claude"),
   },
   (t) => [index("claude_conexoes_app_user_id_idx").on(t.appUserId)],
 );

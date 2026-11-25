@@ -2,7 +2,11 @@ import { requireSessionAuth } from "@/lib/auth-server";
 import { syncAppUserAndPermissions } from "@/lib/auth/sync-app-user";
 import { rateLimitByKey } from "@/lib/api-public/rate-limit";
 import { jsonError, jsonOk } from "@/lib/api-db/responses";
-import { CODIGO_TTL_MS, getPublicOrigin } from "@/lib/conector-claude/config";
+import {
+  CODIGO_TTL_MS,
+  getPublicOrigin,
+  tipoClienteDoRedirect,
+} from "@/lib/conector-claude/config";
 import { gerarTokenAleatorio, hashToken } from "@/lib/conector-claude/crypto";
 import {
   cifrarTokenLegacy,
@@ -115,6 +119,7 @@ export async function POST(request: Request) {
       appUserId,
       clienteId: cliente.id,
       legacyTokenCifrado: cifrarTokenLegacy(tokenLegacy),
+      tipoCliente: tipoClienteDoRedirect(pedido.redirect_uri),
     });
 
     const codigo = gerarTokenAleatorio();
@@ -128,7 +133,7 @@ export async function POST(request: Request) {
     });
 
     console.info(
-      `[conector-claude] Conexão criada: conexao=${conexao.id} app_user=${appUserId}`,
+      `[conector-claude] Conexão criada: conexao=${conexao.id} app_user=${appUserId} tipo=${conexao.tipoCliente}`,
     );
 
     return jsonOk({

@@ -326,33 +326,3 @@ export async function abrirCaso(session: ConectorSession, codigoPrevia: string):
     return `O Softflow recusou a abertura: ${erroDaApi(error, "erro ao criar caso")}. Ajuste e gere uma prévia nova.`;
   }
 }
-
-/** Resumo de um caso pelo número (`GET /projeto-memoria/{id}`). */
-export async function consultarCaso(session: ConectorSession, registro: string): Promise<string> {
-  const id = s(registro).replace(/^#/, "");
-  if (!/^\d+$/.test(id)) return "Informe o número do caso (só dígitos).";
-  try {
-    const data = await comTokenDaConexao(session.conexao, async (auth) => {
-      const r = await api.get(`/projeto-memoria/${id}`, { headers: auth });
-      return r.data as { data?: Record<string, any> };
-    });
-    const item = data?.data;
-    if (!item?.caso) return `Caso ${id} não encontrado.`;
-    const { caso, produto, projeto } = item;
-    const linhas = [
-      `Caso ${caso.id}: ${s(caso.textos?.descricao_resumo) || "(sem resumo)"}`,
-      `- Produto: ${s(produto?.nome)} (${s(produto?.id)}), versão ${s(produto?.versao) || "-"}`,
-      `- Projeto: ${s(projeto?.descricao)} (${s(projeto?.id)})`,
-      `- Status: ${s(caso.status?.descricao) || "-"}`,
-      `- Dev: ${s(caso.usuarios?.desenvolvimento?.nome) || "-"}; QA: ${s(caso.usuarios?.qa?.nome) || "-"}`,
-      `- Relator: ${s(caso.usuarios?.relator?.nome) || "-"}; aberto em ${s(caso.datas?.abertura).slice(0, 10) || "-"}`,
-      `- Importância: ${s(caso.caracteristicas?.prioridade) || "-"}; categoria: ${s(caso.caracteristicas?.tipo_categoria) || "-"}`,
-      `- Link: ${linkDoCaso(caso.id)}`,
-    ];
-    return linhas.join("\n");
-  } catch (error) {
-    const status = (error as { response?: { status?: number } })?.response?.status;
-    if (status === 404) return `Caso ${id} não encontrado.`;
-    return `Não foi possível consultar o caso ${id}: ${erroDaApi(error, "erro na consulta")}.`;
-  }
-}

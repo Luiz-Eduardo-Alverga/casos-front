@@ -94,3 +94,79 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     conhecido e o formulário da tela também não valida tamanho (`casoCreateFormSchema` só exige
     `min(1)`); escolha do usuário em 2026-11-19 (opção B da P2). Ajusta a promessa da decisão #6:
     o caso, se criado, é exatamente o da prévia; a recusa por tamanho só aparece na abertura.
+
+16. **O próprio conector aponta para o contexto do Brainiac.** As instruções do servidor MCP mandam
+    o Claude ler a skill `xp-planejar` do catálogo do Brainiac antes de planejar ou escrever um caso,
+    e avisar uma vez quando o Brainiac não estiver conectado; o `softflow_eu` repete o lembrete numa
+    linha fixa. Abrir um caso já planejado continua não dependendo do Brainiac. **Por quê:** cada
+    pessoa usa conta pessoal do Claude (decisão #12), sem configuração central. O conector é a única
+    coisa que toda pessoa que abre caso pelo Claude tem, então é por ele que o caminho chega a quem
+    é novo, sem instalar skill (planejamento de 2026-11-25).
+
+17. **O modal "Conexão com o Claude" recomenda conectar o Brainiac, nos dois estados, sempre com o
+    mesmo bloco.** **Por quê:** o usuário quer deixar explícito para quem conecta que o Brainiac
+    faz falta para planejar. O Softflow não tem como saber se a pessoa conectou o Brainiac no Claude
+    dela, então o bloco não mostra status nem some; o texto diz que, se já conectou, não precisa
+    fazer nada.
+
+18. **O endereço do Brainiac no modal vem da variável `BRAINIAC_MCP_URL`**, como o endereço do
+    conector vem de `SOFTFLOW_PUBLIC_URL` (decisão #13). Sem a variável, o bloco aparece sem
+    endereço. **Por quê:** o endereço é de outro sistema (Squad IA) e pode mudar sem deploy de código
+    no Softflow; o bloco continua útil mesmo sem ele.
+
+19. **O modal "Conexão com o Claude" passa a ter duas colunas, no padrão da tela de autorização:
+    coluna escura à esquerda explicando o que a conexão faz e por que o Brainiac ajuda, coluna clara
+    à direita com as seções Softflow e Brainiac.** Revoga a forma do bloco da decisão #17 (quadro
+    abaixo das informações do Softflow); o resto da #17 continua (recomendação nos dois estados, sem
+    status do Brainiac). Com o Softflow conectado, a seção do Brainiac mostra o próprio passo a passo;
+    sem conexão, só "Adicione do mesmo jeito". Botões de copiar só com ícone. **Por quê:** o usuário
+    achou o modal com o bloco empilhado comprido demais e escolheu, entre as propostas de 2026-11-25
+    (abas, lista recolhida, faixa e duas colunas), o modal largo em duas colunas. Os passos próprios
+    do Brainiac existem porque, conectado, os do Softflow não aparecem e "do mesmo jeito" ficaria sem
+    referência.
+
+20. **As telas do conector usam o logo oficial do Claude e o ícone do Softflow (`icon.png`) no lugar
+    das letras "C" e "S".** O logo do Claude vem do kit de imprensa oficial da Anthropic, sem
+    alteração, seguindo as diretrizes de marca dela; sem o arquivo oficial, fica o "C". **Por quê:**
+    pedido do usuário (2026-11-25) para a pessoa reconhecer de cara os dois sistemas. O logo é marca
+    da Anthropic: usar o arquivo oficial evita uma versão redesenhada ou fora das regras de uso.
+
+21. **O Client ID do Brainiac também vem de variável (`BRAINIAC_OAUTH_CLIENT_ID`) e aparece no
+    modal com botão de copiar.** Complementa a decisão #18. **Por quê:** o Brainiac não usa o
+    registro automático de clientes; quem adiciona o conector precisa informar `brainiac-claude-ai`
+    em Advanced settings (informado pelo usuário em 2026-11-25), e o valor é de outro sistema.
+
+22. **`softflow_consultar_caso` devolve o caso completo: textos (descrição, passos, informações
+    adicionais, história), anotações, clientes, relações e anexos**, em seções Markdown, com o
+    parâmetro opcional `secoes` para pedir só parte. Anotações limitadas às 30 mais recentes.
+    **Por quê:** o conector passou a ser usado por devs no Claude Code para implementar o caso, e a
+    consulta só trazia o cabeçalho; o usuário notou que faltavam anotações, clientes e relações
+    (2026-11-25). Os dados já vêm no `GET /projeto-memoria/{id}`, então não há chamada nova ao legado
+    além de relações (se não vierem ali) e anexos.
+
+23. **Anexos aparecem na consulta como lista com link de download assinado, só para quem tem
+    `list-case-attachment`.** **Por quê:** o dev precisa ver prints e arquivos do caso para
+    implementar; a lista com link é o que a aba Anexos já faz, com a mesma permissão. Baixar o
+    conteúdo pelo MCP ficou de fora: o link basta e evita trafegar arquivos grandes pelo conector.
+    Decisão tomada no planejamento; o usuário pode tirar a seção sem afetar o resto.
+
+24. **O login aceita o Claude Code: além dos dois endereços do Claude na web, endereços loopback
+    `http://localhost:<porta>/callback` e `http://127.0.0.1:<porta>/callback`, qualquer porta.**
+    Revoga em parte a decisão #4 (só os endereços do Claude); o resto da #4 (comparação exata, nada
+    fora da lista) continua. **Por quê:** a squad está levando o conector para os devs, que usam o
+    Claude Code, e ele só faz login com retorno para a máquina local (2026-11-25). Loopback com PKCE
+    S256 é o padrão para aplicativos nativos (RFC 8252): o código só chega a quem está na máquina da
+    pessoa e só vale com o verificador do PKCE. A pessoa continua digitando a senha e confirmando na
+    tela de autorização, que passa a dizer "Claude Code".
+
+25. **Uma conexão ativa por pessoa e por tipo de cliente (Claude no app e na web, Claude Code), e o
+    modal lista as duas, cada uma com o próprio Desconectar.** Revoga a decisão #11. **Por quê:** o
+    mesmo dev usa o Claude no app para planejar e o Claude Code para implementar; com uma conexão
+    por pessoa, conectar um derrubaria o outro. O tipo sai do `redirect_uri` (loopback = Claude
+    Code), que é o que de fato diferencia os dois clientes.
+
+26. **No passo a passo do modal, o campo de copiar (endereço ou comando) fica dentro do passo que o
+    usa, logo abaixo do texto, e não depois da lista.** Vale para as abas Claude (app e web) e Claude
+    Code da seção Softflow. **Por quê:** com o comando do Claude Code abaixo do passo 3, o usuário
+    leu o passo 2 ("digite /mcp e escolha softflow") sem ter visto o comando que faz o softflow
+    aparecer, e o fluxo ficou confuso (2026-11-25).

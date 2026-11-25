@@ -1,0 +1,1 @@
+ALTER TABLE "claude_conexoes" ADD COLUMN "tipo_cliente" text DEFAULT 'claude' NOT NULL;

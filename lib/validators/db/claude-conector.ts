@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TIPOS_CLIENTE } from "@/lib/conector-claude/config";
 
 /** Corpo do DCR (RFC 7591). Campos não usados são ignorados. */
 export const oauthRegisterBodySchema = z.object({
@@ -54,3 +55,8 @@ export const oauthTokenBodySchema = z.discriminatedUnion("grant_type", [
 ]);
 
 export type OauthTokenBody = z.infer<typeof oauthTokenBodySchema>;
+
+/** `DELETE /api/db/claude-conexao?tipo=`: sem `tipo`, desconecta todas (decisão #25). */
+export const claudeConexaoDeleteQuerySchema = z.object({
+  tipo: z.enum(TIPOS_CLIENTE).optional(),
+});
