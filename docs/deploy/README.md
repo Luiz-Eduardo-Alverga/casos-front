@@ -95,6 +95,9 @@ Ver [`conector-claude/`](../conector-claude/README.md). Variáveis de **runtime*
 - A migração `0012_conector_claude_tipo_cliente` acrescenta `claude_conexoes.tipo_cliente`
   (default `'claude'`; compatível com o código anterior). Aplicada no banco do `.env` em
   2026-11-25; mesma regra se o banco de produção for outro.
+- A migração `0013_conector_claude_previa_tipo` acrescenta `claude_previas_caso.tipo` (`'caso'` |
+  `'lote'`, default `'caso'`; compatível com o código anterior). **Aplicar antes de publicar** o código
+  dos casos em lote: ele lê e grava a coluna, e sem ela até o `softflow_preparar_caso` falha.
 - O Claude Code faz login com retorno para `http://localhost:<porta>/callback` na máquina do dev:
   isso não passa pela VPS nem pelo Cloudflare, só o `/oauth/autorizar` e o `/api/oauth/*`.
 - O Claude chama de `160.79.104.0/21`. O Cloudflare na frente do Softflow não pode bloquear essa

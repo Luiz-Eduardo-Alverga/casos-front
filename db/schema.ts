@@ -402,6 +402,8 @@ export const claudePreviasCaso = pgTable(
     conexaoId: uuid("conexao_id")
       .notNull()
       .references(() => claudeConexoes.id, { onDelete: "cascade" }),
+    /** `caso` (softflow_preparar_caso) ou `lote` (softflow_preparar_casos). */
+    tipo: text("tipo").notNull().default("caso"),
     payload: jsonb("payload").$type<Record<string, unknown>>().notNull(),
     resumo: jsonb("resumo").$type<Record<string, unknown>>().notNull(),
     expiraEm: timestamp("expira_em", { withTimezone: true }).notNull(),

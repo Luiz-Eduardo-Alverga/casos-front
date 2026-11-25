@@ -4,6 +4,7 @@ import { temPermissao, type ConectorSession } from "@/lib/api-db/with-conector-p
 import { comTokenDaConexao } from "@/lib/conector-claude/legacy-token";
 import { abrirCaso, erroDaApi, prepararCaso } from "./caso";
 import { montarAgenda } from "./agenda";
+import { abrirCasos, MAX_CASOS_LOTE, MIN_CASOS_LOTE, prepararCasos } from "./lote";
 import { buscarCasos } from "./busca";
 import { consultarCaso, SECOES_CONSULTA } from "./consulta";
 import {
@@ -39,6 +40,7 @@ const INSTRUCOES = [
   "Nunca abra um caso sem a pessoa confirmar a prévia. Se houver dois resultados com o mesmo nome, pergunte qual é.",
   "Para planejar uma funcionalidade ou escrever o texto de um caso, use a skill xp-planejar do catálogo do Brainiac: se as ferramentas do Brainiac estiverem na conversa, leia-a com brainiac_skills_list (vault \"engenharia\", busca \"xp-planejar\") e brainiac_skill_read antes de começar, e siga o passo 7 dela para abrir o caso. Se o Brainiac não estiver conectado, avise a pessoa uma vez que o planejamento fica sem o contexto dos produtos e que ela pode conectá-lo (o endereço está no Softflow, menu do usuário → Claude). Abrir um caso já planejado não depende do Brainiac.",
   "Para implementar, testar ou revisar um caso, chame softflow_consultar_caso com o número antes de começar: ela traz descrição, anotações, clientes, relações e anexos.",
+  "Funcionalidade dividida em vários casos: use softflow_preparar_casos com um caso pai (novo ou existente) e as partes na ordem de execução; mostre a prévia do lote inteiro e só abra com o ok.",
   "Para pesquisar casos pelo conteúdo, combine o Brainiac (notas de caso e especificações) com softflow_buscar_casos e confirme os candidatos com softflow_consultar_caso.",
   "Para \"o que eu tenho para fazer hoje\", use softflow_agenda.",
 ].join("\n");
@@ -209,6 +211,96 @@ export function criarServidorMcp(session: ConectorSession): McpServer {
         return texto(await abrirCaso(session, codigo_previa));
       } catch (error) {
         return texto(`Não foi possível abrir o caso: ${erroDaApi(error, "erro")}.`, true);
+      }
+    },
+  );
+
+  server.registerTool(
+    "softflow_preparar_casos",
+    {
+      title: "Preparar prévia de vários casos (lote)",
+      description:
+        "Para uma funcionalidade dividida em vários casos: resolve de 2 a 15 casos (as partes, na ordem de execução) e o caso pai (um existente pelo número ou um novo aberto junto) e devolve uma prévia única com um código. Cada parte vira o caso \"<titulo_base> — PARTE n/N — <titulo>\" (zero à esquerda com 10 ou mais) e é aberta como filha do pai. Os campos de `comum` valem para todos (mesmos padrões de softflow_preparar_caso); os opcionais de cada parte sobrepõem só nela. Uma pendência em qualquer parte bloqueia o lote. Não cria nada: mostre a prévia à pessoa antes de abrir.",
+      inputSchema: {
+        pai: z
+          .object({
+            registro: idSchema.optional().describe("Número de um caso que já existe"),
+            novo: z
+              .object({
+                resumo: z.string().optional().describe("Título do pai (padrão: titulo_base)"),
+                descricao: z.string().describe("Descrição do pai; a lista das partes é acrescentada no fim"),
+                informacoes_adicionais: z.string().optional(),
+              })
+              .optional()
+              .describe("Abre um caso pai novo junto, antes das partes"),
+          })
+          .describe("Informe só um: registro ou novo"),
+        comum: z.object({
+          produto_id: idSchema.describe("ID do produto"),
+          versao: idSchema.describe("Versão: id (sequência) de softflow_buscar_opcoes ou o texto exato"),
+          projeto_id: idSchema.describe("ID do projeto"),
+          dev_id: idSchema.describe("ID da pessoa dev atribuída"),
+          qa_id: idSchema.optional(),
+          modulo: z.string().optional(),
+          importancia: idSchema.optional().describe("Padrão 3"),
+          categoria_id: idSchema.optional().describe("Padrão 4"),
+          origem_id: idSchema.optional().describe("Padrão 4"),
+          relator_id: idSchema.optional().describe("Padrão: a pessoa conectada"),
+          nao_planejado: z.boolean().optional().describe("Padrão false; só não planejado gera DM no Discord"),
+        }),
+        titulo_base: z.string().describe("Início do título comum às partes (ex.: Vendas 360 — Status ErroDeSincronização)"),
+        casos: z
+          .array(
+            z.object({
+              titulo: z.string().describe("Final do título desta parte"),
+              descricao: z.string(),
+              informacoes_adicionais: z.string().optional(),
+              dev_id: idSchema.optional(),
+              qa_id: idSchema.optional(),
+              modulo: z.string().optional(),
+              importancia: idSchema.optional(),
+              nao_planejado: z.boolean().optional(),
+            }),
+          )
+          .min(MIN_CASOS_LOTE)
+          .max(MAX_CASOS_LOTE)
+          .describe("As partes, na ordem de execução"),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (input) => {
+      if (!podeAbrir) return semPermissao("abrir casos");
+      try {
+        return texto(await prepararCasos(session, input));
+      } catch (error) {
+        return texto(`Não foi possível preparar a prévia do lote: ${erroDaApi(error, "erro")}.`, true);
+      }
+    },
+  );
+
+  server.registerTool(
+    "softflow_abrir_casos",
+    {
+      title: "Abrir lote de casos no Softflow",
+      description:
+        "Abre o lote exatamente como na prévia de softflow_preparar_casos: o pai (se novo), as partes na ordem e as relações \"É FILHO DE\"/\"É PAI DE\". Só chame depois de a pessoa confirmar a prévia. Se parar no meio, a resposta diz o que já foi aberto; chamar de novo com o mesmo código continua de onde parou, e depois de completo devolve o mesmo resultado sem criar nada.",
+      inputSchema: {
+        codigo_previa: z.string().describe("Código da prévia do lote (pl_...)"),
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    async ({ codigo_previa }) => {
+      if (!podeAbrir) return semPermissao("abrir casos");
+      try {
+        const r = await abrirCasos(session, codigo_previa);
+        return texto(r.texto, r.erro);
+      } catch (error) {
+        return texto(`Não foi possível abrir o lote: ${erroDaApi(error, "erro")}.`, true);
       }
     },
   );

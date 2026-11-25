@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios";
+import type { AuthorizationHeader } from "@/lib/auxiliar/catalogos";
 import { buildCasoCreatePayload } from "@/lib/casos/payload";
 import { criarCaso } from "@/lib/casos/criar-caso";
 import { getPublicOrigin, PREVIA_TTL_MS } from "@/lib/conector-claude/config";
@@ -48,13 +49,13 @@ export interface PrepararCasoInput {
   nao_planejado?: boolean;
 }
 
-interface CampoResolvido {
+export interface CampoResolvido {
   campo: string;
   valor: string;
   padrao?: boolean;
 }
 
-interface ResumoPrevia {
+export interface ResumoPrevia {
   campos: CampoResolvido[];
   pendencias: string[];
   naoPlanejado: boolean;
@@ -81,28 +82,80 @@ export function erroDaApi(error: unknown, padrao: string): string {
           .map(String)
           .join("; ")
       : "";
-  return [d?.message || d?.error || padrao, detalhes].filter(Boolean).join(": ");
+  const principal = d?.message || d?.error || padrao;
+  // O legado às vezes repete em `errors` a mesma frase de `message`.
+  const texto = detalhes && detalhes !== principal ? `${principal}: ${detalhes}` : principal;
+  return texto.replace(/\.+$/, "");
 }
 
 const s = (v: unknown) => (v == null ? "" : String(v).trim());
+
+/** Catálogos de uma requisição, buscados uma vez só (o lote resolve vários casos seguidos). */
+export function criarCatalogosCache(auth: AuthorizationHeader, usuarioId: number) {
+  const memo = new Map<string, Promise<unknown>>();
+  const m = <T>(chave: string, f: () => Promise<T>): Promise<T> => {
+    if (!memo.has(chave)) memo.set(chave, f());
+    return memo.get(chave) as Promise<T>;
+  };
+  return {
+    produtos: () => m("produtos", () => listarProdutos(auth)),
+    pessoas: () => m("pessoas", () => listarPessoas(auth)),
+    categorias: () => m("categorias", () => listarCategorias(auth)),
+    origens: () => m("origens", () => listarOrigens(auth)),
+    importancias: () => m("importancias", () => listarImportancias(auth)),
+    versoes: (produtoId: string) => m(`versoes:${produtoId}`, () => listarVersoes(auth, produtoId)),
+    modulos: (produtoId: string) => m(`modulos:${produtoId}`, () => listarModulos(auth, produtoId)),
+    projetos: (setor?: string) =>
+      m(`projetos:${setor ?? ""}`, () => listarProjetos(auth, usuarioId, { setor })),
+  };
+}
+export type CatalogosCache = ReturnType<typeof criarCatalogosCache>;
+export type CasoCreatePayload = ReturnType<typeof buildCasoCreatePayload>;
 
 /**
  * Resolve e valida os campos, aplica os padrões e grava a prévia (15 min). Não cria nada.
  * Campo inválido não para a prévia: volta em "Falta resolver" (abrir recusa prévia com pendência).
  */
 export async function prepararCaso(session: ConectorSession, input: PrepararCasoInput) {
+  return comTokenDaConexao(session.conexao, async (auth) => {
+    const { payload, resumo: resumoPrevia } = await resolverCaso(
+      session,
+      criarCatalogosCache(auth, session.appUser.legacyUserId),
+      input,
+    );
+    const codigo = `pv_${gerarTokenAleatorio(9)}`;
+    await insertPrevia({
+      id: codigo,
+      conexaoId: session.conexao.id,
+      payload: payload as unknown as Record<string, unknown>,
+      resumo: resumoPrevia as unknown as Record<string, unknown>,
+      expiraEm: new Date(Date.now() + PREVIA_TTL_MS),
+    });
+    return { codigo, texto: textoDaPrevia(codigo, resumoPrevia) };
+  });
+}
+
+/**
+ * Resolve um caso (nomes, padrões, pendências) e monta o payload da criação, sem gravar nada.
+ * `linhaOrigem` substitui a linha da decisão #8 (o lote acrescenta o pai e o tamanho).
+ */
+export async function resolverCaso(
+  session: ConectorSession,
+  cat: CatalogosCache,
+  input: PrepararCasoInput,
+  opcoes: { linhaOrigem?: string } = {},
+): Promise<{ payload: CasoCreatePayload; resumo: ResumoPrevia }> {
   const { appUser } = session;
   const pendencias: string[] = [];
   const campos: CampoResolvido[] = [];
-
-  return comTokenDaConexao(session.conexao, async (auth) => {
+  {
     const produtoId = s(input.produto_id);
     const [produtos, pessoas, categorias, origens, importancias] = await Promise.all([
-      listarProdutos(auth),
-      listarPessoas(auth),
-      listarCategorias(auth),
-      listarOrigens(auth),
-      listarImportancias(auth),
+      cat.produtos(),
+      cat.pessoas(),
+      cat.categorias(),
+      cat.origens(),
+      cat.importancias(),
     ]);
 
     const produto = produtos.find((p) => p.id === produtoId);
@@ -113,7 +166,7 @@ export async function prepararCaso(session: ConectorSession, input: PrepararCaso
     let versaoSeq = "";
     let versoes: Versao[] = [];
     if (produto) {
-      const lista = await listarVersoes(auth, produto.id);
+      const lista = await cat.versoes(produto.id);
       versoes = lista.map((v) => ({ sequencia: v.id, versao: v.nome }) as Versao);
       const alvo = s(input.versao);
       const versao =
@@ -130,7 +183,7 @@ export async function prepararCaso(session: ConectorSession, input: PrepararCaso
     let modulo = "";
     if (s(input.modulo)) {
       if (produto) {
-        const modulos = await listarModulos(auth, produto.id);
+        const modulos = await cat.modulos(produto.id);
         const m = modulos.find((x) => normalizar(x.nome) === normalizar(s(input.modulo)));
         if (m) {
           modulo = m.nome;
@@ -142,10 +195,10 @@ export async function prepararCaso(session: ConectorSession, input: PrepararCaso
     }
 
     const projetoId = s(input.projeto_id);
-    let projetos = await listarProjetos(auth, appUser.legacyUserId, { setor: produto?.setor });
+    let projetos = await cat.projetos(produto?.setor);
     let projeto = projetos.find((p) => p.id === projetoId);
     if (!projeto) {
-      projetos = await listarProjetos(auth, appUser.legacyUserId);
+      projetos = await cat.projetos();
       projeto = projetos.find((p) => p.id === projetoId);
     }
     if (projeto) campos.push({ campo: "Projeto", valor: `${projeto.nome} (${projeto.id})` });
@@ -200,7 +253,7 @@ export async function prepararCaso(session: ConectorSession, input: PrepararCaso
     if (!descricao) pendencias.push("Descrição vazia.");
 
     const extras = String(input.informacoes_adicionais ?? "").trim();
-    const informacoesAdicionais = [extras, linhaOrigemClaude(appUser.nome)]
+    const informacoesAdicionais = [extras, opcoes.linhaOrigem ?? linhaOrigemClaude(appUser.nome)]
       .filter(Boolean)
       .join("\n\n");
     const naoPlanejado = input.nao_planejado === true;
@@ -235,17 +288,8 @@ export async function prepararCaso(session: ConectorSession, input: PrepararCaso
       informacoesAdicionais,
     };
 
-    const codigo = `pv_${gerarTokenAleatorio(9)}`;
-    await insertPrevia({
-      id: codigo,
-      conexaoId: session.conexao.id,
-      payload: payload as unknown as Record<string, unknown>,
-      resumo: resumoPrevia as unknown as Record<string, unknown>,
-      expiraEm: new Date(Date.now() + PREVIA_TTL_MS),
-    });
-
-    return { codigo, texto: textoDaPrevia(codigo, resumoPrevia) };
-  });
+    return { payload, resumo: resumoPrevia };
+  }
 }
 
 function textoDaPrevia(codigo: string, r: ResumoPrevia): string {
@@ -287,6 +331,9 @@ export async function abrirCaso(session: ConectorSession, codigoPrevia: string):
   const previa = await getPreviaDaConexao(codigoPrevia.trim(), session.conexao.id);
   if (!previa) {
     return `Prévia "${codigoPrevia}" não encontrada para esta conexão. Gere uma prévia com softflow_preparar_caso.`;
+  }
+  if (previa.tipo === "lote") {
+    return "Esta prévia é de um lote. Use softflow_abrir_casos com este código.";
   }
   if (previa.casoRegistro != null && previa.casoRegistro > 0) {
     return `Esta prévia já virou o caso ${previa.casoRegistro} (nenhum caso novo foi criado). Link: ${linkDoCaso(previa.casoRegistro)}`;

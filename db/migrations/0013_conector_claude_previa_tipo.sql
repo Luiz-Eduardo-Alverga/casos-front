@@ -1,0 +1,1 @@
+ALTER TABLE "claude_previas_caso" ADD COLUMN "tipo" text DEFAULT 'caso' NOT NULL;

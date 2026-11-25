@@ -205,6 +205,7 @@ export const PREVIA_ABRINDO = -1;
 export async function insertPrevia(input: {
   id: string;
   conexaoId: string;
+  tipo?: "caso" | "lote";
   payload: Record<string, unknown>;
   resumo: Record<string, unknown>;
   expiraEm: Date;
@@ -249,6 +250,17 @@ export async function setPreviaCasoRegistro(
   await db
     .update(claudePreviasCaso)
     .set({ casoRegistro })
+    .where(eq(claudePreviasCaso.id, id));
+}
+
+/** Grava o andamento de um lote (números abertos e relações criadas) no `payload` da prévia. */
+export async function setPreviaPayload(
+  id: string,
+  payload: Record<string, unknown>,
+): Promise<void> {
+  await db
+    .update(claudePreviasCaso)
+    .set({ payload })
     .where(eq(claudePreviasCaso.id, id));
 }
 
