@@ -180,10 +180,13 @@ com as regras do conector; nada a tratar no Softflow.
 
 ### Perguntas em aberto
 
-1. **(dev)** O `GET /projeto-memoria/{id}` já traz `caso.relacoes` preenchido, ou só a rota
-   `/projeto-casos-relacoes` traz? Define se a consulta faz uma ou duas chamadas (Fase 0).
-2. **(dev)** Qual a validade do link assinado dos anexos (`presign` de download)? Se for curta
-   (minutos), a seção avisa "o link vence em <n> minutos; consulte de novo para gerar outro".
+1. ~~**(dev)** O `GET /projeto-memoria/{id}` já traz `caso.relacoes`?~~ Respondida na Fase 0
+   (2026-11-25): sim. A resposta traz as chaves `anotacoes`, `relacoes` e `clientes` (conferido no
+   caso 104203; é também de onde a aba Relações lê, `caso-edit-form.tsx`). A consulta faz uma
+   chamada; `/projeto-casos-relacoes` fica só como reserva se a chave não vier.
+2. ~~**(dev)** Validade do link assinado dos anexos~~: respondida na Fase 0 (2026-11-25):
+   `SIGNED_DOWNLOAD_TTL_SEC = 300` (`lib/constants/case-attachments.ts`), 5 minutos. A seção avisa
+   "Os links vencem em 5 minutos; consulte de novo para gerar outros."
 
 ### Plano de implementação
 
@@ -626,6 +629,25 @@ baixar o arquivo do kit de imprensa da Anthropic, o que pede o ok do usuário; s
 - [x] 4: modal em duas colunas com `EnderecoCopiavel` (dois estados e mobile) (2026-11-25). A tela de confirmação do Desconectar passa a aparecer na coluna direita, com a esquerda fixa
 - [x] 5: conferência (2026-11-25); detalhes em "Testes feitos e pendências"
 - [x] 6: README no formato padrão e status (2026-11-25)
+
+### Consulta completa e Claude Code (mudança de 2026-11-25)
+
+Fase 0 (2026-11-25): os arquivos citados existem e servem como descrito (`consultarCaso` em
+`lib/conector-claude/mcp/caso.ts`, `isRedirectUriPermitida` usada por `app/api/oauth/register` e
+`lib/conector-claude/pedido-autorizacao.ts`, `claude_conexoes` em `db/schema.ts`, revogação em
+`lib/db/claude-conector.ts`, `listCaseAttachmentsByRegistro` + `createCaseAttachmentSignedDownloadUrl`
+por trás de `GET /api/db/casos/[registro]/anexos`). As duas perguntas em aberto foram respondidas pelo
+código e pela API (ver acima). Nenhuma decisão de outra pasta conflita; a #24 revoga em parte a #4 e
+a #25 revoga a #11, ambas registradas pelo planejamento. Decidido pelo Claude Code: o seletor
+Claude/Claude Code usa o `Tabs` de `components/ui/tabs.tsx` (pill discreto, `design-system.md`); a
+migração é a `0012`, gerada com `npm run db:migrate`; anexos chamam as funções de `lib/` direto
+(sem passar pela rota), com a mesma checagem de `list-case-attachment` pelas permissões da conexão.
+
+- [x] Fase 0 (2026-11-25)
+- [ ] Parte 1: consulta completa (seções, `secoes`, anexos com permissão, descrição da ferramenta, `INSTRUCOES`)
+- [ ] Parte 2: loopback e tipo de cliente (`isRedirectUriPermitida`, `tipo_cliente` + migração, revogação por tipo, título da autorização, `GET`/`DELETE` de `claude-conexao`)
+- [ ] Parte 3: modal (seletor Claude/Claude Code, campo dentro do passo, lista de conexões, desconectar por tipo)
+- [ ] Parte 4: README no formato padrão e status
 
 ### Plano de implementação (original)
 
