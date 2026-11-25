@@ -164,3 +164,9 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     mesmo dev usa o Claude no app para planejar e o Claude Code para implementar; com uma conexão
     por pessoa, conectar um derrubaria o outro. O tipo sai do `redirect_uri` (loopback = Claude
     Code), que é o que de fato diferencia os dois clientes.
+
+26. **No passo a passo do modal, o campo de copiar (endereço ou comando) fica dentro do passo que o
+    usa, logo abaixo do texto, e não depois da lista.** Vale para as abas Claude (app e web) e Claude
+    Code da seção Softflow. **Por quê:** com o comando do Claude Code abaixo do passo 3, o usuário
+    leu o passo 2 ("digite /mcp e escolha softflow") sem ter visto o comando que faz o softflow
+    aparecer, e o fluxo ficou confuso (2026-11-25).

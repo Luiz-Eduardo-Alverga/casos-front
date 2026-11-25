@@ -146,11 +146,16 @@ com as regras do conector; nada a tratar no Softflow.
    - **Sem conexão:** acima dos passos do Softflow, um seletor segmentado **Claude (app e web)** |
      **Claude Code** (abre em "Claude (app e web)"; lembra a última escolha em `localStorage`, com
      try/catch). Na aba Claude Code:
-     1. "No terminal, rode o comando abaixo." com o campo **Comando**
-        `claude mcp add --transport http softflow <endereço do conector>` e copiar só com ícone;
+     1. "No terminal, rode o comando:" com o campo do comando
+        `claude mcp add --transport http softflow <endereço do conector>` (copiar só com ícone)
+        **dentro do próprio passo**, logo abaixo do texto, e a nota "Adicione **--scope user** para
+        valer em todos os projetos.";
      2. "No Claude Code, digite **/mcp**, escolha **softflow** e **Authenticate**.";
-     3. "No Softflow, digite sua senha e clique em **Permitir acesso**.";
-     e a nota "Adicione **--scope user** para valer em todos os projetos."
+     3. "No Softflow, digite sua senha e clique em **Permitir acesso**."
+   - **O que copiar fica dentro do passo que o usa** (decisão #26): na aba Claude (app e web), o campo
+     do endereço do conector sai de baixo da lista e vai para dentro do passo 2 ("Cole o endereço e
+     clique em **Add**:"). Os passos são uma lista em que o item pode ter um bloco abaixo do texto,
+     alinhado com o texto (não com o número).
    - **Conectado:** o quadro de hoje vira uma lista com uma linha por tipo: **Claude (app e web)** e
      **Claude Code**, cada uma com "Desde … · usado há …" (ou "Para implementar casos no terminal"
      quando não conectada), a pílula Conectado/Não conectado e, à direita, o botão **Desconectar** só
