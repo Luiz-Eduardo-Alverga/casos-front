@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { format, formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { BookOpen, Check, Loader2, Plug, Sparkles, Unplug } from "lucide-react";
-import toast from "react-hot-toast";
+import { BookOpen, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,15 +10,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  useClaudeConexao,
-  useDesconectarClaude,
-} from "@/hooks/claude-conexao/use-claude-conexao";
-import type { ClaudeConexaoStatus } from "@/services/conector-claude/conexao";
+import { useClaudeConexao } from "@/hooks/claude-conexao/use-claude-conexao";
+import type {
+  ClaudeConexaoStatus,
+  TipoClienteConexao,
+} from "@/services/conector-claude/conexao";
 import { LogosConector } from "../logos-conector";
-import { ConexaoPill } from "./conexao-pill";
+import { CabecalhoSecao } from "./cabecalho-secao";
+import { ConfirmarDesconexao } from "./confirmar-desconexao";
 import { EnderecoCopiavel } from "./endereco-copiavel";
 import { PassosNumerados, type Passo } from "./passos-numerados";
+import { SecaoSoftflow } from "./secao-softflow";
 
 interface ConexaoClaudeModalProps {
   open: boolean;
@@ -29,18 +28,21 @@ interface ConexaoClaudeModalProps {
 }
 
 /**
- * Modal "Conexão com o Claude" (decisões #10, #17 e #19), aberto pelo item "Claude" do menu do
- * usuário. Coluna escura que explica e coluna clara com as seções Softflow e Brainiac; no mobile,
- * tela cheia com as colunas empilhadas.
+ * Modal "Conexão com o Claude" (decisões #10, #17, #19 e #25), aberto pelo item "Claude" do menu
+ * do usuário. Coluna escura que explica e coluna clara com as seções Softflow (uma conexão por tipo
+ * de cliente) e Brainiac; no mobile, tela cheia com as colunas empilhadas.
  */
 export function ConexaoClaudeModal({ open, onOpenChange }: ConexaoClaudeModalProps) {
   const { data, isLoading, isError, refetch, isFetching } = useClaudeConexao(open);
-  const [confirmando, setConfirmando] = useState(false);
+  const [confirmando, setConfirmando] = useState<TipoClienteConexao | null>(null);
 
   const fechar = (v: boolean) => {
-    if (!v) setConfirmando(false);
+    if (!v) setConfirmando(null);
     onOpenChange(v);
   };
+
+  const confirmandoAtivo =
+    confirmando && data?.conexoes.some((c) => c.tipo === confirmando) ? confirmando : null;
 
   return (
     <Dialog open={open} onOpenChange={fechar}>
@@ -48,10 +50,11 @@ export function ConexaoClaudeModal({ open, onOpenChange }: ConexaoClaudeModalPro
         <ColunaExplicacao />
 
         <section className="flex min-w-0 flex-1 flex-col gap-6 bg-card p-6 md:min-h-0 md:overflow-y-auto md:p-8 md:pb-6">
-          {confirmando && data?.conectado ? (
+          {confirmandoAtivo ? (
             <ConfirmarDesconexao
-              onCancelar={() => setConfirmando(false)}
-              onDesconectado={() => setConfirmando(false)}
+              tipo={confirmandoAtivo}
+              onCancelar={() => setConfirmando(null)}
+              onDesconectado={() => setConfirmando(null)}
             />
           ) : (
             <>
@@ -77,22 +80,12 @@ export function ConexaoClaudeModal({ open, onOpenChange }: ConexaoClaudeModalPro
                 </div>
               ) : (
                 <div className="flex flex-col gap-6">
-                  <SecaoSoftflow data={data} />
+                  <SecaoSoftflow data={data} onDesconectar={setConfirmando} />
                   <SecaoBrainiac data={data} />
                 </div>
               )}
 
-              <div className="mt-auto flex flex-wrap justify-end gap-2">
-                {data?.conectado && (
-                  <Button
-                    variant="ghost"
-                    onClick={() => setConfirmando(true)}
-                    className="bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
-                  >
-                    <Unplug className="h-4 w-4" />
-                    Desconectar o Softflow
-                  </Button>
-                )}
+              <div className="mt-auto flex justify-end">
                 <Button variant="outline" onClick={() => fechar(false)}>
                   Fechar
                 </Button>
@@ -153,83 +146,31 @@ function ColunaExplicacao() {
   );
 }
 
-function CabecalhoSecao({
-  icone,
-  nome,
-  pilula,
-}: {
-  icone: React.ReactNode;
-  nome: string;
-  pilula: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-text-primary">
-        {icone}
-      </span>
-      <span className="text-base font-semibold text-text-primary">{nome}</span>
-      <span className="ml-auto">{pilula}</span>
-    </div>
-  );
-}
-
-const PASSOS_SOFTFLOW: Passo[] = [
-  <>
-    No Claude, abra <strong>Customize → Connectors</strong> e clique em{" "}
-    <strong>Add custom connector</strong>.
-  </>,
-  <>
-    Cole o endereço abaixo e clique em <strong>Add</strong>.
-  </>,
-  <>
-    Confira seus dados no Softflow, digite sua senha e clique em{" "}
-    <strong>Permitir acesso</strong>.
-  </>,
-];
-
-function SecaoSoftflow({ data }: { data: ClaudeConexaoStatus }) {
-  return (
-    <div className="flex flex-col gap-4">
-      <CabecalhoSecao
-        icone={<Plug className="h-4 w-4" />}
-        nome="Softflow"
-        pilula={<ConexaoPill conectado={data.conectado} />}
-      />
-      {data.conectado ? (
-        <Conectado data={data} />
-      ) : (
-        <>
-          <PassosNumerados passos={PASSOS_SOFTFLOW} />
-          <div className="flex flex-col gap-2">
-            <EnderecoCopiavel
-              rotulo="Endereço do conector"
-              valor={data.enderecoConector}
-              ariaLabel="Copiar endereço do Softflow"
-            />
-            <p className="text-xs text-text-secondary">
-              Funciona em contas Pro e Max. No plano Free, o Claude aceita só um
-              conector personalizado.
-            </p>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 const PASSOS_BRAINIAC: Passo[] = [
-  <>
-    No Claude, abra <strong>Customize → Connectors → Add custom connector</strong>.
-  </>,
-  <>
-    Cole o endereço e, em <strong>Advanced settings</strong>, informe o Client
-    ID. Clique em <strong>Add</strong>.
-  </>,
-  <>
-    Entre com seu e-mail e senha de colaborador Softcom, clique em{" "}
-    <strong>Entrar no Brainiac</strong> e depois em{" "}
-    <strong>Autorizar acesso</strong>.
-  </>,
+  {
+    texto: (
+      <>
+        No Claude, abra <strong>Customize → Connectors → Add custom connector</strong>.
+      </>
+    ),
+  },
+  {
+    texto: (
+      <>
+        Cole o endereço e, em <strong>Advanced settings</strong>, informe o Client
+        ID. Clique em <strong>Add</strong>.
+      </>
+    ),
+  },
+  {
+    texto: (
+      <>
+        Entre com seu e-mail e senha de colaborador Softcom, clique em{" "}
+        <strong>Entrar no Brainiac</strong> e depois em{" "}
+        <strong>Autorizar acesso</strong>.
+      </>
+    ),
+  },
 ];
 
 const JA_CONECTOU = "Se você já conectou o Brainiac, não precisa fazer nada.";
@@ -278,34 +219,6 @@ function SecaoBrainiac({ data }: { data: ClaudeConexaoStatus }) {
   );
 }
 
-function Linha({ rotulo, valor }: { rotulo: string; valor: string }) {
-  return (
-    <div className="grid grid-cols-[140px_1fr] gap-2 px-4 py-3 text-sm">
-      <span className="text-text-secondary">{rotulo}</span>
-      <span className="text-text-primary">{valor}</span>
-    </div>
-  );
-}
-
-function Conectado({ data }: { data: ClaudeConexaoStatus }) {
-  const desde = data.conectadoEm
-    ? format(new Date(data.conectadoEm), "dd/MM/yyyy HH:mm")
-    : "-";
-  const ultimoUso = data.ultimoUsoEm
-    ? formatDistanceToNow(new Date(data.ultimoUsoEm), {
-        addSuffix: true,
-        locale: ptBR,
-      })
-    : "ainda não usado";
-  return (
-    <div className="divide-y divide-border-divider rounded-lg border border-border-input">
-      <Linha rotulo="Conectado desde" valor={desde} />
-      <Linha rotulo="Último uso" valor={ultimoUso} />
-      <Linha rotulo="Pode abrir casos" valor={data.podeAbrirCaso ? "Sim" : "Não"} />
-    </div>
-  );
-}
-
 /** Espelha as duas seções: cabeçalho com pílula, três linhas e um campo. */
 function ConexaoSkeleton() {
   return (
@@ -330,56 +243,6 @@ function ConexaoSkeleton() {
           <Skeleton className="h-9 w-full" />
         </div>
       ))}
-    </div>
-  );
-}
-
-function ConfirmarDesconexao({
-  onCancelar,
-  onDesconectado,
-}: {
-  onCancelar: () => void;
-  onDesconectado: () => void;
-}) {
-  const desconectar = useDesconectarClaude();
-
-  // mutateAsync: o status novo (não conectado) desmonta este bloco antes dos callbacks do `mutate`.
-  async function confirmar() {
-    try {
-      await desconectar.mutateAsync();
-      toast.success("Claude desconectado", { position: "top-right" });
-      onDesconectado();
-    } catch {
-      toast.error("Não foi possível desconectar. Tente de novo.", {
-        position: "top-right",
-      });
-    }
-  }
-
-  return (
-    <div className="flex flex-col gap-4 pr-6">
-      <div className="flex flex-col gap-2">
-        <DialogTitle className="text-lg font-semibold text-text-primary">
-          Desconectar o Claude?
-        </DialogTitle>
-        <p className="text-sm text-text-secondary">
-          O Claude não vai mais abrir nem consultar casos em seu nome até você
-          conectar de novo.
-        </p>
-      </div>
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancelar} disabled={desconectar.isPending}>
-          Cancelar
-        </Button>
-        <Button
-          variant="destructive"
-          onClick={confirmar}
-          disabled={desconectar.isPending}
-        >
-          {desconectar.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-          Desconectar
-        </Button>
-      </div>
     </div>
   );
 }

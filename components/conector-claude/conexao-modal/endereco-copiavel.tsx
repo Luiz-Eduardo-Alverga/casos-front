@@ -5,13 +5,16 @@ import { Check, Copy } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 
-/** Campo somente leitura com botão de copiar só com ícone (endereços e Client ID do modal). */
+/**
+ * Campo somente leitura com botão de copiar só com ícone (endereços, comando e Client ID do
+ * modal). Sem `rotulo`, só o campo (uso dentro de um passo, decisão #26).
+ */
 export function EnderecoCopiavel({
   rotulo,
   valor,
   ariaLabel,
 }: {
-  rotulo: string;
+  rotulo?: string;
   valor: string;
   ariaLabel: string;
 }) {
@@ -29,7 +32,9 @@ export function EnderecoCopiavel({
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
-      <span className="text-xs font-medium text-text-label">{rotulo}</span>
+      {rotulo && (
+        <span className="text-xs font-medium text-text-label">{rotulo}</span>
+      )}
       <div className="flex gap-2">
         <code
           title={valor}

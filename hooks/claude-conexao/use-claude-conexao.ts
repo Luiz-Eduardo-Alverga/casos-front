@@ -5,6 +5,7 @@ import {
   desconectarClaude,
   fetchClaudeConexao,
   type ClaudeConexaoStatus,
+  type TipoClienteConexao,
 } from "@/services/conector-claude/conexao";
 
 export const claudeConexaoQueryKey = ["claude-conexao"] as const;
@@ -24,7 +25,7 @@ export function useClaudeConexao(enabled = true) {
 export function useDesconectarClaude() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: desconectarClaude,
+    mutationFn: (tipo?: TipoClienteConexao) => desconectarClaude(tipo),
     onSuccess: () => qc.invalidateQueries({ queryKey: claudeConexaoQueryKey }),
   });
 }

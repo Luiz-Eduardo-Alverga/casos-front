@@ -1,11 +1,21 @@
 import { fetchWithAuth } from "@/lib/fetch";
 
-export interface ClaudeConexaoStatus {
-  conectado: boolean;
-  /** ISO; null sem conexão. */
-  conectadoEm: string | null;
-  /** ISO; null se o Claude ainda não usou. */
+/** Tipo de cliente da conexão (decisão #25). */
+export type TipoClienteConexao = "claude" | "claude-code";
+
+export interface ClaudeConexao {
+  tipo: TipoClienteConexao;
+  /** ISO. */
+  conectadoEm: string;
+  /** ISO; null se ainda não usou. */
   ultimoUsoEm: string | null;
+}
+
+export interface ClaudeConexaoStatus {
+  /** Há pelo menos uma conexão ativa (pílula do menu e da seção Softflow). */
+  conectado: boolean;
+  /** No máximo uma por tipo de cliente. */
+  conexoes: ClaudeConexao[];
   podeAbrirCaso: boolean;
   /** Endereço que a pessoa cadastra no Claude (`.../api/mcp`). */
   enderecoConector: string;
@@ -38,8 +48,12 @@ export async function fetchClaudeConexao(
   return parseJsonOk<ClaudeConexaoStatus>(res);
 }
 
-export async function desconectarClaude(): Promise<{ revogadas: number }> {
-  const res = await fetchWithAuth("/api/db/claude-conexao", {
+/** Desconecta um tipo de cliente; sem `tipo`, todas as conexões da pessoa. */
+export async function desconectarClaude(
+  tipo?: TipoClienteConexao,
+): Promise<{ revogadas: number }> {
+  const query = tipo ? `?tipo=${encodeURIComponent(tipo)}` : "";
+  const res = await fetchWithAuth(`/api/db/claude-conexao${query}`, {
     method: "DELETE",
   });
   return parseJsonOk<{ revogadas: number }>(res);

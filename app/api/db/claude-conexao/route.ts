@@ -32,13 +32,9 @@ export async function GET() {
         conectadoEm: c.criadoEm.toISOString(),
         ultimoUsoEm: c.ultimoUsoEm?.toISOString() ?? null,
       }));
-      const maisRecente = conexoes[0] ?? null;
       return jsonOk({
         conectado: conexoes.length > 0,
         conexoes,
-        // Campos da conexão única de antes; o modal novo (Parte 3) passa a ler `conexoes`.
-        conectadoEm: maisRecente?.conectadoEm ?? null,
-        ultimoUsoEm: maisRecente?.ultimoUsoEm ?? null,
         podeAbrirCaso: permissions.includes("create-case"),
         enderecoConector: getMcpResourceUrl(),
         brainiac: getBrainiacConector(),
