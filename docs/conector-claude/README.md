@@ -111,7 +111,7 @@ ler a skill de lá.
        - Softflow conectado: os passos próprios, porque os do Softflow somem: 1. "No Claude, abra
          **Customize → Connectors → Add custom connector**." 2. "Cole o endereço e, em **Advanced
          settings**, informe o Client ID. Clique em **Add**." 3. "Entre com seu e-mail e senha de
-         colaborador Softcom e clique em **Entrar no Brainiac**." e a nota "Se você já conectou o Brainiac, não precisa fazer nada.";
+         colaborador Softcom, clique em **Entrar no Brainiac** e depois em **Autorizar acesso**." e a nota "Se você já conectou o Brainiac, não precisa fazer nada.";
        - nos dois: **Endereço** e **OAuth Client ID**, um abaixo do outro, cada um com copiar só com
          ícone (`EnderecoCopiavel`, componente único para os três campos).
      - Rodapé: **Desconectar o Softflow** (só conectado, mesmo estilo de hoje) e **Fechar**.
@@ -150,7 +150,8 @@ ler a skill de lá.
 1. ~~Endereço do MCP do Brainiac~~: respondida em 2026-11-25 (`https://brainiac.softcomtecnologia.com/mcp`,
    Client ID `brainiac-claude-ai`).
 2. ~~Rótulo do login do Brainiac~~: respondida em 2026-11-25 com a tela de login dele (e-mail e senha
-   de colaborador Softcom, botão **Entrar no Brainiac**); entrou no passo 3.
+   de colaborador Softcom, botão **Entrar no Brainiac**) e a tela seguinte, "Conectar aplicativo", com o
+   botão **Autorizar acesso**; os dois entraram no passo 3.
 
 ### Plano de implementação
 
