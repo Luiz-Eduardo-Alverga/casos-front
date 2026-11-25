@@ -208,6 +208,11 @@ usuário):
 Especificação aprovada e ainda não implementada fica em `docs/<slug>/README.md` com **"Estado:
 planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 
+- **Conector do Claude: consulta completa do caso e Claude Code** (planejado em 2026-11-25).
+  `softflow_consultar_caso` passa a trazer descrição e demais textos, anotações, clientes, relações
+  e anexos; o login aceita o Claude Code (retorno loopback) e cada pessoa pode ter uma conexão do
+  Claude no app e outra do Claude Code, listadas no modal. Ver "Próxima mudança planejada" em
+  [`conector-claude/`](conector-claude/README.md).
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).

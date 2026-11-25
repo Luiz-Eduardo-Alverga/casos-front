@@ -9,7 +9,7 @@
   coluna clara à direita com as informações). Referência de estrutura; no código usar tokens
   (bg-primary e login-* na coluna esquerda; bg-card, text-text-*, border-border-* na direita).
   Logos (decisão #20): o quadro "logo Claude" é um marcador do arquivo oficial; o do Softflow é public/images/icon.png.
-  Uso: ?c=sem-conexao | conectado ; viewport < 768px mostra o layout empilhado.
+  Uso: ?c=sem-conexao | sem-conexao-code | conectado | conectado-dois (decisões #24 e #25); viewport < 768px mostra o layout empilhado.
 -->
 <style>
   :root{
@@ -49,7 +49,7 @@
   .main{padding:32px 32px 24px;display:flex;flex-direction:column;gap:24px;overflow:auto}
   .tt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-right:24px}
   .tt b{font-size:18px;font-weight:600}
-  .pill{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:600}
+  .pill{display:inline-flex;align-items:center;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap}
   .ok{background:var(--ok-bg);color:var(--ok)} .mut{background:var(--muted);color:var(--ts)}
   .sec{display:flex;flex-direction:column;gap:12px}
   .sec + .sec{padding-top:24px;border-top:1px solid var(--bi)}
@@ -74,6 +74,16 @@
   .b-out{border-color:var(--bi);box-shadow:0 1px 2px rgba(0,0,0,.04)}
   .b-ds{background:var(--destr-bg);color:var(--destr)}
   .hidden{display:none!important}
+  .seg{display:flex;gap:4px;background:var(--muted);border-radius:8px;padding:4px}
+  .seg span{flex:1;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:500;color:var(--ts);font-size:13px}
+  .seg span.on{background:var(--card);color:var(--tp);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .cx{display:flex;align-items:center;gap:12px;padding:12px 16px}
+  .cx + .cx{border-top:1px solid var(--bd)}
+  .cx .nm{font-weight:500} .cx .sb{font-size:12px;color:var(--ts);margin-top:2px}
+  .cx .rt{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .b-ico{width:32px;height:32px;padding:0;justify-content:center}
+  .b-ds-ico{background:var(--destr-bg);color:var(--destr)}
+  .b-link{height:auto;padding:0;text-decoration:underline;text-underline-offset:2px}
 
   @media (max-width:767px){
     .ov{padding:0;align-items:stretch}
@@ -127,22 +137,34 @@
       <!-- Softflow: sem conexão -->
       <div class="sec" id="sf-sem">
         <div class="sh"><span class="ic"><svg class="i"><use href="#plug"/></svg></span><b>Softflow</b><span class="pill mut">Não conectado</span></div>
-        <ol class="st">
-          <li><span class="n">1</span><span>No Claude, abra <b>Customize → Connectors → Add custom connector</b>.</span></li>
-          <li><span class="n">2</span><span>Cole o endereço abaixo e clique em <b>Add</b>.</span></li>
-          <li><span class="n">3</span><span>No Softflow, digite sua senha e clique em <b>Permitir acesso</b>.</span></li>
-        </ol>
-        <div class="fld"><div class="k">Endereço do conector</div><div class="copy"><code>https://softflow.hostsoftcom.cloud/api/mcp</code><button class="b b-out" aria-label="Copiar endereço do Softflow" style="padding:0 10px"><svg class="i"><use href="#copy"/></svg></button></div></div>
+        <div class="seg" role="tablist" aria-label="Onde você usa o Claude"><span role="tab" class="t-app on">Claude (app e web)</span><span role="tab" class="t-code">Claude Code</span></div>
+        <div class="p-app">
+          <ol class="st">
+            <li><span class="n">1</span><span>No Claude, abra <b>Customize → Connectors → Add custom connector</b>.</span></li>
+            <li><span class="n">2</span><span>Cole o endereço abaixo e clique em <b>Add</b>.</span></li>
+            <li><span class="n">3</span><span>No Softflow, digite sua senha e clique em <b>Permitir acesso</b>.</span></li>
+          </ol>
+          <div class="fld" style="margin-top:12px"><div class="k">Endereço do conector</div><div class="copy"><code>https://softflow.hostsoftcom.cloud/api/mcp</code><button class="b b-out" aria-label="Copiar endereço do Softflow" style="padding:0 10px"><svg class="i"><use href="#copy"/></svg></button></div></div>
+        </div>
+        <div class="p-code">
+          <ol class="st">
+            <li><span class="n">1</span><span>No terminal, rode o comando abaixo.</span></li>
+            <li><span class="n">2</span><span>No Claude Code, digite <b>/mcp</b>, escolha <b>softflow</b> e <b>Authenticate</b>.</span></li>
+            <li><span class="n">3</span><span>No Softflow, digite sua senha e clique em <b>Permitir acesso</b>.</span></li>
+          </ol>
+          <div class="fld" style="margin-top:12px"><div class="k">Comando</div><div class="copy"><code>claude mcp add --transport http softflow https://softflow.hostsoftcom.cloud/api/mcp</code><button class="b b-out" aria-label="Copiar comando do Claude Code" style="padding:0 10px"><svg class="i"><use href="#copy"/></svg></button></div></div>
+          <p class="note" style="margin-top:8px">Adicione <b>--scope user</b> para valer em todos os projetos.</p>
+        </div>
       </div>
 
-      <!-- Softflow: conectado -->
+      <!-- Softflow: conectado (uma conexão por tipo de cliente) -->
       <div class="sec hidden" id="sf-con">
         <div class="sh"><span class="ic"><svg class="i"><use href="#plug"/></svg></span><b>Softflow</b><span class="pill ok">Conectado</span></div>
         <div class="box">
-          <div class="row"><span>Conectado desde</span><span>19/11/2026 16:50</span></div>
-          <div class="row"><span>Último uso</span><span>há 5 minutos</span></div>
-          <div class="row"><span>Pode abrir casos</span><span>Sim</span></div>
+          <div class="cx"><div><div class="nm">Claude (app e web)</div><div class="sb">Desde 19/11/2026 16:50 · usado há 5 minutos</div></div><div class="rt"><span class="pill ok">Conectado</span><button class="b b-ico b-ds-ico" aria-label="Desconectar o Claude (app e web)"><svg class="i"><use href="#unplug"/></svg></button></div></div>
+          <div class="cx"><div><div class="nm">Claude Code</div><div class="sb c-code-sub">Para implementar casos no terminal</div></div><div class="rt"><span class="pill mut c-code-pill">Não conectado</span><button class="b b-link c-code-link">Como conectar</button></div></div>
         </div>
+        <p class="note">Pode abrir casos: <b style="color:var(--tp)">Sim</b>. O que cada conexão pode fazer segue o seu perfil no Softflow.</p>
       </div>
 
       <!-- Brainiac -->
@@ -162,8 +184,7 @@
       </div>
 
       <div class="ft">
-        <button class="b b-ds hidden" id="btn-desc"><svg class="i"><use href="#unplug"/></svg>Desconectar o Softflow</button>
-        <button class="b b-out">Fechar</button>
+                <button class="b b-out">Fechar</button>
       </div>
     </section>
   </div>
@@ -171,10 +192,18 @@
 
 <script>
   var c = new URLSearchParams(location.search).get('c') || 'sem-conexao';
-  var con = c === 'conectado';
+  var con = c.indexOf('conectado') === 0;
+  if (c === 'sem-conexao-code') {
+    document.querySelector('.t-app').classList.remove('on'); document.querySelector('.t-code').classList.add('on');
+    document.querySelector('.p-app').remove();
+  } else { var pc=document.querySelector('.p-code'); if (pc) pc.remove(); }
+  if (c === 'conectado-dois') {
+    document.querySelector('.c-code-sub').textContent = 'Desde 25/11/2026 11:40 · usado agora';
+    var p=document.querySelector('.c-code-pill'); p.textContent='Conectado'; p.className='pill ok';
+    var l=document.querySelector('.c-code-link'); l.outerHTML='<button class="b b-ico b-ds-ico" aria-label="Desconectar o Claude Code"><svg class="i"><use href="#unplug"/></svg></button>';
+  }
   document.getElementById(con ? 'sf-sem' : 'sf-con').remove();
   document.getElementById(con ? 'sf-con' : 'sf-sem').classList.remove('hidden');
-  document.getElementById('btn-desc').classList.toggle('hidden', !con);
   document.querySelectorAll(con ? '.brn-sem' : '.brn-con').forEach(function(e){ e.remove(); });
 </script>
 </body>

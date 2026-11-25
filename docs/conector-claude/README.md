@@ -8,6 +8,10 @@
 >
 > **Contexto do Brainiac** (2026-11-25, decisões #16 a #21): implementado e conferido na `dev`;
 > ainda não publicado. Ver "Brainiac" abaixo e as pendências.
+>
+> **Há uma [próxima mudança planejada](#próxima-mudança-planejada-consulta-completa-do-caso-e-claude-code)**
+> (2026-11-25, decisões #22 a #25): consulta do caso com textos, anotações, clientes, relações e
+> anexos, e conexão pelo Claude Code. Implementar com `/implementar conector-claude`.
 
 ## O que é
 
@@ -66,6 +70,130 @@ caminho (decisão #16):
 
 Se a `xp-planejar` ainda não estiver publicada no catálogo, a busca volta vazia e o Claude segue só
 com as regras do conector; nada a tratar no Softflow.
+
+## Próxima mudança planejada: consulta completa do caso e Claude Code
+
+> **Estado: planejado** (chat de planejamento, 2026-11-25). Decisões #22 a #25 em
+> [`decisoes.md`](decisoes.md); protótipo em
+> [`prototipo/modal-duas-colunas.html`](prototipo/modal-duas-colunas.html)
+> (`?c=sem-conexao-code` e `?c=conectado-dois`), capturas `12`, `14` e `15`.
+
+### Problema
+
+1. **A consulta não traz o que o dev precisa.** `softflow_consultar_caso` (`consultarCaso` em
+   `lib/conector-claude/mcp/caso.ts`) devolve só cabeçalho e resumo. Faltam a **descrição completa**
+   e os outros textos, as **anotações**, os **clientes** e as **relações** do caso, que a tela de edição
+   mostra nas abas. O `GET /projeto-memoria/{id}` que a consulta já chama devolve tudo isso em
+   `caso.textos`, `caso.anotacoes`, `caso.clientes` e `caso.relacoes` (`interfaces/projeto-memoria.ts`);
+   a consulta só não formata.
+2. **O Claude Code não consegue conectar.** A squad passou a usar o conector também com devs no
+   Claude Code. Ao entrar, ele responde *"This service doesn't accept sign-ins from Claude Code"*: o
+   Claude Code se registra (DCR) com `redirect_uri` `http://localhost:<porta>/callback`, e o
+   `register` e a autorização só aceitam os dois endereços do Claude na web (decisão #4,
+   `isRedirectUriPermitida` em `lib/conector-claude/config.ts`).
+3. **Uma conexão por pessoa derrubaria a outra.** Com a decisão #11, quem conecta o Claude Code
+   revoga a conexão do Claude no app (`motivo_revogacao = 'reconectou'`), e vice-versa.
+
+### O que muda
+
+1. **`softflow_consultar_caso` completo** (decisão #22). Mantém as linhas de hoje e acrescenta
+   seções em Markdown, nesta ordem, cada uma só se tiver conteúdo:
+   - `## Descrição` (`textos.descricao_completa`), `## Passos para reproduzir`
+     (`textos.passos_para_reproduzir`), `## Informações adicionais` (`textos.informacoes_adicionais`),
+     `## História` (`textos.historia`). Texto como veio do legado, convertendo `\r\n` em `\n`.
+   - `## Anotações (<n>)`: uma por item, da mais recente para a mais antiga,
+     `- <dd/MM/yyyy HH:mm> · <usuario>: <anotacoes>`. Acima de 30, mostra as 30 mais recentes e a linha
+     "+<n> anotações antigas no Softflow".
+   - `## Clientes (<n>)`: `- <cliente_nome ou "Cliente <cliente>"> (código <cliente>) · incidente
+     <incidente> · <dd/MM/yyyy>`.
+   - `## Relações (<n>)`: `- <tipo_relacao_nome> do caso <caso_relacionado>: <descricao_resumo>`
+     e o link do caso relacionado. Se `caso.relacoes` não vier no `projeto-memoria`, buscar em
+     `GET /projeto-casos-relacoes?registro=<id>` (a mesma rota da aba Relações).
+   - `## Anexos (<n>)`: nome, tamanho e data de cada anexo do caso, a partir de
+     `GET /api/db/casos/[registro]/anexos` (reaproveitar a função de `lib/` por trás dessa rota), com o
+     link de download assinado que ela já gera. Só com `list-case-attachment`; sem a permissão, a
+     seção diz "Seu perfil não permite ver os anexos". O link vence no mesmo prazo da tela; a seção
+     avisa isso numa linha.
+   - Parâmetro novo opcional `secoes` (lista de `descricao`, `anotacoes`, `clientes`, `relacoes`,
+     `anexos`; padrão: todas), para o Claude pedir só parte quando o caso for grande.
+   - A descrição da ferramenta passa a dizer que ela traz o caso completo e serve para implementar,
+     testar ou revisar.
+
+2. **Claude Code aceito no login** (decisão #24):
+   - `isRedirectUriPermitida` aceita, além dos dois endereços do Claude, endereços **loopback**
+     (RFC 8252): esquema `http`, host `localhost` ou `127.0.0.1`, **qualquer porta**, caminho exato
+     `/callback`, sem query nem fragmento. Comparação exata no resto (`http://localhost:53214/callback`
+     sim; `http://localhost.evil.com/callback`, `https://localhost/callback` ou
+     `http://localhost:53214/cb` não).
+   - No `register` e na autorização a regra é a mesma. PKCE S256 continua obrigatório (é o que
+     protege o loopback).
+   - A tela `/oauth/autorizar` mostra o nome do cliente: **Conectar o Claude Code ao Softflow**
+     quando o `redirect_uri` é loopback, e o título de hoje no resto. O passo de digitar a senha não
+     muda.
+   - `GET /.well-known/oauth-authorization-server` não muda (já anuncia DCR e PKCE).
+
+3. **Uma conexão ativa por pessoa e por tipo de cliente** (decisão #25), revoga a #11:
+   - coluna nova `tipo_cliente` em `claude_conexoes` (`'claude'` | `'claude-code'`), preenchida na
+     autorização a partir do `redirect_uri` (loopback = `claude-code`). Migração com default
+     `'claude'` para as conexões existentes;
+   - conectar de novo revoga só a conexão ativa **do mesmo tipo** (`motivo_revogacao =
+     'reconectou'`);
+   - `GET /api/db/claude-conexao` passa a devolver `conexoes: [{ tipo, conectadoEm, ultimoUsoEm }]`
+     (e o `podeAbrirCaso` geral); `DELETE` ganha `?tipo=` para desconectar uma só (sem `tipo`,
+     todas, como hoje).
+
+4. **Modal "Conexão com o Claude"** (decisão #25; capturas `12`, `14` e `15`):
+   - **Sem conexão:** acima dos passos do Softflow, um seletor segmentado **Claude (app e web)** |
+     **Claude Code** (abre em "Claude (app e web)"; lembra a última escolha em `localStorage`, com
+     try/catch). Na aba Claude Code:
+     1. "No terminal, rode o comando abaixo." com o campo **Comando**
+        `claude mcp add --transport http softflow <endereço do conector>` e copiar só com ícone;
+     2. "No Claude Code, digite **/mcp**, escolha **softflow** e **Authenticate**.";
+     3. "No Softflow, digite sua senha e clique em **Permitir acesso**.";
+     e a nota "Adicione **--scope user** para valer em todos os projetos."
+   - **Conectado:** o quadro de hoje vira uma lista com uma linha por tipo: **Claude (app e web)** e
+     **Claude Code**, cada uma com "Desde … · usado há …" (ou "Para implementar casos no terminal"
+     quando não conectada), a pílula Conectado/Não conectado e, à direita, o botão **Desconectar** só
+     com ícone (`Unplug`, mesmo estilo destrutivo) ou o link **Como conectar** (abre as instruções da
+     aba correspondente logo abaixo da linha). A linha "Pode abrir casos: Sim/Não" sai do quadro e
+     vira uma nota abaixo dele. O botão "Desconectar o Softflow" do rodapé sai.
+   - A pílula do título da seção Softflow fica "Conectado" se houver pelo menos uma conexão.
+   - Confirmação de desconectar: a de hoje, com o nome do cliente ("Desconectar o Claude Code?").
+   - A seção Brainiac não muda. O Brainiac hoje só aceita o Claude na web (`brainiac-claude-ai`,
+     callback do claude.ai); conectar o Brainiac no Claude Code é com a Squad IA, fora daqui.
+
+5. **Instruções do servidor** (`INSTRUCOES`): uma linha nova: "Para implementar, testar ou revisar
+   um caso, chame softflow_consultar_caso com o número antes de começar: ela traz descrição,
+   anotações, clientes, relações e anexos."
+
+### Fora do escopo
+
+- Escrever anotações, vincular clientes ou relações e mudar status pelo conector (decisão #2
+  continua; avaliar numa próxima, agora que o dev usa o conector).
+- Baixar o conteúdo dos anexos pelo MCP: a consulta só lista e dá o link assinado.
+- Conectar o Brainiac no Claude Code.
+
+### Perguntas em aberto
+
+1. **(dev)** O `GET /projeto-memoria/{id}` já traz `caso.relacoes` preenchido, ou só a rota
+   `/projeto-casos-relacoes` traz? Define se a consulta faz uma ou duas chamadas (Fase 0).
+2. **(dev)** Qual a validade do link assinado dos anexos (`presign` de download)? Se for curta
+   (minutos), a seção avisa "o link vence em <n> minutos; consulte de novo para gerar outro".
+
+### Plano de implementação
+
+Um commit por parte, na `dev`, escopo `(conector-claude)`:
+
+1. **Consulta completa:** formatação das seções, `secoes`, anexos com permissão, descrição da
+   ferramenta e linha nova nas `INSTRUCOES`. Conferir com o cliente MCP do SDK num caso com
+   anotações, clientes, relações e anexos, e num caso vazio.
+2. **Loopback e tipo de cliente:** `isRedirectUriPermitida`, coluna `tipo_cliente` e migração,
+   revogação por tipo, título da tela de autorização, `GET`/`DELETE` de `claude-conexao`. Conferir os
+   casos de `redirect_uri` aceitos e recusados (lista acima) e, de ponta a ponta, `claude mcp add` +
+   `/mcp` → Authenticate no Claude Code, sem derrubar a conexão do Claude no app.
+3. **Modal:** seletor Claude/Claude Code, lista de conexões, desconectar por tipo. Conferir desktop e
+   390px nos estados das capturas.
+4. Ao concluir: integrar esta seção ao README no formato padrão e mover o item no status.
 
 ## Arquitetura
 

@@ -135,3 +135,32 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     modal com botão de copiar.** Complementa a decisão #18. **Por quê:** o Brainiac não usa o
     registro automático de clientes; quem adiciona o conector precisa informar `brainiac-claude-ai`
     em Advanced settings (informado pelo usuário em 2026-11-25), e o valor é de outro sistema.
+
+22. **`softflow_consultar_caso` devolve o caso completo: textos (descrição, passos, informações
+    adicionais, história), anotações, clientes, relações e anexos**, em seções Markdown, com o
+    parâmetro opcional `secoes` para pedir só parte. Anotações limitadas às 30 mais recentes.
+    **Por quê:** o conector passou a ser usado por devs no Claude Code para implementar o caso, e a
+    consulta só trazia o cabeçalho; o usuário notou que faltavam anotações, clientes e relações
+    (2026-11-25). Os dados já vêm no `GET /projeto-memoria/{id}`, então não há chamada nova ao legado
+    além de relações (se não vierem ali) e anexos.
+
+23. **Anexos aparecem na consulta como lista com link de download assinado, só para quem tem
+    `list-case-attachment`.** **Por quê:** o dev precisa ver prints e arquivos do caso para
+    implementar; a lista com link é o que a aba Anexos já faz, com a mesma permissão. Baixar o
+    conteúdo pelo MCP ficou de fora: o link basta e evita trafegar arquivos grandes pelo conector.
+    Decisão tomada no planejamento; o usuário pode tirar a seção sem afetar o resto.
+
+24. **O login aceita o Claude Code: além dos dois endereços do Claude na web, endereços loopback
+    `http://localhost:<porta>/callback` e `http://127.0.0.1:<porta>/callback`, qualquer porta.**
+    Revoga em parte a decisão #4 (só os endereços do Claude); o resto da #4 (comparação exata, nada
+    fora da lista) continua. **Por quê:** a squad está levando o conector para os devs, que usam o
+    Claude Code, e ele só faz login com retorno para a máquina local (2026-11-25). Loopback com PKCE
+    S256 é o padrão para aplicativos nativos (RFC 8252): o código só chega a quem está na máquina da
+    pessoa e só vale com o verificador do PKCE. A pessoa continua digitando a senha e confirmando na
+    tela de autorização, que passa a dizer "Claude Code".
+
+25. **Uma conexão ativa por pessoa e por tipo de cliente (Claude no app e na web, Claude Code), e o
+    modal lista as duas, cada uma com o próprio Desconectar.** Revoga a decisão #11. **Por quê:** o
+    mesmo dev usa o Claude no app para planejar e o Claude Code para implementar; com uma conexão
+    por pessoa, conectar um derrubaria o outro. O tipo sai do `redirect_uri` (loopback = Claude
+    Code), que é o que de fato diferencia os dois clientes.
