@@ -232,14 +232,20 @@ Para "o que eu tenho para fazer hoje", use softflow_agenda.
 ### Perguntas em aberto
 
 1. **(dev)** Ao criar "É FILHO DE" na parte, o legado cria sozinho o inverso ("É PAI DE") no pai, como
-   parece pela aba Relações? Se não, `softflow_abrir_casos` cria os dois.
-2. **(dev)** Como saber **qual** caso está em andamento? `tem_caso_iniciado` da agenda diz só que há um
-   no produto. Opções: lançamento de produção aberto (`caso.producao` com `abertura` sem
-   `fechamento`) do dev, ou status específico. Define a seção "Em andamento".
-3. **(dev)** O `GET /projeto-memoria` aceita ordenação (por importância, por número)? Se não, a agenda
-   ordena no servidor do Softflow depois de buscar.
+   parece pela aba Relações? Se não, `softflow_abrir_casos` cria os dois. Fase 0 (2026-11-25): o
+   código não responde (a aba só chama `POST /projeto-casos-relacoes`); conferido na API de dev no
+   começo da Parte 3, antes de escrever a etapa das relações.
+2. ~~**(dev)** Como saber **qual** caso está em andamento?~~ Respondida na Fase 0 (2026-11-25): pelo
+   `caso.tempos.status_tempo === "INICIADO"` de cada caso do `projeto-memoria`, o mesmo campo com que o
+   Painel destaca o card e põe os iniciados primeiro (`painel-kanban-map.ts`). "Em andamento" lista os
+   casos abertos ou em retorno com esse valor.
+3. ~~**(dev)** O `GET /projeto-memoria` aceita ordenação?~~ Respondida na Fase 0 (2026-11-25): aceita
+   `sort_by` (`numero_caso`, `prioridade`, `produto_nome`, `data_conclusao_dev`, `tempo_estimado`) e
+   `sort_order` (`ASC`/`DESC`), um campo por vez (`projeto-memoria-sort.ts`). A agenda busca com
+   `sort_by=prioridade&sort_order=DESC` e desempata por número no servidor.
 4. **(dev)** O filtro `descricao_resumo` do legado é "contém", sem diferença de maiúsculas e acentos?
-   Isso muda quantas variações do termo o Claude precisa tentar.
+   Fase 0 (2026-11-25): o código não responde (a tela só repassa o texto); conferido na API de dev na
+   Parte 1, e o resultado entra na descrição da ferramenta.
 
 ### Plano de implementação
 
@@ -808,6 +814,20 @@ bloqueando.
 Resposta (2026-11-19, Claude Code): B. O endereço atual é `https://softflow.hostsoftcom.cloud`;
 `softflow.softcom.services` é o antigo. Ver decisão #13.
 
+### P4 — Permissão para ver a agenda de outra pessoa · aberta
+
+Fase: Fase 0 de casos em lote, busca e agenda (2026-11-25). Contexto: a decisão #32 diz que a agenda
+de outra pessoa exige `list-painel-dev`, "a mesma da tela do Painel". No código, `list-painel-dev` só
+abre a tela `/painel` (`app/(dashboard)/painel/page.tsx`) e é a permissão de todo dev; ver o Painel
+**de outra pessoa** ("Ver como") exige `audit-all-users` (`components/painel-kanban/index.tsx`,
+`canAuditAllUsers`). Com `list-painel-dev`, qualquer dev veria pelo Claude a agenda de qualquer
+colega, o que a tela não deixa.
+Opções: **A)** própria agenda com `list-painel-dev` e a de outra pessoa com `audit-all-users`, como o
+Painel. **B)** própria agenda só com a conexão e a de outra pessoa com `list-painel-dev`, como está na
+decisão #32. **C)** própria agenda só com a conexão e a de outra pessoa com `audit-all-users`.
+Recomendação do Claude Code: C, porque repete a regra do "Ver como" da tela (decisão #5: o conector
+não cria regra nova) e a própria agenda não expõe nada que a pessoa não veja pelo Softflow.
+
 ## Andamento da implementação
 
 - [x] Fase 0 (2026-11-19); P3 respondida, P1 e P2 abertas
@@ -859,6 +879,32 @@ migração é a `0012`, gerada com `npm run db:migrate`; anexos chamam as funç�
 - [x] Parte 2: loopback e tipo de cliente (2026-11-25). `isRedirectUriLoopback` (regex no texto cru: `http`, `localhost`/`127.0.0.1`, porta 1 a 65535, `/callback` exato), `tipoClienteDoRedirect` e `NOME_TIPO_CLIENTE` em `config.ts`; coluna `tipo_cliente` (migração `0012_conector_claude_tipo_cliente`, **aplicada no banco do `.env` em 2026-11-25** com o ok do usuário; as 8 conexões existentes ficaram `claude`); revogação só do mesmo tipo; `GET /api/db/claude-conexao` com `conexoes` (mantém `conectado`; `conectadoEm`/`ultimoUsoEm` de topo ficam até a Parte 3); `DELETE ?tipo=` (Zod). Tela de autorização: "Conectar o Claude Code ao Softflow" com retorno loopback. Conferido: 22 endereços aceitos/recusados (inclusive `localhost.evil.com`, `https`, `/cb`, query, fragmento, `..`, maiúsculas, sem porta, porta 0 e 65536, `[::1]`); DCR loopback aceito e os dois inválidos recusados; título da tela; `GET` com a lista; `DELETE ?tipo=xyz` → 400, `?tipo=claude-code` → 0 revogadas. Falta o ponta a ponta no Claude Code (`claude mcp add` + `/mcp` → Authenticate) sem derrubar a conexão do Claude no app, que pede a senha do usuário
 - [x] Parte 3: modal (2026-11-25). `conexao-modal/secao-softflow.tsx` (seletor com o `Tabs` do repositório, lembrado em `localStorage` com try/catch; lista por tipo com Desconectar só com ícone ou "Como conectar", que abre as instruções abaixo da linha; nota "Pode abrir casos"), `instrucoes-softflow.tsx` (passos dos dois tipos, o que copiar dentro do passo, decisão #26), `confirmar-desconexao.tsx` ("Desconectar o Claude Code?", `DELETE ?tipo=`), `cabecalho-secao.tsx`, `PassosNumerados` com bloco por passo e `utils.ts` (nomes, comando, "Desde … · usado …"). O rodapé perdeu o "Desconectar o Softflow"; o `GET` perdeu `conectadoEm`/`ultimoUsoEm` de topo. Linha do Claude (app e web) sem conexão diz "Para planejar e abrir casos pelo chat" (o protótipo só tinha o texto do Claude Code). Conferido no navegador: estado real (só Claude), "Como conectar" do Claude Code, sem conexão nas duas abas e a escolha salva, duas conexões, confirmação e desconectar só o Claude Code (a conexão real do Claude continuou), 390px nos dois estados sem rolagem lateral
 - [x] Parte 4: README no formato padrão e status (2026-11-25)
+
+### Casos em lote, busca de casos e agenda do dev (mudança de 2026-11-25)
+
+Fase 0 (2026-11-25): os arquivos citados existem (`components/casos/filtros/casos-filtros-mappers.ts`,
+`lib/casos/criar-caso.ts`, `lib/conector-claude/mcp/servidor.ts`, `claude_previas_caso` em
+`db/schema.ts`, `GET /auxiliar/agenda-dev` com `tem_caso_iniciado`, `POST /projeto-casos-relacoes` com
+`tipo_relacao 2` = "É FILHO DE"). Perguntas 2 e 3 respondidas pelo código; 1 e 4 ficam para testar na
+API de dev nas Partes 3 e 1. Aberta a P4 (permissão da agenda de outra pessoa). Decidido pelo Claude
+Code:
+
+- **Filtros da busca:** `filtrosToProjetoMemoriaParams` depende de tipos e helpers de `components/` e
+  de catálogos carregados na tela; o conector monta os parâmetros numa função pura própria em
+  `lib/casos/` (mesmos nomes de parâmetro do legado), com a versão resolvida por
+  `resolveVersaoProdutoForApi` (`lib/casos/versao-produto.ts`) e o status por nome resolvido pelo
+  catálogo `/auxiliar/status` (função nova em `lib/auxiliar/catalogos.ts`). `setor` vai pelo nome, como
+  a tela.
+- **Sprint atual:** o `softflow_eu` só lista os projetos do setor, e o Painel usa o projeto escolhido
+  pela pessoa (salvo no navegador). A agenda escolhe, entre os projetos do setor (`listarProjetos`), o
+  que tem `data_inicial ≤ hoje ≤ data_final` (`America/Sao_Paulo`); com mais de um, o de início mais
+  recente; com nenhum, chama a agenda sem `Cronograma_id` e diz "sem sprint em andamento".
+
+- [x] Fase 0 (2026-11-25); P4 aberta
+- [ ] Parte 1: `softflow_buscar_casos`
+- [ ] Parte 2: `softflow_agenda`
+- [ ] Parte 3: lote (`softflow_preparar_casos` e `softflow_abrir_casos`)
+- [ ] Parte 4: README no formato padrão, status e passo 7 da `xp-planejar`
 
 ### Plano de implementação (original)
 
