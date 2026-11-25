@@ -32,6 +32,7 @@ export function AutorizarConector({ estado }: { estado: EstadoAutorizacao }) {
       ) : (
         <AutorizarPedido
           pessoa={estado.pessoa}
+          nomeCliente={estado.nomeCliente}
           params={estado.params}
           loginHref={estado.loginHref}
         />
@@ -42,10 +43,12 @@ export function AutorizarConector({ estado }: { estado: EstadoAutorizacao }) {
 
 function AutorizarPedido({
   pessoa,
+  nomeCliente,
   params,
   loginHref,
 }: {
   pessoa: PessoaAutorizacao;
+  nomeCliente: string;
   params: Record<string, string>;
   loginHref: string;
 }) {
@@ -108,7 +111,7 @@ function AutorizarPedido({
       onSubmit={handleSubmit((data) => enviar("permitir", data.senha))}
       className="flex flex-col gap-6"
     >
-      <AutorizarCabecalho />
+      <AutorizarCabecalho nomeCliente={nomeCliente} />
 
       <div className="flex items-center gap-3 rounded-lg border border-primary-foreground/15 bg-primary-foreground/5 p-4">
         <span

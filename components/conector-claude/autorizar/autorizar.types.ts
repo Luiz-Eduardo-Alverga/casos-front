@@ -13,6 +13,8 @@ export type EstadoAutorizacao =
   | {
       tipo: "pedido";
       pessoa: PessoaAutorizacao;
+      /** "Claude" ou "Claude Code" (pelo `redirect_uri`, decisão #24). */
+      nomeCliente: string;
       /** Parâmetros OAuth da query, reenviados no POST. */
       params: Record<string, string>;
       /** `/login?callbackUrl=...` desta mesma tela, para "Não é você?". */

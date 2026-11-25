@@ -3,6 +3,7 @@ import { AutorizarConector } from "@/components/conector-claude/autorizar";
 import type { EstadoAutorizacao } from "@/components/conector-claude/autorizar/autorizar.types";
 import { getTokenFromCookie } from "@/lib/auth-server";
 import { syncAppUserAndPermissions } from "@/lib/auth/sync-app-user";
+import { NOME_TIPO_CLIENTE, tipoClienteDoRedirect } from "@/lib/conector-claude/config";
 import { validarPedidoAutorizacao } from "@/lib/conector-claude/pedido-autorizacao";
 import { LegacyAuthMeError } from "@/lib/legacy-auth/me";
 import { OAUTH_AUTORIZAR_PATH } from "@/lib/safe-callback-url";
@@ -56,6 +57,7 @@ async function resolverEstado(
     return {
       tipo: "pedido",
       params,
+      nomeCliente: NOME_TIPO_CLIENTE[tipoClienteDoRedirect(validado.pedido.redirect_uri)],
       loginHref,
       pessoa: {
         nome: appUser.nome,

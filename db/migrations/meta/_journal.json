@@ -85,6 +85,13 @@
       "when": 1795120808899,
       "tag": "0011_conector_claude",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1795618353909,
+      "tag": "0012_conector_claude_tipo_cliente",
+      "breakpoints": true
     }
   ]
 }

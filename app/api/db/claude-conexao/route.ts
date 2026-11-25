@@ -1,27 +1,44 @@
 import { handleDbRouteError, jsonOk } from "@/lib/api-db/responses";
+import { badRequestFromZod } from "@/lib/api-db/parse";
 import { withSession } from "@/lib/api-db/with-session";
 import { syncAppUserAndPermissions } from "@/lib/auth/sync-app-user";
 import {
   getBrainiacConector,
   getMcpResourceUrl,
+  type TipoCliente,
 } from "@/lib/conector-claude/config";
 import {
-  getConexaoAtivaByAppUserId,
+  listConexoesAtivasByAppUserId,
   revogarConexoesDoUsuario,
 } from "@/lib/db/claude-conector";
+import { claudeConexaoDeleteQuerySchema } from "@/lib/validators/db/claude-conector";
 
-/** Status da conexão com o Claude da pessoa logada (modal "Conexão com o Claude"). */
+/**
+ * Status das conexões com o Claude da pessoa logada (modal "Conexão com o Claude"): uma por tipo
+ * de cliente, Claude (app e web) e Claude Code (decisão #25).
+ */
 export async function GET() {
   return withSession(async (session) => {
     try {
       const { appUser, permissions } = await syncAppUserAndPermissions(
         session.authorizationHeader,
       );
-      const conexao = await getConexaoAtivaByAppUserId(appUser.id);
+      const ativas = await listConexoesAtivasByAppUserId(appUser.id);
+      // Ordenadas da mais recente: a primeira de cada tipo é a ativa (há no máximo uma).
+      const porTipo = new Map<string, (typeof ativas)[number]>();
+      for (const c of ativas) if (!porTipo.has(c.tipoCliente)) porTipo.set(c.tipoCliente, c);
+      const conexoes = [...porTipo.values()].map((c) => ({
+        tipo: c.tipoCliente as TipoCliente,
+        conectadoEm: c.criadoEm.toISOString(),
+        ultimoUsoEm: c.ultimoUsoEm?.toISOString() ?? null,
+      }));
+      const maisRecente = conexoes[0] ?? null;
       return jsonOk({
-        conectado: conexao != null,
-        conectadoEm: conexao?.criadoEm.toISOString() ?? null,
-        ultimoUsoEm: conexao?.ultimoUsoEm?.toISOString() ?? null,
+        conectado: conexoes.length > 0,
+        conexoes,
+        // Campos da conexão única de antes; o modal novo (Parte 3) passa a ler `conexoes`.
+        conectadoEm: maisRecente?.conectadoEm ?? null,
+        ultimoUsoEm: maisRecente?.ultimoUsoEm ?? null,
         podeAbrirCaso: permissions.includes("create-case"),
         enderecoConector: getMcpResourceUrl(),
         brainiac: getBrainiacConector(),
@@ -32,16 +49,21 @@ export async function GET() {
   });
 }
 
-/** Desconectar: revoga na hora todas as conexões (e tokens) da pessoa. */
-export async function DELETE() {
+/** Desconectar: `?tipo=claude|claude-code` revoga só aquele tipo; sem `tipo`, todas. */
+export async function DELETE(request: Request) {
   return withSession(async (session) => {
+    const query = claudeConexaoDeleteQuerySchema.safeParse(
+      Object.fromEntries(new URL(request.url).searchParams),
+    );
+    if (!query.success) return badRequestFromZod(query.error);
+    const { tipo } = query.data;
     try {
       const { appUser } = await syncAppUserAndPermissions(
         session.authorizationHeader,
       );
-      const revogadas = await revogarConexoesDoUsuario(appUser.id, "usuario");
+      const revogadas = await revogarConexoesDoUsuario(appUser.id, "usuario", tipo);
       console.info(
-        `[conector-claude] Desconectado pela pessoa: app_user=${appUser.id} conexoes=${revogadas}`,
+        `[conector-claude] Desconectado pela pessoa: app_user=${appUser.id} tipo=${tipo ?? "todos"} conexoes=${revogadas}`,
       );
       return jsonOk({ revogadas });
     } catch (e) {
