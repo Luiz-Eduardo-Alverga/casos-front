@@ -44,7 +44,7 @@ export function ConexaoClaudeModal({ open, onOpenChange }: ConexaoClaudeModalPro
 
   return (
     <Dialog open={open} onOpenChange={fechar}>
-      <DialogContent className="w-[min(96vw,880px)] max-w-[880px] gap-0 overflow-hidden border-0 p-0 max-md:inset-0 max-md:block max-md:h-full max-md:w-full max-md:max-w-none max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-y-auto max-md:rounded-none max-md:[&>button:last-child]:text-primary-foreground md:flex md:max-h-[calc(100vh-32px)] md:flex-row md:rounded-2xl">
+      <DialogContent className="w-[min(96vw,880px)] max-w-[880px] gap-0 overflow-hidden border-0 bg-transparent p-0 max-md:inset-0 max-md:block max-md:h-full max-md:w-full max-md:max-w-none max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-y-auto max-md:rounded-none max-md:[&>button:last-child]:text-primary-foreground md:flex md:max-h-[calc(100vh-32px)] md:flex-row md:rounded-2xl">
         <ColunaExplicacao />
 
         <section className="flex min-w-0 flex-1 flex-col gap-6 bg-card p-6 md:min-h-0 md:overflow-y-auto md:p-8 md:pb-6">
