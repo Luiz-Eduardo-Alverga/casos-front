@@ -3,8 +3,12 @@
 > **Estado: em produção desde 2026-11-19** (`https://softflow.hostsoftcom.cloud/api/mcp`).
 > Conferido no domínio público: metadados, `401` com `WWW-Authenticate`, registro do cliente,
 > token endpoint com o banco de produção e a tela de autorização (cabeçalhos e volta pelo login).
-> **Falta o teste no Claude de verdade** (conectar com a conta de alguém e abrir um caso). Decisões
-> em [`decisoes.md`](decisoes.md); protótipo em [`prototipo/`](prototipo/).
+> Testado no Claude de verdade em 2026-11-19 (caso 104203, aberto pelo conector). Decisões em
+> [`decisoes.md`](decisoes.md); protótipo em [`prototipo/`](prototipo/).
+>
+> **Há uma [próxima mudança planejada](#próxima-mudança-planejada-contexto-do-brainiac-para-quem-conecta)**
+> (2026-11-25): recomendar o Brainiac no modal e apontar a skill `xp-planejar` nas instruções do
+> servidor. Implementar com `/implementar conector-claude`.
 
 ## O que é
 
@@ -39,6 +43,95 @@ caso **não planejado**.
 
 No Softflow, a conexão aparece e é desfeita pelo menu do usuário → **Claude** → modal
 **Conexão com o Claude** (decisão #10).
+
+## Próxima mudança planejada: contexto do Brainiac para quem conecta
+
+> **Estado: planejado** (chat de planejamento, 2026-11-25). Decisões #16 a #18 em
+> [`decisoes.md`](decisoes.md); protótipo atualizado em [`prototipo/`](prototipo/) (capturas
+> `05`, `07` e `09`).
+
+### Problema
+
+Quem conecta só o Softflow consegue abrir caso, mas o Claude dela não conhece os produtos, os
+padrões da squad nem o jeito de planejar e escrever o caso. Esse contexto está no Brainiac: as notas
+dos produtos e, a partir de agora, a skill **`xp-planejar`** no catálogo de skills de Engenharia
+(proposta enviada em 2026-11-25, `e95ba449-2946-4520-8fdd-95c977fe2941`, aguardando revisão e
+publicação). Cada pessoa usa conta pessoal do Claude (decisão #12), então não existe configuração
+central que entregue isso: cada uma precisa conectar o Brainiac, e o Claude precisa saber que deve
+ler a skill de lá.
+
+### O que muda
+
+1. **Instruções do servidor MCP** (`INSTRUCOES` em `lib/conector-claude/mcp/servidor.ts`), decisão
+   #16. Acrescentar ao texto atual, sem mexer nas três linhas que já existem:
+
+   ```text
+   Para planejar uma funcionalidade ou escrever o texto de um caso, use a skill xp-planejar do
+   catálogo do Brainiac: se as ferramentas do Brainiac estiverem na conversa, leia-a com
+   brainiac_skills_list (vault "engenharia", busca "xp-planejar") e brainiac_skill_read antes de
+   começar, e siga o passo 7 dela para abrir o caso. Se o Brainiac não estiver conectado, avise a
+   pessoa uma vez que o planejamento fica sem o contexto dos produtos e que ela pode conectá-lo
+   (o endereço está no Softflow, menu do usuário → Claude). Abrir um caso já planejado não depende
+   do Brainiac.
+   ```
+
+   Se a skill ainda não estiver publicada no catálogo, a busca volta vazia e o Claude segue com as
+   regras deste servidor; não há erro a tratar no Softflow.
+
+2. **`softflow_eu`** (decisão #16): depois de "Pode abrir casos: …", uma linha fixa
+   `Contexto dos produtos: conecte também o Brainiac e use a skill xp-planejar do catálogo dele.`
+   É o lembrete que o Claude vê mesmo quando o cliente não repassa as instruções do servidor.
+
+3. **Modal "Conexão com o Claude"** (`components/conector-claude/conexao-modal/index.tsx`), decisão
+   #17. Bloco novo **Recomendado: conecte também o Brainiac**, nos dois estados (conectado e sem
+   conexão), logo acima da linha de botões:
+   - quadro com borda (`rounded-lg border border-border-input p-4`, mesmo padrão do quadro de erro do
+     modal), ícone `BookOpen` (lucide) e o título **Conecte também o Brainiac**;
+   - texto: "Com o Brainiac, o Claude conhece os produtos, os padrões da squad e a skill de
+     planejamento (xp-planejar). Sem ele, o Claude abre casos, mas planeja sem esse contexto.";
+   - **Endereço do Brainiac** com o mesmo componente de endereço + **Copiar** do conector (extrair o
+     bloco atual de `SemConexao` para um componente `EnderecoCopiavel` reaproveitado pelos dois);
+   - nota: "Adicione do mesmo jeito: Customize → Connectors → Add custom connector. Se você já
+     conectou o Brainiac, não precisa fazer nada.";
+   - o Softflow não sabe se a pessoa conectou o Brainiac no Claude (decisão #17), então o bloco é
+     sempre igual, sem pílula de status.
+   - Sem cor nova: só tokens que o modal já usa (`border-border-input`, `text-text-primary`,
+     `text-text-secondary`, `text-text-label`, `bg-muted`).
+   - Mobile (390px): o bloco empilha como o resto do modal; o modal passa a rolar dentro do
+     `DialogContent` se a altura não couber (conferir com o estado "sem conexão", que é o mais alto).
+
+4. **Endereço do Brainiac por variável** (decisão #18): `BRAINIAC_MCP_URL` em `lib/conector-claude/config.ts`
+   (função `getBrainiacMcpUrl()`), exposto pelo `GET /api/db/claude-conexao` como
+   `enderecoBrainiac`. Sem a variável, o bloco aparece sem o endereço (só o texto e a nota) e o
+   Copiar some. Documentar a variável em [`deploy/`](../deploy/README.md#conector-do-claude-apimcp).
+
+5. **Protótipo**: o endereço antigo (`softflow.softcom.services`) do protótipo foi trocado pelo atual
+   (decisão #13) neste planejamento.
+
+### Fora do escopo
+
+- Detectar se a pessoa conectou o Brainiac (o Softflow não tem como saber; decisão #17).
+- Instalar a skill na conta da pessoa: ela é lida do catálogo do Brainiac pelo próprio Claude.
+- Publicar a `xp-planejar` no Brainiac: é revisão e publicação administrativa do Brainiac, fora deste
+  repositório.
+
+### Perguntas em aberto
+
+1. **(PO)** Qual é o endereço do servidor MCP do Brainiac que as pessoas cadastram no Claude? Vai
+   para `BRAINIAC_MCP_URL` no deploy. Enquanto não houver, o bloco aparece sem endereço (item 4).
+
+### Plano de implementação
+
+Um commit, na `dev`, escopo `(conector-claude)`:
+
+1. `BRAINIAC_MCP_URL` + `getBrainiacMcpUrl()`; `enderecoBrainiac` no `GET /api/db/claude-conexao` e
+   no tipo `ClaudeConexaoStatus`.
+2. `INSTRUCOES` e a linha do `softflow_eu`.
+3. `EnderecoCopiavel` e o bloco do Brainiac no modal, nos dois estados.
+4. Conferir: `npm run lint`, `npm run build`, modal nos dois estados com e sem `BRAINIAC_MCP_URL`
+   (desktop e 390px) e o texto novo do `softflow_eu` pelo cliente MCP do SDK.
+5. Ao concluir: integrar esta seção ao README no formato padrão (O que é / Ferramentas / Como fica
+   para quem usa), tirar o "Estado: planejado" e mover o item no status.
 
 ## Arquitetura
 
@@ -161,11 +254,13 @@ MCP do SDK, incluindo abertura simultânea sem duplicar; menu, modal e desconect
 
 Pendente:
 
-- Teste no Claude de verdade: adicionar o conector, autorizar com a senha, preparar e abrir um
-  caso de teste. Em produção já foram conferidos (2026-11-19) os metadados, o `401`, o registro
-  (cliente de teste "Claude (teste de produção)" criado em `oauth_clientes`), o token endpoint e a
-  tela de autorização até o login.
-- Ajustar o passo 7 da skill `planejar-softcom` para abrir o caso pelo conector (fora deste repo).
+- ~~Teste no Claude de verdade~~: feito em 2026-11-19 pelo usuário. O Claude conectado
+  identificou a pessoa (`softflow_eu`), resolveu produto, versão, projeto e dev pelo nome, mostrou a
+  prévia e, depois do ok, abriu o caso **104203** (produto Softflow, versão MELHORIA, projeto 3278);
+  a consulta pelo número confirmou o caso igual à prévia.
+- ~~Passo 7 da skill `planejar-softcom`~~: ajustado em 2026-11-25 (abre o caso pelo conector e, sem
+  ele, entrega o texto para colar). A mesma skill foi proposta ao catálogo do Brainiac como
+  `xp-planejar` (ver "Próxima mudança planejada").
 - O aviso "Claude desconectado" foi corrigido (`mutateAsync`) depois do teste e não foi reconferido.
 - Casos de teste criados na API de dev, para excluir: 104140, 104141, 104143.
 

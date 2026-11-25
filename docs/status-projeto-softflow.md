@@ -39,18 +39,10 @@ coberto.
 | Notificações no Discord | [`casos/`](casos/README.md), [`reports/`](reports/README.md) | Caso concluído (2026-08-24); opção de desativar por usuário (2026-08-24) |
 | Anexos no S3 da Softcom | [`camada-de-dados/`](camada-de-dados/README.md) | Troca de bucket (2026-10-07); aba de anexos (2026-10-07) |
 | Deploy na VPS (Swarm + GitHub Actions) | [`deploy/`](deploy/README.md) | Ambiente Docker (2026-08-14); doc ajustada (2026-10-13) |
+| Conector do Claude: abrir e consultar casos pelo chat (`/api/mcp`) | [`conector-claude/`](conector-claude/README.md) | Publicado (2026-11-19); teste ponta a ponta no Claude de verdade (2026-11-19): conexão, catálogos, prévia, abertura do caso 104203 e consulta |
 
 ## 🟡 Implementado, ainda não testado de ponta a ponta
 
-- **Conector do Claude: abrir casos pelo chat** (2026-11-19, em produção; teste no Claude pendente). Servidor
-  MCP `/api/mcp` com OAuth próprio (metadados, DCR, `/oauth/autorizar` com senha, token com PKCE e
-  rotação), cinco ferramentas (eu, buscar opções, preparar prévia, abrir caso idempotente,
-  consultar caso) e o item "Claude" no menu do usuário com o modal de conexão. Migração `0011`
-  aplicada no banco do `.env`. Testado no dev server com o cliente MCP do SDK e no navegador;
-  Publicado com as variáveis na VPS; no domínio público conferidos metadados, `401`, registro,
-  token endpoint e tela de autorização. **Falta testar no Claude de verdade** (conectar e abrir um
-  caso). Ajustar depois o passo 7 da skill
-  `planejar-softcom`. Ver [`conector-claude/`](conector-claude/README.md).
 - **Padrão único de gatilho de select/combobox** (2026-11-19, na `dev`). Combobox
   (`components/ui/combobox.tsx`), multi-selects (`components/ui/v2/combobox2.tsx`, input e chips)
   e o seletor de mês seguem o `SelectTrigger`: seta só para baixo, sem fundo no hover, fundo
@@ -207,6 +199,11 @@ usuário):
 Especificação aprovada e ainda não implementada fica em `docs/<slug>/README.md` com **"Estado:
 planejado"** (ou com a seção "Próxima mudança planejada") e aparece aqui.
 
+- **Conector do Claude: contexto do Brainiac para quem conecta** (planejado em 2026-11-25). As
+  instruções do servidor MCP e o `softflow_eu` passam a apontar a skill `xp-planejar` do catálogo
+  do Brainiac, e o modal "Conexão com o Claude" ganha o bloco "Conecte também o Brainiac" com o
+  endereço vindo de `BRAINIAC_MCP_URL`. Ver "Próxima mudança planejada" em
+  [`conector-claude/`](conector-claude/README.md); falta o endereço do MCP do Brainiac.
 - **Avisos: rascunhos e avisos enviados**: o botão "Salvar rascunho" ficou fora do envio de
   avisos até existir uma tela para ver e retomar rascunhos e enviados (decisão #13 de
   [`avisos/`](avisos/decisoes.md)).

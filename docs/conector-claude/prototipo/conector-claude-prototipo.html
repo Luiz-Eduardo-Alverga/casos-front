@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Softflow — Conector do Claude (protótipo)</title>
 <!--
-  Protótipo de planejamento (docs/conector-claude). Referência de estrutura e hierarquia.
+  Protótipo de planejamento (docs/conector-claude). 2026-11-25: bloco "Conecte também o Brainiac"
+  (decisão #17). O endereço do Brainiac aqui é um marcador: o real vem de BRAINIAC_MCP_URL (decisão #18). Referência de estrutura e hierarquia.
   As cores abaixo espelham os tokens de app/globals.css só para visualizar; no código usar as
   classes de token (bg-primary, text-text-primary, login-*, brand-yellow...). Nunca copiar hex.
 -->
@@ -118,6 +119,10 @@
   .url input{flex:1;height:36px;border:1px solid var(--bi);border-radius:8px;padding:0 12px;font-family:ui-monospace,monospace;font-size:12px;color:var(--tp);background:transparent}
   .note{font-size:12px;color:var(--ts);line-height:1.45;margin:0}
   .sk{background:var(--muted);border-radius:6px;height:14px}
+  .rec{border:1px solid var(--bi);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px}
+  .rec .h{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--tp)}
+  .rec .tx{margin:0;color:var(--ts);line-height:1.45}
+  .dlg{max-height:calc(100vh - 32px);overflow:auto}
 
   /* mobile */
   @media (max-width:1023px){
@@ -155,6 +160,7 @@
   <symbol id="copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
   <symbol id="unplug" viewBox="0 0 24 24"><path d="m19 5 3-3M2 22l3-3M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4ZM7.5 13.5 10 11M10.5 16.5 13 14M12 6l6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z"/></symbol>
   <symbol id="grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+  <symbol id="book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
   <symbol id="file" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6"/></symbol>
   <symbol id="folder" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
 </svg>
@@ -278,6 +284,15 @@
       <div class="row"><span class="k">Último uso</span><span class="v">há 5 minutos</span></div>
       <div class="row"><span class="k">Pode abrir casos</span><span class="v">Sim</span></div>
     </div>
+    <div class="rec" aria-labelledby="t-rec-c">
+      <div class="h" id="t-rec-c"><svg class="i"><use href="#book"/></svg>Conecte também o Brainiac <span style="font-weight:500;color:var(--ts);font-size:12px">Recomendado</span></div>
+      <p class="tx">Com o Brainiac, o Claude conhece os produtos, os padrões da squad e a skill de planejamento (xp-planejar). Sem ele, o Claude abre casos, mas planeja sem esse contexto.</p>
+      <div>
+        <div style="font-weight:500;color:var(--tl);margin-bottom:8px">Endereço do Brainiac</div>
+        <div class="url"><input readonly value="(endereço do Brainiac — a confirmar)" aria-label="Endereço do Brainiac"><button class="b b-out" aria-label="Copiar endereço do Brainiac"><svg class="i"><use href="#copy"/></svg>Copiar</button></div>
+      </div>
+      <p class="note">Adicione do mesmo jeito: Customize → Connectors → Add custom connector. Se você já conectou o Brainiac, não precisa fazer nada.</p>
+    </div>
     <div class="foot">
       <button class="b b-dsoft"><svg class="i"><use href="#unplug"/></svg>Desconectar</button>
       <button class="b b-out">Fechar</button>
@@ -310,12 +325,21 @@
     <ol class="steps">
       <li><span class="num">1</span><span>No Claude, abra <b>Customize → Connectors</b> e clique em <b>Add custom connector</b>.</span></li>
       <li><span class="num">2</span><span>Cole o endereço abaixo e clique em <b>Add</b>.</span></li>
-      <li><span class="num">3</span><span>Confira seus dados no Softflow e clique em <b>Permitir acesso</b>.</span></li>
+      <li><span class="num">3</span><span>Confira seus dados no Softflow, digite sua senha e clique em <b>Permitir acesso</b>.</span></li>
     </ol>
     <div>
       <div style="font-weight:500;color:var(--tl);margin-bottom:8px">Endereço do conector</div>
-      <div class="url"><input readonly value="https://softflow.softcom.services/api/mcp" aria-label="Endereço do conector"><button class="b b-out" aria-label="Copiar endereço"><svg class="i"><use href="#copy"/></svg>Copiar</button></div>
+      <div class="url"><input readonly value="https://softflow.hostsoftcom.cloud/api/mcp" aria-label="Endereço do conector"><button class="b b-out" aria-label="Copiar endereço"><svg class="i"><use href="#copy"/></svg>Copiar</button></div>
       <p class="note" style="margin-top:8px">Funciona em contas Pro e Max. No plano Free, o Claude aceita só um conector personalizado.</p>
+    </div>
+    <div class="rec" aria-labelledby="t-rec-s">
+      <div class="h" id="t-rec-s"><svg class="i"><use href="#book"/></svg>Conecte também o Brainiac <span style="font-weight:500;color:var(--ts);font-size:12px">Recomendado</span></div>
+      <p class="tx">Com o Brainiac, o Claude conhece os produtos, os padrões da squad e a skill de planejamento (xp-planejar). Sem ele, o Claude abre casos, mas planeja sem esse contexto.</p>
+      <div>
+        <div style="font-weight:500;color:var(--tl);margin-bottom:8px">Endereço do Brainiac</div>
+        <div class="url"><input readonly value="(endereço do Brainiac — a confirmar)" aria-label="Endereço do Brainiac"><button class="b b-out" aria-label="Copiar endereço do Brainiac"><svg class="i"><use href="#copy"/></svg>Copiar</button></div>
+      </div>
+      <p class="note">Adicione do mesmo jeito: Customize → Connectors → Add custom connector. Se você já conectou o Brainiac, não precisa fazer nada.</p>
     </div>
     <div class="foot"><button class="b b-out">Fechar</button></div>
   </div>

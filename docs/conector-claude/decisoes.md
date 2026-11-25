@@ -94,3 +94,22 @@ Claude, 2026-11-19, com protótipo em [`prototipo/`](prototipo/).
     conhecido e o formulário da tela também não valida tamanho (`casoCreateFormSchema` só exige
     `min(1)`); escolha do usuário em 2026-11-19 (opção B da P2). Ajusta a promessa da decisão #6:
     o caso, se criado, é exatamente o da prévia; a recusa por tamanho só aparece na abertura.
+
+16. **O próprio conector aponta para o contexto do Brainiac.** As instruções do servidor MCP mandam
+    o Claude ler a skill `xp-planejar` do catálogo do Brainiac antes de planejar ou escrever um caso,
+    e avisar uma vez quando o Brainiac não estiver conectado; o `softflow_eu` repete o lembrete numa
+    linha fixa. Abrir um caso já planejado continua não dependendo do Brainiac. **Por quê:** cada
+    pessoa usa conta pessoal do Claude (decisão #12), sem configuração central. O conector é a única
+    coisa que toda pessoa que abre caso pelo Claude tem, então é por ele que o caminho chega a quem
+    é novo, sem instalar skill (planejamento de 2026-11-25).
+
+17. **O modal "Conexão com o Claude" recomenda conectar o Brainiac, nos dois estados, sempre com o
+    mesmo bloco.** **Por quê:** o usuário quer deixar explícito para quem conecta que o Brainiac
+    faz falta para planejar. O Softflow não tem como saber se a pessoa conectou o Brainiac no Claude
+    dela, então o bloco não mostra status nem some; o texto diz que, se já conectou, não precisa
+    fazer nada.
+
+18. **O endereço do Brainiac no modal vem da variável `BRAINIAC_MCP_URL`**, como o endereço do
+    conector vem de `SOFTFLOW_PUBLIC_URL` (decisão #13). Sem a variável, o bloco aparece sem
+    endereço. **Por quê:** o endereço é de outro sistema (Squad IA) e pode mudar sem deploy de código
+    no Softflow; o bloco continua útil mesmo sem ele.
