@@ -5,6 +5,7 @@ import {
   getOrigensCatalogo,
   getProdutosCatalogo,
   getProjetosCatalogo,
+  getStatusCatalogo,
   getUsuariosCatalogo,
   getVersoesCatalogo,
   type AuthorizationHeader,
@@ -26,6 +27,7 @@ export const TIPOS_OPCAO = [
   "categoria",
   "importancia",
   "origem",
+  "status",
 ] as const;
 
 export type TipoOpcao = (typeof TIPOS_OPCAO)[number];
@@ -112,6 +114,14 @@ export async function listarImportancias(auth: AuthorizationHeader) {
 export async function listarOrigens(auth: AuthorizationHeader, busca?: string) {
   const { data } = await getOrigensCatalogo(auth, { search: busca });
   return lista(data).map((o) => ({ id: str(o.id), nome: str(o.nome) }));
+}
+
+/** Status ativos de caso (ou de report), como o filtro de status da tela de Casos. */
+export async function listarStatus(auth: AuthorizationHeader, tipo: "CASO" | "REPORT" = "CASO") {
+  const { data } = await getStatusCatalogo(auth);
+  return lista(data)
+    .filter((st) => str(st.tipo_status) === tipo && str(st.desativado) !== "1")
+    .map((st) => ({ id: str(st.Registro), nome: str(st.descricao) || str(st.tipo) }));
 }
 
 /** Filtra por texto (sem acento/caixa) quando o legado não filtra. */

@@ -175,7 +175,7 @@ A linha de origem (decisão #8) vai em todos, com "(lote de <N> casos, pai <regi
 | `dev_id`, `qa_id`, `relator_id` | `usuario_dev_id`, `usuario_qa_id`, `usuario_abertura_id` |
 | `aberto_de`, `aberto_ate`, `producao_de`, `producao_ate` (AAAA-MM-DD) | `data_abertura_inicio/final`, `data_producao_inicio/fim` |
 | `nao_planejado` | `nao_planejado` |
-| `pagina` | página (20 por página) |
+| `pagina` | página (20 por página). **Na implementação virou `cursor`**: o legado ignora `page` e só pagina por `cursor` (conferido na Parte 1); o cursor da ferramenta leva o do legado e o número da página |
 
 - Pelo menos um filtro é obrigatório (sem filtro, a ferramenta recusa e pede um).
 - Resposta: "<total> casos (página <p> de <n>)" e uma linha por caso: número, resumo, produto e
@@ -243,9 +243,10 @@ Para "o que eu tenho para fazer hoje", use softflow_agenda.
    `sort_by` (`numero_caso`, `prioridade`, `produto_nome`, `data_conclusao_dev`, `tempo_estimado`) e
    `sort_order` (`ASC`/`DESC`), um campo por vez (`projeto-memoria-sort.ts`). A agenda busca com
    `sort_by=prioridade&sort_order=DESC` e desempata por número no servidor.
-4. **(dev)** O filtro `descricao_resumo` do legado é "contém", sem diferença de maiúsculas e acentos?
-   Fase 0 (2026-11-25): o código não responde (a tela só repassa o texto); conferido na API de dev na
-   Parte 1, e o resultado entra na descrição da ferramenta.
+4. ~~**(dev)** O filtro `descricao_resumo` do legado é "contém", sem diferença de maiúsculas e acentos?~~
+   Respondida na Parte 1 (2026-11-25, API de dev): sim. `sincroniza` e `SINCRONIZA` acham
+   "Sincronização" (853 casos) e `sincronizacao` acha "Sincronização" (489). A descrição da ferramenta
+   diz isso, e o Claude não precisa tentar variações de acento ou caixa, só de palavras.
 
 ### Plano de implementação
 
@@ -904,7 +905,7 @@ Code:
   recente; com nenhum, chama a agenda sem `Cronograma_id` e diz "sem sprint em andamento".
 
 - [x] Fase 0 (2026-11-25); P4 respondida (decisão #33)
-- [ ] Parte 1: `softflow_buscar_casos`
+- [x] Parte 1: `softflow_buscar_casos` (2026-11-25). `lib/casos/filtros-busca.ts` (filtros resolvidos → parâmetros do `GET /projeto-memoria`, mesmos nomes da tela; `temFiltroBusca`), `lib/conector-claude/mcp/busca.ts` (status por nome ou id pelo catálogo `/auxiliar/status` só de `CASO` ou `REPORT`; versão pela sequência com `todas` ou pelo texto; cursor próprio em base64url com o cursor do legado e a página, porque o legado ignora `page`), `getStatusCatalogo` + `listarStatus` e o tipo `status` no `softflow_buscar_opcoes`, ferramenta com o roteiro da decisão #31 na descrição e a linha da busca nas `INSTRUCOES`. Conferido pelo cliente MCP do SDK em memória: 6 ferramentas e o esquema, sem filtro e só com cursor recusados, cursor inválido, data fora de AAAA-MM-DD, sem `list-case`, status por nome/id/parcial e não reconhecido, parâmetros gerados. Na API de dev, com os mesmos parâmetros pelo proxy da tela: texto (caixa e acento), produto + status + planejado + período (1 caso), 467 abertos do SOFTCOMSHOP em páginas de 20 com o cursor continuando a lista. A API levou de 11 a 35 s por busca com texto. A chamada com uma conexão real fica para o teste no Claude
 - [ ] Parte 2: `softflow_agenda`
 - [ ] Parte 3: lote (`softflow_preparar_casos` e `softflow_abrir_casos`)
 - [ ] Parte 4: README no formato padrão, status e passo 7 da `xp-planejar`

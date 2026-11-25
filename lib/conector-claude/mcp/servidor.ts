@@ -3,6 +3,7 @@ import { z } from "zod";
 import { temPermissao, type ConectorSession } from "@/lib/api-db/with-conector-permission";
 import { comTokenDaConexao } from "@/lib/conector-claude/legacy-token";
 import { abrirCaso, erroDaApi, prepararCaso } from "./caso";
+import { buscarCasos } from "./busca";
 import { consultarCaso, SECOES_CONSULTA } from "./consulta";
 import {
   filtrarPorBusca,
@@ -13,6 +14,7 @@ import {
   listarPessoas,
   listarProdutos,
   listarProjetos,
+  listarStatus,
   listarVersoes,
   TIPOS_OPCAO,
   type Opcao,
@@ -36,7 +38,13 @@ const INSTRUCOES = [
   "Nunca abra um caso sem a pessoa confirmar a prévia. Se houver dois resultados com o mesmo nome, pergunte qual é.",
   "Para planejar uma funcionalidade ou escrever o texto de um caso, use a skill xp-planejar do catálogo do Brainiac: se as ferramentas do Brainiac estiverem na conversa, leia-a com brainiac_skills_list (vault \"engenharia\", busca \"xp-planejar\") e brainiac_skill_read antes de começar, e siga o passo 7 dela para abrir o caso. Se o Brainiac não estiver conectado, avise a pessoa uma vez que o planejamento fica sem o contexto dos produtos e que ela pode conectá-lo (o endereço está no Softflow, menu do usuário → Claude). Abrir um caso já planejado não depende do Brainiac.",
   "Para implementar, testar ou revisar um caso, chame softflow_consultar_caso com o número antes de começar: ela traz descrição, anotações, clientes, relações e anexos.",
+  "Para pesquisar casos pelo conteúdo, combine o Brainiac (notas de caso e especificações) com softflow_buscar_casos e confirme os candidatos com softflow_consultar_caso.",
 ].join("\n");
+
+const DATA_SCHEMA = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Use AAAA-MM-DD")
+  .optional();
 
 /** Servidor MCP de uma requisição, com as ferramentas fechadas sobre a conexão da pessoa. */
 export function criarServidorMcp(session: ConectorSession): McpServer {
@@ -83,7 +91,7 @@ export function criarServidorMcp(session: ConectorSession): McpServer {
     {
       title: "Buscar opções do Softflow",
       description:
-        "Busca até 15 opções (id e nome) de um catálogo usado na abertura de caso: produto, versao, modulo, projeto, pessoa, categoria, importancia ou origem. Versão e módulo exigem produto_id.",
+        "Busca até 15 opções (id e nome) de um catálogo usado na abertura de caso: produto, versao, modulo, projeto, pessoa, categoria, importancia, origem ou status (status serve para softflow_buscar_casos). Versão e módulo exigem produto_id.",
       inputSchema: {
         tipo: z.enum(TIPOS_OPCAO).describe("Catálogo a consultar"),
         busca: z.string().optional().describe("Parte do nome (sem acento, sem caixa)"),
@@ -121,6 +129,8 @@ export function criarServidorMcp(session: ConectorSession): McpServer {
               return filtrarPorBusca(await listarImportancias(auth), busca);
             case "origem":
               return filtrarPorBusca(await listarOrigens(auth), busca);
+            case "status":
+              return filtrarPorBusca(await listarStatus(auth), busca);
           }
         });
         if (!opcoes.length) {
@@ -221,6 +231,48 @@ export function criarServidorMcp(session: ConectorSession): McpServer {
     async ({ registro, secoes }) => {
       if (!temPermissao(permissions, "list-case")) return semPermissao("consultar casos");
       return texto(await consultarCaso(session, registro, secoes));
+    },
+  );
+
+  server.registerTool(
+    "softflow_buscar_casos",
+    {
+      title: "Buscar casos",
+      description: [
+        "Pesquisa casos com os mesmos filtros da tela de Casos (pelo menos um filtro), 20 por página, na ordem da tela: número, resumo, produto e versão, status, dev, data de abertura e link.",
+        "`texto` busca só no resumo (título) do caso: contém, sem diferença de maiúsculas e acentos.",
+        "Para perguntas sobre o que foi implementado (e não só sobre o título): 1) se o Brainiac estiver na conversa, busque com brainiac_search (cofre engenharia, produto do caso) as notas de caso e especificações do tema, que trazem o número do caso; 2) busque aqui pelo texto com variações do termo (nome da tela, do status, da rotina) e filtros de produto e período; 3) junte os números, abra os mais prováveis com softflow_consultar_caso (no máximo 10) para confirmar na descrição e nas anotações e diga quais confirmou e quais são só candidatos. Sem o Brainiac, faça só os passos 2 e 3 e avise que a busca ficou só no resumo.",
+        "Ids de produto, versão, projeto, pessoa e status vêm de softflow_buscar_opcoes; status também aceita o nome.",
+      ].join(" "),
+      inputSchema: {
+        texto: z.string().optional().describe("Parte do resumo do caso"),
+        produto_id: idSchema.optional().describe("ID do produto"),
+        versao: idSchema.optional().describe("Texto da versão (ex.: 3.07.01) ou a sequência de softflow_buscar_opcoes"),
+        status: z.array(idSchema).optional().describe("Status por nome (ex.: RETORNO) ou id"),
+        modulo: z.string().optional().describe("Nome do módulo"),
+        projeto_id: idSchema.optional().describe("ID do projeto (sprint)"),
+        setor: z.string().optional().describe("Nome do setor (ex.: SQUAD CLOUD)"),
+        tipo: z.enum(["CASO", "REPORT"]).optional().describe("Tipo de abertura"),
+        dev_id: idSchema.optional().describe("ID da pessoa dev atribuída"),
+        qa_id: idSchema.optional().describe("ID da pessoa de QA"),
+        relator_id: idSchema.optional().describe("ID de quem abriu"),
+        aberto_de: DATA_SCHEMA.describe("Aberto a partir de (AAAA-MM-DD)"),
+        aberto_ate: DATA_SCHEMA.describe("Aberto até (AAAA-MM-DD)"),
+        producao_de: DATA_SCHEMA.describe("Em produção a partir de (AAAA-MM-DD)"),
+        producao_ate: DATA_SCHEMA.describe("Em produção até (AAAA-MM-DD)"),
+        nao_planejado: z.boolean().optional().describe("true: só não planejados; false: só planejados"),
+        cursor: z.string().optional().describe("Cursor da próxima página, devolvido pela busca anterior"),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (input) => {
+      if (!temPermissao(permissions, "list-case")) return semPermissao("pesquisar casos");
+      try {
+        const r = await buscarCasos(session, input);
+        return texto(r.texto, r.erro);
+      } catch (error) {
+        return texto(`Não foi possível buscar casos: ${erroDaApi(error, "erro")}.`, true);
+      }
     },
   );
 

@@ -95,3 +95,7 @@ export function getOrigensCatalogo(
 ) {
   return getAuxiliar(auth, "origens", { search: params.search });
 }
+
+export function getStatusCatalogo(auth: AuthorizationHeader) {
+  return getAuxiliar(auth, "status", {});
+}
