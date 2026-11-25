@@ -195,8 +195,8 @@ A linha de origem (decisão #8) vai em todos, com "(lote de <N> casos, pai <regi
 Somente leitura. Entrada: `pessoa_id?` (padrão: a pessoa conectada) e `projeto_id?` (padrão: a
 sprint do setor cujo período inclui hoje, a mesma regra do `softflow_eu`).
 
-- **Permissão:** a própria agenda exige só a conexão; a de outra pessoa exige `list-painel-dev`
-  (a mesma da tela do Painel).
+- **Permissão:** a própria agenda exige só a conexão; a de outra pessoa exige `audit-all-users`
+  (a do "Ver como" do Painel; decisão #33, que revogou o `list-painel-dev` da #32).
 - **Dados:** `GET /auxiliar/agenda-dev` (produtos priorizados, na `ordem` da agenda, com as contagens)
   e, para cada produto da agenda, `GET /projeto-memoria` com `usuario_dev_id`, `produto_id`,
   `versao_produto`, `projeto_id` e status abertos (`1`, `2`) e retornos (`4`), como as colunas do
@@ -814,7 +814,7 @@ bloqueando.
 Resposta (2026-11-19, Claude Code): B. O endereço atual é `https://softflow.hostsoftcom.cloud`;
 `softflow.softcom.services` é o antigo. Ver decisão #13.
 
-### P4 — Permissão para ver a agenda de outra pessoa · aberta
+### P4 — Permissão para ver a agenda de outra pessoa · respondida → decisão #33
 
 Fase: Fase 0 de casos em lote, busca e agenda (2026-11-25). Contexto: a decisão #32 diz que a agenda
 de outra pessoa exige `list-painel-dev`, "a mesma da tela do Painel". No código, `list-painel-dev` só
@@ -827,6 +827,9 @@ Painel. **B)** própria agenda só com a conexão e a de outra pessoa com `list-
 decisão #32. **C)** própria agenda só com a conexão e a de outra pessoa com `audit-all-users`.
 Recomendação do Claude Code: C, porque repete a regra do "Ver como" da tela (decisão #5: o conector
 não cria regra nova) e a própria agenda não expõe nada que a pessoa não veja pelo Softflow.
+
+Resposta (2026-11-25, Claude Code): C. A própria agenda só com a conexão; a de outra pessoa com
+`audit-all-users`. Ver decisão #33.
 
 ## Andamento da implementação
 
@@ -900,7 +903,7 @@ Code:
   que tem `data_inicial ≤ hoje ≤ data_final` (`America/Sao_Paulo`); com mais de um, o de início mais
   recente; com nenhum, chama a agenda sem `Cronograma_id` e diz "sem sprint em andamento".
 
-- [x] Fase 0 (2026-11-25); P4 aberta
+- [x] Fase 0 (2026-11-25); P4 respondida (decisão #33)
 - [ ] Parte 1: `softflow_buscar_casos`
 - [ ] Parte 2: `softflow_agenda`
 - [ ] Parte 3: lote (`softflow_preparar_casos` e `softflow_abrir_casos`)
