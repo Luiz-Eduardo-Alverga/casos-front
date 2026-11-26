@@ -73,7 +73,11 @@ coberto.
   Claude, aplicar a `0013` na produção se o banco for outro, publicar e ajustar o passo 7 da skill
   `xp-planejar` no Brainiac. Ver [`conector-claude/`](conector-claude/README.md).
 
-- **Padrão único de gatilho de select/combobox** (2026-11-19, na `dev`). Combobox
+- **Padrão único de gatilho de select/combobox** (2026-11-19, revisto em 2026-11-26, na `dev`). Revisão:
+  fundo `bg-card` (os campos voltaram a ser brancos fora de card, em Minha Visão e no Painel do
+  Desenvolvedor) e valor selecionado em `font-medium` (placeholder regular); tiradas as sobrescritas
+  locais de fundo e de negrito em Minha Visão e nos filtros de Liberação e Não planejado; medido em
+  `/painel`, `/painel/minha-visao` e `/projetos`, claro e escuro. Primeira versão: Combobox
   (`components/ui/combobox.tsx`), multi-selects (`components/ui/v2/combobox2.tsx`, input e chips)
   e o seletor de mês seguem o `SelectTrigger`: seta só para baixo, sem fundo no hover, fundo
   transparente, texto regular, foco de 1px; o Estimado de Casos perdeu o negrito. Medido igual em

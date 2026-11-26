@@ -90,7 +90,7 @@ export function MesPicker({
           disabled={disabled}
           // Mesmo visual do SelectTrigger (borda, sombra, fundo transparente e anel de foco).
           className={cn(
-            "flex h-9 w-full items-center gap-2 whitespace-nowrap rounded-lg border border-input bg-transparent px-3 text-left text-sm shadow-sm",
+            "flex h-9 w-full items-center gap-2 whitespace-nowrap rounded-lg border border-input bg-card px-3 text-left text-sm shadow-sm",
             "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
             className,
           )}
@@ -99,7 +99,7 @@ export function MesPicker({
           <span
             className={cn(
               "min-w-0 flex-1 truncate",
-              !selecionado && "text-muted-foreground",
+              selecionado ? "font-medium" : "text-muted-foreground",
             )}
           >
             {selecionado ? formatarMes(value) : placeholder}

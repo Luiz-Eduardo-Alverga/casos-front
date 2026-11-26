@@ -85,7 +85,7 @@ export function Liberacoes({
             onTipoLiberacaoChange(value as TipoLiberacaoFiltro)
           }
         >
-          <SelectTrigger className="h-8 w-[120px] rounded-lg border border-input bg-background px-3 shadow-sm text-xs font-medium">
+          <SelectTrigger className="h-8 w-[120px] rounded-lg border border-input px-3 shadow-sm text-xs font-medium">
             <SelectValue placeholder="Todos" />
           </SelectTrigger>
           <SelectContent>

@@ -271,8 +271,8 @@ export function CasosParaTestar({
           >
             <SelectTrigger
               className={cn(
-                "h-8 w-full sm:w-[200px] rounded-lg border border-input bg-background px-3 shadow-sm",
-                "text-sm font-medium hover:bg-accent hover:text-accent-foreground",
+                "h-8 w-full sm:w-[200px] rounded-lg border border-input px-3 shadow-sm",
+                "text-sm font-medium",
                 "focus:ring-1 focus:ring-ring data-[placeholder]:text-muted-foreground",
                 hasAgruparPorValue
                   ? "text-foreground"

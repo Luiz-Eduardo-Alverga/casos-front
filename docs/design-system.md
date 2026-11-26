@@ -234,18 +234,23 @@ Não usar `mb-4` por aba no lugar de `pb-12`/`pb-24`. Referências:
   valor. Combobox de domínio: reaproveitar `@/components/fields` (ver
   [`padrao-front/`](padrao-front/README.md)).
 - **Select, combobox, multi-select e seletor de mês têm um gatilho só** (unificado em 2026-11-19,
-  com o `SelectTrigger` como referência): radius 8px, borda `border-input`, `shadow-sm`, fundo
-  transparente (sem `bg-background`, que no escuro vira uma caixa mais escura), **sem fundo no
-  hover**, texto `sm` regular em `foreground` (placeholder `muted-foreground`), anel de foco de 1px
+  com o `SelectTrigger` como referência): radius 8px, borda `border-input`, `shadow-sm`, **fundo
+  `bg-card`** (branco no claro, inclusive sobre o cinza de `page-background`, como em Minha Visão e
+  no Painel; no escuro, a cor do card, sem caixa mais escura dentro dos cards), **sem fundo no
+  hover**, texto `sm` em `foreground` com o **valor selecionado em `font-medium`** e o placeholder
+  regular em `muted-foreground` (no Select, `data-[placeholder]:font-normal`), anel de foco de 1px
   (`ring-1 ring-ring`) e ícone **`ChevronDown`** com `opacity-50` (não usar `ChevronsUpDown`).
   Valem `components/ui/select.tsx`, `components/ui/combobox.tsx`, `components/ui/v2/combobox2.tsx`
-  (input e chips) e `components/fields/mes-picker.tsx`. Não sobrescrever com `font-medium`/
-  `font-semibold` no gatilho de campo de formulário.
+  (input e chips) e `components/fields/mes-picker.tsx`. Não sobrescrever fundo (`bg-background`),
+  hover nem peso (`font-semibold`) no gatilho de campo de formulário. Revisto em 2026-11-26: a
+  primeira versão (2026-11-19) usava fundo transparente e texto regular, o que deixou os campos
+  cinza fora de card e tirou o destaque do valor selecionado.
 - **Inputs, textarea e campo de data** seguem o mesmo padrão de caixa: `components/ui/input.tsx`,
   `components/ui/textarea.tsx` e `components/ui/input-group.tsx` (usado pelo `DatePickerInput`)
-  têm radius 8px (`rounded-lg`) na base, fundo transparente e `shadow-sm`; o texto da data é
-  regular. Ajustado em 2026-11-19 (antes: `rounded-md` 6px, e o grupo da data com `bg-background`,
-  `dark:bg-input/30` e `shadow-xs`, classe que não existe no Tailwind do projeto).
+  têm radius 8px (`rounded-lg`) na base, fundo `bg-card` e `shadow-sm`; a data preenchida fica em
+  `font-medium`, como o valor dos selects. Ajustado em 2026-11-19 e revisto em 2026-11-26 (antes:
+  `rounded-md` 6px, e o grupo da data com `bg-background`, `dark:bg-input/30` e `shadow-xs`, classe
+  que não existe no Tailwind do projeto).
 - **Rótulo de campo** (`components/ui/label.tsx`): `block`, `text-sm` com a altura de linha dele (20px),
   sem `leading-none`. Assim o `Label` solto acima de um campo tem a mesma altura do rótulo dos campos
   de `@/components/fields` e do `ComboboxField`, e campos lado a lado ficam alinhados. Ajustado em

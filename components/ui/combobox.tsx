@@ -277,7 +277,8 @@ export function Combobox({
       disabled={disabled}
       className={cn(
         // Mesmo visual do SelectTrigger: fundo transparente, sem fundo no hover, texto normal, px-3.
-        "w-full justify-between h-9 px-3 font-normal bg-transparent hover:bg-transparent dark:bg-transparent",
+        "w-full justify-between h-9 px-3 bg-card hover:bg-card dark:bg-card",
+        value ? "font-medium" : "font-normal",
         value
           ? "text-foreground hover:text-foreground"
           : "hover:text-muted-foreground",
@@ -318,7 +319,7 @@ export function Combobox({
         <PopoverAnchor asChild>
           <div
             className={cn(
-              "flex w-full min-w-0 items-stretch overflow-hidden rounded-lg border border-input bg-transparent shadow-sm transition-colors",
+              "flex w-full min-w-0 items-stretch overflow-hidden rounded-lg border border-input bg-card shadow-sm transition-colors",
               disabled ? "opacity-50" : "focus-within:ring-1 focus-within:ring-ring",
               className,
               anchorClassName,

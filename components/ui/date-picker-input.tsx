@@ -332,7 +332,7 @@ export function DatePickerInput(props: DatePickerInputProps) {
               data-disabled={disabled ? true : undefined}
               className={cn(
                 // min-w-0: deixa a data encolher ao lado da hora em colunas estreitas.
-                "min-w-0 border-border-input bg-transparent shadow-sm dark:border-input",
+                "min-w-0 border-border-input bg-card shadow-sm dark:border-input",
                 controlHeightClassName,
                 disabled && "cursor-not-allowed opacity-50",
               )}
@@ -351,7 +351,7 @@ export function DatePickerInput(props: DatePickerInputProps) {
                     setOpen(true);
                   }
                 }}
-                className="min-w-0 flex-1 rounded-none border-0 bg-transparent px-2 py-1 text-sm shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:bg-transparent dark:bg-transparent dark:disabled:bg-transparent"
+                className="min-w-0 flex-1 font-medium rounded-none border-0 bg-transparent px-2 py-1 text-sm shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:bg-transparent dark:bg-transparent dark:disabled:bg-transparent"
               />
               <InputGroupAddon align="inline-start">
                 <PopoverTrigger asChild>
@@ -374,7 +374,7 @@ export function DatePickerInput(props: DatePickerInputProps) {
               <InputGroup
                 data-disabled={disabled ? true : undefined}
                 className={cn(
-                  "w-[92px] shrink-0 border-border-input bg-transparent shadow-sm dark:border-input",
+                  "w-[92px] shrink-0 border-border-input bg-card shadow-sm dark:border-input",
                   controlHeightClassName,
                   disabled && "cursor-not-allowed opacity-50",
                 )}
@@ -391,7 +391,7 @@ export function DatePickerInput(props: DatePickerInputProps) {
                   inputMode="numeric"
                   placeholder="HH:mm"
                   disabled={disabled}
-                  className="min-w-0 flex-1 rounded-none border-0 bg-transparent px-1 py-1 text-sm shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:bg-transparent dark:bg-transparent dark:disabled:bg-transparent"
+                  className="min-w-0 flex-1 font-medium rounded-none border-0 bg-transparent px-1 py-1 text-sm shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0 disabled:cursor-not-allowed disabled:bg-transparent dark:bg-transparent dark:disabled:bg-transparent"
                   aria-label="Hora"
                 />
               </InputGroup>

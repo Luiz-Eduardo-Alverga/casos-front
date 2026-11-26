@@ -45,7 +45,7 @@ export function LiberacaoFiltroSelect({
       >
         <SelectTrigger
           aria-label="Filtrar por liberação"
-          className="h-9 w-full rounded-lg border-border-input font-semibold"
+          className="h-9 w-full rounded-lg border-border-input"
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

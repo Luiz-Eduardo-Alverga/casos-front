@@ -78,7 +78,7 @@ function ComboboxInput({
     <InputGroup
       className={cn(
         // Mesmo visual do SelectTrigger: fundo transparente e sem fundo no hover.
-        "w-full h-9 min-h-9 border-input bg-transparent shadow-sm dark:bg-transparent",
+        "w-full h-9 min-h-9 border-input bg-card shadow-sm dark:bg-card",
         className,
       )}
     >
@@ -265,7 +265,7 @@ function ComboboxChips({
       data-slot="combobox-chips"
       className={cn(
         // Mesmo visual do SelectTrigger: fundo transparente e anel de foco de 1px.
-        "flex h-[42px] flex-wrap items-center gap-1 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring has-aria-invalid:border-destructive has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-transparent",
+        "flex h-[42px] flex-wrap items-center gap-1 rounded-lg border border-input bg-card px-2.5 py-1 text-sm shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring has-aria-invalid:border-destructive has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:bg-card",
         className,
       )}
       {...props}
